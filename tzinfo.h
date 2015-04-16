@@ -24,8 +24,6 @@
 #ifndef _tzinfo_h
 #define _tzinfo_h
 
-extern PyTypeObject TZInfoType;
-
 void _init_tzinfo(PyObject *m);
 
 #endif /* _tzinfo_h */

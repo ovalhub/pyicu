@@ -122,7 +122,6 @@ PyTypeObject TZInfoType = {
     0,                                  /* tp_setattro */
     0,                                  /* tp_as_buffer */
     (Py_TPFLAGS_DEFAULT |
-     Py_TPFLAGS_HEAPTYPE |
      Py_TPFLAGS_BASETYPE),              /* tp_flags */
     "",                                 /* tp_doc */
     0,                                  /* tp_traverse */
@@ -445,7 +444,6 @@ static PyObject *t_tzinfo__resetDefault(PyTypeObject *cls)
 
             Py_XDECREF((PyObject *) _default);
             _default = (t_tzinfo *) tzinfo;
-            PyObject_SetAttrString((PyObject *)&TZInfoType, "default", tzinfo);
 
             Py_RETURN_NONE;
         }
@@ -488,7 +486,6 @@ static PyObject *t_tzinfo_setDefault(PyTypeObject *cls, PyObject *arg)
 
     Py_INCREF(arg);
     _default = (t_tzinfo *) arg;
-    PyDict_SetItemString(TZInfoType.tp_dict, "default", arg);
 
     if (prev)
         return prev;
@@ -719,10 +716,7 @@ void _init_tzinfo(PyObject *m)
                 PyObject_Call((PyObject *) &FloatingTZType, args, NULL);
 
             if (floating && PyObject_TypeCheck(floating, &FloatingTZType))
-            {
                 _floating = (t_tzinfo *) floating;
-                PyDict_SetItemString(TZInfoType.tp_dict, "floating", floating);
-            }
             else
                 Py_XDECREF(floating);
             Py_DECREF(args);

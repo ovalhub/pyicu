@@ -33,6 +33,7 @@
 
 static PyObject *utcoffset_NAME;
 static PyObject *toordinal_NAME;
+static PyObject *getDefault_NAME;
 
 
 typedef struct {
@@ -355,7 +356,7 @@ EXPORT UDate PyObject_AsUDate(PyObject *object)
                 PyObject *m = PyImport_ImportModule("icu");
                 PyObject *cls = PyObject_GetAttrString(m, "ICUtzinfo");
 
-                tzinfo = PyObject_GetAttrString(cls, "default");
+                tzinfo = PyObject_CallMethodObjArgs(cls, getDefault_NAME, NULL);
                 Py_DECREF(cls);
                 Py_DECREF(m);
 
@@ -1241,4 +1242,5 @@ void _init_common(PyObject *m)
 
     utcoffset_NAME = PyString_FromString("utcoffset");
     toordinal_NAME = PyString_FromString("toordinal");
+    getDefault_NAME = PyString_FromString("getDefault");
 }

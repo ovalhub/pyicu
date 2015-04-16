@@ -15,7 +15,6 @@ below.
   - Christian Kesselheim for Solaris build entries
   - Jimmy Yuen Ho Wong for TimeZone::getDSTSavings()
   - Bernd Zeimetz for replacing Makefile with setup.py
-  - Martin Von Gagern for Python 3 support
   - 
 
 Thank you all !

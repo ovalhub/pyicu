@@ -73,6 +73,7 @@ static PyObject *t_transliterator_getElement(t_transliterator *self, PyObject *a
 static PyObject *t_transliterator_getSourceSet(t_transliterator *self);
 static PyObject *t_transliterator_getTargetSet(t_transliterator *self);
 static PyObject *t_transliterator_createInverse(t_transliterator *self);
+static PyObject *t_transliterator_toRules(t_transliterator *self, PyObject *args);
 static PyObject *t_transliterator_transliterate(t_transliterator *self, PyObject *args);
 static PyObject *t_transliterator_finishTransliteration(t_transliterator *self, PyObject *args);
 static PyObject *t_transliterator_filteredTransliterate(t_transliterator *self, PyObject *args);
@@ -94,6 +95,7 @@ static PyMethodDef t_transliterator_methods[] = {
     DECLARE_METHOD(t_transliterator, getSourceSet, METH_NOARGS),
     DECLARE_METHOD(t_transliterator, getTargetSet, METH_NOARGS),
     DECLARE_METHOD(t_transliterator, createInverse, METH_NOARGS),
+    DECLARE_METHOD(t_transliterator, toRules, METH_VARARGS),
     DECLARE_METHOD(t_transliterator, getFilter, METH_NOARGS),
     DECLARE_METHOD(t_transliterator, orphanFilter, METH_NOARGS),
     DECLARE_METHOD(t_transliterator, adoptFilter, METH_O),
@@ -344,6 +346,27 @@ PyObject *wrap_Transliterator(const Transliterator &transliterator)
     return wrap_Transliterator(transliterator.clone(), T_OWNED);
 }
 
+static PyObject *t_transliterator_toRules(t_transliterator *self,
+                                          PyObject *args)
+{
+    UnicodeString u;
+    int b = 0;
+
+    switch (PyTuple_Size(args)) {
+      case 0:
+        PYTHON_CALL(self->object->toRules(u, 0));
+        return PyUnicode_FromUnicodeString(&u);
+      case 1:
+        if (!parseArgs(args, "b", &b))
+        {
+            PYTHON_CALL(self->object->toRules(u, b));
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "toRules", args);
+}
 
 static PyObject *t_transliterator_transliterate(t_transliterator *self,
                                                 PyObject *args)

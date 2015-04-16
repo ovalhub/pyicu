@@ -30,6 +30,10 @@
 #include "numberformat.h"
 #include "macros.h"
 
+#if U_HAVE_RBNF
+    DECLARE_CONSTANTS_TYPE(URBNFRuleSetTag);
+#endif
+
 #if U_ICU_VERSION_HEX >= 0x04080000
     DECLARE_CONSTANTS_TYPE(UCurrencySpacing);
 #endif
@@ -666,6 +670,7 @@ static PyObject *t_numberformat_parse(t_numberformat *self, PyObject *args)
     return PyErr_SetArgsError((PyObject *) self, "parse", args);
 }
 
+#if U_ICU_VERSION_HEX < 0x31000000  /* < 49.0 */
 static PyObject *t_numberformat_parseCurrency(t_numberformat *self,
                                               PyObject *args)
 {
@@ -725,6 +730,31 @@ static PyObject *t_numberformat_parseCurrency(t_numberformat *self,
         
     return PyErr_SetArgsError((PyObject *) self, "parseCurrency", args);
 }
+#else
+static PyObject *t_numberformat_parseCurrency(t_numberformat *self,
+                                              PyObject *args)
+{
+    UnicodeString _u, *u;
+
+    switch (PyTuple_Size(args)) {
+      case 1:
+        if (!parseArgs(args, "S", &u, &_u))
+        {
+            CurrencyAmount *a;
+            ParsePosition _pp;
+
+            _pp.setErrorIndex(-1);
+            a = self->object->parseCurrency(*u, _pp);
+            if (_pp.getErrorIndex() != -1)
+                Py_RETURN_NONE;
+            return wrap_CurrencyAmount(a, T_OWNED);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "parseCurrency", args);
+}
+#endif
 
 static PyObject *t_numberformat_isParseIntegerOnly(t_numberformat *self)
 {
@@ -1720,6 +1750,9 @@ static int t_rulebasednumberformat_init(t_rulebasednumberformat *self,
     UnicodeString _u, _v;
     Locale *locale;
     RuleBasedNumberFormat *rbf;
+#if U_HAVE_RBNF
+    URBNFRuleSetTag tag;
+#endif
 
     switch (PyTuple_Size(args)) {
       case 1:
@@ -1748,6 +1781,15 @@ static int t_rulebasednumberformat_init(t_rulebasednumberformat *self,
             self->flags = T_OWNED;
             break;
         }
+#if U_HAVE_RBNF
+        if (!parseArgs(args, "iP", TYPE_CLASSID(Locale), &tag, &locale))
+        {
+            INT_STATUS_CALL(rbf = new RuleBasedNumberFormat(tag, *locale, status));
+            self->object = rbf;
+            self->flags = T_OWNED;
+            break;
+        }
+#endif
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
       case 3:
@@ -2296,6 +2338,15 @@ void _init_numberformat(PyObject *m)
     INSTALL_STATIC_INT(DecimalFormatSymbols, kInsert);
     INSTALL_STATIC_INT(DecimalFormatSymbols, kCurrencySpacingCount);
 #endif
+
+#if U_HAVE_RBNF
+    INSTALL_CONSTANTS_TYPE(URBNFRuleSetTag, m);
+    INSTALL_ENUM(URBNFRuleSetTag, "SPELLOUT", URBNF_SPELLOUT);
+    INSTALL_ENUM(URBNFRuleSetTag, "ORDINAL", URBNF_ORDINAL);
+    INSTALL_ENUM(URBNFRuleSetTag, "DURATION", URBNF_DURATION);
+    INSTALL_ENUM(URBNFRuleSetTag, "NUMBERING_SYSTEM", URBNF_NUMBERING_SYSTEM);
+#endif
+
 #if U_ICU_VERSION_HEX >= 0x04080000
     INSTALL_CONSTANTS_TYPE(UCurrencySpacing, m);
     INSTALL_ENUM(UCurrencySpacing, "MATCH", UNUM_CURRENCY_MATCH);

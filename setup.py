@@ -7,7 +7,7 @@ except ImportError:
     from distutils.core import setup, Extension
 
 
-VERSION = '1.3'
+VERSION = '1.4'
 
 INCLUDES = {
     'darwin': ['/usr/local/include'],
@@ -23,6 +23,15 @@ CFLAGS = {
     'freebsd7': ['-DPYICU_VER="%s"' %(VERSION)],
     'win32': ['/Zc:wchar_t', '/EHsc', '/DPYICU_VER=\\"%s\\"' %(VERSION)],
     'sunos5': ['-DPYICU_VER="%s"' %(VERSION)],
+}
+
+# added to CFLAGS when setup is invoked with --debug
+DEBUG_CFLAGS = {
+    'darwin': ['-O0', '-g', '-DDEBUG'],
+    'linux': ['-O0', '-g', '-DDEBUG'],
+    'freebsd7': ['-O0', '-g', '-DDEBUG'],
+    'win32': ['/Od', '/DDEBUG'],
+    'sunos5': ['-DDEBUG'],
 }
 
 LFLAGS = {
@@ -54,6 +63,12 @@ if 'PYICU_CFLAGS' in os.environ:
     _cflags = os.environ['PYICU_CFLAGS'].split(os.pathsep)
 else:
     _cflags = CFLAGS[platform]
+
+if '--debug' in sys.argv:
+    if 'PYICU_DEBUG_CFLAGS' in os.environ:
+        _cflags += os.environ['PYICU_DEBUG_CFLAGS'].split(os.pathsep)
+    else:
+        _cflags += DEBUG_CFLAGS[platform]
 
 if 'PYICU_LFLAGS' in os.environ:
     _lflags = os.environ['PYICU_LFLAGS'].split(os.pathsep)

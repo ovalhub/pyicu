@@ -344,9 +344,11 @@ public:
 static int t_currencyamount_init(t_currencyamount *self,
                                  PyObject *args, PyObject *kwds);
 static PyObject *t_currencyamount_getCurrency(t_currencyamount *self);
+static PyObject *t_currencyamount_getISOCurrency(t_currencyamount *self);
 
 static PyMethodDef t_currencyamount_methods[] = {
     DECLARE_METHOD(t_currencyamount, getCurrency, METH_NOARGS),
+    DECLARE_METHOD(t_currencyamount, getISOCurrency, METH_NOARGS),
     { NULL, NULL, 0, NULL }
 };
 
@@ -2427,14 +2429,20 @@ static PyObject *t_currencyamount_getCurrency(t_currencyamount *self)
     return wrap_CurrencyUnit(cu, T_OWNED);
 }
 
+static PyObject *t_currencyamount_getISOCurrency(t_currencyamount *self)
+{
+    UnicodeString u(self->object->getISOCurrency());
+    return PyUnicode_FromUnicodeString(&u);
+}
+
 static PyObject *t_currencyamount_str(t_currencyamount *self)
 {
     UnicodeString u(self->object->getISOCurrency());
+    UErrorCode status = U_ZERO_ERROR;
+    double d = self->object->getNumber().getDouble(status);
+
     PyObject *currency = PyUnicode_FromUnicodeString(&u);
-
-    Formattable number = self->object->getNumber();
-    PyObject *amount = PyFloat_FromDouble(number.getDouble());
-
+    PyObject *amount = PyFloat_FromDouble(d);
     PyObject *format = PyString_FromString("%s %0.2f");
     PyObject *tuple = PyTuple_New(2);
     PyObject *str;
@@ -2442,8 +2450,8 @@ static PyObject *t_currencyamount_str(t_currencyamount *self)
     PyTuple_SET_ITEM(tuple, 0, currency);
     PyTuple_SET_ITEM(tuple, 1, amount);
     str = PyString_Format(format, tuple);
-    Py_DECREF(format);
     Py_DECREF(tuple);
+    Py_DECREF(format);
 
     return str;
 }

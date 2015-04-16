@@ -36,6 +36,7 @@
 DECLARE_CONSTANTS_TYPE(ScriptCode);
 DECLARE_CONSTANTS_TYPE(LanguageCode);
 
+static PyObject *getFontTable_NAME;
 
 /* LEFontInstance */
 
@@ -135,15 +136,14 @@ class U_EXPORT PythonLEFontInstance : public LEFontInstance {
 
         if (result == NULL)
         {
-            PyObject *name = PyString_FromString("getFontTable");
-
-            result = PyObject_CallMethodObjArgs((PyObject *) self, name, key,
-                                                NULL);
-            Py_DECREF(name);
-
+            result = PyObject_CallMethodObjArgs((PyObject *) self,
+                                                getFontTable_NAME, key, NULL);
             if (result == NULL)
             {
+                if (PyErr_ExceptionMatches(PyExc_KeyError))
+                    PyErr_Clear();
                 Py_DECREF(key);
+
                 return NULL;
             }
 
@@ -705,6 +705,20 @@ void _init_layoutengine(PyObject *m)
     INSTALL_ENUM(ScriptCode, "palm", palmScriptCode);
     INSTALL_ENUM(ScriptCode, "sind", sindScriptCode);
     INSTALL_ENUM(ScriptCode, "wara", waraScriptCode);
+
+#if U_ICU_VERSION_HEX >= 0x31000000
+    INSTALL_ENUM(ScriptCode, "afak", afakScriptCode);
+    INSTALL_ENUM(ScriptCode, "jurc", jurcScriptCode);
+    INSTALL_ENUM(ScriptCode, "khoj", khojScriptCode);
+    INSTALL_ENUM(ScriptCode, "mroo", mrooScriptCode);
+    INSTALL_ENUM(ScriptCode, "nshu", nshuScriptCode);
+    INSTALL_ENUM(ScriptCode, "shrd", shrdScriptCode);
+    INSTALL_ENUM(ScriptCode, "sora", soraScriptCode);
+    INSTALL_ENUM(ScriptCode, "takr", takrScriptCode);
+    INSTALL_ENUM(ScriptCode, "tang", tangScriptCode);
+    INSTALL_ENUM(ScriptCode, "tirh", tirhScriptCode);
+    INSTALL_ENUM(ScriptCode, "wole", woleScriptCode);
+#endif  /* 49.0 */
 #endif  /* 4.6 */
 #endif  /* 4.4 */
 #endif  /* 4.0 */
@@ -784,4 +798,6 @@ void _init_layoutengine(PyObject *m)
     INSTALL_ENUM(LanguageCode, "trk", trkLanguageCode);
     INSTALL_ENUM(LanguageCode, "wel", welLanguageCode);
 #endif  /* 4.0 */
+
+    getFontTable_NAME = PyString_FromString("getFontTable");
 }

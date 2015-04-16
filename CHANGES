@@ -1,6 +1,17 @@
 
 For bug <NUM>, see http://bugzilla.osafoundation.org/show_bug.cgi?id=<NUM>
 
+Version 1.3 -> 1.4
+------------------
+  - fixed bug with default tzinfo set on ICUtzinfo type (bug 13038)
+  - fixed bug 13040 (Martin Hosken)
+  - added wrapper for Transliterator::toRules()
+  - added missing wrapper for RuleBasedNumberFormat(URBNFRuleSetTag, Locale)
+  - added support for ICU 49.1.1
+  - implemented wrapper for new NumberFormat.parseCurrency()
+  - fixed bug in CurrencyAmount.str() not calling correct getDouble() overload
+  - added ScriptCode constants new in 49.0
+
 Version 1.2 -> 1.3
 ------------------
   - fixed bug 13031
