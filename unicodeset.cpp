@@ -243,7 +243,7 @@ static void t_unicodesetiterator_dealloc(t_unicodesetiterator *self)
     self->object = NULL;
 
     Py_CLEAR(self->set);
-    self->ob_type->tp_free((PyObject *) self);
+    Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 DECLARE_TYPE(UnicodeSetIterator, t_unicodesetiterator, UObject,

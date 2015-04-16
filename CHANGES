@@ -1,6 +1,15 @@
 
 For bug <NUM>, see http://bugzilla.osafoundation.org/show_bug.cgi?id=<NUM>
 
+Version 1.2 -> 1.3
+------------------
+  - fixed bug 13031
+  - PyICU ready for Python 3.2 (tests pass 2to3'd) (Martin von Gagern)
+  - added auto-conversion of test sources for Python 3 during setup
+  - added support for LEFontInstance and LayoutEngine (Martin Hosken, bug 13035)
+  - fixed bugs in RegexMatcher and RegexPattern not keeping their inputs
+  - added support for ICU 4.8.1.1
+
 Version 1.1 -> 1.2
 ------------------
   - fixed bug 13009 (Martin von Gagern)

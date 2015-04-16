@@ -56,8 +56,7 @@ static PyGetSetDef t_uobject_properties[] = {
 };
 
 PyTypeObject UObjectType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                                   /* ob_size */
+    PyVarObject_HEAD_INIT(NULL, 0)
     "icu.UObject",                       /* tp_name */
     sizeof(t_uobject),                   /* tp_basicsize */
     0,                                   /* tp_itemsize */
@@ -388,7 +387,7 @@ void t_uobject_dealloc(t_uobject *self)
         delete self->object;
     self->object = NULL;
 
-    self->ob_type->tp_free((PyObject *) self);
+    Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 static PyObject *t_uobject_new(PyTypeObject *type,
@@ -449,9 +448,9 @@ static PyObject *t_uobject_str(t_uobject *self)
 
 static PyObject *t_uobject_repr(t_uobject *self)
 {
-    PyObject *name = PyObject_GetAttrString((PyObject *) self->ob_type,
+    PyObject *name = PyObject_GetAttrString((PyObject *) Py_TYPE(self),
                                             "__name__");
-    PyObject *str = self->ob_type->tp_str((PyObject *) self);
+    PyObject *str = Py_TYPE(self)->tp_str((PyObject *) self);
 #if PY_VERSION_HEX < 0x02040000
     PyObject *args = Py_BuildValue("(OO)", name, str);
 #else
@@ -531,7 +530,7 @@ static int t_unicodestring_init(t_unicodestring *self,
 {
     UnicodeString *u, _u;
     PyObject *obj;
-    const char *encoding, *mode;
+    charsArg encoding, mode;
     int32_t start, length;
     int i;
 
@@ -562,7 +561,7 @@ static int t_unicodestring_init(t_unicodestring *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
       case 2:
-        if (!parseArgs(args, "Cc", &obj, &encoding))
+        if (!parseArgs(args, "Cn", &obj, &encoding))
         {
             UnicodeString u;
 
@@ -585,7 +584,7 @@ static int t_unicodestring_init(t_unicodestring *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
       case 3:
-        if (!parseArgs(args, "Ccc", &obj, &encoding, &mode))
+        if (!parseArgs(args, "Cnn", &obj, &encoding, &mode))
         {
             try {
                 PyObject_AsUnicodeString(obj, encoding, mode, _u);
@@ -633,14 +632,13 @@ static PyObject *t_unicodestring_getAvailableStandards(PyTypeObject *type)
 static PyObject *t_unicodestring_getAvailableEncodings(PyTypeObject *type,
                                                        PyObject *args)
 {
-    char *standard = NULL;
+    charsArg standard;
 
     switch (PyTuple_Size(args)) {
       case 0:
-        standard = NULL;
         break;
       case 1:
-        if (!parseArgs(args, "c", &standard))
+        if (!parseArgs(args, "n", &standard))
             break;
       default:
         return PyErr_SetArgsError(type, "getAvailableEncodings", args);
@@ -668,9 +666,9 @@ static PyObject *t_unicodestring_getAvailableEncodings(PyTypeObject *type,
 static PyObject *t_unicodestring_getStandardEncoding(PyTypeObject *type,
                                                      PyObject *args)
 {
-    char *name, *standard;
+    charsArg name, standard;
 
-    if (!parseArgs(args, "cc", &name, &standard))
+    if (!parseArgs(args, "nn", &name, &standard))
     {
         UErrorCode status = U_ZERO_ERROR;
         const char *standardName =
@@ -1328,7 +1326,7 @@ static PyObject *t_unicodestring_str(t_unicodestring *self)
 
 static PyObject *t_unicodestring_repr(t_unicodestring *self)
 {
-    PyObject *name = PyObject_GetAttrString((PyObject *) self->ob_type,
+    PyObject *name = PyObject_GetAttrString((PyObject *) Py_TYPE(self),
                                             "__name__");
     PyObject *str = PyUnicode_FromUnicodeString(self->object);
 
@@ -1365,9 +1363,9 @@ static int t_unicodestring_hash(t_unicodestring *self)
 
 static PyObject *t_unicodestring_encode(t_unicodestring *self, PyObject *arg)
 {
-    char *encoding;
+    charsArg encoding;
 
-    if (!parseArg(arg, "c", &encoding))
+    if (!parseArg(arg, "n", &encoding))
     {
         int srcLen = self->object->length();
         int dstLen = srcLen * 4, _dstLen;
@@ -1378,7 +1376,7 @@ static PyObject *t_unicodestring_encode(t_unicodestring *self, PyObject *arg)
         if (U_FAILURE(status))
             return ICUException(status).reportError();
 
-        string = PyString_FromStringAndSize(NULL, dstLen);
+        string = PyBytes_FromStringAndSize(NULL, dstLen);
 
       retry:
         if (!string)
@@ -1387,12 +1385,12 @@ static PyObject *t_unicodestring_encode(t_unicodestring *self, PyObject *arg)
             return NULL;
         }
 
-        _dstLen = ucnv_fromUChars(conv, PyString_AS_STRING(string), dstLen,
+        _dstLen = ucnv_fromUChars(conv, PyBytes_AS_STRING(string), dstLen,
                                   self->object->getBuffer(), srcLen, &status);
 
         if (status == U_BUFFER_OVERFLOW_ERROR && _dstLen > dstLen)
         {
-            _PyString_Resize(&string, _dstLen);
+            _PyBytes_Resize(&string, _dstLen);
             dstLen = _dstLen;
             status = U_ZERO_ERROR;
 
@@ -1408,7 +1406,7 @@ static PyObject *t_unicodestring_encode(t_unicodestring *self, PyObject *arg)
         }
 
         if (_dstLen != dstLen)
-            _PyString_Resize(&string, _dstLen);
+            _PyBytes_Resize(&string, _dstLen);
 
         return string;
     }
@@ -1889,14 +1887,81 @@ static PySequenceMethods t_unicodestring_as_sequence = {
     (binaryfunc) t_unicodestring_concat,                /* sq_concat */
     (ssizeargfunc) t_unicodestring_repeat,              /* sq_repeat */
     (ssizeargfunc) t_unicodestring_item,                /* sq_item */
+#if PY_MAJOR_VERSION >= 3
+    NULL,
+    (ssizeobjargproc) t_unicodestring_ass_item,         /* sq_ass_item */
+    NULL,
+#else
     (ssizessizeargfunc) t_unicodestring_slice,          /* sq_slice */
     (ssizeobjargproc) t_unicodestring_ass_item,         /* sq_ass_item */
     (ssizessizeobjargproc) t_unicodestring_ass_slice,   /* sq_ass_slice */
+#endif
     (objobjproc) t_unicodestring_contains,              /* sq_contains */
     (binaryfunc) t_unicodestring_inplace_concat,        /* sq_inplace_concat */
     (ssizeargfunc) t_unicodestring_inplace_repeat,      /* sq_inplace_repeat */
 };
 
+#if PY_MAJOR_VERSION >= 3
+// Inspired by
+// http://renesd.blogspot.com/2009/07/python3-c-api-simple-slicing-sqslice.html
+
+static PyObject *t_unicodestring_subscript(t_unicodestring *self,
+                                           PyObject *key)
+{
+    if (PyIndex_Check(key)) {
+        Py_ssize_t i = PyNumber_AsSsize_t(key, PyExc_IndexError);
+        if (i == -1 && PyErr_Occurred())
+            return NULL;
+        return t_unicodestring_item(self, i);
+    }
+    if (PySlice_Check(key)) {
+        Py_ssize_t length, start, stop, step, slicelength;
+        length = t_unicodestring_length(self);
+        if (PySlice_GetIndicesEx(key, length,
+                                 &start, &stop, &step, &slicelength))
+            return NULL;
+        if (step != 1) {
+            PyErr_SetString(PyExc_TypeError, "slice steps not supported");
+            return NULL;
+        }
+        return t_unicodestring_slice(self, start, stop);
+    }
+    PyErr_SetObject(PyExc_TypeError, key);
+    return NULL;
+}
+
+static int t_unicodestring_ass_subscript(t_unicodestring *self,
+                                         PyObject *key, PyObject *arg)
+{
+    if (PyIndex_Check(key)) {
+        Py_ssize_t i = PyNumber_AsSsize_t(key, PyExc_IndexError);
+        if (i == -1 && PyErr_Occurred())
+            return -1;
+        return t_unicodestring_ass_item(self, i, arg);
+    }
+    if (PySlice_Check(key)) {
+        Py_ssize_t length, start, stop, step, slicelength;
+        length = t_unicodestring_length(self);
+        if (PySlice_GetIndicesEx(key, length,
+                                 &start, &stop, &step, &slicelength))
+            return -1;
+        if (step != 1) {
+            PyErr_SetString(PyExc_TypeError, "slice steps not supported");
+            return -1;
+        }
+        return t_unicodestring_ass_slice(self, start, stop, arg);
+    }
+    PyErr_SetObject(PyExc_TypeError, key);
+    return -1;
+}
+
+static PyMappingMethods t_unicodestring_as_mapping = {
+    (lenfunc) t_unicodestring_length,                   /* mp_length */
+    (binaryfunc) t_unicodestring_subscript,             /* mp_subscript */
+    (objobjargproc) t_unicodestring_ass_subscript,      /* mp_ass_subscript */
+};
+
+#endif
 
 /* Formattable */
 
@@ -2169,9 +2234,9 @@ static PyObject *t_formattable_str(t_formattable *self)
 
 static PyObject *t_formattable_repr(t_formattable *self)
 {
-    PyObject *name = PyObject_GetAttrString((PyObject *) self->ob_type,
+    PyObject *name = PyObject_GetAttrString((PyObject *) Py_TYPE(self),
                                             "__name__");
-    PyObject *str = self->ob_type->tp_str((PyObject *) self);
+    PyObject *str = Py_TYPE(self)->tp_str((PyObject *) self);
 
     if (str)
     {
@@ -2476,6 +2541,9 @@ void _init_bases(PyObject *m)
     UnicodeStringType.tp_richcompare = (richcmpfunc) t_unicodestring_richcmp;
     UnicodeStringType.tp_hash = (hashfunc) t_unicodestring_hash;
     UnicodeStringType.tp_as_sequence = &t_unicodestring_as_sequence;
+#if PY_MAJOR_VERSION >= 3
+    UnicodeStringType.tp_as_mapping = &t_unicodestring_as_mapping;
+#endif
     FormattableType.tp_richcompare = (richcmpfunc) t_formattable_richcmp;
     FormattableType.tp_str = (reprfunc) t_formattable_str;
     FormattableType.tp_repr = (reprfunc) t_formattable_repr;

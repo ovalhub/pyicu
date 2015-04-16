@@ -537,7 +537,7 @@ static PyObject *t_decimalformatsymbols_setPatternForCurrencySpacing(t_decimalfo
 
 #endif
 
-DECLARE_RICHCMP(DecimalFormatSymbols, t_decimalformatsymbols);
+DEFINE_RICHCMP(DecimalFormatSymbols, t_decimalformatsymbols);
 
 
 /* NumberFormat */
@@ -1085,7 +1085,7 @@ static PyObject *t_currencypluralinfo_setLocale(t_currencypluralinfo *self,
     return PyErr_SetArgsError((PyObject *) self, "setLocale", arg);
 }
 
-DECLARE_RICHCMP(CurrencyPluralInfo, t_currencypluralinfo);
+DEFINE_RICHCMP(CurrencyPluralInfo, t_currencypluralinfo);
 
 #endif
 

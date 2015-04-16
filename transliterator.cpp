@@ -56,7 +56,7 @@ static void t_utransposition_dealloc(t_utransposition *self)
         self->object = NULL;
     }
 
-    self->ob_type->tp_free((PyObject *) self);
+    Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 DECLARE_STRUCT(UTransPosition, t_utransposition, UTransPosition,
@@ -110,10 +110,10 @@ DECLARE_TYPE(Transliterator, t_transliterator, UObject,
 
 /* PythonTransliterator */
 
-UOBJECT_DEFINE_RTTI_IMPLEMENTATION(PythonTransliterator)
+UOBJECT_DEFINE_RTTI_IMPLEMENTATION(PythonTransliterator);
 
 PythonTransliterator::PythonTransliterator(t_transliterator *self,
-                                           UnicodeString& id) :
+                                           UnicodeString &id) :
     Transliterator(id, NULL)
 {
     this->self = self;
@@ -121,7 +121,7 @@ PythonTransliterator::PythonTransliterator(t_transliterator *self,
 }
 
 PythonTransliterator::PythonTransliterator(t_transliterator *self,
-                                           UnicodeString& id,
+                                           UnicodeString &id,
                                            UnicodeFilter *adoptedFilter) :
     Transliterator(id, adoptedFilter)
 {

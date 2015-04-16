@@ -70,7 +70,7 @@ static void t_charsetdetector_dealloc(t_charsetdetector *self)
     }
     Py_CLEAR(self->text);
 
-    self->ob_type->tp_free((PyObject *) self);
+    Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 DECLARE_STRUCT(CharsetDetector, t_charsetdetector, UCharsetDetector,
@@ -104,7 +104,7 @@ static void t_charsetmatch_dealloc(t_charsetmatch *self)
         Py_CLEAR(self->detector);
     }
 
-    self->ob_type->tp_free((PyObject *) self);
+    Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 DECLARE_STRUCT(CharsetMatch, t_charsetmatch, UCharsetMatch,
@@ -116,8 +116,9 @@ DECLARE_STRUCT(CharsetMatch, t_charsetmatch, UCharsetMatch,
 static int t_charsetdetector_init(t_charsetdetector *self,
                                   PyObject *args, PyObject *kwds)
 {
-    const char *text, *encoding;
-    int textSize, encodingSize;
+    const char *text;
+    charsArg encoding;
+    int textSize;
 
     switch (PyTuple_Size(args)) {
       case 0:
@@ -138,13 +139,13 @@ static int t_charsetdetector_init(t_charsetdetector *self,
         return -1;
 
       case 2:
-        if (!parseArgs(args, "kk", &text, &textSize, &encoding, &encodingSize))
+        if (!parseArgs(args, "kn", &text, &textSize, &encoding))
         {
             INT_STATUS_CALL(self->object = ucsdet_open(&status));
             INT_STATUS_CALL(ucsdet_setText(self->object, text,
                                            textSize, &status));
             INT_STATUS_CALL(ucsdet_setDeclaredEncoding(self->object, encoding,
-                                                       encodingSize, &status));
+                                                       -1, &status));
             self->text = PyTuple_GetItem(args, 0);
             Py_INCREF(self->text);
             break;
@@ -309,7 +310,7 @@ static PyObject *t_charsetmatch_str(t_charsetmatch *self)
     if (self->detector && self->detector->text)
     {
         UErrorCode status = U_ZERO_ERROR;
-        int size = PyString_GET_SIZE(self->detector->text);
+        int size = PyBytes_GET_SIZE(self->detector->text);
         UChar *buf = new UChar[size];
         PyObject *u;
 

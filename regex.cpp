@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2010-2010 Open Source Applications Foundation.
+ * Copyright (c) 2010-2011 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -36,6 +36,7 @@ DECLARE_CONSTANTS_TYPE(URegexpFlag);
 class t_regexpattern : public _wrapper {
 public:
     RegexPattern *object;
+    PyObject *re;  // the wrapped original regex UnicodeString
 };
 
 static int t_regexpattern_init(t_regexpattern *self,
@@ -47,7 +48,9 @@ static PyObject *t_regexpattern_split(t_regexpattern *self, PyObject *args);
 static PyObject *t_regexpattern_compile(PyTypeObject *type, PyObject *args);
 static PyObject *t_regexpattern_matches(PyTypeObject *type, PyObject *args);
 
-static PyObject *wrap_RegexMatcher(RegexMatcher *matcher, PyObject *pattern);
+static PyObject *wrap_RegexPattern(RegexPattern *pattern, PyObject *re);
+static PyObject *wrap_RegexMatcher(RegexMatcher *matcher, PyObject *pattern,
+                                   PyObject *input);
 
 static PyMethodDef t_regexpattern_methods[] = {
     DECLARE_METHOD(t_regexpattern, matcher, METH_VARARGS),
@@ -59,15 +62,24 @@ static PyMethodDef t_regexpattern_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(RegexPattern, t_regexpattern, UObject, RegexPattern,
-             t_regexpattern_init, NULL);
+static void t_regexpattern_dealloc(t_regexpattern *self)
+{
+    if (self->flags & T_OWNED)
+        delete self->object;
+    self->object = NULL;
 
+    Py_CLEAR(self->re);
+}
+
+DECLARE_TYPE(RegexPattern, t_regexpattern, UObject, RegexPattern,
+             t_regexpattern_init, t_regexpattern_dealloc);
 
 /* RegexMatcher */
 
 class t_regexmatcher : public _wrapper {
 public:
     RegexMatcher *object;
+    PyObject *re;
     PyObject *input;
     PyObject *pattern;
 #if U_ICU_VERSION_HEX >= 0x04000000
@@ -161,13 +173,14 @@ static void t_regexmatcher_dealloc(t_regexmatcher *self)
         delete self->object;
     self->object = NULL;
 
+    Py_CLEAR(self->re);
     Py_CLEAR(self->input);
     Py_CLEAR(self->pattern);
 #if U_ICU_VERSION_HEX >= 0x04000000
     Py_CLEAR(self->callable);
 #endif
 
-    self->ob_type->tp_free((PyObject *) self);
+    Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 DECLARE_TYPE(RegexMatcher, t_regexmatcher, UObject, RegexMatcher,
@@ -175,6 +188,16 @@ DECLARE_TYPE(RegexMatcher, t_regexmatcher, UObject, RegexMatcher,
 
 
 /* RegexPattern */
+
+static PyObject *wrap_RegexPattern(RegexPattern *pattern, PyObject *re)
+{
+    t_regexpattern *self = (t_regexpattern *)
+        wrap_RegexPattern(pattern, T_OWNED);
+
+    self->re = re;  /* steals reference */
+
+    return (PyObject *) self;
+}
 
 static int t_regexpattern_init(t_regexpattern *self,
                                PyObject *args, PyObject *kwds)
@@ -191,6 +214,7 @@ static int t_regexpattern_init(t_regexpattern *self,
         {
             self->object = new RegexPattern(*pattern);
             self->flags = T_OWNED;
+            self->re = NULL;
             break;
         }
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
@@ -208,18 +232,27 @@ static int t_regexpattern_init(t_regexpattern *self,
 
 static PyObject *t_regexpattern_matcher(t_regexpattern *self, PyObject *args)
 {
-    UnicodeString *u, _u;
+    UnicodeString *u;
     RegexMatcher *matcher;
+    PyObject *input = NULL;
 
     switch (PyTuple_Size(args)) {
       case 0:
         STATUS_CALL(matcher = self->object->matcher(status));
-        return wrap_RegexMatcher(matcher, (PyObject *) self);
+        return wrap_RegexMatcher(matcher, (PyObject *) self, input);
       case 1:
-        if (!parseArgs(args, "S", &u, &_u))
+        if (!parseArgs(args, "W", &u, &input))
         {
-            STATUS_CALL(matcher = self->object->matcher(*u, status));
-            return wrap_RegexMatcher(matcher, (PyObject *) self);
+            UErrorCode status = U_ZERO_ERROR;
+
+            matcher = self->object->matcher(*u, status);
+            if (U_FAILURE(status))
+            {
+                Py_XDECREF(input);
+                return ICUException(status).reportError();
+            }
+
+            return wrap_RegexMatcher(matcher, (PyObject *) self, input);
         }
         break;
     }
@@ -293,26 +326,40 @@ static PyObject *t_regexpattern_split(t_regexpattern *self, PyObject *args)
 
 static PyObject *t_regexpattern_compile(PyTypeObject *type, PyObject *args)
 {
-    UnicodeString *u, _u;
+    UnicodeString *u;
     uint32_t flags;
     RegexPattern *pattern;
+    PyObject *re = NULL;
 
     switch (PyTuple_Size(args)) {
       case 1:
-        if (!parseArgs(args, "S", &u, &_u))
+        if (!parseArgs(args, "W", &u, &re))
         {
-            STATUS_PARSER_CALL(pattern = RegexPattern::compile(*u, parseError,
-                                                               status));
-            return wrap_RegexPattern(pattern, T_OWNED);
+            UErrorCode status = U_ZERO_ERROR;
+            UParseError parseError;
+
+            pattern = RegexPattern::compile(*u, parseError, status);
+            if (U_FAILURE(status))
+            {
+                Py_XDECREF(re);
+                return ICUException(parseError, status).reportError();
+            }
+            return wrap_RegexPattern(pattern, re);
         }
         break;
       case 2:
-        if (!parseArgs(args, "Si", &u, &_u, &flags))
+        if (!parseArgs(args, "Wi", &u, &re, &flags))
         {
-            STATUS_PARSER_CALL(pattern = RegexPattern::compile(*u, flags,
-                                                               parseError,
-                                                               status));
-            return wrap_RegexPattern(pattern, T_OWNED);
+            UErrorCode status = U_ZERO_ERROR;
+            UParseError parseError;
+
+            pattern = RegexPattern::compile(*u, flags, parseError, status);
+            if (U_FAILURE(status))
+            {
+                Py_XDECREF(re);
+                return ICUException(parseError, status).reportError();
+            }
+            return wrap_RegexPattern(pattern, re);
         }
         break;
     }
@@ -380,27 +427,29 @@ static int t_regexmatcher_init(t_regexmatcher *self,
                                PyObject *args, PyObject *kwds)
 {
     RegexMatcher *matcher;
-    UnicodeString *u0, _u0;
-    UnicodeString *u1;
+    UnicodeString *u0, *u1;
     uint32_t flags;
 
     switch (PyTuple_Size(args)) {
       case 2:
-        if (!parseArgs(args, "Si", &u0, &_u0, &flags))
+        if (!parseArgs(args, "Wi", &u0, &self->re, &flags))
         {
             INT_STATUS_CALL(matcher = new RegexMatcher(*u0, flags, status));
             self->object = matcher;
+            self->pattern = NULL;
+            self->input = NULL;
             self->flags = T_OWNED;
             break;
         }
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
       case 3:
-        if (!parseArgs(args, "SWi", &u0, &_u0, &u1, &self->input, &flags))
+        if (!parseArgs(args, "WWi", &u0, &self->re, &u1, &self->input, &flags))
         {
             INT_STATUS_CALL(matcher = new RegexMatcher(*u0, *u1, flags,
                                                        status));
             self->object = matcher;
+            self->pattern = NULL;
             self->flags = T_OWNED;
             break;
         }
@@ -417,13 +466,17 @@ static int t_regexmatcher_init(t_regexmatcher *self,
     return -1;
 }
 
-static PyObject *wrap_RegexMatcher(RegexMatcher *matcher, PyObject *pattern)
+static PyObject *wrap_RegexMatcher(RegexMatcher *matcher, PyObject *pattern,
+                                   PyObject *input)
 {
     t_regexmatcher *self = (t_regexmatcher *)
         wrap_RegexMatcher(matcher, T_OWNED);
 
     Py_INCREF(pattern);    
     self->pattern = pattern;
+
+    self->input = input;  /* steals reference */
+    self->re = NULL;
 
     return (PyObject *) self;
 }

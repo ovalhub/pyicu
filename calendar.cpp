@@ -479,7 +479,7 @@ static PyObject *t_timezone_createEnumeration(PyTypeObject *type,
                                               PyObject *args)
 {
     int offset;
-    char *country;
+    charsArg country;
 
     switch (PyTuple_Size(args)) {
       case 0:
@@ -487,7 +487,7 @@ static PyObject *t_timezone_createEnumeration(PyTypeObject *type,
       case 1:
         if (!parseArgs(args, "i", &offset))
             return wrap_StringEnumeration(TimeZone::createEnumeration(offset), T_OWNED);
-        if (!parseArgs(args, "c", &country))
+        if (!parseArgs(args, "n", &country))
             return wrap_StringEnumeration(TimeZone::createEnumeration(country), T_OWNED);
         break;
     }

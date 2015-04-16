@@ -178,10 +178,10 @@ EXPORT PyObject *PyUnicode_FromUnicodeString(const UChar *chars, int size)
     }
 }
 
-EXPORT UnicodeString &PyString_AsUnicodeString(PyObject *object,
-                                               const char *encoding,
-                                               const char *mode,
-                                               UnicodeString &string)
+EXPORT UnicodeString &PyBytes_AsUnicodeString(PyObject *object,
+                                              const char *encoding,
+                                              const char *mode,
+                                              UnicodeString &string)
 {
     UErrorCode status = U_ZERO_ERROR;
     UConverter *conv = ucnv_open(encoding, &status);
@@ -203,7 +203,7 @@ EXPORT UnicodeString &PyString_AsUnicodeString(PyObject *object,
             throw ICUException(status);
     }
 
-    PyString_AsStringAndSize(object, &src, &len);
+    PyBytes_AsStringAndSize(object, &src, &len);
     result = UnicodeString((const char *) src, (int32_t) len, conv, status);
 
     if (U_FAILURE(status))
@@ -273,8 +273,8 @@ EXPORT UnicodeString &PyObject_AsUnicodeString(PyObject *object,
             delete chars;
         }
     }
-    else if (PyString_Check(object))
-        PyString_AsUnicodeString(object, encoding, mode, string);
+    else if (PyBytes_Check(object))
+        PyBytes_AsUnicodeString(object, encoding, mode, string);
     else
     {
         PyErr_SetObject(PyExc_TypeError, object);
@@ -318,11 +318,11 @@ EXPORT UnicodeString *PyObject_AsUnicodeString(PyObject *object)
 
     #undef PyDateTime_CheckExact
     #define PyDateTime_CheckExact(op) \
-       (!strcmp((op)->ob_type->tp_name, "datetime.datetime"))
+       (!strcmp(Py_TYPE(op)->tp_name, "datetime.datetime"))
 
     #undef PyDelta_CheckExact
     #define PyDelta_CheckExact(op) \
-       (!strcmp((op)->ob_type->tp_name, "datetime.timedelta"))
+       (!strcmp(Py_TYPE(op)->tp_name, "datetime.timedelta"))
 #endif
 
 
@@ -375,8 +375,13 @@ EXPORT UDate PyObject_AsUDate(PyObject *object)
             if (utcoffset != NULL && PyDelta_CheckExact(utcoffset) &&
                 ordinal != NULL && PyInt_CheckExact(ordinal))
             {
+#if PY_MAJOR_VERSION >= 3
+                double ordinalValue = PyLong_AsDouble(ordinal);
+#else
+                long ordinalValue = PyInt_AsLong(ordinal);
+#endif
                 double timestamp =
-                    (PyInt_AsLong(ordinal) - 719163) * 86400.0 +
+                    (ordinalValue - 719163) * 86400.0 +
                     PyDateTime_DATE_GET_HOUR(object) * 3600.0 +
                     PyDateTime_DATE_GET_MINUTE(object) * 60.0 +
                     (double) PyDateTime_DATE_GET_SECOND(object) +
@@ -629,11 +634,13 @@ static double *toDoubleArray(PyObject *arg, int *len)
                 array[i] = PyFloat_AsDouble(obj);
                 Py_DECREF(obj);
             }
+#if PY_MAJOR_VERSION < 3
             else if (PyInt_Check(obj))
             {
                 array[i] = (double) PyInt_AsLong(obj);
                 Py_DECREF(obj);
             }
+#endif
             else if (PyLong_Check(obj))
             {
                 array[i] = PyLong_AsDouble(obj);
@@ -677,7 +684,7 @@ static UBool *toUBoolArray(PyObject *arg, int *len)
 
 int __parseArgs(PyObject *args, const char *types, ...)
 {
-    int count = ((PyTupleObject *)(args))->ob_size;
+    int count = PyObject_Size(args);
     va_list list;
 
     va_start(list, types);
@@ -720,19 +727,21 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
           case 'c':           /* string */
           case 'k':           /* string and size */
           case 'C':           /* string, not to be unpacked */
-            if (PyString_Check(arg))
+            if (PyBytes_Check(arg))
                 break;
             return -1;
 
           case 's':           /* string or unicode, to UnicodeString ref */
           case 'u':           /* string or unicode, to new UnicodeString ptr */
-            if (PyString_Check(arg) || PyUnicode_Check(arg))
+          case 'n':           /* string or unicode, to utf8 charsArg */
+          case 'f':           /* string or unicode filename, to charsArg */
+            if (PyBytes_Check(arg) || PyUnicode_Check(arg))
                 break;
             return -1;
 
           case 'S':           /* string, unicode or UnicodeString */
           case 'W':           /* string, unicode or UnicodeString, to save */
-            if (PyString_Check(arg) || PyUnicode_Check(arg) ||
+            if (PyBytes_Check(arg) || PyUnicode_Check(arg) ||
                 isUnicodeString(arg))
                 break;
             return -1;
@@ -743,7 +752,7 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
                 if (PySequence_Length(arg) > 0)
                 {
                     PyObject *obj = PySequence_GetItem(arg, 0);
-                    int ok = (PyString_Check(obj) || PyUnicode_Check(obj) ||
+                    int ok = (PyBytes_Check(obj) || PyUnicode_Check(obj) ||
                               isUnicodeString(obj));
                     Py_DECREF(obj);
                     if (ok)
@@ -814,7 +823,7 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
             return -1;
 
           case 'a':           /* byte */
-            if (PyString_Check(arg) && (PyString_Size(arg) == 1))
+            if (PyBytes_Check(arg) && (PyBytes_Size(arg) == 1))
                 break;
             return -1;
 
@@ -883,7 +892,7 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
           case 'c':           /* string */
           {
               char **c = va_arg(list, char **);
-              *c = PyString_AS_STRING(arg);
+              *c = PyBytes_AS_STRING(arg);
               break;
           }
 
@@ -891,8 +900,8 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
           {
               char **c = va_arg(list, char **);
               int *l = va_arg(list, int *);
-              *c = PyString_AS_STRING(arg);
-              *l = PyString_GET_SIZE(arg);
+              *c = PyBytes_AS_STRING(arg);
+              *l = PyBytes_GET_SIZE(arg);
               break;
           }
 
@@ -924,6 +933,41 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
               } catch (ICUException e) {
                   e.reportError();
                   return -1;
+              }
+              break;
+          }
+
+          case 'n':           /* string or unicode, to utf8 charsArg */
+          {
+              charsArg *p = va_arg(list, charsArg *);
+              if (PyUnicode_Check(arg)) {
+                  PyObject *bytes = PyUnicode_AsUTF8String(arg);
+                  if (bytes == NULL)
+                      return -1;
+                  p->own(bytes);
+              }
+              else {
+                  p->borrow(arg);
+              }
+              break;
+          }
+
+          case 'f':           /* string or unicode filename, to charsArg */
+          {
+              charsArg *p = va_arg(list, charsArg *);
+              if (PyUnicode_Check(arg)) {
+#if PY_MAJOR_VERSION >= 3
+                  PyObject *bytes = PyUnicode_EncodeFSDefault(arg);
+#else
+                  // TODO: Figure out fs encoding in a reasonable way
+                  PyObject *bytes = PyUnicode_AsUTF8String(arg);
+#endif
+                  if (bytes == NULL)
+                      return -1;
+                  p->own(bytes);
+              }
+              else {
+                  p->borrow(arg);
               }
               break;
           }
@@ -1058,7 +1102,7 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
           case 'a':           /* byte */
           {
               unsigned char *a = va_arg(list, unsigned char *);
-              *a = (unsigned char) PyString_AS_STRING(arg)[0];
+              *a = (unsigned char) PyBytes_AS_STRING(arg)[0];
               break;
           }
 
@@ -1073,7 +1117,12 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
           case 'i':           /* int */
           {
               int *n = va_arg(list, int *);
+#if PY_MAJOR_VERSION >= 3
+              if ((*n = PyLong_AsLong(arg)) == -1 && PyErr_Occurred())
+                  return -1;
+#else
               *n = PyInt_AsLong(arg);
+#endif
               break;
           }
 
@@ -1082,8 +1131,10 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
               double *d = va_arg(list, double *);
               if (PyFloat_Check(arg))
                   *d = PyFloat_AsDouble(arg);
+#if PY_MAJOR_VERSION < 3
               else if (PyInt_Check(arg))
                   *d = (double) PyInt_AsLong(arg);
+#endif
               else
                   *d = PyLong_AsDouble(arg);
               break;

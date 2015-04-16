@@ -102,8 +102,7 @@ static PyGetSetDef t_tzinfo_properties[] = {
 };
 
 PyTypeObject TZInfoType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                                  /* ob_size */
+    PyVarObject_HEAD_INIT(NULL, 0)
     "icu.ICUtzinfo",                    /* tp_name */
     sizeof(t_tzinfo),                   /* tp_basicsize */
     0,                                  /* tp_itemsize */
@@ -123,6 +122,7 @@ PyTypeObject TZInfoType = {
     0,                                  /* tp_setattro */
     0,                                  /* tp_as_buffer */
     (Py_TPFLAGS_DEFAULT |
+     Py_TPFLAGS_HEAPTYPE |
      Py_TPFLAGS_BASETYPE),              /* tp_flags */
     "",                                 /* tp_doc */
     0,                                  /* tp_traverse */
@@ -185,8 +185,7 @@ static PyGetSetDef t_floatingtz_properties[] = {
 };
 
 PyTypeObject FloatingTZType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                                  /* ob_size */
+    PyVarObject_HEAD_INIT(NULL, 0)
     "icu.FloatingTZ",                   /* tp_name */
     sizeof(t_floatingtz),               /* tp_basicsize */
     0,                                  /* tp_itemsize */
@@ -232,13 +231,13 @@ PyTypeObject FloatingTZType = {
 static void t_tzinfo_dealloc(t_tzinfo *self)
 {
     Py_CLEAR(self->tz);
-    self->dt_tzinfo.ob_type->tp_free((PyObject *) self);
+    Py_TYPE(&self->dt_tzinfo)->tp_free((PyObject *) self);
 }
 
 static void t_floatingtz_dealloc(t_floatingtz *self)
 {
     Py_CLEAR(self->tzinfo);
-    self->dt_tzinfo.ob_type->tp_free((PyObject *) self);
+    Py_TYPE(&self->dt_tzinfo)->tp_free((PyObject *) self);
 }
 
 static PyObject *t_tzinfo_new(PyTypeObject *type,
@@ -446,7 +445,7 @@ static PyObject *t_tzinfo__resetDefault(PyTypeObject *cls)
 
             Py_XDECREF((PyObject *) _default);
             _default = (t_tzinfo *) tzinfo;
-            PyDict_SetItemString(TZInfoType.tp_dict, "default", tzinfo);
+            PyObject_SetAttrString((PyObject *)&TZInfoType, "default", tzinfo);
 
             Py_RETURN_NONE;
         }
@@ -513,7 +512,10 @@ static PyObject *t_tzinfo_getInstance(PyTypeObject *cls, PyObject *id)
         return instance;
     }
 
-    if (!PyObject_Compare(id, FLOATING_TZNAME))
+    int cmp = PyObject_RichCompareBool(id, FLOATING_TZNAME, Py_EQ);
+    if (cmp == -1)
+        return NULL;
+    if (cmp)
         instance = t_tzinfo_getFloating(cls);
     else
     {
@@ -545,7 +547,11 @@ static double _udate(PyObject *dt)
     if (!result)
         return 0.0;
 
+#if PY_MAJOR_VERSION >= 3
+    unsigned long ordinal = PyLong_AsUnsignedLong(result);
+#else
     unsigned long ordinal = PyInt_AS_LONG(result);
+#endif
 
     Py_DECREF(result);
     return ((ordinal - 719163) * 86400.0 +

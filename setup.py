@@ -7,11 +7,11 @@ except ImportError:
     from distutils.core import setup, Extension
 
 
-VERSION = '1.2'
+VERSION = '1.3'
 
 INCLUDES = {
     'darwin': ['/usr/local/include'],
-    'linux2': [],
+    'linux': [],
     'freebsd7': ['/usr/local/include'],
     'win32': ['c:/icu/include'],
     'sunos5': [],
@@ -19,7 +19,7 @@ INCLUDES = {
 
 CFLAGS = {
     'darwin': ['-Wno-write-strings', '-DPYICU_VER="%s"' %(VERSION)],
-    'linux2': ['-DPYICU_VER="%s"' %(VERSION)],
+    'linux': ['-DPYICU_VER="%s"' %(VERSION)],
     'freebsd7': ['-DPYICU_VER="%s"' %(VERSION)],
     'win32': ['/Zc:wchar_t', '/EHsc', '/DPYICU_VER=\\"%s\\"' %(VERSION)],
     'sunos5': ['-DPYICU_VER="%s"' %(VERSION)],
@@ -27,39 +27,43 @@ CFLAGS = {
 
 LFLAGS = {
     'darwin': ['-L/usr/local/lib'],
-    'linux2': [],
+    'linux': [],
     'freebsd7': ['-L/usr/local/lib'],
     'win32': ['/LIBPATH:c:/icu/lib'],
     'sunos5': [],
 }
 
 LIBRARIES = {
-    'darwin': ['icui18n', 'icuuc', 'icudata'],
-    'linux2': ['icui18n', 'icuuc', 'icudata'],
-    'freebsd7': ['icui18n', 'icuuc', 'icudata'],
-    'win32': ['icuin', 'icuuc', 'icudt'],
-    'sunos5': ['icui18n', 'icuuc', 'icudata'],
+    'darwin': ['icui18n', 'icuuc', 'icudata', 'icule'],
+    'linux': ['icui18n', 'icuuc', 'icudata', 'icule'],
+    'freebsd7': ['icui18n', 'icuuc', 'icudata', 'icule'],
+    'win32': ['icuin', 'icuuc', 'icudt', 'icule'],
+    'sunos5': ['icui18n', 'icuuc', 'icudata', 'icule'],
 }
+
+platform = sys.platform
+if platform.startswith('linux'):
+    platform = 'linux'
 
 if 'PYICU_INCLUDES' in os.environ:
     _includes = os.environ['PYICU_INCLUDES'].split(os.pathsep)
 else:
-    _includes = INCLUDES[sys.platform]
+    _includes = INCLUDES[platform]
 
 if 'PYICU_CFLAGS' in os.environ:
     _cflags = os.environ['PYICU_CFLAGS'].split(os.pathsep)
 else:
-    _cflags = CFLAGS[sys.platform]
+    _cflags = CFLAGS[platform]
 
 if 'PYICU_LFLAGS' in os.environ:
     _lflags = os.environ['PYICU_LFLAGS'].split(os.pathsep)
 else:
-    _lflags = LFLAGS[sys.platform]
+    _lflags = LFLAGS[platform]
 
 if 'PYICU_LIBRARIES' in os.environ:
     _libraries = os.environ['PYICU_LIBRARIES'].split(os.pathsep)
 else:
-    _libraries = LIBRARIES[sys.platform]
+    _libraries = LIBRARIES[platform]
 
 
 setup(name="PyICU",
@@ -77,3 +81,13 @@ setup(name="PyICU",
                              extra_link_args=_lflags,
                              libraries=_libraries)],
       py_modules=['icu', 'PyICU', 'docs'])
+
+
+if sys.version_info >= (3,):
+    path = os.path.join('test', '2to3.note')
+    if not os.path.exists(path):
+        from lib2to3.main import main
+        main("lib2to3.fixes", ['-w', '-n', '--no-diffs', 'test'])
+        output = open(path, 'w')
+        output.write('tests auto-converted by 2to3 during setup\n')
+        output.close()

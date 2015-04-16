@@ -143,7 +143,7 @@ static void t_rulebasedcollator_dealloc(t_rulebasedcollator *self)
     Py_CLEAR(self->buf);
     Py_CLEAR(self->base);
 
-    self->ob_type->tp_free((PyObject *) self);
+    Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 DECLARE_TYPE(RuleBasedCollator, t_rulebasedcollator, Collator,
@@ -197,10 +197,10 @@ static PyObject *t_collationkey_getByteArray(t_collationkey *self)
     int32_t count;
     const uint8_t *array = self->object->getByteArray(count);
 
-    return PyString_FromStringAndSize((char *) array, count);
+    return PyBytes_FromStringAndSize((char *) array, count);
 }
 
-DECLARE_RICHCMP(CollationKey, t_collationkey);
+DEFINE_RICHCMP(CollationKey, t_collationkey);
 
 
 /* Collator */
@@ -326,7 +326,7 @@ static PyObject *t_collator_getSortKey(t_collator *self, PyObject *args)
             size = self->object->getSortKey(*u, buf, len);
             if (size <= len)
             {
-                key = PyString_FromStringAndSize((char *) buf, size);
+                key = PyBytes_FromStringAndSize((char *) buf, size);
                 free(buf);
             }
             else
@@ -347,7 +347,7 @@ static PyObject *t_collator_getSortKey(t_collator *self, PyObject *args)
                 return PyErr_NoMemory();
 
             len = self->object->getSortKey(*u, buf, len);
-            key = PyString_FromStringAndSize((char *) buf, len);
+            key = PyBytes_FromStringAndSize((char *) buf, len);
             free(buf);
 
             return key;
@@ -436,9 +436,9 @@ static PyObject *t_collator_getKeywords(PyTypeObject *type)
 static PyObject *t_collator_getKeywordValues(PyTypeObject *type, PyObject *arg)
 {
     StringEnumeration *e;
-    char *keyword;
+    charsArg keyword;
 
-    if (!parseArg(arg, "c", &keyword))
+    if (!parseArg(arg, "n", &keyword))
     {
         STATUS_CALL(e = Collator::getKeywordValues(keyword, status));
         return wrap_StringEnumeration(e, T_OWNED);
@@ -468,9 +468,9 @@ static PyObject *t_collator_getFunctionalEquivalent(PyTypeObject *type,
 {
     UBool isAvailable;
     Locale *locale;
-    char *keyword;
+    charsArg keyword;
     
-    if (!parseArgs(args, "cP", TYPE_CLASSID(Locale),
+    if (!parseArgs(args, "nP", TYPE_CLASSID(Locale),
                    &keyword, &locale))
     {
         Locale result(*locale);
@@ -580,7 +580,7 @@ static int t_rulebasedcollator_init(t_rulebasedcollator *self,
       case 2:
         if (!parseArgs(args, "CO", &RuleBasedCollatorType, &buf, &base))
         {
-            INT_STATUS_CALL(collator = new RuleBasedCollator((uint8_t *) PyString_AS_STRING(buf), PyString_GET_SIZE(buf), ((t_rulebasedcollator *) base)->object, status));
+            INT_STATUS_CALL(collator = new RuleBasedCollator((uint8_t *) PyBytes_AS_STRING(buf), PyBytes_GET_SIZE(buf), ((t_rulebasedcollator *) base)->object, status));
             self->object = collator;
             self->flags = T_OWNED;
             self->buf = buf; Py_INCREF(buf);
@@ -644,11 +644,11 @@ static PyObject *t_rulebasedcollator_cloneBinary(t_rulebasedcollator *self)
     int32_t len;
 
     len = self->object->cloneBinary(NULL, 0, status);
-    result = PyString_FromStringAndSize(NULL, len);
+    result = PyBytes_FromStringAndSize(NULL, len);
     if (!result)
         return NULL;
 
-    STATUS_CALL(len = self->object->cloneBinary((uint8_t *) PyString_AS_STRING(result), len, status));
+    STATUS_CALL(len = self->object->cloneBinary((uint8_t *) PyBytes_AS_STRING(result), len, status));
 
     return result;
 }
@@ -659,7 +659,7 @@ static PyObject *t_rulebasedcollator_str(t_rulebasedcollator *self)
     return PyUnicode_FromUnicodeString(&u);
 }
 
-DECLARE_RICHCMP(RuleBasedCollator, t_rulebasedcollator);
+DEFINE_RICHCMP(RuleBasedCollator, t_rulebasedcollator);
 
 
 void _init_collator(PyObject *m)

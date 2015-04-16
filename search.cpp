@@ -101,7 +101,7 @@ static void t_searchiterator_dealloc(t_searchiterator *self)
     Py_CLEAR(self->text);
     Py_CLEAR(self->iterator);
 
-    self->ob_type->tp_free((PyObject *) self);
+    Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 DECLARE_TYPE(SearchIterator, t_searchiterator, UObject, SearchIterator,
@@ -144,7 +144,7 @@ static void t_stringsearch_dealloc(t_stringsearch *self)
     Py_CLEAR(self->iterator);
     Py_CLEAR(self->collator);
 
-    self->ob_type->tp_free((PyObject *) self);
+    Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 DECLARE_TYPE(StringSearch, t_stringsearch, SearchIterator, StringSearch,
@@ -579,7 +579,7 @@ static PyObject *t_stringsearch_str(t_stringsearch *self)
     return PyUnicode_FromUnicodeString(&u);
 }
 
-DECLARE_RICHCMP(StringSearch, t_stringsearch);
+DEFINE_RICHCMP(StringSearch, t_stringsearch);
 
 
 void _init_search(PyObject *m)

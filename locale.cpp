@@ -222,7 +222,7 @@ static PyObject *wrap_ResourceBundle(const ResourceBundle &resourcebundle)
 
 static int t_locale_init(t_locale *self, PyObject *args, PyObject *kwds)
 {
-    char *language, *country, *variant;
+    charsArg language, country, variant;
 
     switch (PyTuple_Size(args)) {
       case 0:
@@ -230,7 +230,7 @@ static int t_locale_init(t_locale *self, PyObject *args, PyObject *kwds)
         self->flags = T_OWNED;
         break;
       case 1:
-        if (!parseArgs(args, "c", &language))
+        if (!parseArgs(args, "n", &language))
         {
             self->object = new Locale(language);
             self->flags = T_OWNED;
@@ -239,7 +239,7 @@ static int t_locale_init(t_locale *self, PyObject *args, PyObject *kwds)
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
       case 2:
-        if (!parseArgs(args, "cc", &language, &country))
+        if (!parseArgs(args, "nn", &language, &country))
         {
             self->object = new Locale(language, country);
             self->flags = T_OWNED;
@@ -248,7 +248,7 @@ static int t_locale_init(t_locale *self, PyObject *args, PyObject *kwds)
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
       case 3:
-        if (!parseArgs(args, "ccc", &language, &country, &variant))
+        if (!parseArgs(args, "nnn", &language, &country, &variant))
         {
             self->object = new Locale(language, country, variant);
             self->flags = T_OWNED;
@@ -639,14 +639,14 @@ static PyObject *t_locale_setDefault(PyTypeObject *type, PyObject *args)
 static PyObject *t_locale_createFromName(PyTypeObject *type, PyObject *args)
 {
     Locale locale;
-    char *name;
+    charsArg name;
 
     switch (PyTuple_Size(args)) {
       case 0:
         locale = Locale::createFromName(NULL);
         return wrap_Locale(locale);
       case 1:
-        if (!parseArgs(args, "c", &name))
+        if (!parseArgs(args, "n", &name))
         {
             locale = Locale::createFromName(name);
             return wrap_Locale(locale);
@@ -660,9 +660,9 @@ static PyObject *t_locale_createFromName(PyTypeObject *type, PyObject *args)
 static PyObject *t_locale_createCanonical(PyTypeObject *type, PyObject *arg)
 {
     Locale locale;
-    char *name;
+    charsArg name;
 
-    if (!parseArg(arg, "c", &name))
+    if (!parseArg(arg, "n", &name))
     {
         locale = Locale::createCanonical(name);
         return wrap_Locale(locale);
@@ -689,9 +689,9 @@ static PyObject *t_locale_getAvailableLocales(PyTypeObject *type)
 
 static PyObject *t_locale_getKeywordValue(t_locale *self, PyObject *arg)
 {
-    char *name;
+    charsArg name;
 
-    if (!parseArg(arg, "c", &name))
+    if (!parseArg(arg, "n", &name))
     {
         char buf[ULOC_FULLNAME_CAPACITY];
         UErrorCode status = U_ZERO_ERROR;
@@ -894,7 +894,7 @@ static PyObject *t_resourcebundle_getNextString(t_resourcebundle *self,
 static PyObject *t_resourcebundle_get(t_resourcebundle *self, PyObject *arg)
 {
     UErrorCode status = U_ZERO_ERROR;
-    char *key;
+    charsArg key;
     int i;
 
     if (!parseArg(arg, "i", &i))
@@ -907,7 +907,7 @@ static PyObject *t_resourcebundle_get(t_resourcebundle *self, PyObject *arg)
         return wrap_ResourceBundle(rb);
     }
 
-    if (!parseArg(arg, "c", &key))
+    if (!parseArg(arg, "n", &key))
     {
         ResourceBundle rb = self->object->get(key, status);
 
@@ -924,9 +924,9 @@ static PyObject *t_resourcebundle_getWithFallback(t_resourcebundle *self,
                                                   PyObject *arg)
 {
     UErrorCode status = U_ZERO_ERROR;
-    char *key;
+    charsArg key;
 
-    if (!parseArg(arg, "c", &key))
+    if (!parseArg(arg, "n", &key))
     {
         ResourceBundle rb = self->object->getWithFallback(key, status);
 
@@ -944,7 +944,7 @@ static PyObject *t_resourcebundle_getStringEx(t_resourcebundle *self,
 {
     UnicodeString *u;
     UnicodeString _u;
-    char *key;
+    charsArg key;
     int i;
 
     switch (PyTuple_Size(args)) {
@@ -954,7 +954,7 @@ static PyObject *t_resourcebundle_getStringEx(t_resourcebundle *self,
             STATUS_CALL(_u = self->object->getStringEx(i, status));
             return PyUnicode_FromUnicodeString(&_u);
         }
-        if (!parseArgs(args, "c", &key))
+        if (!parseArgs(args, "n", &key))
         {
             STATUS_CALL(_u = self->object->getStringEx(key, status));
             return PyUnicode_FromUnicodeString(&_u);
@@ -965,9 +965,9 @@ static PyObject *t_resourcebundle_getStringEx(t_resourcebundle *self,
             STATUS_CALL(u->setTo(self->object->getStringEx(i, status)));
             Py_RETURN_ARG(args, 1);
         }
-        if (!parseArgs(args, "cU", &i, &u))
+        if (!parseArgs(args, "nU", &key, &u))
         {
-            STATUS_CALL(u->setTo(self->object->getStringEx(i, status)));
+            STATUS_CALL(u->setTo(self->object->getStringEx(key, status)));
             Py_RETURN_ARG(args, 1);
         }
         break;
@@ -1033,9 +1033,9 @@ static PyObject *t_resourcebundle_getLocale(t_resourcebundle *self,
 static PyObject *t_resourcebundle_setAppData(PyTypeObject *type,
                                              PyObject *args)
 {
-    char *packageName, *path;
+    charsArg packageName, path;
 
-    if (!parseArgs(args, "cc", &packageName, &path))
+    if (!parseArgs(args, "nf", &packageName, &path))
     {
         HANDLE fd = CreateFile(path, GENERIC_READ, FILE_SHARE_READ,
                                NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -1094,9 +1094,9 @@ static PyObject *t_resourcebundle_setAppData(PyTypeObject *type,
 static PyObject *t_resourcebundle_setAppData(PyTypeObject *type,
                                              PyObject *args)
 {
-    char *packageName, *path;
+    charsArg packageName, path;
 
-    if (!parseArgs(args, "cc", &packageName, &path))
+    if (!parseArgs(args, "nf", &packageName, &path))
     {
         int fd = open(path, O_RDONLY);
         UErrorCode status = U_ZERO_ERROR;

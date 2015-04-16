@@ -133,7 +133,7 @@ static void t_measureformat_dealloc(t_measureformat *self)
 
     Py_CLEAR(self->locale);
 
-    self->ob_type->tp_free((PyObject *) self);
+    Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 DECLARE_TYPE(MeasureFormat, t_measureformat, Format, MeasureFormat,
@@ -286,7 +286,7 @@ static void t_pluralformat_dealloc(t_pluralformat *self)
     self->object = NULL;
 
     Py_CLEAR(self->numberformat);
-    self->ob_type->tp_free((PyObject *) self);
+    Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 DECLARE_TYPE(PluralFormat, t_pluralformat, Format, PluralFormat,

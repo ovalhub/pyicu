@@ -26,37 +26,42 @@ import sys, os
 from unittest import TestCase, main
 from icu import *
 
+# We use u'stuff'.encode('encoding') instead of b'stuff' to represent
+# bytes using literals. This is to ensure 2to3 doesn't turn things
+# into unicode literals, but also to keep compatibility with Python
+# pre 2.6, which didn't know about the b prefix to literals.
 
 class TestCharset(TestCase):
 
     def testDetect(self):
 
         detector = CharsetDetector()
-        detector.setText('foo')
+        detector.setText(u'foo'.encode('ascii'))
 
         match = detector.detect()
         self.assertTrue(match.getName() == 'UTF-8')
 
     def testDetectAll(self):
 
-        detector = CharsetDetector('foo')
+        detector = CharsetDetector(u'foo'.encode('ascii'))
 
         matches = detector.detectAll()
         self.assertTrue(matches[0].getName() == 'UTF-8')
 
     def testDeclared(self):
 
-        detector = CharsetDetector('beaut\xe9 probable', 'iso-8859-1')
+        bytes = u'beaut\xe9 probable'.encode('iso-8859-1')
+        detector = CharsetDetector(bytes, 'iso-8859-1')
 
         self.assertTrue("ISO-8859-1" in (m.getName()
                                          for m in detector.detectAll()))
 
     def testUnicode(self):
 
-        string = 'beaut\xe9 probable'
-        ustring = unicode(CharsetDetector(string).detect())
+        bytes = u'beaut\xe9 probable'.encode('iso-8859-1')
+        ustring = unicode(CharsetDetector(bytes).detect())
 
-        self.assertTrue(ustring.encode('iso-8859-1') == string)
+        self.assertTrue(ustring.encode('iso-8859-1') == bytes)
         
         
 

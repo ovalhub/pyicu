@@ -20,6 +20,6 @@ if __name__ == "__main__":
         try:
             from pkg_resources import require
             with_setuptools = require('setuptools')[0].parsed_version
-            print >>sys.stderr, "Use: '%s setup.py test' instead" %(sys.argv[0])
+            print >>sys.stderr, "Use: 'python setup.py test' instead"
         except ImportError:
             pass

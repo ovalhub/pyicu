@@ -274,7 +274,7 @@ static int t_dateformatsymbols_init(t_dateformatsymbols *self,
     UnicodeString _u;
     Locale *locale;
     DateFormatSymbols *dfs;
-    char *type;
+    charsArg type;
 
     switch (PyTuple_Size(args)) {
       case 0:
@@ -290,7 +290,7 @@ static int t_dateformatsymbols_init(t_dateformatsymbols *self,
             self->flags = T_OWNED;
             break;
         }
-        if (!parseArgs(args, "c", &type))
+        if (!parseArgs(args, "n", &type))
         {
             INT_STATUS_CALL(dfs = new DateFormatSymbols(type, status));
             self->object = dfs;
@@ -300,7 +300,7 @@ static int t_dateformatsymbols_init(t_dateformatsymbols *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
       case 2:
-        if (!parseArgs(args, "Pc", TYPE_CLASSID(Locale),
+        if (!parseArgs(args, "Pn", TYPE_CLASSID(Locale),
                        &locale, &type))
         {
             INT_STATUS_CALL(dfs = new DateFormatSymbols(*locale, type, status));
@@ -513,7 +513,7 @@ static PyObject *t_dateformatsymbols_setAmPmStrings(t_dateformatsymbols *self,
     return PyErr_SetArgsError((PyObject *) self, "setAmPmStrings", arg);
 }
 
-DECLARE_RICHCMP(DateFormatSymbols, t_dateformatsymbols);
+DEFINE_RICHCMP(DateFormatSymbols, t_dateformatsymbols);
         
 static PyObject *t_dateformatsymbols_getLocalPatternChars(t_dateformatsymbols *self, PyObject *args)
 {
@@ -1060,7 +1060,7 @@ static PyObject *t_dateinterval_str(t_dateinterval *self)
     return PyUnicode_FromUnicodeString(&u);
 }
 
-DECLARE_RICHCMP(DateInterval, t_dateinterval);
+DEFINE_RICHCMP(DateInterval, t_dateinterval);
 
 
 /* DateIntervalInfo */
@@ -1184,7 +1184,7 @@ static PyObject *t_dateintervalinfo_getFallbackIntervalPattern(t_dateintervalinf
     return PyErr_SetArgsError((PyObject *) self, "getFallbackIntervalPattern", args);
 }
 
-DECLARE_RICHCMP(DateIntervalInfo, t_dateintervalinfo);
+DEFINE_RICHCMP(DateIntervalInfo, t_dateintervalinfo);
 
 
 /* DateIntervalFormat */
@@ -1313,7 +1313,7 @@ static PyObject *t_dateintervalformat_createInstance(PyTypeObject *type,
     return PyErr_SetArgsError(type, "createInstance", args);
 }
 
-DECLARE_RICHCMP(DateIntervalFormat, t_dateintervalformat);
+DEFINE_RICHCMP(DateIntervalFormat, t_dateintervalformat);
 
 #endif
 

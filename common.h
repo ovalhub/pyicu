@@ -47,6 +47,42 @@ typedef intintargfunc ssizessizeargfunc;
 typedef intintobjargproc ssizessizeobjargproc;
 #endif
 
+/* Python 2 uses String and Unicode, Python 3 Bytes and Unicode.
+ * In PyICU, we use Bytes for everything that should be 8 bit in both
+ * environments, i.e. String in Python 2 and Bytes in Python 3. We use
+ * String for everything that should be a String in Python 2 and a
+ * Unicode in Python 3. The assumption is that the argument will
+ * always be ASCII only, and that we want the result to be represented
+ * as a simple string literal without b or u modifier no matter the
+ * environment. The definitions below establish these three flavours.
+ */
+#if PY_MAJOR_VERSION >= 3
+# define Py_TPFLAGS_CHECKTYPES 0
+# define PyInt_FromLong PyLong_FromLong
+# define PyInt_CheckExact PyLong_CheckExact
+# define PyInt_Check PyLong_Check
+# define PyInt_AsLong PyLong_AsLong
+# define PyString_FromString PyUnicode_FromString
+# define PyString_FromStringAndSize PyUnicode_FromStringAndSize
+# define PyString_FromFormatV PyUnicode_FromFormatV
+# define PyString_FromFormat PyUnicode_FromFormat
+# define PyString_Format PyUnicode_Format
+#else
+# define PyBytes_FromStringAndSize PyString_FromStringAndSize
+# define PyBytes_Check PyString_Check
+# define PyBytes_Size PyString_Size
+# define PyBytes_AsStringAndSize PyString_AsStringAndSize
+# define PyBytes_AS_STRING PyString_AS_STRING
+# define PyBytes_GET_SIZE PyString_GET_SIZE
+# define _PyBytes_Resize _PyString_Resize
+# ifndef PyVarObject_HEAD_INIT
+#  define PyVarObject_HEAD_INIT(type, size) PyObject_HEAD_INIT(type) size,
+# endif
+# ifndef Py_TYPE
+#  define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
+# endif
+#endif
+
 #include <unicode/utypes.h>
 #include <unicode/unistr.h>
 #include <unicode/ucnv.h>
@@ -190,10 +226,10 @@ public:
 EXPORT PyObject *PyUnicode_FromUnicodeString(UnicodeString *string);
 EXPORT PyObject *PyUnicode_FromUnicodeString(const UChar *chars, int size);
 
-EXPORT UnicodeString &PyString_AsUnicodeString(PyObject *object,
-                                               const char *encoding,
-                                               const char *mode,
-                                               UnicodeString &string);
+EXPORT UnicodeString &PyBytes_AsUnicodeString(PyObject *object,
+                                              const char *encoding,
+                                              const char *mode,
+                                              UnicodeString &string);
 EXPORT UnicodeString &PyObject_AsUnicodeString(PyObject *object,
                                                const char *encoding,
                                                const char *mode,
@@ -204,6 +240,66 @@ EXPORT UnicodeString *PyObject_AsUnicodeString(PyObject *object);
 EXPORT UDate PyObject_AsUDate(PyObject *object);
 
 int abstract_init(PyObject *self, PyObject *args, PyObject *kwds);
+
+// helper class, to allow argument parsing with proper cleanup
+class charsArg {
+private:
+    const char *str;
+    PyObject *obj;
+
+    void clear()
+    {
+        Py_XDECREF(obj);
+    }
+
+public:
+    charsArg() : str(NULL), obj(NULL) {}
+
+    ~charsArg()
+    {
+        clear();
+    }
+
+    const char *c_str() const
+    {
+        return str;
+    }
+
+    size_t size() const
+    {
+        return strlen(str);
+    }
+
+#if PY_VERSION_HEX >= 0x02070000
+    // Allow using this class wherever a const char * is statically expected
+    operator const char *() const
+    {
+        return str;
+    }
+#else
+    // Old python APIs were extremely unclean about constness of char strings
+    operator char *() const
+    {
+        return const_cast<char *>(str);
+    }
+#endif
+
+    // Point to an existing bytes object. We don't own the buffer.
+    void borrow(PyObject *bytes)
+    {
+        clear();
+        obj = NULL;
+        str = PyBytes_AS_STRING(bytes);
+    }
+
+    // Point to a newly created bytes object, which we own and will clean.
+    void own(PyObject *bytes)
+    {
+        clear();
+        obj = bytes;
+        str = PyBytes_AS_STRING(bytes);
+    }
+};
 
 #ifdef _MSC_VER
 
@@ -219,7 +315,7 @@ int _parseArgs(PyObject **args, int count, const char *types, va_list list);
 
 #define parseArgs(args, types, rest...) \
     _parseArgs(((PyTupleObject *)(args))->ob_item, \
-               ((PyTupleObject *)(args))->ob_size, types, ##rest)
+               PyObject_Size(args), types, ##rest)
 
 #define parseArg(arg, types, rest...) \
     _parseArgs(&(arg), 1, types, ##rest)

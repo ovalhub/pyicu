@@ -26,7 +26,6 @@ import sys, os, codecs
 from unittest import TestCase, main
 from icu import *
 
-
 class TestCollator(TestCase):
 
     def filePath(self, name):
@@ -44,7 +43,7 @@ class TestCollator(TestCase):
     def testSort(self):
 
         collator = Collator.createInstance(Locale.getFrance())
-        input = file(self.filePath('noms.txt'))
+        input = open(self.filePath('noms.txt'), 'rb')
         names = [unicode(n.strip(), 'utf-8') for n in input.readlines()]
         input.close()
         ecole = names[0]
@@ -52,7 +51,10 @@ class TestCollator(TestCase):
         names.sort()
         self.assertTrue(names[-1] is ecole)
 
-        names.sort(collator.compare)
+        if (sys.version_info >= (3,)):
+            names.sort(key=collator.getSortKey)
+        else:
+            names.sort(collator.compare)
         self.assertTrue(names[2] is ecole)
 
     def testCreateInstancePolymorph(self):
@@ -75,8 +77,17 @@ class TestCollator(TestCase):
                               UCollAttributeValue.ON)
         s = u'\u3052'
         k = collator.getSortKey(s)
-        self.assertTrue("791C0186DCFD019B05010D0D00" ==
-                        ''.join(['%02X' %(ord(c)) for c in k]))
+        if (sys.version_info >= (3,)):
+            byte2int = lambda c: c
+        else:
+            byte2int = ord
+
+        if ICU_VERSION < '4.6':
+            key = "AC300186DC9D019B0501282800"
+        else:
+            key = "791C0186DCFD019B05010D0D00"
+
+        self.assertTrue(key == ''.join(['%02X' %(byte2int(c)) for c in k]))
 
     def setupCollator(self, collator):
 
@@ -112,14 +123,15 @@ class TestCollator(TestCase):
 
     def testCollatorLoading(self):
 
-        collator = self.LoadCollatorFromRules()
-        key0 = collator.getSortKey(u'\u3069\u3052\u3056')
-        bin = collator.cloneBinary()
+        if ICU_VERSION >= '4.6':
+            collator = self.LoadCollatorFromRules()
+            key0 = collator.getSortKey(u'\u3069\u3052\u3056')
+            bin = collator.cloneBinary()
 
-        collator = self.LoadCollatorFromBinaryBuffer(bin)
-        key1 = collator.getSortKey(u'\u3069\u3052\u3056')
+            collator = self.LoadCollatorFromBinaryBuffer(bin)
+            key1 = collator.getSortKey(u'\u3069\u3052\u3056')
 
-        self.assertTrue(key0 == key1)
+            self.assertTrue(key0 == key1)
 
 
 if __name__ == "__main__":

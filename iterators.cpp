@@ -140,7 +140,7 @@ static void t_ucharcharacteriterator_dealloc(t_ucharcharacteriterator *self)
     self->object = NULL;
 
     Py_CLEAR(self->text);
-    self->ob_type->tp_free((PyObject *) self);
+    Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 DECLARE_TYPE(UCharCharacterIterator, t_ucharcharacteriterator,
@@ -238,7 +238,7 @@ static void t_breakiterator_dealloc(t_breakiterator *self)
 
     Py_CLEAR(self->text);
 
-    self->ob_type->tp_free((PyObject *) self);
+    Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 DECLARE_TYPE(BreakIterator, t_breakiterator, UObject, BreakIterator,
@@ -1045,7 +1045,7 @@ static int t_rulebasedbreakiterator_init(t_rulebasedbreakiterator *self,
                                          PyObject *args, PyObject *kwds)
 {
     UnicodeString *u, _u;
-    char *path, *name;
+    charsArg path, name;
 
     switch (PyTuple_Size(args)) {
       case 0:
@@ -1065,7 +1065,7 @@ static int t_rulebasedbreakiterator_init(t_rulebasedbreakiterator *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
       case 2:
-        if (!parseArg(args, "cc", &path, &name))
+        if (!parseArg(args, "fn", &path, &name))
         {
             RuleBasedBreakIterator *iterator;
             UDataMemory *data;
@@ -1402,7 +1402,7 @@ static PyObject *t_collationelementiterator_iter_next(t_collationelementiterator
     return PyInt_FromLong(n);
 }
 
-DECLARE_RICHCMP(CollationElementIterator, t_collationelementiterator);
+DEFINE_RICHCMP(CollationElementIterator, t_collationelementiterator);
 
 
 void _init_iterators(PyObject *m)
