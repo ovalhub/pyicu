@@ -42,6 +42,7 @@
 #include "normalizer.h"
 #include "search.h"
 #include "layoutengine.h"
+#include "script.h"
 
 
 /* const variable descriptor */
@@ -278,6 +279,7 @@ static PyObject *PyInit_icu(PyObject *m)
     _init_normalizer(m);
     _init_search(m);
     _init_layoutengine(m);
+    _init_script(m);
 
     PyObject *method = PyObject_GetAttrString((PyObject *) &UObjectType,
                                               "getDynamicClassID");

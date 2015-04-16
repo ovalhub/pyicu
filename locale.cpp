@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2010 Open Source Applications Foundation.
+ * Copyright (c) 2004-2014 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,6 +21,9 @@
  * ====================================================================
  */
 
+#include <stdlib.h>
+#include <string.h>
+
 #if defined(_MSC_VER) || defined(__WIN32)
 #include <windows.h>
 #else
@@ -35,9 +38,13 @@
 #include "bases.h"
 #include "locale.h"
 #include "macros.h"
+#include "unicodeset.h"
 
 DECLARE_CONSTANTS_TYPE(ULocDataLocaleType);
 DECLARE_CONSTANTS_TYPE(UResType);
+DECLARE_CONSTANTS_TYPE(ULocaleDataDelimiterType);
+DECLARE_CONSTANTS_TYPE(ULocaleDataExemplarSetType);
+DECLARE_CONSTANTS_TYPE(UMeasurementSystem);
 
 /* Locale */
 
@@ -62,6 +69,11 @@ static PyObject *t_locale_getDisplayCountry(t_locale *self, PyObject *args);
 static PyObject *t_locale_getDisplayVariant(t_locale *self, PyObject *args);
 static PyObject *t_locale_getDisplayName(t_locale *self, PyObject *args);
 static PyObject *t_locale_createKeywords(t_locale *self);
+static PyObject *t_locale_getKeywordValue(t_locale *self, PyObject *arg);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(49, 0, 0)
+static PyObject *t_locale_setKeywordValue(t_locale *self, PyObject *args);
+static PyObject *t_locale_removeKeywordValue(t_locale *self, PyObject *arg);
+#endif
 static PyObject *t_locale_isBogus(t_locale *self);
 static PyObject *t_locale_setToBogus(t_locale *self);
 static PyObject *t_locale_getEnglish(PyTypeObject *type);
@@ -90,7 +102,6 @@ static PyObject *t_locale_setDefault(PyTypeObject *type, PyObject *args);
 static PyObject *t_locale_createFromName(PyTypeObject *type, PyObject *args);
 static PyObject *t_locale_createCanonical(PyTypeObject *type, PyObject *arg);
 static PyObject *t_locale_getAvailableLocales(PyTypeObject *type);
-static PyObject *t_locale_getKeywordValue(t_locale *self, PyObject *arg);
 static PyObject *t_locale_getISOCountries(PyTypeObject *type);
 static PyObject *t_locale_getISOLanguages(PyTypeObject *type);
 
@@ -110,6 +121,11 @@ static PyMethodDef t_locale_methods[] = {
     DECLARE_METHOD(t_locale, getDisplayVariant, METH_VARARGS),
     DECLARE_METHOD(t_locale, getDisplayName, METH_VARARGS),
     DECLARE_METHOD(t_locale, createKeywords, METH_NOARGS),
+    DECLARE_METHOD(t_locale, getKeywordValue, METH_O),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(49, 0, 0)
+    DECLARE_METHOD(t_locale, setKeywordValue, METH_VARARGS),
+    DECLARE_METHOD(t_locale, removeKeywordValue, METH_O),
+#endif
     DECLARE_METHOD(t_locale, isBogus, METH_NOARGS),
     DECLARE_METHOD(t_locale, setToBogus, METH_NOARGS),
     DECLARE_METHOD(t_locale, getEnglish, METH_NOARGS | METH_CLASS),
@@ -138,7 +154,6 @@ static PyMethodDef t_locale_methods[] = {
     DECLARE_METHOD(t_locale, createFromName, METH_VARARGS | METH_CLASS),
     DECLARE_METHOD(t_locale, createCanonical, METH_O | METH_CLASS),
     DECLARE_METHOD(t_locale, getAvailableLocales, METH_NOARGS | METH_CLASS),
-    DECLARE_METHOD(t_locale, getKeywordValue, METH_O),
     DECLARE_METHOD(t_locale, getISOCountries, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_locale, getISOLanguages, METH_NOARGS | METH_CLASS),
     { NULL, NULL, 0, NULL }
@@ -217,6 +232,58 @@ static PyObject *wrap_ResourceBundle(const ResourceBundle &resourcebundle)
 {
     return wrap_ResourceBundle(new ResourceBundle(resourcebundle), T_OWNED);
 }
+
+
+/* LocaleData */
+
+class t_localedata : public _wrapper {
+public:
+    ULocaleData *object;
+    char *locale_id;
+};
+
+static int t_localedata_init(t_localedata *self,
+                             PyObject *args, PyObject *kwds);
+
+static PyObject *t_localedata_getNoSubstitute(t_localedata *self);
+static PyObject *t_localedata_setNoSubstitute(t_localedata *self,
+                                              PyObject *arg);
+static PyObject *t_localedata_getPaperSize(t_localedata *self);
+static PyObject *t_localedata_getLocaleDisplayPattern(t_localedata *self);
+static PyObject *t_localedata_getLocaleSeparator(t_localedata *self);
+static PyObject *t_localedata_getDelimiter(t_localedata *self, PyObject *arg);
+static PyObject *t_localedata_getMeasurementSystem(t_localedata *self);
+static PyObject *t_localedata_getExemplarSet(t_localedata *self,
+                                             PyObject *args);
+
+static PyMethodDef t_localedata_methods[] = {
+    DECLARE_METHOD(t_localedata, getNoSubstitute, METH_NOARGS),
+    DECLARE_METHOD(t_localedata, setNoSubstitute, METH_O),
+    DECLARE_METHOD(t_localedata, getPaperSize, METH_NOARGS),
+    DECLARE_METHOD(t_localedata, getLocaleDisplayPattern, METH_NOARGS),
+    DECLARE_METHOD(t_localedata, getLocaleSeparator, METH_NOARGS),
+    DECLARE_METHOD(t_localedata, getDelimiter, METH_O),
+    DECLARE_METHOD(t_localedata, getMeasurementSystem, METH_NOARGS),
+    DECLARE_METHOD(t_localedata, getExemplarSet, METH_VARARGS),
+    { NULL, NULL, 0, NULL }
+};
+
+static void t_localedata_dealloc(t_localedata *self)
+{
+    if (self->object)
+    {
+        ulocdata_close(self->object);
+        self->object = NULL;
+    }
+    free(self->locale_id);
+    self->locale_id = NULL;
+
+    Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
+DECLARE_STRUCT(LocaleData, t_localedata, ULocaleData, t_localedata_init,
+               t_localedata_dealloc);
+
 
 /* Locale */
 
@@ -494,6 +561,55 @@ static PyObject *t_locale_createKeywords(t_locale *self)
     return wrap_StringEnumeration(se, T_OWNED);
 }
 
+static PyObject *t_locale_getKeywordValue(t_locale *self, PyObject *arg)
+{
+    charsArg name;
+
+    if (!parseArg(arg, "n", &name))
+    {
+        char buf[ULOC_FULLNAME_CAPACITY];
+        int32_t len;
+
+        STATUS_CALL(len = self->object->getKeywordValue(
+            name, buf, sizeof(buf) - 1, status));
+
+        if (len == 0)
+            Py_RETURN_NONE;
+
+        return PyString_FromStringAndSize(buf, len);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getKeywordValue", arg);
+}
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(49, 0, 0)
+static PyObject *t_locale_setKeywordValue(t_locale *self, PyObject *args)
+{
+    charsArg name, value;
+
+    if (!parseArgs(args, "nn", &name, &value))
+    {
+        STATUS_CALL(self->object->setKeywordValue(name, value, status));
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setKeywordValue", args);
+}
+
+static PyObject *t_locale_removeKeywordValue(t_locale *self, PyObject *arg)
+{
+    charsArg name;
+
+    if (!parseArg(arg, "n", &name))
+    {
+        STATUS_CALL(self->object->setKeywordValue(name, "", status));
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "removeKeywordValue", arg);
+}
+#endif
+
 static PyObject *t_locale_isBogus(t_locale *self)
 {
     int retval = self->object->isBogus();
@@ -685,26 +801,6 @@ static PyObject *t_locale_getAvailableLocales(PyTypeObject *type)
     }
 
     return dict;
-}
-
-static PyObject *t_locale_getKeywordValue(t_locale *self, PyObject *arg)
-{
-    charsArg name;
-
-    if (!parseArg(arg, "n", &name))
-    {
-        char buf[ULOC_FULLNAME_CAPACITY];
-        UErrorCode status = U_ZERO_ERROR;
-        int32_t len = self->object->getKeywordValue(name, buf, sizeof(buf) - 1,
-                                                    status);
-
-        if (len == 0)
-            Py_RETURN_NONE;
-
-        return PyString_FromStringAndSize(buf, len);
-    }
-
-    return PyErr_SetArgsError((PyObject *) self, "getKeywordValue", arg);
 }
 
 static PyObject *t_locale_getISOCountries(PyTypeObject *type)
@@ -1187,6 +1283,159 @@ static PyObject *t_resourcebundle_str(t_resourcebundle *self)
     }
 }
 
+
+/* LocaleData */
+
+static int t_localedata_init(t_localedata *self, PyObject *args, PyObject *kwds)
+{
+    charsArg id;
+
+    switch (PyTuple_Size(args)) {
+      case 1:
+        if (!parseArgs(args, "n", &id))
+        {
+            ULocaleData *locale_data;
+
+            INT_STATUS_CALL(locale_data = ulocdata_open(id, &status));
+            self->object = locale_data;
+            self->locale_id = strdup((const char *) id);
+            self->flags = T_OWNED;
+            break;
+        }
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+      default:
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+    }
+        
+    if (self->object)
+        return 0;
+
+    return -1;
+}
+
+static PyObject *t_localedata_getNoSubstitute(t_localedata *self)
+{
+    if (ulocdata_getNoSubstitute(self->object))
+        Py_RETURN_TRUE;
+
+    Py_RETURN_FALSE;
+}
+
+static PyObject *t_localedata_setNoSubstitute(t_localedata *self, PyObject *arg)
+{
+    int setting;
+
+    if (!parseArg(arg, "b", &setting))
+    {
+        ulocdata_setNoSubstitute(self->object, setting);
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setNoSubstitute", arg);
+}
+
+static PyObject *t_localedata_getPaperSize(t_localedata *self)
+{
+    int32_t width, height;
+
+    STATUS_CALL(ulocdata_getPaperSize(self->locale_id,
+                                      &width, &height, &status));
+
+    return Py_BuildValue("ii", width, height);
+}
+
+static PyObject *t_localedata_getLocaleDisplayPattern(t_localedata *self)
+{
+    UChar buffer[256];
+    int size;
+
+    STATUS_CALL(size = ulocdata_getLocaleDisplayPattern(self->object, buffer,
+                                                        255, &status));
+
+    return PyUnicode_FromUnicodeString(buffer, size);
+}
+
+static PyObject *t_localedata_getLocaleSeparator(t_localedata *self)
+{
+    UChar buffer[256];
+    int size;
+
+    STATUS_CALL(size = ulocdata_getLocaleSeparator(self->object, buffer,
+                                                   255, &status));
+
+    return PyUnicode_FromUnicodeString(buffer, size);
+}
+
+static PyObject *t_localedata_getDelimiter(t_localedata *self, PyObject *arg)
+{
+    ULocaleDataDelimiterType type;
+
+    if (!parseArg(arg, "i", &type))
+    {
+        UChar buffer[256];
+        int size;
+
+        STATUS_CALL(size = ulocdata_getDelimiter(self->object, type, buffer,
+                                                 255, &status));
+
+        return PyUnicode_FromUnicodeString(buffer, size);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getDelimiter", arg);
+}
+
+static PyObject *t_localedata_getMeasurementSystem(t_localedata *self)
+{
+    UMeasurementSystem ms;
+
+    STATUS_CALL(ms = ulocdata_getMeasurementSystem(self->locale_id, &status));
+
+    return PyInt_FromLong(ms);
+}
+
+static PyObject *t_localedata_getExemplarSet(t_localedata *self, PyObject *args)
+{
+    int options;
+    ULocaleDataExemplarSetType type;
+
+    switch (PyTuple_Size(args)) {
+      case 0:
+        {
+            USet *set;
+
+            STATUS_CALL(set = ulocdata_getExemplarSet(self->object, NULL,
+                                                      0, ULOCDATA_ES_STANDARD,
+                                                      &status));
+            return wrap_UnicodeSet(UnicodeSet::fromUSet(set), T_OWNED);
+        }
+        break;
+      case 1:
+        if (!parseArgs(args, "i", &type))
+        {
+            USet *set;
+
+            STATUS_CALL(set = ulocdata_getExemplarSet(self->object, NULL,
+                                                      0, type, &status));
+            return wrap_UnicodeSet(UnicodeSet::fromUSet(set), T_OWNED);
+        }
+        break;
+      case 2:
+        if (!parseArgs(args, "ii", &options, &type))
+        {
+            USet *set;
+
+            STATUS_CALL(set = ulocdata_getExemplarSet(self->object, NULL,
+                                                      options, type, &status));
+            return wrap_UnicodeSet(UnicodeSet::fromUSet(set), T_OWNED);
+        }
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getExemplarSet", args);
+}
+
+
 void _init_locale(PyObject *m)
 {
     LocaleType.tp_str = (reprfunc) t_locale_str;
@@ -1196,8 +1445,12 @@ void _init_locale(PyObject *m)
 
     INSTALL_CONSTANTS_TYPE(ULocDataLocaleType, m);
     INSTALL_CONSTANTS_TYPE(UResType, m);
+    INSTALL_CONSTANTS_TYPE(ULocaleDataDelimiterType, m);
+    INSTALL_CONSTANTS_TYPE(ULocaleDataExemplarSetType, m);
+    INSTALL_CONSTANTS_TYPE(UMeasurementSystem, m);
     REGISTER_TYPE(Locale, m);
     REGISTER_TYPE(ResourceBundle, m);
+    INSTALL_STRUCT(LocaleData, m);
 
     INSTALL_ENUM(ULocDataLocaleType, "ACTUAL_LOCALE", ULOC_ACTUAL_LOCALE);
     INSTALL_ENUM(ULocDataLocaleType, "VALID_LOCALE", ULOC_VALID_LOCALE);
@@ -1211,4 +1464,30 @@ void _init_locale(PyObject *m)
     INSTALL_ENUM(UResType, "ARRAY", URES_ARRAY);
     INSTALL_ENUM(UResType, "INT_VECTOR", URES_INT_VECTOR);
     INSTALL_ENUM(UResType, "RESERVED", RES_RESERVED);
+
+    INSTALL_ENUM(ULocaleDataDelimiterType, "QUOTATION_START",
+                 ULOCDATA_QUOTATION_START);
+    INSTALL_ENUM(ULocaleDataDelimiterType, "QUOTATION_END",
+                 ULOCDATA_QUOTATION_END);
+    INSTALL_ENUM(ULocaleDataDelimiterType, "ALT_QUOTATION_START",
+                 ULOCDATA_ALT_QUOTATION_START);
+    INSTALL_ENUM(ULocaleDataDelimiterType, "ALT_QUOTATION_END",
+                 ULOCDATA_ALT_QUOTATION_END);
+
+    INSTALL_ENUM(ULocaleDataExemplarSetType, "ES_STANDARD",
+                 ULOCDATA_ES_STANDARD);
+    INSTALL_ENUM(ULocaleDataExemplarSetType, "ES_AUXILIARY",
+                 ULOCDATA_ES_AUXILIARY);
+#if U_ICU_VERSION_HEX >= 0x04080000
+    INSTALL_ENUM(ULocaleDataExemplarSetType, "ES_INDEX",
+                 ULOCDATA_ES_INDEX);
+#endif
+
+    INSTALL_ENUM(UMeasurementSystem, "SI", UMS_SI);
+    INSTALL_ENUM(UMeasurementSystem, "US", UMS_US);
+
+    // options for LocaleData.getExemplarSet()
+    INSTALL_MODULE_INT(m, USET_IGNORE_SPACE);
+    INSTALL_MODULE_INT(m, USET_CASE_INSENSITIVE);
+    INSTALL_MODULE_INT(m, USET_ADD_CASE_MAPPINGS);
 }

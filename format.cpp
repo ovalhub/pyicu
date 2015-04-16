@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2011 Open Source Applications Foundation.
+ * Copyright (c) 2004-2014 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -325,6 +325,27 @@ DECLARE_TYPE(SelectFormat, t_selectformat, Format, SelectFormat,
 
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(50, 0, 0)
+
+class t_listformatter : public _wrapper {
+public:
+    ListFormatter *object;
+};
+
+static PyObject *t_listformatter_format(t_listformatter *self, PyObject *arg);
+static PyObject *t_listformatter_createInstance(PyTypeObject *type,
+                                                PyObject *args);
+
+static PyMethodDef t_listformatter_methods[] = {
+    DECLARE_METHOD(t_listformatter, format, METH_O),
+    DECLARE_METHOD(t_listformatter, createInstance, METH_VARARGS | METH_CLASS),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(ListFormatter, t_listformatter, UObject, ListFormatter,
+             abstract_init, NULL);
+
+#endif
 
 /* FieldPosition */
 
@@ -1651,6 +1672,51 @@ static PyObject *t_selectformat_str(t_selectformat *self)
 #endif
 
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(50, 0, 0)
+
+/* ListFormatter */
+
+static PyObject *t_listformatter_format(t_listformatter *self, PyObject *arg)
+{
+    UnicodeString *array;
+    int count;
+
+    if (!parseArg(arg, "T", &array, &count))
+    {
+        UnicodeString u;
+
+        STATUS_CALL(self->object->format(array, (int32_t) count, u, status));
+        return PyUnicode_FromUnicodeString(&u);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "format", arg);
+}
+
+static PyObject *t_listformatter_createInstance(PyTypeObject *type,
+                                                PyObject *args)
+{
+    ListFormatter *formatter;
+    Locale *locale;
+
+    switch (PyTuple_Size(args)) {
+      case 0:
+        STATUS_CALL(formatter = ListFormatter::createInstance(status));
+        return wrap_ListFormatter(formatter, T_OWNED);
+      case 1:
+        if (!parseArgs(args, "P", TYPE_CLASSID(Locale), &locale))
+        {
+            STATUS_CALL(formatter = ListFormatter::createInstance(
+                *locale, status));
+            return wrap_ListFormatter(formatter, T_OWNED);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError(type, "createInstance", args);
+}
+
+#endif
+
 void _init_format(PyObject *m)
 {
     FieldPositionType.tp_richcompare = (richcmpfunc) t_fieldposition_richcmp;
@@ -1681,6 +1747,9 @@ void _init_format(PyObject *m)
 #endif
 #if U_ICU_VERSION_HEX >= 0x04040000
     REGISTER_TYPE(SelectFormat, m);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(50, 0, 0)
+    INSTALL_TYPE(ListFormatter, m);
 #endif
 
     INSTALL_STATIC_INT(FieldPosition, DONT_CARE);

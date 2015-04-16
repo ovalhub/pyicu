@@ -92,7 +92,7 @@ class TestCollator(TestCase):
         self.assertEqual(-1, collator.compare(hira_ge, kana_ge))
         hira_ge_key = collator.getSortKey(hira_ge)
         kana_ge_key = collator.getSortKey(kana_ge)
-        self.assertLess(hira_ge_key, kana_ge_key)
+        self.assertTrue(hira_ge_key < kana_ge_key)
 
     def setupCollator(self, collator):
 

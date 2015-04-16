@@ -121,6 +121,7 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/ucsdet.h>
 #include <unicode/uidna.h>
 #include <unicode/translit.h>
+#include <unicode/ulocdata.h>
 #include <unicode/unifunct.h>
 #include <unicode/unimatch.h>
 #include <unicode/unifilt.h>
@@ -160,6 +161,9 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <typeinfo>
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(50, 0, 0)
+#include <unicode/listformatter.h>
+#endif
 
 #if U_ICU_VERSION_HEX < 0x04060000
 
@@ -180,7 +184,8 @@ enum {
     Calendar_ID,
     Collator_ID,
     UnicodeMatcher_ID,
-    SearchIterator_ID
+    SearchIterator_ID,
+    ListFormatter_ID,
 };
 
 #else

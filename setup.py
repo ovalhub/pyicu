@@ -7,12 +7,12 @@ except ImportError:
     from distutils.core import setup, Extension
 
 
-VERSION = '1.5'
+VERSION = '1.6'
 
 INCLUDES = {
     'darwin': ['/usr/local/include'],
     'linux': [],
-    'freebsd7': ['/usr/local/include'],
+    'freebsd': ['/usr/local/include'],
     'win32': ['c:/icu/include'],
     'sunos5': [],
 }
@@ -20,7 +20,7 @@ INCLUDES = {
 CFLAGS = {
     'darwin': ['-Wno-write-strings', '-DPYICU_VER="%s"' %(VERSION)],
     'linux': ['-DPYICU_VER="%s"' %(VERSION)],
-    'freebsd7': ['-DPYICU_VER="%s"' %(VERSION)],
+    'freebsd': ['-DPYICU_VER="%s"' %(VERSION)],
     'win32': ['/Zc:wchar_t', '/EHsc', '/DPYICU_VER=\\"%s\\"' %(VERSION)],
     'sunos5': ['-DPYICU_VER="%s"' %(VERSION)],
 }
@@ -29,7 +29,7 @@ CFLAGS = {
 DEBUG_CFLAGS = {
     'darwin': ['-O0', '-g', '-DDEBUG'],
     'linux': ['-O0', '-g', '-DDEBUG'],
-    'freebsd7': ['-O0', '-g', '-DDEBUG'],
+    'freebsd': ['-O0', '-g', '-DDEBUG'],
     'win32': ['/Od', '/DDEBUG'],
     'sunos5': ['-DDEBUG'],
 }
@@ -37,7 +37,7 @@ DEBUG_CFLAGS = {
 LFLAGS = {
     'darwin': ['-L/usr/local/lib'],
     'linux': [],
-    'freebsd7': ['-L/usr/local/lib'],
+    'freebsd': ['-L/usr/local/lib'],
     'win32': ['/LIBPATH:c:/icu/lib'],
     'sunos5': [],
 }
@@ -45,7 +45,7 @@ LFLAGS = {
 LIBRARIES = {
     'darwin': ['icui18n', 'icuuc', 'icudata', 'icule'],
     'linux': ['icui18n', 'icuuc', 'icudata', 'icule'],
-    'freebsd7': ['icui18n', 'icuuc', 'icudata', 'icule'],
+    'freebsd': ['icui18n', 'icuuc', 'icudata', 'icule'],
     'win32': ['icuin', 'icuuc', 'icudt', 'icule'],
     'sunos5': ['icui18n', 'icuuc', 'icudata', 'icule'],
 }
@@ -53,6 +53,8 @@ LIBRARIES = {
 platform = sys.platform
 if platform.startswith('linux'):
     platform = 'linux'
+elif platform.startswith('freebsd'):
+    platform = 'freebsd'
 
 if 'PYICU_INCLUDES' in os.environ:
     _includes = os.environ['PYICU_INCLUDES'].split(os.pathsep)

@@ -1,6 +1,18 @@
 
 For bug <NUM>, see http://bugzilla.osafoundation.org/show_bug.cgi?id=<NUM>
 
+Version 1.5 -> 1.6
+------------------
+  - removed wrappers for some layoutengine.cpp internal flags (bug 13074)
+  - added wrappers for ULocaleData functions (bug 13080)
+  - added wrappers for uscript functions and UScriptCode enum (bug 13081)
+  - generalized freebsd setup.py support (Laurence Parry)
+  - added support for ICU 52.1
+  - added wrapper for Locale::setKeywordValue()
+  - added Locale::removeKeywordValue()
+  - added support for ListFormatter
+  - build tested with Python 2.7 and Python 3.3.0
+
 Version 1.4 -> 1.5
 ------------------
   - added wrapper for MessageFormat::format(argumentNames, arguments, ...)

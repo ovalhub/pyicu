@@ -118,6 +118,12 @@ class U_EXPORT PythonLEFontInstance : public LEFontInstance {
      * LEFontInstance API.
      */
 
+    virtual const void *getFontTable(LETag tableTag, size_t &length) const
+    {
+        length = -1;
+        return getFontTable(tableTag);
+    }
+
     virtual const void *getFontTable(LETag tag) const
     {
 #if PY_MAJOR_VERSION >= 3
@@ -557,9 +563,6 @@ void _init_layoutengine(PyObject *m)
 
     REGISTER_TYPE(LEFontInstance, m);
     REGISTER_TYPE(LayoutEngine, m);
-
-    INSTALL_STATIC_INT(LayoutEngine, kTypoFlagKern);
-    INSTALL_STATIC_INT(LayoutEngine, kTypoFlagLiga);
 
     INSTALL_ENUM(ScriptCode, "zyyy", zyyyScriptCode);
     INSTALL_ENUM(ScriptCode, "zinh", zinhScriptCode);

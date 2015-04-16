@@ -916,6 +916,7 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
           case 's':           /* string or unicode, to UnicodeString ref */
           {
               UnicodeString *u = va_arg(list, UnicodeString *);
+
               try {
                   PyObject_AsUnicodeString(arg, *u);
               } catch (ICUException e) {
@@ -941,13 +942,16 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
           case 'n':           /* string or unicode, to utf8 charsArg */
           {
               charsArg *p = va_arg(list, charsArg *);
-              if (PyUnicode_Check(arg)) {
+
+              if (PyUnicode_Check(arg))
+              {
                   PyObject *bytes = PyUnicode_AsUTF8String(arg);
                   if (bytes == NULL)
                       return -1;
                   p->own(bytes);
               }
-              else {
+              else
+              {
                   p->borrow(arg);
               }
               break;
@@ -956,7 +960,9 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
           case 'f':           /* string or unicode filename, to charsArg */
           {
               charsArg *p = va_arg(list, charsArg *);
-              if (PyUnicode_Check(arg)) {
+
+              if (PyUnicode_Check(arg))
+              {
 #if PY_MAJOR_VERSION >= 3
                   PyObject *bytes = PyUnicode_EncodeFSDefault(arg);
 #else
@@ -967,7 +973,8 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
                       return -1;
                   p->own(bytes);
               }
-              else {
+              else
+              {
                   p->borrow(arg);
               }
               break;
