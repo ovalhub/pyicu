@@ -24,6 +24,59 @@
 #ifndef _transliterator_h
 #define _transliterator_h
 
+class t_transliterator : public _wrapper {
+public:
+    Transliterator *object;
+};
+
+
+U_NAMESPACE_BEGIN
+
+class U_I18N_API PythonTransliterator : public Transliterator {
+  protected:
+    t_transliterator *self;
+
+  public:
+    /**
+     * ICU "poor man's RTTI", returns a UClassID for the actual class.
+     */
+    virtual UClassID getDynamicClassID() const;
+
+    /**
+     * ICU "poor man's RTTI", returns a UClassID for this class.
+     */
+    U_I18N_API static UClassID U_EXPORT2 getStaticClassID();
+
+    PythonTransliterator(t_transliterator *self, UnicodeString& id);
+    PythonTransliterator(t_transliterator *self, UnicodeString& id,
+                         UnicodeFilter *adoptedFilter);
+
+    /**
+     * Copy constructor.
+     */
+    PythonTransliterator(const PythonTransliterator&);
+
+    /**
+     * Destructor.
+     */
+    virtual ~PythonTransliterator();
+
+    /**
+     * Transliterator API.
+     */
+    virtual Transliterator* clone(void) const;
+
+    /**
+     * Implements {@link Transliterator#handleTransliterate}.
+     */
+    virtual void handleTransliterate(Replaceable& text,
+                                     UTransPosition& pos,
+                                     UBool incremental) const;
+};
+
+U_NAMESPACE_END
+
+
 extern PyTypeObject TransliteratorType;
 
 PyObject *wrap_Transliterator(Transliterator *transliterator, int flags);

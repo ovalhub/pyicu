@@ -45,16 +45,24 @@ static PyObject *t_decimalformatsymbols_setSymbol(t_decimalformatsymbols *self,
                                                   PyObject *args);
 static PyObject *t_decimalformatsymbols_getLocale(t_decimalformatsymbols *self,
                                                   PyObject *args);
+#if U_ICU_VERSION_HEX >= 0x04020000
+static PyObject *t_decimalformatsymbols_getPatternForCurrencySpacing(t_decimalformatsymbols *self, PyObject *args);
+static PyObject *t_decimalformatsymbols_setPatternForCurrencySpacing(t_decimalformatsymbols *self, PyObject *args);
+#endif
 
 static PyMethodDef t_decimalformatsymbols_methods[] = {
     DECLARE_METHOD(t_decimalformatsymbols, getSymbol, METH_VARARGS),
     DECLARE_METHOD(t_decimalformatsymbols, setSymbol, METH_VARARGS),
     DECLARE_METHOD(t_decimalformatsymbols, getLocale, METH_VARARGS),
+#if U_ICU_VERSION_HEX >= 0x04020000
+    DECLARE_METHOD(t_decimalformatsymbols, getPatternForCurrencySpacing, METH_VARARGS),
+    DECLARE_METHOD(t_decimalformatsymbols, setPatternForCurrencySpacing, METH_VARARGS),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
 DECLARE_TYPE(DecimalFormatSymbols, t_decimalformatsymbols, UObject,
-             DecimalFormatSymbols, t_decimalformatsymbols_init);
+             DecimalFormatSymbols, t_decimalformatsymbols_init, NULL);
 
 /* NumberFormat */
 
@@ -125,8 +133,42 @@ static PyMethodDef t_numberformat_methods[] = {
 };
 
 DECLARE_TYPE(NumberFormat, t_numberformat, Format, NumberFormat,
-             abstract_init);
+             abstract_init, NULL);
 
+#if U_ICU_VERSION_HEX >= 0x04020000
+
+/* CurrencyPluralInfo */
+
+class t_currencypluralinfo : public _wrapper {
+public:
+    CurrencyPluralInfo *object;
+};
+
+static int t_currencypluralinfo_init(t_currencypluralinfo *self,
+                                     PyObject *args, PyObject *kwds);
+static PyObject *t_currencypluralinfo_getPluralRules(t_currencypluralinfo *self);
+static PyObject *t_currencypluralinfo_setPluralRules(t_currencypluralinfo *self,
+                                                     PyObject *arg);
+static PyObject *t_currencypluralinfo_getCurrencyPluralPattern(t_currencypluralinfo *self, PyObject *args);
+static PyObject *t_currencypluralinfo_setCurrencyPluralPattern(t_currencypluralinfo *self, PyObject *args);
+static PyObject *t_currencypluralinfo_getLocale(t_currencypluralinfo *self);
+static PyObject *t_currencypluralinfo_setLocale(t_currencypluralinfo *self,
+                                                PyObject *arg);
+
+static PyMethodDef t_currencypluralinfo_methods[] = {
+    DECLARE_METHOD(t_currencypluralinfo, getPluralRules, METH_NOARGS),
+    DECLARE_METHOD(t_currencypluralinfo, setPluralRules, METH_O),
+    DECLARE_METHOD(t_currencypluralinfo, getCurrencyPluralPattern, METH_VARARGS),
+    DECLARE_METHOD(t_currencypluralinfo, setCurrencyPluralPattern, METH_VARARGS),
+    DECLARE_METHOD(t_currencypluralinfo, getLocale, METH_NOARGS),
+    DECLARE_METHOD(t_currencypluralinfo, setLocale, METH_O),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(CurrencyPluralInfo, t_currencypluralinfo, UObject,
+             CurrencyPluralInfo, t_currencypluralinfo_init, NULL);
+
+#endif
 
 /* DecimalFormat */
 
@@ -205,6 +247,14 @@ static PyObject *t_decimalformat_setMinimumSignificantDigits(t_decimalformat *se
 static PyObject *t_decimalformat_areSignificantDigitsUsed(t_decimalformat *self);
 static PyObject *t_decimalformat_setSignificantDigitsUsed(t_decimalformat *self,
                                                           PyObject *arg);
+static PyObject *t_decimalformat_getDecimalFormatSymbols(t_decimalformat *self);
+static PyObject *t_decimalformat_setDecimalFormatSymbols(t_decimalformat *self,
+                                                         PyObject *arg);
+#if U_ICU_VERSION_HEX >= 0x04020000
+static PyObject *t_decimalformat_getCurrencyPluralInfo(t_decimalformat *self);
+static PyObject *t_decimalformat_setCurrencyPluralInfo(t_decimalformat *self,
+                                                       PyObject *arg);
+#endif
 
 static PyMethodDef t_decimalformat_methods[] = {
     DECLARE_METHOD(t_decimalformat, getPositivePrefix, METH_VARARGS),
@@ -249,11 +299,17 @@ static PyMethodDef t_decimalformat_methods[] = {
     DECLARE_METHOD(t_decimalformat, setMinimumSignificantDigits, METH_O),
     DECLARE_METHOD(t_decimalformat, areSignificantDigitsUsed, METH_NOARGS),
     DECLARE_METHOD(t_decimalformat, setSignificantDigitsUsed, METH_O),
+    DECLARE_METHOD(t_decimalformat, getDecimalFormatSymbols, METH_NOARGS),
+    DECLARE_METHOD(t_decimalformat, setDecimalFormatSymbols, METH_O),
+#if U_ICU_VERSION_HEX >= 0x04020000
+    DECLARE_METHOD(t_decimalformat, getCurrencyPluralInfo, METH_NOARGS),
+    DECLARE_METHOD(t_decimalformat, setCurrencyPluralInfo, METH_O),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
 DECLARE_TYPE(DecimalFormat, t_decimalformat, NumberFormat, DecimalFormat,
-             t_decimalformat_init);
+             t_decimalformat_init, NULL);
 
 /* RuleBasedNumberFormat */
 
@@ -292,7 +348,7 @@ static PyMethodDef t_rulebasednumberformat_methods[] = {
 };
 
 DECLARE_TYPE(RuleBasedNumberFormat, t_rulebasednumberformat, NumberFormat,
-             RuleBasedNumberFormat, t_rulebasednumberformat_init);
+             RuleBasedNumberFormat, t_rulebasednumberformat_init, NULL);
 
 PyObject *wrap_NumberFormat(NumberFormat *format)
 {
@@ -341,7 +397,7 @@ static PyMethodDef t_choiceformat_methods[] = {
 };
 
 DECLARE_TYPE(ChoiceFormat, t_choiceformat, NumberFormat, ChoiceFormat,
-             t_choiceformat_init);
+             t_choiceformat_init, NULL);
 
 
 /* DecimalFormatSymbols */
@@ -408,12 +464,11 @@ static PyObject *t_decimalformatsymbols_setSymbol(t_decimalformatsymbols *self,
                                                   PyObject *args)
 {
     DecimalFormatSymbols::ENumberFormatSymbol symbol;
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
     
     if (!parseArgs(args, "iS", &symbol, &u, &_u))
     {
-        self->object->setSymbol(symbol, *u);
+        self->object->setSymbol(symbol, *u); /* copied */
         Py_RETURN_NONE;
     }
 
@@ -443,33 +498,42 @@ static PyObject *t_decimalformatsymbols_getLocale(t_decimalformatsymbols *self,
     return PyErr_SetArgsError((PyObject *) self, "getLocale", args);
 }
 
-static PyObject *t_decimalformatsymbols_richcmp(t_decimalformatsymbols *self,
-                                                PyObject *arg, int op)
-{
-    int b = 0;
-    DecimalFormatSymbols *dfs;
+#if U_ICU_VERSION_HEX >= 0x04020000
 
-    if (!parseArg(arg, "P",
-                  TYPE_CLASSID(DecimalFormatSymbols), &dfs))
+static PyObject *t_decimalformatsymbols_getPatternForCurrencySpacing(t_decimalformatsymbols *self, PyObject *args)
+{
+    DecimalFormatSymbols::ECurrencySpacing type;
+    UBool beforeCurrency;
+
+    if (!parseArgs(args, "ib", &type, &beforeCurrency))
     {
-        switch (op) {
-          case Py_EQ:
-          case Py_NE:
-            b = *self->object == *dfs;
-            if (op == Py_EQ)
-                Py_RETURN_BOOL(b);
-            Py_RETURN_BOOL(!b);
-          case Py_LT:
-          case Py_LE:
-          case Py_GT:
-          case Py_GE:
-            PyErr_SetNone(PyExc_NotImplementedError);
-            return NULL;
-        }
+        UnicodeString u;
+        STATUS_CALL(u = self->object->getPatternForCurrencySpacing(type, beforeCurrency, status));
+        return PyUnicode_FromUnicodeString(&u);
     }
 
-    return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg);
+    return PyErr_SetArgsError((PyObject *) self, "getPatternForCurrencySpacing", args);
 }
+
+static PyObject *t_decimalformatsymbols_setPatternForCurrencySpacing(t_decimalformatsymbols *self, PyObject *args)
+{
+    UnicodeString *u, _u;
+    DecimalFormatSymbols::ECurrencySpacing type;
+    UBool beforeCurrency;
+
+    if (!parseArgs(args, "ibS", &type, &beforeCurrency, &u, &_u))
+    {
+        /* copied */
+        self->object->setPatternForCurrencySpacing(type, beforeCurrency, *u);
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setPatternForCurrencySpacing", args);
+}
+
+#endif
+
+DECLARE_RICHCMP(DecimalFormatSymbols, t_decimalformatsymbols);
 
 
 /* NumberFormat */
@@ -787,11 +851,11 @@ static PyObject *t_numberformat_getCurrency(t_numberformat *self)
 static PyObject *t_numberformat_setCurrency(t_numberformat *self,
                                             PyObject *arg)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
 
     if (!parseArg(arg, "S", &u, &_u))
     {
+        /* copied */
         STATUS_CALL(self->object->setCurrency(u->getBuffer(), status));
         Py_RETURN_NONE;
     }
@@ -903,6 +967,125 @@ static PyObject *t_numberformat_getAvailableLocales(PyTypeObject *type)
 }
 
 
+#if U_ICU_VERSION_HEX >= 0x04020000
+
+/* CurrencyPluralInfo */
+
+static int t_currencypluralinfo_init(t_currencypluralinfo *self,
+                                     PyObject *args, PyObject *kwds)
+{
+    Locale *locale;
+
+    switch (PyTuple_Size(args)) {
+      case 0:
+        INT_STATUS_CALL(self->object = new CurrencyPluralInfo(status));
+        self->flags = T_OWNED;
+        break;
+      case 1:
+        if (!parseArgs(args, "P", TYPE_CLASSID(Locale), &locale))
+        {
+            INT_STATUS_CALL(self->object = new CurrencyPluralInfo(*locale,
+                                                                  status));
+            self->flags = T_OWNED;
+            break;
+        }
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+        break;
+      default:
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+    }
+
+    if (self->object)
+        return 0;
+
+    return -1;
+}
+
+static PyObject *t_currencypluralinfo_getPluralRules(t_currencypluralinfo *self)
+{
+    return wrap_PluralRules(self->object->getPluralRules()->clone(), T_OWNED);
+}
+
+static PyObject *t_currencypluralinfo_setPluralRules(t_currencypluralinfo *self,
+                                                     PyObject *arg)
+{
+    UnicodeString *u, _u;
+
+    if (!parseArg(arg, "S", &u, &_u))
+    {
+        STATUS_CALL(self->object->setPluralRules(*u, status)); /* transient */
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setPluralRules", arg);
+}
+
+static PyObject *t_currencypluralinfo_getCurrencyPluralPattern(t_currencypluralinfo *self, PyObject *args)
+{
+    UnicodeString *u0, _u0;
+    UnicodeString *u1, _u1;
+
+    switch (PyTuple_Size(args)) {
+      case 1:
+        if (!parseArgs(args, "S", &u0, &_u0))
+        {
+            self->object->getCurrencyPluralPattern(*u0, _u1);
+            return PyUnicode_FromUnicodeString(&_u1);
+        }
+        break;
+      case 2:
+        if (!parseArgs(args, "SU", &u0, &_u0, &u1))
+        {
+            self->object->getCurrencyPluralPattern(*u0, *u1);
+            Py_RETURN_ARG(args, 1);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getCurrencyPluralPattern", args);
+}
+
+static PyObject *t_currencypluralinfo_setCurrencyPluralPattern(t_currencypluralinfo *self, PyObject *args)
+{
+    UnicodeString *u0, _u0;
+    UnicodeString *u1, _u1;
+
+    if (!parseArgs(args, "SS", &u0, &u1))
+    {
+        /* u0 transient, u1 copied */
+        STATUS_CALL(self->object->setCurrencyPluralPattern(*u0, *u1, status));
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setCurrencyPluralPattern", args);
+}
+
+static PyObject *t_currencypluralinfo_getLocale(t_currencypluralinfo *self)
+{
+    return wrap_Locale(self->object->getLocale());
+}
+
+static PyObject *t_currencypluralinfo_setLocale(t_currencypluralinfo *self,
+                                                PyObject *arg)
+{
+    Locale *locale;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
+    {
+        STATUS_CALL(self->object->setLocale(*locale, status)); /* copied */
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setLocale", arg);
+}
+
+DECLARE_RICHCMP(CurrencyPluralInfo, t_currencypluralinfo);
+
+#endif
+
+
 /* DecimalFormat */
 
 static int t_decimalformat_init(t_decimalformat *self,
@@ -910,8 +1093,7 @@ static int t_decimalformat_init(t_decimalformat *self,
 {
     DecimalFormat *format;
     DecimalFormatSymbols *dfs;
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
 
     switch (PyTuple_Size(args)) {
       case 0:
@@ -955,8 +1137,7 @@ static int t_decimalformat_init(t_decimalformat *self,
 static PyObject *t_decimalformat_getPositivePrefix(t_decimalformat *self,
                                                    PyObject *args)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
 
     switch (PyTuple_Size(args)) {
       case 0:
@@ -977,12 +1158,11 @@ static PyObject *t_decimalformat_getPositivePrefix(t_decimalformat *self,
 static PyObject *t_decimalformat_setPositivePrefix(t_decimalformat *self,
                                                    PyObject *arg)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
 
     if (!parseArg(arg, "S", &u, &_u))
     {
-        self->object->setPositivePrefix(*u);
+        self->object->setPositivePrefix(*u); /* copied */
         Py_RETURN_NONE;
     }
 
@@ -992,8 +1172,7 @@ static PyObject *t_decimalformat_setPositivePrefix(t_decimalformat *self,
 static PyObject *t_decimalformat_getNegativePrefix(t_decimalformat *self,
                                                    PyObject *args)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
 
     switch (PyTuple_Size(args)) {
       case 0:
@@ -1014,12 +1193,11 @@ static PyObject *t_decimalformat_getNegativePrefix(t_decimalformat *self,
 static PyObject *t_decimalformat_setNegativePrefix(t_decimalformat *self,
                                                    PyObject *arg)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
 
     if (!parseArg(arg, "S", &u, &_u))
     {
-        self->object->setNegativePrefix(*u);
+        self->object->setNegativePrefix(*u); /* copied */
         Py_RETURN_NONE;
     }
 
@@ -1029,8 +1207,7 @@ static PyObject *t_decimalformat_setNegativePrefix(t_decimalformat *self,
 static PyObject *t_decimalformat_getPositiveSuffix(t_decimalformat *self,
                                                    PyObject *args)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
 
     switch (PyTuple_Size(args)) {
       case 0:
@@ -1051,12 +1228,11 @@ static PyObject *t_decimalformat_getPositiveSuffix(t_decimalformat *self,
 static PyObject *t_decimalformat_setPositiveSuffix(t_decimalformat *self,
                                                    PyObject *arg)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
 
     if (!parseArg(arg, "S", &u, &_u))
     {
-        self->object->setPositiveSuffix(*u);
+        self->object->setPositiveSuffix(*u); /* copied */
         Py_RETURN_NONE;
     }
 
@@ -1066,8 +1242,7 @@ static PyObject *t_decimalformat_setPositiveSuffix(t_decimalformat *self,
 static PyObject *t_decimalformat_getNegativeSuffix(t_decimalformat *self,
                                                    PyObject *args)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
 
     switch (PyTuple_Size(args)) {
       case 0:
@@ -1088,12 +1263,11 @@ static PyObject *t_decimalformat_getNegativeSuffix(t_decimalformat *self,
 static PyObject *t_decimalformat_setNegativeSuffix(t_decimalformat *self,
                                                    PyObject *arg)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
 
     if (!parseArg(arg, "S", &u, &_u))
     {
-        self->object->setNegativeSuffix(*u);
+        self->object->setNegativeSuffix(*u); /* copied */
         Py_RETURN_NONE;
     }
 
@@ -1203,12 +1377,11 @@ static PyObject *t_decimalformat_getPadCharacterString(t_decimalformat *self,
 static PyObject *t_decimalformat_setPadCharacter(t_decimalformat *self,
                                                  PyObject *arg)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
 
     if (!parseArg(arg, "S", &u, &_u))
     {
-        self->object->setPadCharacter(*u);
+        self->object->setPadCharacter(*u); /* copied */
         Py_RETURN_NONE;
     }
 
@@ -1479,6 +1652,52 @@ static PyObject *t_decimalformat_setSignificantDigitsUsed(t_decimalformat *self,
     return PyErr_SetArgsError((PyObject *) self, "setSignificantDigitsUsed", arg);
 }
 
+static PyObject *t_decimalformat_getDecimalFormatSymbols(t_decimalformat *self)
+{
+    const DecimalFormatSymbols *dfs = self->object->getDecimalFormatSymbols();
+    return wrap_DecimalFormatSymbols(new DecimalFormatSymbols(*dfs), T_OWNED);
+}
+
+static PyObject *t_decimalformat_setDecimalFormatSymbols(t_decimalformat *self,
+                                                         PyObject *arg)
+{
+    DecimalFormatSymbols *dfs;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(DecimalFormatSymbols), &dfs))
+    {
+        self->object->adoptDecimalFormatSymbols(new DecimalFormatSymbols(*dfs));
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setDecimalFormatSymbols",
+                              arg);
+}
+
+#if U_ICU_VERSION_HEX >= 0x04020000
+
+static PyObject *t_decimalformat_getCurrencyPluralInfo(t_decimalformat *self)
+{
+    const CurrencyPluralInfo *cpi = self->object->getCurrencyPluralInfo();
+    return wrap_CurrencyPluralInfo(cpi->clone(), T_OWNED);
+}
+
+static PyObject *t_decimalformat_setCurrencyPluralInfo(t_decimalformat *self,
+                                                       PyObject *arg)
+{
+    CurrencyPluralInfo *cpi;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(CurrencyPluralInfo), &cpi))
+    {
+        self->object->adoptCurrencyPluralInfo(cpi->clone());
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setCurrencyPluralInfo", arg);
+}
+
+#endif
+
+
 static PyObject *t_decimalformat_str(t_decimalformat *self)
 {
     UnicodeString u;
@@ -1744,11 +1963,11 @@ static PyObject *t_rulebasednumberformat_getDefaultRuleSetName(t_rulebasednumber
 
 static PyObject *t_rulebasednumberformat_setDefaultRuleSet(t_rulebasednumberformat *self, PyObject *arg)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
 
     if (!parseArg(arg, "S", &u, &_u))
     {
+        /* transient */        
         STATUS_CALL(self->object->setDefaultRuleSet(*u, status));
         Py_RETURN_NONE;
     }
@@ -2032,12 +2251,19 @@ void _init_numberformat(PyObject *m)
 {
     DecimalFormatSymbolsType.tp_richcompare =
         (richcmpfunc) t_decimalformatsymbols_richcmp;
+#if U_ICU_VERSION_HEX >= 0x04020000
+    CurrencyPluralInfoType.tp_richcompare =
+        (richcmpfunc) t_currencypluralinfo_richcmp;
+#endif
     DecimalFormatType.tp_str = (reprfunc) t_decimalformat_str;
     RuleBasedNumberFormatType.tp_str = (reprfunc) t_rulebasednumberformat_str;
     ChoiceFormatType.tp_str = (reprfunc) t_choiceformat_str;
 
     REGISTER_TYPE(DecimalFormatSymbols, m);
     REGISTER_TYPE(NumberFormat, m);
+#if U_ICU_VERSION_HEX >= 0x04020000
+    REGISTER_TYPE(CurrencyPluralInfo, m);
+#endif
     REGISTER_TYPE(DecimalFormat, m);
     REGISTER_TYPE(RuleBasedNumberFormat, m);
     REGISTER_TYPE(ChoiceFormat, m);
@@ -2059,6 +2285,13 @@ void _init_numberformat(PyObject *m)
     INSTALL_STATIC_INT(DecimalFormatSymbols, kInfinitySymbol);
     INSTALL_STATIC_INT(DecimalFormatSymbols, kNaNSymbol);
     INSTALL_STATIC_INT(DecimalFormatSymbols, kSignificantDigitSymbol);
+
+#if U_ICU_VERSION_HEX >= 0x04020000
+    INSTALL_STATIC_INT(DecimalFormatSymbols, kCurrencyMatch);
+    INSTALL_STATIC_INT(DecimalFormatSymbols, kSurroundingMatch);
+    INSTALL_STATIC_INT(DecimalFormatSymbols, kInsert);
+    INSTALL_STATIC_INT(DecimalFormatSymbols, kCurrencySpacingCount);
+#endif
 
     INSTALL_STATIC_INT(NumberFormat, kIntegerField);
     INSTALL_STATIC_INT(NumberFormat, kFractionField);

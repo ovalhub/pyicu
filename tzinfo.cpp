@@ -104,7 +104,7 @@ static PyGetSetDef t_tzinfo_properties[] = {
 PyTypeObject TZInfoType = {
     PyObject_HEAD_INIT(NULL)
     0,                                  /* ob_size */
-    "PyICU.ICUtzinfo",                  /* tp_name */
+    "icu.ICUtzinfo",                    /* tp_name */
     sizeof(t_tzinfo),                   /* tp_basicsize */
     0,                                  /* tp_itemsize */
     (destructor) t_tzinfo_dealloc,      /* tp_dealloc */
@@ -187,7 +187,7 @@ static PyGetSetDef t_floatingtz_properties[] = {
 PyTypeObject FloatingTZType = {
     PyObject_HEAD_INIT(NULL)
     0,                                  /* ob_size */
-    "PyICU.FloatingTZ",                 /* tp_name */
+    "icu.FloatingTZ",                   /* tp_name */
     sizeof(t_floatingtz),               /* tp_basicsize */
     0,                                  /* tp_itemsize */
     (destructor) t_floatingtz_dealloc,  /* tp_dealloc */

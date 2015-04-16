@@ -27,9 +27,13 @@
 #include "bases.h"
 #include "locale.h"
 #include "collator.h"
+#include "iterators.h"
+#include "unicodeset.h"
 #include "macros.h"
 
 DECLARE_CONSTANTS_TYPE(UCollationResult);
+DECLARE_CONSTANTS_TYPE(UCollAttribute);
+DECLARE_CONSTANTS_TYPE(UCollAttributeValue);
 
 /* CollationKey */
 
@@ -52,7 +56,7 @@ static PyMethodDef t_collationkey_methods[] = {
 };
 
 DECLARE_TYPE(CollationKey, t_collationkey, UObject, CollationKey,
-             t_collationkey_init);
+             t_collationkey_init, NULL);
 
 /* Collator */
 
@@ -70,6 +74,11 @@ static PyObject *t_collator_getSortKey(t_collator *self, PyObject *args);
 static PyObject *t_collator_getStrength(t_collator *self);
 static PyObject *t_collator_setStrength(t_collator *self, PyObject *arg);
 static PyObject *t_collator_getLocale(t_collator *self, PyObject *args);
+static PyObject *t_collator_getAttribute(t_collator *self, PyObject *arg);
+static PyObject *t_collator_setAttribute(t_collator *self, PyObject *args);
+static PyObject *t_collator_getTailoredSet(t_collator *self);
+static PyObject *t_collator_getVariableTop(t_collator *self);
+static PyObject *t_collator_setVariableTop(t_collator *self, PyObject *arg);
 static PyObject *t_collator_createInstance(PyTypeObject *type, PyObject *args);
 static PyObject *t_collator_getAvailableLocales(PyTypeObject *type);
 static PyObject *t_collator_getKeywords(PyTypeObject *type);
@@ -87,6 +96,11 @@ static PyMethodDef t_collator_methods[] = {
     DECLARE_METHOD(t_collator, getStrength, METH_NOARGS),
     DECLARE_METHOD(t_collator, setStrength, METH_O),
     DECLARE_METHOD(t_collator, getLocale, METH_VARARGS),
+    DECLARE_METHOD(t_collator, getAttribute, METH_O),
+    DECLARE_METHOD(t_collator, setAttribute, METH_VARARGS),
+    DECLARE_METHOD(t_collator, getTailoredSet, METH_O),
+    DECLARE_METHOD(t_collator, getVariableTop, METH_NOARGS),
+    DECLARE_METHOD(t_collator, setVariableTop, METH_O),
     DECLARE_METHOD(t_collator, createInstance, METH_VARARGS | METH_CLASS),
     DECLARE_METHOD(t_collator, getAvailableLocales, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_collator, getKeywords, METH_NOARGS | METH_CLASS),
@@ -95,8 +109,7 @@ static PyMethodDef t_collator_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(Collator, t_collator, UObject, Collator, abstract_init);
-
+DECLARE_TYPE(Collator, t_collator, UObject, Collator, abstract_init, NULL);
 
 /* RuleBasedCollator */
 
@@ -109,14 +122,16 @@ static int t_rulebasedcollator_init(t_rulebasedcollator *self,
                                     PyObject *args, PyObject *kwds);
 static PyObject *t_rulebasedcollator_getRules(t_rulebasedcollator *self,
                                               PyObject *args);
+static PyObject *t_rulebasedcollator_createCollationElementIterator(t_rulebasedcollator *self, PyObject *arg);
 
 static PyMethodDef t_rulebasedcollator_methods[] = {
     DECLARE_METHOD(t_rulebasedcollator, getRules, METH_VARARGS),
+    DECLARE_METHOD(t_rulebasedcollator, createCollationElementIterator, METH_O),
     { NULL, NULL, 0, NULL }
 };
 
 DECLARE_TYPE(RuleBasedCollator, t_rulebasedcollator, Collator,
-             RuleBasedCollator, t_rulebasedcollator_init);
+             RuleBasedCollator, t_rulebasedcollator_init, NULL);
 
 
 /* CollationKey */
@@ -168,32 +183,7 @@ static PyObject *t_collationkey_getByteArray(t_collationkey *self)
     return PyString_FromStringAndSize((char *) array, count);
 }
 
-static PyObject *t_collationkey_richcmp(t_collationkey *self,
-                                        PyObject *arg, int op)
-{
-    int b = 0;
-    CollationKey *key;
-
-    if (!parseArg(arg, "P", TYPE_CLASSID(CollationKey), &key))
-    {
-        switch (op) {
-          case Py_EQ:
-          case Py_NE:
-            b = *self->object == *key;
-            if (op == Py_EQ)
-                Py_RETURN_BOOL(b);
-            Py_RETURN_BOOL(!b);
-          case Py_LT:
-          case Py_LE:
-          case Py_GT:
-          case Py_GE:
-            PyErr_SetNone(PyExc_NotImplementedError);
-            return NULL;
-        }
-    }
-
-    return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg);
-}
+DECLARE_RICHCMP(CollationKey, t_collationkey);
 
 
 /* Collator */
@@ -460,30 +450,74 @@ static PyObject *t_collator_getFunctionalEquivalent(PyTypeObject *type,
     return PyErr_SetArgsError(type, "getFunctionalEquivalent", args);
 }
 
-static PyObject *t_collator_richcmp(t_collator *self, PyObject *arg, int op)
+static PyObject *t_collator_getAttribute(t_collator *self, PyObject *arg)
 {
-    int b = 0;
-    Collator *collator;
+    UColAttribute attribute;
 
-    if (!parseArg(arg, "P", TYPE_ID(Collator), &collator))
+    if (!parseArg(arg, "i", &attribute))
     {
-        switch (op) {
-          case Py_EQ:
-          case Py_NE:
-            b = *self->object == *collator;
-            if (op == Py_EQ)
-                Py_RETURN_BOOL(b);
-            Py_RETURN_BOOL(!b);
-          case Py_LT:
-          case Py_LE:
-          case Py_GT:
-          case Py_GE:
-            PyErr_SetNone(PyExc_NotImplementedError);
-            return NULL;
-        }
+        UColAttributeValue value;
+        STATUS_CALL(value = self->object->getAttribute(attribute, status));
+
+        return PyInt_FromLong(value);
     }
 
-    return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg);
+    return PyErr_SetArgsError((PyObject *) self, "getAttribute", arg);
+}
+
+static PyObject *t_collator_setAttribute(t_collator *self, PyObject *args)
+{
+    UColAttribute attribute;
+    UColAttributeValue value;
+
+    if (!parseArgs(args, "ii", &attribute, &value))
+    {
+        STATUS_CALL(self->object->setAttribute(attribute, value, status));
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setAttribute", args);
+}
+
+static PyObject *t_collator_getTailoredSet(t_collator *self)
+{
+    UnicodeSet *set;
+
+    STATUS_CALL(set = self->object->getTailoredSet(status));
+    return wrap_UnicodeSet(set, T_OWNED);
+}
+
+static PyObject *t_collator_getVariableTop(t_collator *self)
+{
+    uint32_t top;
+
+    STATUS_CALL(top = self->object->getVariableTop(status));
+    return PyInt_FromLong(top >> 16);
+}
+
+static PyObject *t_collator_setVariableTop(t_collator *self, PyObject *arg)
+{
+    UnicodeString *u, _u;
+    uint32_t top;
+
+    if (!parseArg(arg, "i", &top))
+    {
+        STATUS_CALL(self->object->setVariableTop(top << 16, status));
+        Py_RETURN_NONE;
+    }
+    else if (!parseArg(arg, "S", &u, &_u))
+    {
+        STATUS_CALL(self->object->setVariableTop(*u, status)); /* transient */
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setVariableTop", arg);
+}
+
+
+static int t_collator_hash(t_collator *self)
+{
+    return self->object->hashCode();
 }
 
 
@@ -496,6 +530,7 @@ static int t_rulebasedcollator_init(t_rulebasedcollator *self,
     UnicodeString _u;
     RuleBasedCollator *collator;
     Collator::ECollationStrength strength;
+    UColAttributeValue decompositionMode;
 
     switch (PyTuple_Size(args)) {
       case 1:
@@ -509,9 +544,13 @@ static int t_rulebasedcollator_init(t_rulebasedcollator *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
       case 2:
-        if (!parseArgs(args, "Si", &u, &_u, &strength))
+        /* two-parameter case is ambiguous from python with ints */
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+      case 3:
+        if (!parseArgs(args, "Sii", &u, &_u, &strength, &decompositionMode))
         {
-            INT_STATUS_CALL(collator = new RuleBasedCollator(*u, strength, status));
+            INT_STATUS_CALL(collator = new RuleBasedCollator(*u, strength, decompositionMode, status));
             self->object = collator;
             self->flags = T_OWNED;
             break;
@@ -536,30 +575,87 @@ static PyObject *t_rulebasedcollator_getRules(t_rulebasedcollator *self,
     return PyUnicode_FromUnicodeString(&u);
 }
 
+static PyObject *t_rulebasedcollator_createCollationElementIterator(t_rulebasedcollator *self, PyObject *arg)
+{
+    UnicodeString *u, _u;
+    CharacterIterator *chars;
+    CollationElementIterator *iterator;
+
+    if (!parseArg(arg, "S", &u, &_u))
+    {
+        iterator = self->object->createCollationElementIterator(*u);
+        return wrap_CollationElementIterator(iterator, T_OWNED);
+    }
+    else if (!parseArg(arg, "P", TYPE_ID(CharacterIterator), &chars))
+    {
+        iterator = self->object->createCollationElementIterator(*chars);
+        return wrap_CollationElementIterator(iterator, T_OWNED);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "createCollationElementIterator", arg);
+}
+
 static PyObject *t_rulebasedcollator_str(t_rulebasedcollator *self)
 {
     UnicodeString u = self->object->getRules();
     return PyUnicode_FromUnicodeString(&u);
 }
 
+DECLARE_RICHCMP(RuleBasedCollator, t_rulebasedcollator);
+
+
 void _init_collator(PyObject *m)
 {
     CollationKeyType.tp_richcompare = (richcmpfunc) t_collationkey_richcmp;
-    CollatorType.tp_richcompare = (richcmpfunc) t_collator_richcmp;
+    CollatorType.tp_hash = (hashfunc) t_collator_hash;
     RuleBasedCollatorType.tp_str = (reprfunc) t_rulebasedcollator_str;
+    RuleBasedCollatorType.tp_richcompare =
+        (richcmpfunc) t_rulebasedcollator_richcmp;
 
     INSTALL_CONSTANTS_TYPE(UCollationResult, m);
+    INSTALL_CONSTANTS_TYPE(UCollAttribute, m);
+    INSTALL_CONSTANTS_TYPE(UCollAttributeValue, m);
     REGISTER_TYPE(CollationKey, m);
     INSTALL_TYPE(Collator, m);
     REGISTER_TYPE(RuleBasedCollator, m);
 
-    INSTALL_ENUM(UCollationResult, UCOL_LESS);
-    INSTALL_ENUM(UCollationResult, UCOL_EQUAL);
-    INSTALL_ENUM(UCollationResult, UCOL_GREATER);
+    INSTALL_ENUM(UCollationResult, "LESS", UCOL_LESS);
+    INSTALL_ENUM(UCollationResult, "EQUAL", UCOL_EQUAL);
+    INSTALL_ENUM(UCollationResult, "GREATER", UCOL_GREATER);
+
+    INSTALL_ENUM(UCollAttribute, "FRENCH_COLLATION", UCOL_FRENCH_COLLATION);
+    INSTALL_ENUM(UCollAttribute, "ALTERNATE_HANDLING", UCOL_ALTERNATE_HANDLING);
+    INSTALL_ENUM(UCollAttribute, "CASE_FIRST", UCOL_CASE_FIRST);
+    INSTALL_ENUM(UCollAttribute, "CASE_LEVEL", UCOL_CASE_LEVEL);
+    INSTALL_ENUM(UCollAttribute, "NORMALIZATION_MODE", UCOL_NORMALIZATION_MODE);
+    INSTALL_ENUM(UCollAttribute, "DECOMPOSITION_MODE", UCOL_DECOMPOSITION_MODE);
+    INSTALL_ENUM(UCollAttribute, "STRENGTH", UCOL_STRENGTH);
+    INSTALL_ENUM(UCollAttribute, "HIRAGANA_QUATERNARY_MODE", UCOL_HIRAGANA_QUATERNARY_MODE);
+    INSTALL_ENUM(UCollAttribute, "NUMERIC_COLLATION", UCOL_NUMERIC_COLLATION);
+
+    INSTALL_ENUM(UCollAttributeValue, "DEFAULT", UCOL_DEFAULT);
+    INSTALL_ENUM(UCollAttributeValue, "PRIMARY", UCOL_PRIMARY);
+    INSTALL_ENUM(UCollAttributeValue, "SECONDARY", UCOL_SECONDARY);
+    INSTALL_ENUM(UCollAttributeValue, "TERTIARY", UCOL_TERTIARY);
+    INSTALL_ENUM(UCollAttributeValue, "DEFAULT_STRENGTH", UCOL_DEFAULT_STRENGTH);
+    INSTALL_ENUM(UCollAttributeValue, "QUATERNARY", UCOL_QUATERNARY);
+    INSTALL_ENUM(UCollAttributeValue, "IDENTICAL", UCOL_IDENTICAL);
+    INSTALL_ENUM(UCollAttributeValue, "OFF", UCOL_OFF);
+    INSTALL_ENUM(UCollAttributeValue, "ON", UCOL_ON);
+    INSTALL_ENUM(UCollAttributeValue, "SHIFTED", UCOL_SHIFTED);
+    INSTALL_ENUM(UCollAttributeValue, "NON_IGNORABLE", UCOL_NON_IGNORABLE);
+    INSTALL_ENUM(UCollAttributeValue, "LOWER_FIRST", UCOL_LOWER_FIRST);
+    INSTALL_ENUM(UCollAttributeValue, "UPPER_FIRST", UCOL_UPPER_FIRST);
+
+    INSTALL_ENUM(UCollationResult, "LESS", UCOL_LESS);
+    INSTALL_ENUM(UCollationResult, "EQUAL", UCOL_EQUAL);
+    INSTALL_ENUM(UCollationResult, "GREATER", UCOL_GREATER);
 
     INSTALL_STATIC_INT(Collator, PRIMARY);
     INSTALL_STATIC_INT(Collator, SECONDARY);
     INSTALL_STATIC_INT(Collator, TERTIARY);
     INSTALL_STATIC_INT(Collator, QUATERNARY);
     INSTALL_STATIC_INT(Collator, IDENTICAL);
+
+    INSTALL_STATIC_INT(CollationElementIterator, NULLORDER);
 }

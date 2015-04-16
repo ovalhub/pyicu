@@ -21,9 +21,17 @@
  # ====================================================================
 
 
-import warnings as _warnings
+class ICUError(Exception):
+    messages = {}
 
-_warnings.warn("Module 'PyICU' is deprecated, import 'icu' instead'",
-               category=DeprecationWarning, stacklevel=2)
+    def __str__(self):
+        return "%s, error code: %d" %(self.args[1], self.args[0])
 
-from icu import *
+    def getErrorCode(self):
+        return self.args[0]
+
+
+class InvalidArgsError(Exception):
+    pass
+
+from docs import *

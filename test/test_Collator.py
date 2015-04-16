@@ -24,7 +24,7 @@
 import sys, os
 
 from unittest import TestCase, main
-from PyICU import *
+from icu import *
 
 
 class TestCollator(TestCase):

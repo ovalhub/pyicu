@@ -4,12 +4,17 @@ possible without the tireless efforts of the people and open source projects
 below.
 
   - the ICU developers,
-    http://www-306.ibm.com/software/globalization/icu/projects.jsp
+    http://icu-project.org
 
   - the Open Source Applications Foundation, for hosting the project
     http://www.osafoundation.org
 
   - Andi Vajda, PyICU project founder and maintainer
-  - David Bolen for Python 2.3 and MSVC 6 support and finding a huge memory leak
+  - Christoph Burgmer for the Transliterator Python subclass
+  - Jan Gehring for Freebsd 7 build entries
+  - Christian Kesselheim for Solaris build entries
+  - Jimmy Yuen Ho Wong for TimeZone::getDSTSavings()
+  - Bernd Zeimetz for replacing Makefile with setup.py
+  - 
 
 Thank you all !

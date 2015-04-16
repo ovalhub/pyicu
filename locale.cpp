@@ -21,6 +21,14 @@
  * ====================================================================
  */
 
+#if defined(_MSC_VER) && defined(__WIN32)
+#include <windows.h>
+#else
+#include <sys/fcntl.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#endif
+
 #include "common.h"
 #include "structmember.h"
 
@@ -132,7 +140,7 @@ static PyMethodDef t_locale_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(Locale, t_locale, UObject, Locale, t_locale_init);
+DECLARE_TYPE(Locale, t_locale, UObject, Locale, t_locale_init, NULL);
 
 PyObject *wrap_Locale(const Locale &locale)
 {
@@ -172,6 +180,9 @@ static PyObject *t_resourcebundle_getIntVector(t_resourcebundle *self);
 static PyObject *t_resourcebundle_getLocale(t_resourcebundle *self,
                                             PyObject *args);
 
+static PyObject *t_resourcebundle_setAppData(PyTypeObject *type,
+                                             PyObject *args);
+
 static PyMethodDef t_resourcebundle_methods[] = {
     DECLARE_METHOD(t_resourcebundle, getSize, METH_NOARGS),
     DECLARE_METHOD(t_resourcebundle, getString, METH_VARARGS),
@@ -191,11 +202,12 @@ static PyMethodDef t_resourcebundle_methods[] = {
     DECLARE_METHOD(t_resourcebundle, getBinary, METH_NOARGS),
     DECLARE_METHOD(t_resourcebundle, getIntVector, METH_NOARGS),
     DECLARE_METHOD(t_resourcebundle, getLocale, METH_VARARGS),
+    DECLARE_METHOD(t_resourcebundle, setAppData, METH_CLASS | METH_VARARGS),
     { NULL, NULL, 0, NULL }
 };
 
 DECLARE_TYPE(ResourceBundle, t_resourcebundle, UObject,
-             ResourceBundle, t_resourcebundle_init);
+             ResourceBundle, t_resourcebundle_init, NULL);
 
 static PyObject *wrap_ResourceBundle(const ResourceBundle &resourcebundle)
 {
@@ -599,7 +611,7 @@ static PyObject *t_locale_setDefault(PyTypeObject *type, PyObject *args)
       case 1:
         if (!parseArgs(args, "P", TYPE_CLASSID(Locale), &locale))
         {
-            STATUS_CALL(Locale::setDefault(*locale, status));
+            STATUS_CALL(Locale::setDefault(*locale, status)); /* transient */
             Py_RETURN_NONE;
         }
         break;
@@ -724,8 +736,7 @@ static PyObject *t_locale_str(t_locale *self)
 static int t_resourcebundle_init(t_resourcebundle *self,
                                  PyObject *args, PyObject *kwds)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
     Locale *locale;
     ResourceBundle *bundle;
 
@@ -770,8 +781,7 @@ static PyObject *t_resourcebundle_getSize(t_resourcebundle *self)
 static PyObject *t_resourcebundle_getString(t_resourcebundle *self,
                                             PyObject *args)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
 
     switch (PyTuple_Size(args)) {
       case 0:
@@ -834,7 +844,13 @@ static PyObject *t_resourcebundle_resetIterator(t_resourcebundle *self)
 
 static PyObject *t_resourcebundle_getNext(t_resourcebundle *self)
 {
-    STATUS_CALL(return wrap_ResourceBundle(self->object->getNext(status)));
+    UErrorCode status = U_ZERO_ERROR;
+    ResourceBundle rb = self->object->getNext(status);
+
+    if (U_FAILURE(status))
+        return ICUException(status).reportError();
+
+    return wrap_ResourceBundle(rb);
 }
 
 static PyObject *t_resourcebundle_getNextString(t_resourcebundle *self,
@@ -861,14 +877,29 @@ static PyObject *t_resourcebundle_getNextString(t_resourcebundle *self,
 
 static PyObject *t_resourcebundle_get(t_resourcebundle *self, PyObject *arg)
 {
-    int i;
+    UErrorCode status = U_ZERO_ERROR;
     char *key;
+    int i;
 
     if (!parseArg(arg, "i", &i))
-        STATUS_CALL(return wrap_ResourceBundle(self->object->get(i, status)));
+    {
+        ResourceBundle rb = self->object->get(i, status);
+
+        if (U_FAILURE(status))
+            return ICUException(status).reportError();
+
+        return wrap_ResourceBundle(rb);
+    }
 
     if (!parseArg(arg, "c", &key))
-        STATUS_CALL(return wrap_ResourceBundle(self->object->get(key, status)));
+    {
+        ResourceBundle rb = self->object->get(key, status);
+
+        if (U_FAILURE(status))
+            return ICUException(status).reportError();
+
+        return wrap_ResourceBundle(rb);
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "get", arg);
 }
@@ -876,10 +907,18 @@ static PyObject *t_resourcebundle_get(t_resourcebundle *self, PyObject *arg)
 static PyObject *t_resourcebundle_getWithFallback(t_resourcebundle *self,
                                                   PyObject *arg)
 {
+    UErrorCode status = U_ZERO_ERROR;
     char *key;
 
     if (!parseArg(arg, "c", &key))
-        STATUS_CALL(return wrap_ResourceBundle(self->object->getWithFallback(key, status)));
+    {
+        ResourceBundle rb = self->object->getWithFallback(key, status);
+
+        if (U_FAILURE(status))
+            return ICUException(status).reportError();
+
+        return wrap_ResourceBundle(rb);
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "getWithFallback", arg);
 }
@@ -971,7 +1010,117 @@ static PyObject *t_resourcebundle_getLocale(t_resourcebundle *self,
     }
 
     return PyErr_SetArgsError((PyObject *) self, "getLocale", args);
-} 
+}
+
+#if defined(_MSC_VER) || defined(__WIN32)
+
+static PyObject *t_resourcebundle_setAppData(PyTypeObject *type,
+                                             PyObject *args)
+{
+    char *packageName, *path;
+
+    if (!parseArgs(args, "cc", &packageName, &path))
+    {
+        HANDLE fd = CreateFile(path, GENERIC_READ, FILE_SHARE_READ,
+                               NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        UErrorCode status = U_ZERO_ERROR;
+        DWORD dwSize;
+        HANDLE hMap;
+        LPVOID data;
+
+        if (fd == INVALID_HANDLE_VALUE)
+            return PyErr_SetFromWindowsErrWithFileName(0, path);
+
+        dwSize = GetFileSize(fd, NULL);
+        if (dwSize == INVALID_FILE_SIZE)
+        {
+            PyErr_SetFromWindowsErrWithFileName(0, path);
+            CloseHandle(fd);
+
+            return NULL;
+        }
+
+        hMap = CreateFileMapping(fd, NULL, PAGE_READONLY, 0, dwSize, NULL);
+        if (!hMap)
+        {
+            PyErr_SetFromWindowsErrWithFileName(0, path);
+            CloseHandle(fd);
+
+            return NULL;
+        }
+        CloseHandle(fd);
+
+        data = MapViewOfFile(hMap, FILE_MAP_READ, 0, 0, 0);
+        if (!data)
+        {
+            PyErr_SetFromWindowsErrWithFileName(0, path);
+            CloseHandle(hMap);
+
+            return NULL;
+        }
+        CloseHandle(hMap);
+
+        udata_setAppData(packageName, data, &status);
+        if (U_FAILURE(status))
+        {
+            UnmapViewOfFile(data);
+            return ICUException(status).reportError();
+        }
+
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError(type, "setAppData", args);
+}
+
+#else
+
+static PyObject *t_resourcebundle_setAppData(PyTypeObject *type,
+                                             PyObject *args)
+{
+    char *packageName, *path;
+
+    if (!parseArgs(args, "cc", &packageName, &path))
+    {
+        int fd = open(path, O_RDONLY);
+        UErrorCode status = U_ZERO_ERROR;
+        struct stat buf;
+        void *data;
+
+        if (fd < 0)
+            return PyErr_SetFromErrnoWithFilename(PyExc_ValueError, path);
+
+        if (fstat(fd, &buf) < 0)
+        {
+            PyErr_SetFromErrnoWithFilename(PyExc_ValueError, path);
+            close(fd);
+
+            return NULL;
+        }
+
+        data = mmap(NULL, buf.st_size, PROT_READ, MAP_SHARED, fd, 0);
+        if (data == MAP_FAILED)
+        {
+            PyErr_SetFromErrnoWithFilename(PyExc_ValueError, path);
+            close(fd);
+
+            return NULL;
+        }
+        close(fd);
+
+        udata_setAppData(packageName, data, &status);
+        if (U_FAILURE(status))
+        {
+            munmap(data, buf.st_size);
+            return ICUException(status).reportError();
+        }
+
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError(type, "setAppData", args);
+}
+#endif
 
 static PyObject *t_resourcebundle_iter(t_resourcebundle *self)
 {
@@ -984,7 +1133,15 @@ static PyObject *t_resourcebundle_iter(t_resourcebundle *self)
 static PyObject *t_resourcebundle_next(t_resourcebundle *self)
 {
     if (self->object->hasNext())
-        STATUS_CALL(return wrap_ResourceBundle(self->object->getNext(status)));
+    {
+        UErrorCode status = U_ZERO_ERROR;
+        ResourceBundle rb = self->object->getNext(status);
+
+        if (U_FAILURE(status))
+            return ICUException(status).reportError();
+
+        return wrap_ResourceBundle(rb);
+    }
 
     PyErr_SetNone(PyExc_StopIteration);
     return NULL;
@@ -1026,16 +1183,16 @@ void _init_locale(PyObject *m)
     REGISTER_TYPE(Locale, m);
     REGISTER_TYPE(ResourceBundle, m);
 
-    INSTALL_ENUM(ULocDataLocaleType, ULOC_ACTUAL_LOCALE);
-    INSTALL_ENUM(ULocDataLocaleType, ULOC_VALID_LOCALE);
+    INSTALL_ENUM(ULocDataLocaleType, "ACTUAL_LOCALE", ULOC_ACTUAL_LOCALE);
+    INSTALL_ENUM(ULocDataLocaleType, "VALID_LOCALE", ULOC_VALID_LOCALE);
 
-    INSTALL_ENUM(UResType, URES_NONE);
-    INSTALL_ENUM(UResType, URES_STRING);
-    INSTALL_ENUM(UResType, URES_BINARY);
-    INSTALL_ENUM(UResType, URES_TABLE);
-    INSTALL_ENUM(UResType, URES_ALIAS);
-    INSTALL_ENUM(UResType, URES_INT);
-    INSTALL_ENUM(UResType, URES_ARRAY);
-    INSTALL_ENUM(UResType, URES_INT_VECTOR);
-    INSTALL_ENUM(UResType, RES_RESERVED);
+    INSTALL_ENUM(UResType, "NONE", URES_NONE);
+    INSTALL_ENUM(UResType, "STRING", URES_STRING);
+    INSTALL_ENUM(UResType, "BINARY", URES_BINARY);
+    INSTALL_ENUM(UResType, "TABLE", URES_TABLE);
+    INSTALL_ENUM(UResType, "ALIAS", URES_ALIAS);
+    INSTALL_ENUM(UResType, "INT", URES_INT);
+    INSTALL_ENUM(UResType, "ARRAY", URES_ARRAY);
+    INSTALL_ENUM(UResType, "INT_VECTOR", URES_INT_VECTOR);
+    INSTALL_ENUM(UResType, "RESERVED", RES_RESERVED);
 }

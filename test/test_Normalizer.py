@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 # ====================================================================
-# Copyright (c) 2007-2010 Open Source Applications Foundation.
+# Copyright (c) 2009-2010 Open Source Applications Foundation.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -27,37 +28,23 @@ from unittest import TestCase, main
 from icu import *
 
 
-class TestCharset(TestCase):
+class TestNormalizer2(TestCase):
 
-    def testDetect(self):
+    def testNormalize(self):
 
-        detector = CharsetDetector()
-        detector.setText('foo')
+        try:
+            from icu import Normalizer2
+        except ImportError:
+            return
 
-        match = detector.detect()
-        self.assert_(match.getName() == 'UTF-8')
+        normalizer = Normalizer2.getInstance(None, "nfkc_cf",
+                                             UNormalizationMode2.COMPOSE)
 
-    def testDetectAll(self):
+        self.assert_(normalizer.normalize("Hi There") == u'hi there')
 
-        detector = CharsetDetector('foo')
-
-        matches = detector.detectAll()
-        self.assert_(matches[0].getName() == 'UTF-8')
-
-    def testDeclared(self):
-
-        detector = CharsetDetector('beaut\xe9 probable', 'iso-8859-1')
-
-        self.assert_("ISO-8859-1" in (m.getName()
-                                      for m in detector.detectAll()))
-
-    def testUnicode(self):
-
-        string = 'beaut\xe9 probable'
-        ustring = unicode(CharsetDetector(string).detect())
-
-        self.assert_(ustring.encode('iso-8859-1') == string)
-        
+        a = UnicodeString()
+        normalizer.normalize("Hi There", a)
+        self.assert_(a == UnicodeString(u'hi there'))
         
 
 if __name__ == "__main__":

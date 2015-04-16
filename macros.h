@@ -29,12 +29,36 @@ PyObject *make_descriptor(PyTypeObject *value);
 PyObject *make_descriptor(PyObject *(*get)(PyObject *));
 
 
+#define PYTHON_CALL(action)                                             \
+    {                                                                   \
+        action;                                                         \
+        if (PyErr_Occurred())                                           \
+            return NULL;                                                \
+    }
+
+#define INT_PYTHON_CALL(action)                                         \
+    {                                                                   \
+        action;                                                         \
+        if (PyErr_Occurred())                                           \
+            return -1;                                                  \
+    }
+
 #define STATUS_CALL(action)                                             \
     {                                                                   \
         UErrorCode status = U_ZERO_ERROR;                               \
         action;                                                         \
         if (U_FAILURE(status))                                          \
             return ICUException(status).reportError();                  \
+    }
+
+#define STATUS_PYTHON_CALL(action)                                      \
+    {                                                                   \
+        UErrorCode status = U_ZERO_ERROR;                               \
+        action;                                                         \
+        if (U_FAILURE(status))                                          \
+            return ICUException(status).reportError();                  \
+        if (PyErr_Occurred())                                           \
+            return NULL;                                                \
     }
 
 #define STATUS_PARSER_CALL(action)                                      \
@@ -46,6 +70,17 @@ PyObject *make_descriptor(PyObject *(*get)(PyObject *));
             return ICUException(parseError, status).reportError();      \
     }
 
+#define STATUS_PARSER_PYTHON_CALL(action)                               \
+    {                                                                   \
+        UErrorCode status = U_ZERO_ERROR;                               \
+        UParseError parseError;                                         \
+        action;                                                         \
+        if (U_FAILURE(status))                                          \
+            return ICUException(parseError, status).reportError();      \
+        if (PyErr_Occurred())                                           \
+            return NULL;                                                \
+    }
+
 #define INT_STATUS_CALL(action)                                         \
     {                                                                   \
         UErrorCode status = U_ZERO_ERROR;                               \
@@ -55,6 +90,19 @@ PyObject *make_descriptor(PyObject *(*get)(PyObject *));
             ICUException(status).reportError();                         \
             return -1;                                                  \
         }                                                               \
+    }
+
+#define INT_STATUS_PYTHON_CALL(action)                                  \
+    {                                                                   \
+        UErrorCode status = U_ZERO_ERROR;                               \
+        action;                                                         \
+        if (U_FAILURE(status))                                          \
+        {                                                               \
+            ICUException(status).reportError();                         \
+            return -1;                                                  \
+        }                                                               \
+        if (PyErr_Occurred())                                           \
+            return -1;                                                  \
     }
 
 #define INT_STATUS_PARSER_CALL(action)                                  \
@@ -69,18 +117,32 @@ PyObject *make_descriptor(PyObject *(*get)(PyObject *));
         }                                                               \
     }
 
+#define INT_STATUS_PARSER_PYTHON_CALL(action)                           \
+    {                                                                   \
+        UErrorCode status = U_ZERO_ERROR;                               \
+        UParseError parseError;                                         \
+        action;                                                         \
+        if (U_FAILURE(status))                                          \
+        {                                                               \
+            ICUException(parseError, status).reportError();             \
+            return -1;                                                  \
+        }                                                               \
+        if (PyErr_Occurred())                                           \
+            return -1;                                                  \
+    }
+
 
 #define DECLARE_METHOD(type, name, flags)                               \
     { #name, (PyCFunction) type##_##name, flags, "" }
 
-#define DECLARE_TYPE(name, t_name, base, icuClass, init)                    \
+#define DECLARE_TYPE(name, t_name, base, icuClass, init, dealloc)           \
 PyTypeObject name##Type = {                                                 \
     PyObject_HEAD_INIT(NULL)                                                \
     /* ob_size            */   0,                                           \
-    /* tp_name            */   "PyICU."#name,                               \
+    /* tp_name            */   "icu."#name,                                 \
     /* tp_basicsize       */   sizeof(t_name),                              \
     /* tp_itemsize        */   0,                                           \
-    /* tp_dealloc         */   0,                                           \
+    /* tp_dealloc         */   (destructor)dealloc,                         \
     /* tp_print           */   0,                                           \
     /* tp_getattr         */   0,                                           \
     /* tp_setattr         */   0,                                           \
@@ -96,7 +158,7 @@ PyTypeObject name##Type = {                                                 \
     /* tp_setattro        */   0,                                           \
     /* tp_as_buffer       */   0,                                           \
     /* tp_flags           */   Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,    \
-    /* tp_doc             */   #t_name" objects",                           \
+    /* tp_doc             */   #name" objects",                             \
     /* tp_traverse        */   0,                                           \
     /* tp_clear           */   0,                                           \
     /* tp_richcompare     */   0,                                           \
@@ -146,7 +208,7 @@ static PyObject *t_name##_new(PyTypeObject *type,                       \
 PyTypeObject name##Type = {                                                 \
     PyObject_HEAD_INIT(NULL)                                                \
     /* ob_size            */   0,                                           \
-    /* tp_name            */   "PyICU."#name,                               \
+    /* tp_name            */   "icu."#name,                                 \
     /* tp_basicsize       */   sizeof(t_name),                              \
     /* tp_itemsize        */   0,                                           \
     /* tp_dealloc         */   (destructor)t_name##_dealloc,                \
@@ -165,7 +227,7 @@ PyTypeObject name##Type = {                                                 \
     /* tp_setattro        */   0,                                           \
     /* tp_as_buffer       */   0,                                           \
     /* tp_flags           */   Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,    \
-    /* tp_doc             */   #t_name" objects",                           \
+    /* tp_doc             */   #name" objects",                             \
     /* tp_traverse        */   0,                                           \
     /* tp_clear           */   0,                                           \
     /* tp_richcompare     */   0,                                           \
@@ -204,7 +266,7 @@ PyObject *wrap_##name(icuStruct *object, int flags)                     \
 PyTypeObject name##Type = {                                             \
     PyObject_HEAD_INIT(NULL)                                            \
     /* ob_size            */   0,                                       \
-    /* tp_name            */   "PyICU."#name,                           \
+    /* tp_name            */   "icu."#name,                             \
     /* tp_basicsize       */   0,                                       \
     /* tp_itemsize        */   0,                                       \
 };
@@ -252,9 +314,9 @@ PyTypeObject name##Type = {                                             \
     PyDict_SetItemString(type##Type.tp_dict, #name,                         \
                          make_descriptor(PyInt_FromLong(type::name)))
 
-#define INSTALL_ENUM(type, name)                                        \
-    PyDict_SetItemString(type##Type.tp_dict, #name,                     \
-                         make_descriptor(PyInt_FromLong(name)))
+#define INSTALL_ENUM(type, name, value)                                 \
+    PyDict_SetItemString(type##Type.tp_dict, name,                      \
+                         make_descriptor(PyInt_FromLong(value)))
 
 #define Py_RETURN_BOOL(b)                       \
     {                                           \
@@ -271,8 +333,38 @@ PyTypeObject name##Type = {                                             \
         return arg;                                     \
     }
 
-#define Py_RETURN_SELF()                                \
-    Py_INCREF(self);                                    \
-    return (PyObject *) self;
+#define Py_RETURN_SELF()                                    \
+    {                                                       \
+        Py_INCREF(self);                                    \
+        return (PyObject *) self;                           \
+    }
+
+
+#define DECLARE_RICHCMP(name, t_name) \
+    static PyObject *t_name ## _richcmp(t_name *self,                   \
+                                        PyObject *arg, int op)          \
+    {                                                                   \
+        int b = 0;                                                      \
+        name *object;                                                   \
+        if (!parseArg(arg, "P", TYPE_CLASSID(name), &object))           \
+        {                                                               \
+            switch (op) {                                               \
+              case Py_EQ:                                               \
+              case Py_NE:                                               \
+                b = *self->object == *object;                           \
+                if (op == Py_EQ)                                        \
+                    Py_RETURN_BOOL(b);                                  \
+                Py_RETURN_BOOL(!b);                                     \
+              case Py_LT:                                               \
+              case Py_LE:                                               \
+              case Py_GT:                                               \
+              case Py_GE:                                               \
+                PyErr_SetNone(PyExc_NotImplementedError);               \
+                return NULL;                                            \
+            }                                                           \
+        }                                                               \
+        return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg); \
+    }
+
 
 #endif /* _macros_h */

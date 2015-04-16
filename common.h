@@ -85,6 +85,37 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/ucsdet.h>
 #include <unicode/uidna.h>
 #include <unicode/translit.h>
+#include <unicode/unifunct.h>
+#include <unicode/unimatch.h>
+#include <unicode/unifilt.h>
+#include <unicode/uniset.h>
+#include <unicode/usetiter.h>
+#include <unicode/regex.h>
+#include <unicode/normlzr.h>
+#include <unicode/search.h>
+#include <unicode/stsearch.h>
+
+#define U_ICU_VERSION_HEX ((U_ICU_VERSION_MAJOR_NUM << 24) +    \
+                           (U_ICU_VERSION_MINOR_NUM << 16) +    \
+                           (U_ICU_VERSION_PATCHLEVEL_NUM << 8))
+
+#if U_ICU_VERSION_HEX >= 0x04000000
+#include <unicode/plurfmt.h>
+#include <unicode/plurrule.h>
+#include <unicode/dtintrv.h>
+#include <unicode/dtitvinf.h>
+#include <unicode/dtitvfmt.h>
+#endif
+
+#if U_ICU_VERSION_HEX >= 0x04020000
+#include <unicode/tmutfmt.h>
+#include <unicode/currpinf.h>
+#endif
+
+#if U_ICU_VERSION_HEX >= 0x04040000
+#include <unicode/normalizer2.h>
+#include <unicode/selfmt.h>
+#endif
 
 U_NAMESPACE_USE
 
@@ -121,6 +152,8 @@ enum {
     DateFormat_ID,
     Calendar_ID,
     Collator_ID,
+    UnicodeMatcher_ID,
+    SearchIterator_ID
 };
 
 void _init_common(PyObject *m);
@@ -178,6 +211,9 @@ int _parseArgs(PyObject **args, int count, char *types, ...);
 #endif
 
 int isUnicodeString(PyObject *arg);
+int32_t toUChar32(UnicodeString& u, UChar32 *c, UErrorCode& status);
+UnicodeString fromUChar32(UChar32 c);
+
 int isInstance(PyObject *arg, UClassID id, PyTypeObject *type);
 void registerType(PyTypeObject *type, UClassID id);
 

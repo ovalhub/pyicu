@@ -7,8 +7,7 @@ except ImportError:
     from distutils.core import setup, Extension
 
 
-VERSION = '0.9'
-ICU_VERSION = '4.2.1'   # versions 3.6, 3.8 are also supported
+VERSION = '1.0'
 
 INCLUDES = {
     'darwin': ['/usr/local/include'],
@@ -70,7 +69,7 @@ setup(name="PyICU",
       test_suite="test",
       url='http://pyicu.osafoundation.org/',
       author='Open Source Applications Foundation',
-      ext_modules=[Extension('_PyICU',
+      ext_modules=[Extension('_icu',
                              [filename for filename in os.listdir(os.curdir)
                               if filename.endswith('.cpp')],
                              include_dirs=_includes,
@@ -79,4 +78,4 @@ setup(name="PyICU",
                              libraries=_libraries,
                              define_macros=[('PYICU_VER', '"%s"' %(VERSION))])
                    ],
-      py_modules=['PyICU'])
+      py_modules=['icu', 'PyICU', 'docs'])

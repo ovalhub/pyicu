@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2010 Open Source Applications Foundation.
+ * Copyright (c) 2010-2010 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,28 +21,9 @@
  * ====================================================================
  */
 
-#ifndef _format_h
-#define _format_h
+#ifndef _normalizer_h
+#define _normalizer_h
 
-class t_format : public _wrapper {
-public:
-    Format *object;
-};
+void _init_normalizer(PyObject *m);
 
-extern PyTypeObject FormatType;
-extern PyTypeObject FieldPositionType;
-extern PyTypeObject ParsePositionType;
-#if U_ICU_VERSION_HEX >= 0x04000000
-extern PyTypeObject PluralRulesType;
-#endif
-
-PyObject *t_format_format(t_format *self, PyObject *args);
-PyObject *wrap_Format(Format *format);
-#if U_ICU_VERSION_HEX >= 0x04000000
-PyObject *wrap_PluralRules(PluralRules *rules, int flag);
-#endif
-
-void _init_format(PyObject *m);
-
-
-#endif /* _format_h */
+#endif /* _normalizer_h */

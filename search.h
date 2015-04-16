@@ -21,28 +21,10 @@
  * ====================================================================
  */
 
-#ifndef _format_h
-#define _format_h
+#ifndef _search_h
+#define _search_h
 
-class t_format : public _wrapper {
-public:
-    Format *object;
-};
-
-extern PyTypeObject FormatType;
-extern PyTypeObject FieldPositionType;
-extern PyTypeObject ParsePositionType;
-#if U_ICU_VERSION_HEX >= 0x04000000
-extern PyTypeObject PluralRulesType;
-#endif
-
-PyObject *t_format_format(t_format *self, PyObject *args);
-PyObject *wrap_Format(Format *format);
-#if U_ICU_VERSION_HEX >= 0x04000000
-PyObject *wrap_PluralRules(PluralRules *rules, int flag);
-#endif
-
-void _init_format(PyObject *m);
+void _init_search(PyObject *m);
 
 
-#endif /* _format_h */
+#endif /* _search_h */

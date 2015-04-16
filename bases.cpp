@@ -32,7 +32,6 @@
 
 /* UObject */
 
-static void t_uobject_dealloc(t_uobject *self);
 static PyObject *t_uobject_new(PyTypeObject *type,
                                PyObject *args, PyObject *kwds);
 
@@ -59,7 +58,7 @@ static PyGetSetDef t_uobject_properties[] = {
 PyTypeObject UObjectType = {
     PyObject_HEAD_INIT(NULL)
     0,                                   /* ob_size */
-    "PyICU.UObject",                     /* tp_name */
+    "icu.UObject",                       /* tp_name */
     sizeof(t_uobject),                   /* tp_basicsize */
     0,                                   /* tp_itemsize */
     (destructor)t_uobject_dealloc,       /* tp_dealloc */
@@ -146,7 +145,8 @@ static PyMethodDef t_replaceable_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(Replaceable, t_replaceable, UObject, Replaceable, abstract_init);
+DECLARE_TYPE(Replaceable, t_replaceable, UObject, Replaceable,
+             abstract_init, NULL);
 
 /* UnicodeString */
 
@@ -236,7 +236,7 @@ static PyMethodDef t_unicodestring_methods[] = {
 };
 
 DECLARE_TYPE(UnicodeString, t_unicodestring, Replaceable, UnicodeString,
-             t_unicodestring_init);
+             t_unicodestring_init, NULL);
 
 /* Formattable */
 
@@ -277,7 +277,7 @@ static PyMethodDef t_formattable_methods[] = {
 };
 
 DECLARE_TYPE(Formattable, t_formattable, UObject, Formattable,
-             t_formattable_init);
+             t_formattable_init, NULL);
 
 PyObject *wrap_Formattable(Formattable &formattable)
 {
@@ -296,7 +296,8 @@ static PyMethodDef t_measureunit_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(MeasureUnit, t_measureunit, UObject, MeasureUnit, abstract_init);
+DECLARE_TYPE(MeasureUnit, t_measureunit, UObject, MeasureUnit,
+             abstract_init, NULL);
 
 /* Measure */
 
@@ -314,7 +315,7 @@ static PyMethodDef t_measure_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(Measure, t_measure, UObject, Measure, abstract_init);
+DECLARE_TYPE(Measure, t_measure, UObject, Measure, abstract_init, NULL);
 
 /* CurrencyUnit */
 
@@ -333,7 +334,7 @@ static PyMethodDef t_currencyunit_methods[] = {
 };
 
 DECLARE_TYPE(CurrencyUnit, t_currencyunit, MeasureUnit, CurrencyUnit,
-             t_currencyunit_init);
+             t_currencyunit_init, NULL);
 
 /* CurrencyAmount */
 
@@ -352,7 +353,7 @@ static PyMethodDef t_currencyamount_methods[] = {
 };
 
 DECLARE_TYPE(CurrencyAmount, t_currencyamount, Measure, CurrencyAmount,
-             t_currencyamount_init);
+             t_currencyamount_init, NULL);
 
 /* StringEnumeration */
 
@@ -377,20 +378,16 @@ static PyMethodDef t_stringenumeration_methods[] = {
 };
 
 DECLARE_TYPE(StringEnumeration, t_stringenumeration, UObject,
-             StringEnumeration, abstract_init);
+             StringEnumeration, abstract_init, NULL);
 
 
 /* UObject */
 
-static void t_uobject_dealloc(t_uobject *self)
+void t_uobject_dealloc(t_uobject *self)
 {
-    if (self->object)
-    {
-        if (self->flags & T_OWNED)
-            delete self->object;
-
-        self->object = NULL;
-    }
+    if (self->flags & T_OWNED)
+        delete self->object;
+    self->object = NULL;
 
     self->ob_type->tp_free((PyObject *) self);
 }
@@ -533,9 +530,10 @@ static PyObject *t_replaceable_hasMetaData(t_replaceable *self)
 static int t_unicodestring_init(t_unicodestring *self,
                                 PyObject *args, PyObject *kwds)
 {
-    UnicodeString *u;
+    UnicodeString *u, _u;
     PyObject *obj;
     char *encoding, *mode;
+    int32_t start, length;
     int i;
 
     switch (PyTuple_Size(args)) {
@@ -544,7 +542,7 @@ static int t_unicodestring_init(t_unicodestring *self,
         self->flags = T_OWNED;
         break;
       case 1:
-        if (!parseArgs(args, "s", &u))
+        if (!parseArgs(args, "u", &u))
         {
             self->object = u;
             self->flags = T_OWNED;
@@ -579,21 +577,31 @@ static int t_unicodestring_init(t_unicodestring *self,
             }
             break;
         }
+        if (!parseArgs(args, "Si", &u, &_u, &start))
+        {
+            self->object = new UnicodeString(*u, start);
+            self->flags = T_OWNED;
+            break;
+        }
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
       case 3:
         if (!parseArgs(args, "Ccc", &obj, &encoding, &mode))
         {
-            UnicodeString u;
-
             try {
-                PyObject_AsUnicodeString(obj, encoding, mode, u);
-                self->object = new UnicodeString(u);
+                PyObject_AsUnicodeString(obj, encoding, mode, _u);
+                self->object = new UnicodeString(_u);
                 self->flags = T_OWNED;
             } catch (ICUException e) {
                 e.reportError();
                 return -1;
             }
+            break;
+        }
+        if (!parseArgs(args, "Sii", &u, &_u, &start, &length))
+        {
+            self->object = new UnicodeString(*u, start, length);
+            self->flags = T_OWNED;
             break;
         }
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
@@ -1350,6 +1358,11 @@ static PyObject *t_unicodestring_repr(t_unicodestring *self)
     return repr;
 }
 
+static int t_unicodestring_hash(t_unicodestring *self)
+{
+    return self->object->hashCode();
+}
+
 
 static PyObject *t_unicodestring_encode(t_unicodestring *self, PyObject *arg)
 {
@@ -1747,7 +1760,7 @@ static int t_unicodestring_ass_item(t_unicodestring *self,
         {
             if (v->length() == 1)
             {
-                u[n] = v[n];
+                u->setCharAt(n, v->charAt(0));
                 return 0;
             }
             else
@@ -2062,12 +2075,11 @@ static PyObject *t_formattable_setDate(t_formattable *self, PyObject *arg)
 
 static PyObject *t_formattable_setString(t_formattable *self, PyObject *arg)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
 
     if (!parseArg(arg, "S", &u, &_u))
     {
-        self->object->setString(*u);
+        self->object->setString(*u); /* copied */
         Py_RETURN_NONE;
     }
 
@@ -2452,6 +2464,7 @@ void _init_bases(PyObject *m)
     UnicodeStringType.tp_str = (reprfunc) t_unicodestring_str;
     UnicodeStringType.tp_repr = (reprfunc) t_unicodestring_repr;
     UnicodeStringType.tp_richcompare = (richcmpfunc) t_unicodestring_richcmp;
+    UnicodeStringType.tp_hash = (hashfunc) t_unicodestring_hash;
     UnicodeStringType.tp_as_sequence = &t_unicodestring_as_sequence;
     FormattableType.tp_richcompare = (richcmpfunc) t_formattable_richcmp;
     FormattableType.tp_str = (reprfunc) t_formattable_str;

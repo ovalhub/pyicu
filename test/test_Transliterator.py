@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ====================================================================
 # Copyright (c) 2009-2010 Open Source Applications Foundation.
 #
@@ -24,7 +25,7 @@
 import sys, os
 
 from unittest import TestCase, main
-from PyICU import *
+from icu import *
 
 
 class TestTransliterator(TestCase):
@@ -32,7 +33,7 @@ class TestTransliterator(TestCase):
     def testTransliterate(self):
 
         trans = Transliterator.createInstance('Accents-Any',
-                                              UTransDirection.UTRANS_FORWARD)
+                                              UTransDirection.FORWARD)
         inverse = trans.createInverse()
 
         string = u'\xe9v\xe9nement'
@@ -43,6 +44,55 @@ class TestTransliterator(TestCase):
 
         self.assert_(trans.transliterate(string) == result)
         self.assert_(inverse.transliterate(result) == string)
+
+    def testUnicodeString(self):
+
+        trans = Transliterator.createInstance('NumericPinyin-Latin',
+                                              UTransDirection.FORWARD)
+        string = UnicodeString("Shang4hai3 zi4lai2shui3 lai2 zi4 hai3 shang4")
+        result = u'Sh\xe0ngh\u01cei z\xecl\xe1ishu\u01d0 l\xe1i z\xec h\u01cei sh\xe0ng'
+
+        self.assert_(trans.transliterate(unicode(string)) == result)
+        self.assert_(trans.transliterate(string) == result)
+        self.assert_(string == result)
+
+    def testPythonTransliterator(self):
+
+        class vowelSubst(Transliterator):
+            def __init__(_self, char=u'i'):
+                super(vowelSubst, _self).__init__("vowel")
+                _self.char = char
+            def handleTransliterate(_self, text, pos, incremental):
+                for i in xrange(pos.start, pos.limit):
+                    if text[i] in u"aeiouüöä":
+                        text[i] = _self.char
+                pos.start = pos.limit
+
+        trans = vowelSubst()
+
+        # see http://en.wikipedia.org/wiki/Drei_Chinesen_mit_dem_Kontrabass
+        string = u"Drei Chinesen mit dem Kontrabass"
+        result = u'Drii Chinisin mit dim Kintribiss'
+        self.assert_(trans.transliterate(string) == result)
+ 
+        # test registration
+        Transliterator.registerInstance(trans)
+
+        regTrans = Transliterator.createInstance("vowel",
+                                                 UTransDirection.FORWARD)
+
+        self.assert_(regTrans.transliterate(string) == result)
+
+    def testPythonTransliteratorException(self):
+
+        class faultySubst(Transliterator):
+            def __init__(_self):
+                super(faultySubst, _self).__init__("faulty")
+            def handleTransliterate(_self, text, pos, incremental):
+                raise ValueError("faulty")
+
+        trans = faultySubst()
+        self.assertRaises(ValueError, trans.transliterate, "whatever")
         
 
 if __name__ == "__main__":

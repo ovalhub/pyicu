@@ -348,7 +348,7 @@ EXPORT UDate PyObject_AsUDate(PyObject *object)
 
             if (tzinfo == Py_None)
             {
-                PyObject *m = PyImport_ImportModule("PyICU");
+                PyObject *m = PyImport_ImportModule("icu");
                 PyObject *cls = PyObject_GetAttrString(m, "ICUtzinfo");
 
                 tzinfo = PyObject_GetAttrString(cls, "default");
@@ -686,7 +686,7 @@ int _parseArgs(PyObject **args, int count, char *types, ...)
 {
     va_list list;
 
-    if (count != (int)strlen(types))
+    if (count != (int) strlen(types))
         return -1;
 
     va_start(list, types);
@@ -704,12 +704,14 @@ int _parseArgs(PyObject **args, int count, char *types, ...)
                 break;
             return -1;
 
-          case 's':           /* string or unicode */
+          case 's':           /* string or unicode, to UnicodeString ref */
+          case 'u':           /* string or unicode, to new UnicodeString ptr */
             if (PyString_Check(arg) || PyUnicode_Check(arg))
                 break;
             return -1;
 
           case 'S':           /* string, unicode or UnicodeString */
+          case 'W':           /* string, unicode or UnicodeString, to save */
             if (PyString_Check(arg) || PyUnicode_Check(arg) ||
                 isUnicodeString(arg))
                 break;
@@ -733,11 +735,22 @@ int _parseArgs(PyObject **args, int count, char *types, ...)
             return -1;
 
           case 'U':           /* UnicodeString */
+          case 'V':           /* UnicodeString and raw arg object */
             if (isUnicodeString(arg))
                 break;
             return -1;
 
+          case 'O':           /* python object of given type */
+          {
+              PyTypeObject *type = va_arg(list, PyTypeObject *);
+
+              if (PyObject_TypeCheck(arg, type))
+                  break;
+              return -1;
+          }
+
           case 'P':           /* wrapped ICU object */
+          case 'p':           /* wrapped ICU object, to save */
           {
               UClassID id = va_arg(list, UClassID);
               PyTypeObject *type = va_arg(list, PyTypeObject *);
@@ -840,6 +853,13 @@ int _parseArgs(PyObject **args, int count, char *types, ...)
         PyObject *arg = args[j];
         
         switch (types[j]) {
+          case 'A':           /* previous Python arg object */
+          {
+              PyObject **obj = va_arg(list, PyObject **);
+              *obj = args[j - 1];
+              break;
+          }
+            
           case 'c':           /* string */
           {
               char **c = va_arg(list, char **);
@@ -863,9 +883,22 @@ int _parseArgs(PyObject **args, int count, char *types, ...)
               break;
           }
 
-          case 's':           /* string or unicode  */
+          case 's':           /* string or unicode, to UnicodeString ref */
+          {
+              UnicodeString *u = va_arg(list, UnicodeString *);
+              try {
+                  PyObject_AsUnicodeString(arg, *u);
+              } catch (ICUException e) {
+                  e.reportError();
+                  return -1;
+              }
+              break;
+          }
+
+          case 'u':           /* string or unicode, to new UnicodeString ptr */
           {
               UnicodeString **u = va_arg(list, UnicodeString **);
+
               try {
                   *u = PyObject_AsUnicodeString(arg);
               } catch (ICUException e) {
@@ -879,6 +912,7 @@ int _parseArgs(PyObject **args, int count, char *types, ...)
           {
               UnicodeString **u = va_arg(list, UnicodeString **);
               UnicodeString *_u = va_arg(list, UnicodeString *);
+
               if (PyObject_TypeCheck(arg, &UObjectType))
                   *u = (UnicodeString *) ((t_uobject *) arg)->object;
               else
@@ -886,6 +920,29 @@ int _parseArgs(PyObject **args, int count, char *types, ...)
                   try {
                       PyObject_AsUnicodeString(arg, *_u);
                       *u = _u;
+                  } catch (ICUException e) {
+                      e.reportError();
+                      return -1;
+                  }
+              }
+              break;
+          }
+
+          case 'W':           /* string, unicode or UnicodeString, to save */
+          {
+              UnicodeString **u = va_arg(list, UnicodeString **);
+              PyObject **obj = va_arg(list, PyObject **);
+
+              if (PyObject_TypeCheck(arg, &UObjectType))
+              {
+                  *u = (UnicodeString *) ((t_uobject *) arg)->object;
+                  Py_INCREF(arg); Py_XDECREF(*obj); *obj = arg;
+              }
+              else
+              {
+                  try {
+                      *u = PyObject_AsUnicodeString(arg);
+                      Py_XDECREF(*obj); *obj = wrap_UnicodeString(*u, T_OWNED);
                   } catch (ICUException e) {
                       e.reportError();
                       return -1;
@@ -911,10 +968,35 @@ int _parseArgs(PyObject **args, int count, char *types, ...)
               break;
           }
 
+          case 'V':           /* UnicodeString and raw arg object */
+          {
+              UnicodeString **u = va_arg(list, UnicodeString **);
+              PyObject **obj = va_arg(list, PyObject **);
+              *u = (UnicodeString *) ((t_uobject *) arg)->object;
+              *obj = arg;
+              break;
+          }
+
+          case 'O':           /* python object of given type */
+          {
+              PyObject **obj = va_arg(list, PyObject **);
+              *obj = arg;
+              break;
+          }
+
           case 'P':           /* wrapped ICU object */
           {
               UObject **obj = va_arg(list, UObject **);
               *obj = ((t_uobject *) arg)->object;
+              break;
+          }
+
+          case 'p':           /* wrapped ICU object, to save */
+          {
+              UObject **obj = va_arg(list, UObject **);
+              PyObject **pyobj = va_arg(list, PyObject **);
+              *obj = ((t_uobject *) arg)->object;
+              Py_INCREF(arg); Py_XDECREF(*pyobj); *pyobj = arg;
               break;
           }
 
@@ -1055,6 +1137,28 @@ int isUnicodeString(PyObject *arg)
             (((t_uobject *) arg)->object->getDynamicClassID() ==
              UnicodeString::getStaticClassID()));
 }
+
+int32_t toUChar32(UnicodeString& u, UChar32 *c, UErrorCode& status)
+{
+#if U_ICU_VERSION_HEX >= 0x04020000
+    return u.toUTF32(c, 1, status);
+#else
+    int32_t len = u.length();
+    if (len >= 1)
+        *c = u.char32At(0);
+    return len;
+#endif
+}
+
+UnicodeString fromUChar32(UChar32 c)
+{
+#if U_ICU_VERSION_HEX >= 0x04020000
+    return UnicodeString::fromUTF32(&c, 1);
+#else
+    return UnicodeString(c);
+#endif
+}
+    
 
 void _init_common(PyObject *m)
 {

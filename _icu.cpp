@@ -37,6 +37,10 @@
 #include "collator.h"
 #include "charset.h"
 #include "tzinfo.h"
+#include "unicodeset.h"
+#include "regex.h"
+#include "normalizer.h"
+#include "search.h"
 
 
 /* const variable descriptor */
@@ -69,7 +73,7 @@ static PyMethodDef t_descriptor_methods[] = {
 PyTypeObject ConstVariableDescriptorType = {
     PyObject_HEAD_INIT(NULL)
     0,                                   /* ob_size */
-    "PyICU.ConstVariableDescriptor",     /* tp_name */
+    "icu.ConstVariableDescriptor",       /* tp_name */
     sizeof(t_descriptor),                /* tp_basicsize */
     0,                                   /* tp_itemsize */
     (destructor)t_descriptor_dealloc,    /* tp_dealloc */
@@ -180,16 +184,59 @@ static PyObject *t_descriptor___get__(t_descriptor *self,
 }
 
 
-static PyMethodDef pyicu_funcs[] = {
+static PyTypeObject *_method_type;
+static PyObject *_install__doc__(PyObject *self, PyObject *args)
+{
+    PyObject *object;
+    char *doc;
+
+    if (!PyArg_ParseTuple(args, "Os", &object, &doc))
+        return NULL;
+
+    /* constructors */
+    if (PyObject_TypeCheck(object, &PyWrapperDescr_Type))
+    {
+        ((PyWrapperDescrObject *) object)->d_base->doc = strdup(doc);
+        Py_RETURN_NONE;
+    }
+
+    /* methods */
+    if (PyObject_TypeCheck(object, _method_type))
+    {
+        ((PyMethodDescrObject *) object)->d_method->ml_doc = strdup(doc);
+        Py_RETURN_NONE;
+    }
+
+    /* class methods */
+    if (PyObject_TypeCheck(object, &PyCFunction_Type))
+    {
+        ((PyCFunctionObject *) object)->m_ml->ml_doc = strdup(doc);
+        Py_RETURN_NONE;
+    }
+
+    /* classes */
+    if (PyType_Check(object))
+    {
+        object->ob_type->tp_doc = strdup(doc);
+        Py_RETURN_NONE;
+    }
+
+    PyErr_SetObject(PyExc_TypeError, object);
+    return NULL;
+}
+
+static PyMethodDef _icu_funcs[] = {
+    { "_install__doc__", (PyCFunction) _install__doc__, METH_VARARGS,
+      "install immutable doc strings from python" },
     { NULL, NULL, 0, NULL }
 };
 
 
 extern "C" {
 
-    void init_PyICU(void)
+    void init_icu(void)
     {
-        PyObject *m = Py_InitModule3("_PyICU", pyicu_funcs, "_PyICU");
+        PyObject *m = Py_InitModule3("_icu", _icu_funcs, "_icu");
         PyObject *ver;
 
         PyType_Ready(&ConstVariableDescriptorType);
@@ -209,12 +256,12 @@ extern "C" {
         ver = PyString_FromString(U_UNICODE_VERSION);
         PyObject_SetAttrString(m, "UNICODE_VERSION", ver); Py_DECREF(ver);
 
-        PyObject *module = PyImport_ImportModule("PyICU");
+        PyObject *module = PyImport_ImportModule("icu");
 
         if (!module)
         {
             if (!PyErr_Occurred())
-                PyErr_SetString(PyExc_ImportError, "PyICU");
+                PyErr_SetString(PyExc_ImportError, "icu");
             return;
         }
 
@@ -235,5 +282,14 @@ extern "C" {
         _init_collator(m);
         _init_charset(m);
         _init_tzinfo(m);
+        _init_unicodeset(m);
+        _init_regex(m);
+        _init_normalizer(m);
+        _init_search(m);
+
+        PyObject *method = PyObject_GetAttrString((PyObject *) &UObjectType,
+                                                  "getDynamicClassID");
+        _method_type = method->ob_type;
+        Py_DECREF(method);
     }
 }

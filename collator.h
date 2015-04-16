@@ -24,6 +24,10 @@
 #ifndef _collator_h
 #define _collator_h
 
+extern PyTypeObject RuleBasedCollatorType;
+
+PyObject *wrap_RuleBasedCollator(RuleBasedCollator *collator, int flag);
+
 void _init_collator(PyObject *m);
 
 

@@ -25,7 +25,7 @@ import sys, os
 
 from unittest import TestCase, main
 from datetime import datetime
-from PyICU import *
+from icu import *
 
 class TestUDate(TestCase):
 

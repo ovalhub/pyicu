@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ====================================================================
 # Copyright (c) 2005-2010 Open Source Applications Foundation.
 #
@@ -24,7 +25,7 @@
 import sys, os
 
 from unittest import TestCase, main
-from PyICU import *
+from icu import *
 
 
 class TestMessageFormat(TestCase):
@@ -71,6 +72,19 @@ class TestMessageFormat(TestCase):
 
         msgFormat.setFormats(formats)
         self.assert_(msgFormat.getFormats()[0].getTimeZone().getID() == tzid)
+
+    def testSelectFormat(self):
+
+        try:
+            from icu import SelectFormat
+        except ImportError:
+            return
+
+        format = u"{0} est {1, select, female {allée} other {allé}} à Paris."
+        msgFormat = MessageFormat(format, Locale("fr"))
+        args = [Formattable("Kirti"), Formattable("female")]
+
+        self.assert_(msgFormat.format(args) == u"Kirti est allée à Paris.")
 
 
 if __name__ == "__main__":

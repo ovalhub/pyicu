@@ -67,8 +67,8 @@ static void t_charsetdetector_dealloc(t_charsetdetector *self)
     {
         ucsdet_close(self->object);
         self->object = NULL;
-        Py_CLEAR(self->text);
     }
+    Py_CLEAR(self->text);
 
     self->ob_type->tp_free((PyObject *) self);
 }
@@ -98,7 +98,7 @@ static PyMethodDef t_charsetmatch_methods[] = {
 
 static void t_charsetmatch_dealloc(t_charsetmatch *self)
 {
-    if (self->object)
+    if (self->object) /* not owned */
     {
         self->object = NULL;
         Py_CLEAR(self->detector);
@@ -171,6 +171,7 @@ static PyObject *t_charsetdetector_setText(t_charsetdetector *self,
 
     if (!parseArg(arg, "k", &text, &size))
     {
+        /* ref'd */
         STATUS_CALL(ucsdet_setText(self->object, text, size, &status));
 
         Py_INCREF(arg);
@@ -191,6 +192,7 @@ static PyObject *t_charsetdetector_setDeclaredEncoding(t_charsetdetector *self,
 
     if (!parseArg(arg, "k", &encoding, &size))
     {
+        /* copied */
         STATUS_CALL(ucsdet_setDeclaredEncoding(self->object, encoding, size,
                                                &status));
         Py_RETURN_NONE;

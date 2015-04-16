@@ -1,6 +1,37 @@
 
 For bug <NUM>, see http://bugzilla.osafoundation.org/show_bug.cgi?id=<NUM>
 
+Version 0.9 -> 1.0
+------------------
+  - added support for UnicodeSet, UnicodeFunctor, UnicodeFilter, UnicodeMatcher
+  - added support for RegexPattern and RegexMatcher
+  - added support for Normalizer
+  - added support for UTransPosition (Christoph Burgmer)
+  - added support for UTransPosition and UnicodeFilter methods to Transliterator
+  - fixed bug in UnicodeString single character assignment method
+  - added support for extending Transliterator from Python (Christoph Burgmer)
+  - improved support for in-place operations on UnicodeStrings
+  - added support for Transliterator::registerInstance (Christoph Burgmer)
+  - added support for ICU 4.4
+  - added support for Normalizer2, FilteredNormalizer2 if ICU version >= 4.4
+  - added support for SelectFormat if ICU version >= 4.4
+  - added support for TimeUnitFormat if ICU version >= 4.2
+  - added support for PluralRules and PluralFormat if ICU version >= 4.0
+  - added support for DateInterval, DateIntervalFormat if ICU version >= 4.0
+  - added support for CurrencyPluralInfo if ICU version >= 4.2
+  - added support for UnicodeSetIterator and UnicodeSet iterates via it
+  - added support for SearchIterator and StringSearch
+  - added some missing Collator and RuleBasedCollator methods
+  - refreshed README and CREDITS
+  - fixed bugs with UnicodeString-converted text arg ownership in iterators
+  - added missing conditionals for features in ICU versions >= 4.0
+  - README now marked-up with reStructuredText (Christoph Burgmer)
+  - PyICU main module renamed to 'icu' (with deprecation warning for old name)
+  - UnicodeString objects are now hashable
+  - reviewed all wrapped ICU setters for parameter ownership
+  - removed symbol prefixes from wrapped typed enums symbols
+  - added ResourceBundle.setAppData() implementation that memory maps file
+
 Version 0.8 -> 0.9
 ------------------
   - fixed 64-bit random crasher bug in registerType()/isInstance()
@@ -83,5 +114,4 @@ Version 0.1 -> 0.2
 
 Version 0.0 -> 0.1
 ------------------
-
 - initial release

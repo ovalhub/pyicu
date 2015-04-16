@@ -76,7 +76,7 @@ static PyMethodDef t_timezone_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(TimeZone, t_timezone, UObject, TimeZone, abstract_init);
+DECLARE_TYPE(TimeZone, t_timezone, UObject, TimeZone, abstract_init, NULL);
 
 /* SimpleTimeZone */
 
@@ -108,7 +108,7 @@ static PyMethodDef t_simpletimezone_methods[] = {
 };
 
 DECLARE_TYPE(SimpleTimeZone, t_simpletimezone, TimeZone, SimpleTimeZone,
-             t_simpletimezone_init);
+             t_simpletimezone_init, NULL);
 
 
 /* Calendar */
@@ -197,7 +197,7 @@ static PyMethodDef t_calendar_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(Calendar, t_calendar, UObject, Calendar, abstract_init);
+DECLARE_TYPE(Calendar, t_calendar, UObject, Calendar, abstract_init, NULL);
 
 /* GregorianCalendar */
 
@@ -220,7 +220,7 @@ static PyMethodDef t_gregoriancalendar_methods[] = {
 };
 
 DECLARE_TYPE(GregorianCalendar, t_gregoriancalendar, Calendar,
-             GregorianCalendar, t_gregoriancalendar_init);
+             GregorianCalendar, t_gregoriancalendar_init, NULL);
 
 
 /* TimeZone */
@@ -318,12 +318,11 @@ static PyObject *t_timezone_getID(t_timezone *self, PyObject *args)
 
 static PyObject *t_timezone_setID(t_timezone *self, PyObject *arg)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
 
     if (!parseArg(arg, "S", &u, &_u))
     {
-        self->object->setID(*u);
+        self->object->setID(*u); /* copied */
         Py_RETURN_NONE;
     }
 
@@ -332,8 +331,7 @@ static PyObject *t_timezone_setID(t_timezone *self, PyObject *arg)
 
 static PyObject *t_timezone_getDisplayName(t_timezone *self, PyObject *args)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
     int daylight;
     Locale *locale;
     TimeZone::EDisplayType type;
@@ -540,9 +538,9 @@ static PyObject *t_timezone_setDefault(PyTypeObject *type, PyObject *arg)
 
     if (!parseArg(arg, "P", TYPE_CLASSID(TimeZone), &tz))
     {
-        TimeZone::setDefault(*tz);
+        TimeZone::setDefault(*tz); /* copied */
 
-        PyObject *m = PyImport_ImportModule("PyICU");
+        PyObject *m = PyImport_ImportModule("icu");
         PyObject *cls = PyObject_GetAttrString(m, "ICUtzinfo");
         PyObject *result = PyObject_CallMethod(cls, "_resetDefault", "", NULL);
 
@@ -971,7 +969,7 @@ static PyObject *t_calendar_setTimeZone(t_calendar *self, PyObject *arg)
 
     if (!parseArg(arg, "P", TYPE_CLASSID(TimeZone), &tz))
     {
-        self->object->setTimeZone(*tz);
+        self->object->setTimeZone(*tz); /* copied */
         Py_RETURN_NONE;
     }
 
@@ -1499,54 +1497,54 @@ void _init_calendar(PyObject *m)
     INSTALL_TYPE(Calendar, m);
     REGISTER_TYPE(GregorianCalendar, m);
 
-    INSTALL_ENUM(UCalendarDateFields, UCAL_ERA);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_YEAR);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_MONTH);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_WEEK_OF_YEAR);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_WEEK_OF_MONTH);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_DATE);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_DAY_OF_YEAR);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_DAY_OF_WEEK);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_DAY_OF_WEEK_IN_MONTH);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_AM_PM);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_HOUR);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_HOUR_OF_DAY);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_MINUTE);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_SECOND);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_MILLISECOND);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_ZONE_OFFSET);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_DST_OFFSET);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_YEAR_WOY);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_DOW_LOCAL);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_EXTENDED_YEAR);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_JULIAN_DAY);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_MILLISECONDS_IN_DAY);
-    INSTALL_ENUM(UCalendarDateFields, UCAL_DAY_OF_MONTH);
+    INSTALL_ENUM(UCalendarDateFields, "ERA", UCAL_ERA);
+    INSTALL_ENUM(UCalendarDateFields, "YEAR", UCAL_YEAR);
+    INSTALL_ENUM(UCalendarDateFields, "MONTH", UCAL_MONTH);
+    INSTALL_ENUM(UCalendarDateFields, "WEEK_OF_YEAR", UCAL_WEEK_OF_YEAR);
+    INSTALL_ENUM(UCalendarDateFields, "WEEK_OF_MONTH", UCAL_WEEK_OF_MONTH);
+    INSTALL_ENUM(UCalendarDateFields, "DATE", UCAL_DATE);
+    INSTALL_ENUM(UCalendarDateFields, "DAY_OF_YEAR", UCAL_DAY_OF_YEAR);
+    INSTALL_ENUM(UCalendarDateFields, "DAY_OF_WEEK", UCAL_DAY_OF_WEEK);
+    INSTALL_ENUM(UCalendarDateFields, "DAY_OF_WEEK_IN_MONTH", UCAL_DAY_OF_WEEK_IN_MONTH);
+    INSTALL_ENUM(UCalendarDateFields, "AM_PM", UCAL_AM_PM);
+    INSTALL_ENUM(UCalendarDateFields, "HOUR", UCAL_HOUR);
+    INSTALL_ENUM(UCalendarDateFields, "HOUR_OF_DAY", UCAL_HOUR_OF_DAY);
+    INSTALL_ENUM(UCalendarDateFields, "MINUTE", UCAL_MINUTE);
+    INSTALL_ENUM(UCalendarDateFields, "SECOND", UCAL_SECOND);
+    INSTALL_ENUM(UCalendarDateFields, "MILLISECOND", UCAL_MILLISECOND);
+    INSTALL_ENUM(UCalendarDateFields, "ZONE_OFFSET", UCAL_ZONE_OFFSET);
+    INSTALL_ENUM(UCalendarDateFields, "DST_OFFSET", UCAL_DST_OFFSET);
+    INSTALL_ENUM(UCalendarDateFields, "YEAR_WOY", UCAL_YEAR_WOY);
+    INSTALL_ENUM(UCalendarDateFields, "DOW_LOCAL", UCAL_DOW_LOCAL);
+    INSTALL_ENUM(UCalendarDateFields, "EXTENDED_YEAR", UCAL_EXTENDED_YEAR);
+    INSTALL_ENUM(UCalendarDateFields, "JULIAN_DAY", UCAL_JULIAN_DAY);
+    INSTALL_ENUM(UCalendarDateFields, "MILLISECONDS_IN_DAY", UCAL_MILLISECONDS_IN_DAY);
+    INSTALL_ENUM(UCalendarDateFields, "DAY_OF_MONTH", UCAL_DAY_OF_MONTH);
 
-    INSTALL_ENUM(UCalendarDaysOfWeek, UCAL_SUNDAY);
-    INSTALL_ENUM(UCalendarDaysOfWeek, UCAL_MONDAY);
-    INSTALL_ENUM(UCalendarDaysOfWeek, UCAL_TUESDAY);
-    INSTALL_ENUM(UCalendarDaysOfWeek, UCAL_WEDNESDAY);
-    INSTALL_ENUM(UCalendarDaysOfWeek, UCAL_THURSDAY);
-    INSTALL_ENUM(UCalendarDaysOfWeek, UCAL_FRIDAY);
-    INSTALL_ENUM(UCalendarDaysOfWeek, UCAL_SATURDAY);
+    INSTALL_ENUM(UCalendarDaysOfWeek, "SUNDAY", UCAL_SUNDAY);
+    INSTALL_ENUM(UCalendarDaysOfWeek, "MONDAY", UCAL_MONDAY);
+    INSTALL_ENUM(UCalendarDaysOfWeek, "TUESDAY", UCAL_TUESDAY);
+    INSTALL_ENUM(UCalendarDaysOfWeek, "WEDNESDAY", UCAL_WEDNESDAY);
+    INSTALL_ENUM(UCalendarDaysOfWeek, "THURSDAY", UCAL_THURSDAY);
+    INSTALL_ENUM(UCalendarDaysOfWeek, "FRIDAY", UCAL_FRIDAY);
+    INSTALL_ENUM(UCalendarDaysOfWeek, "SATURDAY", UCAL_SATURDAY);
 
-    INSTALL_ENUM(UCalendarMonths, UCAL_JANUARY);
-    INSTALL_ENUM(UCalendarMonths, UCAL_FEBRUARY);
-    INSTALL_ENUM(UCalendarMonths, UCAL_MARCH);
-    INSTALL_ENUM(UCalendarMonths, UCAL_APRIL);
-    INSTALL_ENUM(UCalendarMonths, UCAL_MAY);
-    INSTALL_ENUM(UCalendarMonths, UCAL_JUNE);
-    INSTALL_ENUM(UCalendarMonths, UCAL_JULY);
-    INSTALL_ENUM(UCalendarMonths, UCAL_AUGUST);
-    INSTALL_ENUM(UCalendarMonths, UCAL_SEPTEMBER);
-    INSTALL_ENUM(UCalendarMonths, UCAL_OCTOBER);
-    INSTALL_ENUM(UCalendarMonths, UCAL_NOVEMBER);
-    INSTALL_ENUM(UCalendarMonths, UCAL_DECEMBER);
-    INSTALL_ENUM(UCalendarMonths, UCAL_UNDECIMBER);
+    INSTALL_ENUM(UCalendarMonths, "JANUARY", UCAL_JANUARY);
+    INSTALL_ENUM(UCalendarMonths, "FEBRUARY", UCAL_FEBRUARY);
+    INSTALL_ENUM(UCalendarMonths, "MARCH", UCAL_MARCH);
+    INSTALL_ENUM(UCalendarMonths, "APRIL", UCAL_APRIL);
+    INSTALL_ENUM(UCalendarMonths, "MAY", UCAL_MAY);
+    INSTALL_ENUM(UCalendarMonths, "JUNE", UCAL_JUNE);
+    INSTALL_ENUM(UCalendarMonths, "JULY", UCAL_JULY);
+    INSTALL_ENUM(UCalendarMonths, "AUGUST", UCAL_AUGUST);
+    INSTALL_ENUM(UCalendarMonths, "SEPTEMBER", UCAL_SEPTEMBER);
+    INSTALL_ENUM(UCalendarMonths, "OCTOBER", UCAL_OCTOBER);
+    INSTALL_ENUM(UCalendarMonths, "NOVEMBER", UCAL_NOVEMBER);
+    INSTALL_ENUM(UCalendarMonths, "DECEMBER", UCAL_DECEMBER);
+    INSTALL_ENUM(UCalendarMonths, "UNDECIMBER", UCAL_UNDECIMBER);
 
-    INSTALL_ENUM(UCalendarAMPMs, UCAL_AM);
-    INSTALL_ENUM(UCalendarAMPMs, UCAL_PM);
+    INSTALL_ENUM(UCalendarAMPMs, "AM", UCAL_AM);
+    INSTALL_ENUM(UCalendarAMPMs, "PM", UCAL_PM);
 
     INSTALL_STATIC_INT(TimeZone, SHORT);
     INSTALL_STATIC_INT(TimeZone, LONG);
