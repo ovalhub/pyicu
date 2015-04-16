@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2006 Open Source Applications Foundation.
+ * Copyright (c) 2004-2010 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -66,6 +66,7 @@ static PyObject *t_collator_greater(t_collator *self, PyObject *args);
 static PyObject *t_collator_greaterOrEqual(t_collator *self, PyObject *args);
 static PyObject *t_collator_equals(t_collator *self, PyObject *args);
 static PyObject *t_collator_getCollationKey(t_collator *self, PyObject *args);
+static PyObject *t_collator_getSortKey(t_collator *self, PyObject *args);
 static PyObject *t_collator_getStrength(t_collator *self);
 static PyObject *t_collator_setStrength(t_collator *self, PyObject *arg);
 static PyObject *t_collator_getLocale(t_collator *self, PyObject *args);
@@ -82,6 +83,7 @@ static PyMethodDef t_collator_methods[] = {
     DECLARE_METHOD(t_collator, greaterOrEqual, METH_VARARGS),
     DECLARE_METHOD(t_collator, equals, METH_VARARGS),
     DECLARE_METHOD(t_collator, getCollationKey, METH_VARARGS),
+    DECLARE_METHOD(t_collator, getSortKey, METH_VARARGS),
     DECLARE_METHOD(t_collator, getStrength, METH_NOARGS),
     DECLARE_METHOD(t_collator, setStrength, METH_O),
     DECLARE_METHOD(t_collator, getLocale, METH_VARARGS),
@@ -294,6 +296,49 @@ static PyObject *t_collator_getCollationKey(t_collator *self, PyObject *args)
     }
 
     return PyErr_SetArgsError((PyObject *) self, "getCollationKey", args);
+}
+
+static PyObject *t_collator_getSortKey(t_collator *self, PyObject *args)
+{
+    UnicodeString *u;
+    UnicodeString _u;
+    uint32_t len;
+    uint8_t *buf;
+    PyObject *key;
+
+    switch (PyTuple_Size(args)) {
+      case 1:
+        if (!parseArgs(args, "S", &u, &_u))
+        {
+            len = u->length() * 4;
+            buf = (uint8_t *) calloc(len, 1);
+            if (buf == NULL)
+                return PyErr_NoMemory();
+
+            len = self->object->getSortKey(*u, buf, len);
+            key = PyString_FromStringAndSize((char *) buf, len);
+            free(buf);
+
+            return key;
+        }
+        break;
+      case 2:
+        if (!parseArgs(args, "Si", &u, &_u, &len))
+        {
+            buf = (uint8_t *) calloc(len, 1);
+            if (buf == NULL)
+                return PyErr_NoMemory();
+
+            len = self->object->getSortKey(*u, buf, len);
+            key = PyString_FromStringAndSize((char *) buf, len);
+            free(buf);
+
+            return key;
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getSortKey", args);
 }
 
 static PyObject *t_collator_getStrength(t_collator *self)

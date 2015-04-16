@@ -1,5 +1,5 @@
 # ====================================================================
-# Copyright (c) 2006-2010 Open Source Applications Foundation.
+# Copyright (c) 2009-2010 Open Source Applications Foundation.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -24,26 +24,26 @@
 import sys, os
 
 from unittest import TestCase, main
-from datetime import datetime
 from PyICU import *
 
-class TestUDate(TestCase):
 
-    def testConvertNaiveDatetime(self):
+class TestTransliterator(TestCase):
 
-        def formatNaiveDatetime():
-            # Make a naive datetime
-            dt = datetime(2006, 4, 18, 5, 12)
-            # ... and format it
-            return DateFormat.createTimeInstance(DateFormat.SHORT).format(dt)
+    def testTransliterate(self):
 
-        before = formatNaiveDatetime()
-        # Change ICU's default timezone
-        TimeZone.setDefault(ICUtzinfo.getInstance('US/Eastern').timezone)
-        after = formatNaiveDatetime()
+        trans = Transliterator.createInstance('Accents-Any',
+                                              UTransDirection.UTRANS_FORWARD)
+        inverse = trans.createInverse()
 
-        self.assert_(before == after)
+        string = u'\xe9v\xe9nement'
+        if ICU_VERSION < '4.0':
+            result = u"e<'>ve<'>nement"
+        else:
+            result = u"e\u2190'\u2192ve\u2190'\u2192nement"
 
+        self.assert_(trans.transliterate(string) == result)
+        self.assert_(inverse.transliterate(result) == string)
+        
 
 if __name__ == "__main__":
     main()

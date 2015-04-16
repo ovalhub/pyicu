@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2005 Open Source Applications Foundation.
+ * Copyright (c) 2005-2010 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -84,6 +84,7 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/tblcoll.h>
 #include <unicode/ucsdet.h>
 #include <unicode/uidna.h>
+#include <unicode/translit.h>
 
 U_NAMESPACE_USE
 
@@ -98,6 +99,8 @@ public:
     virtual const UnicodeString* snext(UErrorCode& status);
     virtual void reset(UErrorCode& status);
     virtual UClassID getDynamicClassID() const;
+private:
+    UEnumeration *uenum; // owned
 };
 U_NAMESPACE_END
 

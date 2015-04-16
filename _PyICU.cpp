@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2007 Open Source Applications Foundation.
+ * Copyright (c) 2004-2010 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -28,6 +28,7 @@
 #include "errors.h"
 #include "bases.h"
 #include "locale.h"
+#include "transliterator.h"
 #include "iterators.h"
 #include "format.h"
 #include "dateformat.h"
@@ -225,6 +226,7 @@ extern "C" {
         _init_errors(m);
         _init_bases(m);
         _init_locale(m);
+        _init_transliterator(m);
         _init_iterators(m);
         _init_format(m);
         _init_dateformat(m);

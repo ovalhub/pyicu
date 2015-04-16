@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2006 Open Source Applications Foundation.
+ * Copyright (c) 2004-2010 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -213,7 +213,7 @@ PyTypeObject name##Type = {                                             \
     name::getStaticClassID(), &name##Type
 
 #define TYPE_ID(name)                           \
-    name##_ID, &name##Type
+    (UClassID) (name##_ID), &name##Type
 
 #define INSTALL_TYPE(name, module)                                   \
     if (PyType_Ready(&name##Type) == 0)                              \

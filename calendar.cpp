@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2007 Open Source Applications Foundation.
+ * Copyright (c) 2004-2010 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -45,6 +45,7 @@ static PyObject *t_timezone_getDisplayName(t_timezone *self, PyObject *args);
 static PyObject *t_timezone_useDaylightTime(t_timezone *self);
 static PyObject *t_timezone_inDaylightTime(t_timezone *self, PyObject *arg);
 static PyObject *t_timezone_hasSameRules(t_timezone *self, PyObject *arg);
+static PyObject *t_timezone_getDSTSavings(t_timezone *self);
 static PyObject *t_timezone_getGMT(PyTypeObject *type);
 static PyObject *t_timezone_createEnumeration(PyTypeObject *type,
                                               PyObject *args);
@@ -64,6 +65,7 @@ static PyMethodDef t_timezone_methods[] = {
     DECLARE_METHOD(t_timezone, useDaylightTime, METH_NOARGS),
     DECLARE_METHOD(t_timezone, inDaylightTime, METH_O),
     DECLARE_METHOD(t_timezone, hasSameRules, METH_O),
+    DECLARE_METHOD(t_timezone, getDSTSavings, METH_NOARGS),
     DECLARE_METHOD(t_timezone, getGMT, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_timezone, createTimeZone, METH_O | METH_CLASS),
     DECLARE_METHOD(t_timezone, createEnumeration, METH_VARARGS | METH_CLASS),
@@ -93,7 +95,6 @@ static PyObject *t_simpletimezone_setEndRule(t_simpletimezone *self,
                                              PyObject *args);
 static PyObject *t_simpletimezone_getOffset(t_simpletimezone *self,
                                             PyObject *args);
-static PyObject *t_simpletimezone_getDSTSavings(t_simpletimezone *self);
 static PyObject *t_simpletimezone_setDSTSavings(t_simpletimezone *self,
                                                 PyObject *arg);
 
@@ -102,7 +103,6 @@ static PyMethodDef t_simpletimezone_methods[] = {
     DECLARE_METHOD(t_simpletimezone, setStartRule, METH_VARARGS),
     DECLARE_METHOD(t_simpletimezone, setEndRule, METH_VARARGS),
     DECLARE_METHOD(t_simpletimezone, getOffset, METH_VARARGS),
-    DECLARE_METHOD(t_simpletimezone, getDSTSavings, METH_NOARGS),
     DECLARE_METHOD(t_simpletimezone, setDSTSavings, METH_O),
     { NULL, NULL, 0, NULL }
 };
@@ -425,6 +425,11 @@ static PyObject *t_timezone_hasSameRules(t_timezone *self, PyObject *arg)
     }
 
     return PyErr_SetArgsError((PyObject *) self, "hasSameRules", arg);
+}
+
+static PyObject *t_timezone_getDSTSavings(t_timezone *self)
+{
+    return PyInt_FromLong(self->object->getDSTSavings());
 }
 
 static PyObject *t_timezone_getGMT(PyTypeObject *type)
@@ -802,11 +807,6 @@ static PyObject *t_simpletimezone_getOffset(t_simpletimezone *self,
     }
 
     return t_timezone_getOffset((t_timezone *) self, args);
-}
-
-static PyObject *t_simpletimezone_getDSTSavings(t_simpletimezone *self)
-{
-    return PyInt_FromLong(self->object->getDSTSavings());
 }
 
 static PyObject *t_simpletimezone_setDSTSavings(t_simpletimezone *self,

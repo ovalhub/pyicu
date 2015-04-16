@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2005-2007 Open Source Applications Foundation.
+ * Copyright (c) 2005-2010 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -409,7 +409,7 @@ static PyObject *types;
 
 void registerType(PyTypeObject *type, UClassID id)
 {
-    PyObject *n = PyInt_FromLong((long) id);
+    PyObject *n = PyInt_FromLong((Py_intptr_t) id);
     PyObject *list = PyList_New(0);
     PyObject *bn;
 
@@ -435,8 +435,8 @@ int isInstance(PyObject *arg, UClassID id, PyTypeObject *type)
         if (id == oid)
             return 1;
 
-        PyObject *bn = PyInt_FromLong((long) id);
-        PyObject *n = PyInt_FromLong((long) oid);
+        PyObject *bn = PyInt_FromLong((Py_intptr_t) id);
+        PyObject *n = PyInt_FromLong((Py_intptr_t) oid);
         PyObject *list = PyDict_GetItem(types, bn);
         int b = PySequence_Contains(list, n);
         
@@ -454,8 +454,7 @@ UObject **pl2cpa(PyObject *arg, int *len, UClassID id, PyTypeObject *type)
     if (PySequence_Check(arg))
     {
         *len = PySequence_Size(arg);
-        UObject **array = (UObject **)
-            calloc(*len, sizeof(UObject *));
+        UObject **array = (UObject **) calloc(*len, sizeof(UObject *));
 
         for (int i = 0; i < *len; i++) {
             PyObject *obj = PySequence_GetItem(arg, i);
@@ -933,13 +932,13 @@ int _parseArgs(PyObject **args, int count, char *types, ...)
 
           case 'R':           /* array of wrapped ICU objects */
           {
-	      typedef UObject *(*convFn)(PyObject *, int *,
+              typedef UObject *(*convFn)(PyObject *, int *,
                                          UClassID, PyTypeObject *);
               UObject **array = va_arg(list, UObject **);
               int *len = va_arg(list, int *);
               UClassID id = va_arg(list, UClassID);
               PyTypeObject *type = va_arg(list, PyTypeObject *);
-	      convFn fn = va_arg(list, convFn);
+              convFn fn = va_arg(list, convFn);
               *array = fn(arg, len, id, type);
               if (!*array)
                   return -1;

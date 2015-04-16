@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2010 Open Source Applications Foundation.
+ * Copyright (c) 2009-2010 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,25 +21,15 @@
  * ====================================================================
  */
 
-#ifndef _calendar_h
-#define _calendar_h
+#ifndef _transliterator_h
+#define _transliterator_h
 
-class t_timezone : public _wrapper {
-public:
-    TimeZone *object;
-};
+extern PyTypeObject TransliteratorType;
 
-extern PyTypeObject CalendarType;
-extern PyTypeObject TimeZoneType;
+PyObject *wrap_Transliterator(Transliterator *transliterator, int flags);
+PyObject *wrap_Transliterator(const Transliterator &transliterator);
 
-
-PyObject *wrap_Calendar(Calendar *, int);
-PyObject *wrap_TimeZone(TimeZone *, int);
-PyObject *wrap_TimeZone(TimeZone *);
-PyObject *wrap_TimeZone(const TimeZone &);
-PyObject *t_timezone_createTimeZone(PyTypeObject *type, PyObject *arg);
-
-void _init_calendar(PyObject *m);
+void _init_transliterator(PyObject *m);
 
 
-#endif /* _calendar_h */
+#endif /* _transliterator_h */

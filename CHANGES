@@ -1,9 +1,18 @@
 
 For bug <NUM>, see http://bugzilla.osafoundation.org/show_bug.cgi?id=<NUM>
 
-Version 0.8 ->
+Version 0.8 -> 0.9
 ------------------
-  - 
+  - fixed 64-bit random crasher bug in registerType()/isInstance()
+  - fixed bug 11548
+  - added entries for freebsd7 to setup.py (Jan Gehring)
+  - added support for building on Solaris (Christian Kesselheim)
+  - added missing wrapper for Collator.getSortKey()
+  - added support for built-in Transliterators (bug 12870)
+  - removed support for ICU internal URES_TABLE32 ResourceBundle type
+  - added support for TimeZone::getDSTSavings() (Jimmy Yuen Ho Wong)
+  - added support for ICU 4.2
+  - refreshed README
 
 Version 0.6 -> 0.8
 ------------------

@@ -7,31 +7,39 @@ except ImportError:
     from distutils.core import setup, Extension
 
 
-VERSION = '0.8'
-ICU_VERSION = '3.8'   # version 3.6 is also supported
+VERSION = '0.9'
+ICU_VERSION = '4.2.1'   # versions 3.6, 3.8 are also supported
 
 INCLUDES = {
-    'darwin': ['/usr/local/icu-%s/include' %(ICU_VERSION)],
+    'darwin': ['/usr/local/include'],
     'linux2': [],
+    'freebsd7': ['/usr/local/include'],
     'win32': [],
+    'sunos5': [],
 }
 
 CFLAGS = {
-    'darwin': [],
+    'darwin': ['-Wno-write-strings'],
     'linux2': [],
+    'freebsd7': [],
     'win32': ['/Zc:wchar_t'],
+    'sunos5': [],
 }
 
 LFLAGS = {
-    'darwin': ['-L/usr/local/icu-%s/lib' %(ICU_VERSION)],
+    'darwin': ['-L/usr/local/lib'],
     'linux2': [],
+    'freebsd7': ['-L/usr/local/lib'],
     'win32': [],
+    'sunos5': [],
 }
 
 LIBRARIES = {
     'darwin': ['icui18n', 'icuuc', 'icudata'],
     'linux2': ['icui18n', 'icuuc', 'icudata'],
+    'freebsd7': ['icui18n', 'icuuc', 'icudata'],
     'win32': ['icuin', 'icuuc', 'icudt'],
+    'sunos5': ['icui18n', 'icuuc', 'icudata'],
 }
 
 if 'PYICU_INCLUDES' in os.environ:
