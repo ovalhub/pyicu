@@ -3,9 +3,6 @@
 README file for PyICU
 ---------------------
 
-.. contents::
-
-
 Welcome
 -------
 
