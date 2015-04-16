@@ -128,7 +128,7 @@ class TestCollator(TestCase):
 
     def testCollatorLoading(self):
 
-        if ICU_VERSION >= '4.6':
+        if ICU_VERSION >= '4.6' and ICU_VERSION <= '52.1':
             collator = self.LoadCollatorFromRules()
             key0 = collator.getSortKey(u'\u3069\u3052\u3056')
             bin = collator.cloneBinary()

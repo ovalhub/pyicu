@@ -1,6 +1,14 @@
 
 For bug <NUM>, see http://bugzilla.osafoundation.org/show_bug.cgi?id=<NUM>
 
+Version 1.6 -> 1.7
+------------------
+  - added missing #include for <unicode/uscript.h>
+  - fixed issues building against ICU 4.2
+  - added wrapper for Script.isRightToLeft() (bug 13081)
+  - added support for ICU 53.1 (bug 13110)
+  - added wrappers for other Script functions introduced in ICU 51
+
 Version 1.5 -> 1.6
 ------------------
   - removed wrappers for some layoutengine.cpp internal flags (bug 13074)

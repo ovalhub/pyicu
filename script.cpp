@@ -32,6 +32,9 @@
 #include "macros.h"
 
 DECLARE_CONSTANTS_TYPE(UScriptCode);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+DECLARE_CONSTANTS_TYPE(UScriptUsage);
+#endif
 
 /* Script */
 
@@ -48,6 +51,13 @@ static int t_script_init(t_script *self, PyObject *args, PyObject *kwds);
 static PyObject *t_script_getName(t_script *self);
 static PyObject *t_script_getShortName(t_script *self);
 static PyObject *t_script_getScriptCode(t_script *self);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+static PyObject *t_script_isRightToLeft(t_script *self);
+static PyObject *t_script_isCased(t_script *self);
+static PyObject *t_script_breaksBetweenLetters(t_script *self);
+static PyObject *t_script_getSampleString(t_script *self);
+static PyObject *t_script_getUsage(t_script *self);
+#endif
 static PyObject *t_script_getCode(PyTypeObject *type, PyObject *arg);
 static PyObject *t_script_getScript(PyTypeObject *type, PyObject *arg);
 static PyObject *t_script_hasScript(PyTypeObject *type, PyObject *args);
@@ -57,6 +67,13 @@ static PyMethodDef t_script_methods[] = {
     DECLARE_METHOD(t_script, getName, METH_NOARGS),
     DECLARE_METHOD(t_script, getShortName, METH_NOARGS),
     DECLARE_METHOD(t_script, getScriptCode, METH_NOARGS),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+    DECLARE_METHOD(t_script, isRightToLeft, METH_NOARGS),
+    DECLARE_METHOD(t_script, isCased, METH_NOARGS),
+    DECLARE_METHOD(t_script, breaksBetweenLetters, METH_NOARGS),
+    DECLARE_METHOD(t_script, getSampleString, METH_NOARGS),
+    DECLARE_METHOD(t_script, getUsage, METH_NOARGS),
+#endif
     DECLARE_METHOD(t_script, getCode, METH_O | METH_CLASS),
     DECLARE_METHOD(t_script, getScript, METH_O | METH_CLASS),
     DECLARE_METHOD(t_script, hasScript, METH_VARARGS | METH_CLASS),
@@ -116,6 +133,48 @@ static PyObject *t_script_getScriptCode(t_script *self)
 {
     return PyInt_FromLong(self->code);
 }
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+static PyObject *t_script_isRightToLeft(t_script *self)
+{
+    if (uscript_isRightToLeft(self->code))
+        Py_RETURN_TRUE;
+
+    Py_RETURN_FALSE;
+}
+
+static PyObject *t_script_isCased(t_script *self)
+{
+    if (uscript_isCased(self->code))
+        Py_RETURN_TRUE;
+
+    Py_RETURN_FALSE;
+}
+
+static PyObject *t_script_breaksBetweenLetters(t_script *self)
+{
+    if (uscript_breaksBetweenLetters(self->code))
+        Py_RETURN_TRUE;
+
+    Py_RETURN_FALSE;
+}
+
+static PyObject *t_script_getSampleString(t_script *self)
+{
+    UChar dest[32];
+    int32_t count;
+
+    STATUS_CALL(count = uscript_getSampleString(self->code, dest, sizeof(dest),
+                                                &status));
+
+    return PyUnicode_FromUnicodeString(dest, count);
+}
+
+static PyObject *t_script_getUsage(t_script *self)
+{
+    return PyInt_FromLong(uscript_getUsage(self->code));
+}
+#endif
 
 static PyObject *t_script_getCode(PyTypeObject *type, PyObject *arg)
 {
@@ -235,6 +294,9 @@ static PyObject *t_script_getScriptExtensions(PyTypeObject *type, PyObject *arg)
 void _init_script(PyObject *m)
 {
     INSTALL_CONSTANTS_TYPE(UScriptCode, m);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+    INSTALL_CONSTANTS_TYPE(UScriptUsage, m);
+#endif
     INSTALL_STRUCT(Script, m);
 
     INSTALL_ENUM(UScriptCode, "COMMON", USCRIPT_COMMON);
@@ -411,5 +473,14 @@ void _init_script(PyObject *m)
     INSTALL_ENUM(UScriptCode, "ANATOLIAN_HIEROGLYPHS", USCRIPT_ANATOLIAN_HIEROGLYPHS);
     INSTALL_ENUM(UScriptCode, "KHOJKI", USCRIPT_KHOJKI);
     INSTALL_ENUM(UScriptCode, "TIRHUTA", USCRIPT_TIRHUTA);
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+    INSTALL_ENUM(UScriptUsage, "NOT_ENCODED", USCRIPT_USAGE_NOT_ENCODED);
+    INSTALL_ENUM(UScriptUsage, "UNKNOWN", USCRIPT_USAGE_UNKNOWN);
+    INSTALL_ENUM(UScriptUsage, "EXCLUDED", USCRIPT_USAGE_EXCLUDED);
+    INSTALL_ENUM(UScriptUsage, "LIMITED_USE", USCRIPT_USAGE_LIMITED_USE);
+    INSTALL_ENUM(UScriptUsage, "ASPIRATIONAL", USCRIPT_USAGE_ASPIRATIONAL);
+    INSTALL_ENUM(UScriptUsage, "RECOMMENDED", USCRIPT_USAGE_RECOMMENDED);
 #endif
 }

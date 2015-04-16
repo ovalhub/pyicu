@@ -117,6 +117,7 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/caniter.h>
 #include <unicode/coleitr.h>
 #include <unicode/coll.h>
+#include <unicode/sortkey.h>
 #include <unicode/tblcoll.h>
 #include <unicode/ucsdet.h>
 #include <unicode/uidna.h>
@@ -131,6 +132,7 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/normlzr.h>
 #include <unicode/search.h>
 #include <unicode/stsearch.h>
+#include <unicode/uscript.h>
 
 #define VERSION_HEX(major, minor, patch) \
   (((major) << 24) | ((minor) << 16) | ((patch) << 8))

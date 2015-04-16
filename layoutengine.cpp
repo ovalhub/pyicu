@@ -565,7 +565,9 @@ void _init_layoutengine(PyObject *m)
     REGISTER_TYPE(LayoutEngine, m);
 
     INSTALL_ENUM(ScriptCode, "zyyy", zyyyScriptCode);
+#if U_ICU_VERSION_HEX >= 0x04040200
     INSTALL_ENUM(ScriptCode, "zinh", zinhScriptCode);
+#endif
     INSTALL_ENUM(ScriptCode, "qaai", qaaiScriptCode);
     INSTALL_ENUM(ScriptCode, "arab", arabScriptCode);
     INSTALL_ENUM(ScriptCode, "armn", armnScriptCode);
