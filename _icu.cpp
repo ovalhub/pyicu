@@ -43,6 +43,7 @@
 #include "search.h"
 #include "layoutengine.h"
 #include "script.h"
+#include "spoof.h"
 
 
 /* const variable descriptor */
@@ -284,6 +285,7 @@ static PyObject *PyInit_icu(PyObject *m)
     _init_search(m);
     _init_layoutengine(m);
     _init_script(m);
+    _init_spoof(m);
 
     PyObject *method = PyObject_GetAttrString((PyObject *) &UObjectType,
                                               "getDynamicClassID");

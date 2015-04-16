@@ -38,8 +38,11 @@ static PyObject *getDefault_NAME;
 
 typedef struct {
     UConverterCallbackReason reason;
+    const char *src;
+    int32_t src_length;
     char chars[8];
     int32_t length;
+    int32_t error_position;
 } _STOPReason;
 
 U_STABLE void U_EXPORT2 _stopDecode(const void *context,
@@ -49,12 +52,27 @@ U_STABLE void U_EXPORT2 _stopDecode(const void *context,
                                     UErrorCode *err)
 {
     _STOPReason *stop = (_STOPReason *) context;
-    int len = length < (int)sizeof(stop->chars)-1 ? length : sizeof(stop->chars)-1;
 
     stop->reason = reason;
-    if (chars && len)
-        strncpy(stop->chars, chars, len); stop->chars[len] = '\0';
     stop->length = length;
+
+    if (chars && length)
+    {
+        const int size = stop->src_length - length + 1;
+        const int len = length < sizeof(stop->chars) - 1 ? length : sizeof(stop->chars) - 1;
+
+        strncpy(stop->chars, chars, len); stop->chars[len] = '\0';
+        stop->error_position = -1;
+
+        for (int i = 0; i < size; ++i)
+        {
+            if (!memcmp(stop->src + i, chars, length))
+            {
+                stop->error_position = i;
+                break;
+            }
+        }
+    }
 }
 
 
@@ -186,7 +204,6 @@ EXPORT UnicodeString &PyBytes_AsUnicodeString(PyObject *object,
 {
     UErrorCode status = U_ZERO_ERROR;
     UConverter *conv = ucnv_open(encoding, &status);
-    UnicodeString result;
 
     if (U_FAILURE(status))
         throw ICUException(status);
@@ -194,6 +211,7 @@ EXPORT UnicodeString &PyBytes_AsUnicodeString(PyObject *object,
     _STOPReason stop;
     char *src;
     Py_ssize_t len;
+    UChar *buffer, *target;
 
     memset(&stop, 0, sizeof(stop));
 
@@ -201,11 +219,27 @@ EXPORT UnicodeString &PyBytes_AsUnicodeString(PyObject *object,
     {
         ucnv_setToUCallBack(conv, _stopDecode, &stop, NULL, NULL, &status);
         if (U_FAILURE(status))
+        {
+            ucnv_close(conv);
             throw ICUException(status);
+        }
     }
 
     PyBytes_AsStringAndSize(object, &src, &len);
-    result = UnicodeString((const char *) src, (int32_t) len, conv, status);
+    stop.src = src;
+    stop.src_length = len;
+
+    buffer = target = new UChar[len];
+    if (buffer == NULL)
+    {
+        ucnv_close(conv);
+
+        PyErr_NoMemory();
+        throw ICUException();
+    }
+
+    ucnv_toUnicode(conv, &target, target + len,
+                   (const char **) &src, src + len, NULL, true, &status);
 
     if (U_FAILURE(status))
     {
@@ -222,23 +256,23 @@ EXPORT UnicodeString &PyBytes_AsUnicodeString(PyObject *object,
             reasonName = "the code point is not a regular sequence in the encoding";
             break;
           default:
-            reasonName = "unexpected";
+            reasonName = "unexpected reason code";
             break;
         }
         status = U_ZERO_ERROR;
 
-        int position = strstr(src, stop.chars) - src;
-        PyObject *msg = PyString_FromFormat("'%s' codec can't decode byte 0x%x in position %d: %d (%s)", ucnv_getName(conv, &status), (int) (unsigned char) stop.chars[0], position, stop.reason, reasonName);
+        PyErr_Format(PyExc_ValueError, "'%s' codec can't decode byte 0x%x in position %d: reason code %d (%s)", ucnv_getName(conv, &status), (int) (unsigned char) stop.chars[0], stop.error_position, stop.reason, reasonName);
 
-        PyErr_SetObject(PyExc_ValueError, msg);
-        Py_DECREF(msg);
+        delete[] buffer;
         ucnv_close(conv);
 
         throw ICUException();
     }
 
+    string.setTo(buffer, target - buffer);
+
+    delete[] buffer;
     ucnv_close(conv);
-    string.setTo(result);
 
     return string;
 }
@@ -266,12 +300,12 @@ EXPORT UnicodeString &PyObject_AsUnicodeString(PyObject *object,
 
             if (U_FAILURE(status))
             {
-                delete chars;
+                delete[] chars;
                 throw ICUException(status);
             }
 
             string.setTo((const UChar *) chars, (int32_t) dstLen);
-            delete chars;
+            delete[] chars;
         }
     }
     else if (PyBytes_Check(object))
@@ -617,6 +651,7 @@ static UnicodeString *toUnicodeStringArray(PyObject *arg, int *len)
                     Py_DECREF(obj);
                     e.reportError();
                     delete[] array;
+
                     return NULL;
                 }
             }
@@ -750,6 +785,9 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
     va_start(list, types);
 
 #endif
+
+    if (PyErr_Occurred())
+        return -1;
 
     for (int i = 0; i < count; i++) {
 #ifdef PYPY_VERSION
