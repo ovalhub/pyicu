@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2010 Open Source Applications Foundation.
+ * Copyright (c) 2004-2011 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -175,9 +175,7 @@ DECLARE_TYPE(SimpleDateFormat, t_simpledateformat, DateFormat,
 
 PyObject *wrap_DateFormat(DateFormat *format)
 {
-    if (format->getDynamicClassID() == SimpleDateFormat::getStaticClassID())
-        return wrap_SimpleDateFormat((SimpleDateFormat *) format, T_OWNED);
-
+    RETURN_WRAPPED_IF_ISINSTANCE(format, SimpleDateFormat);
     return wrap_DateFormat(format, T_OWNED);
 }
 
@@ -1257,16 +1255,7 @@ static PyObject *t_dateintervalformat_setDateIntervalInfo(t_dateintervalformat *
 static PyObject *t_dateintervalformat_getDateFormat(t_dateintervalformat *self)
 {
     DateFormat *format = (DateFormat *) self->object->getDateFormat()->clone();
-
-#if U_ICU_VERSION_HEX < 0x04060000
-    if (format->getDynamicClassID() == SimpleDateFormat::getStaticClassID())
-        return wrap_SimpleDateFormat((SimpleDateFormat *) format, T_OWNED);
-#else
-    if (dynamic_cast<SimpleDateFormat *>(format) != NULL)
-        return wrap_SimpleDateFormat((SimpleDateFormat *) format, T_OWNED);
-#endif
-
-    return wrap_DateFormat(format, T_OWNED);
+    return wrap_DateFormat(format);
 }
 
 static PyObject *t_dateintervalformat_parseObject(t_dateintervalformat *self,

@@ -1,5 +1,5 @@
 # ====================================================================
-# Copyright (c) 2005-2010 Open Source Applications Foundation.
+# Copyright (c) 2005-2011 Open Source Applications Foundation.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -21,7 +21,7 @@
 # ====================================================================
 #
 
-import sys, os
+import sys, os, codecs
 
 from unittest import TestCase, main
 from icu import *
@@ -29,20 +29,97 @@ from icu import *
 
 class TestCollator(TestCase):
 
+    def filePath(self, name):
+
+        module = sys.modules[TestCollator.__module__].__file__
+        return os.path.join(os.path.dirname(module), name)
+
+    def assertIsInstance(self, obj, cls):
+        if hasattr(TestCase, 'assertIsInstance'):
+            TestCase.assertIsInstance(self, obj, cls)
+        else:
+            self.assertTrue(isinstance(obj, cls),
+                            u'%s is not an instance of %s' % (obj, cls))
+
     def testSort(self):
 
         collator = Collator.createInstance(Locale.getFrance())
-        module = sys.modules[TestCollator.__module__].__file__
-        input = file(os.path.join(os.path.dirname(module), 'noms.txt'))
+        input = file(self.filePath('noms.txt'))
         names = [unicode(n.strip(), 'utf-8') for n in input.readlines()]
         input.close()
         ecole = names[0]
 
         names.sort()
-        self.assert_(names[-1] is ecole)
+        self.assertTrue(names[-1] is ecole)
 
         names.sort(collator.compare)
-        self.assert_(names[2] is ecole)
+        self.assertTrue(names[2] is ecole)
+
+    def testCreateInstancePolymorph(self):
+
+        collator = Collator.createInstance(Locale("epo")) # Esperanto
+        self.assertIsInstance(collator, RuleBasedCollator)
+        rules = collator.getRules()
+
+    def testGetSortKey(self):
+
+        rules = UnicodeString("");
+        collator = RuleBasedCollator(rules)
+        collator.setAttribute(UCollAttribute.NORMALIZATION_MODE,
+                              UCollAttributeValue.ON)
+        collator.setAttribute(UCollAttribute.ALTERNATE_HANDLING,
+                              UCollAttributeValue.SHIFTED)
+        collator.setAttribute(UCollAttribute.STRENGTH,
+                              UCollAttributeValue.QUATERNARY)
+        collator.setAttribute(UCollAttribute.HIRAGANA_QUATERNARY_MODE,
+                              UCollAttributeValue.ON)
+        s = u'\u3052'
+        k = collator.getSortKey(s)
+        self.assertTrue("791C0186DCFD019B05010D0D00" ==
+                        ''.join(['%02X' %(ord(c)) for c in k]))
+
+    def setupCollator(self, collator):
+
+        collator.setAttribute(UCollAttribute.NORMALIZATION_MODE,
+                              UCollAttributeValue.ON)
+        collator.setAttribute(UCollAttribute.CASE_FIRST,
+                              UCollAttributeValue.UPPER_FIRST)
+        collator.setAttribute(UCollAttribute.ALTERNATE_HANDLING,
+                              UCollAttributeValue.SHIFTED)
+        collator.setAttribute(UCollAttribute.STRENGTH,
+                              UCollAttributeValue.QUATERNARY)
+        collator.setAttribute(UCollAttribute.HIRAGANA_QUATERNARY_MODE,
+                              UCollAttributeValue.ON)
+
+    def LoadCollatorFromRules(self):
+
+        f = codecs.open(self.filePath("collation-rules.txt"), 'r', 'utf-8')
+        rulelines = f.readlines()
+        f.close()
+
+        rules = UnicodeString("".join(rulelines));
+        collator = RuleBasedCollator(rules)
+        self.setupCollator(collator)
+
+        return collator
+
+    def LoadCollatorFromBinaryBuffer(self, bin):
+
+        collator = RuleBasedCollator(bin, RuleBasedCollator(""))
+        self.setupCollator(collator)
+
+        return collator
+
+    def testCollatorLoading(self):
+
+        collator = self.LoadCollatorFromRules()
+        key0 = collator.getSortKey(u'\u3069\u3052\u3056')
+        bin = collator.cloneBinary()
+
+        collator = self.LoadCollatorFromBinaryBuffer(bin)
+        key1 = collator.getSortKey(u'\u3069\u3052\u3056')
+
+        self.assertTrue(key0 == key1)
 
 
 if __name__ == "__main__":

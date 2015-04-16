@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2010 Open Source Applications Foundation.
+ * Copyright (c) 2004-2011 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -227,18 +227,13 @@ DECLARE_TYPE(GregorianCalendar, t_gregoriancalendar, Calendar,
 
 PyObject *wrap_TimeZone(TimeZone *tz)
 {
-    if (tz->getDynamicClassID() == SimpleTimeZone::getStaticClassID())
-        return wrap_SimpleTimeZone((SimpleTimeZone *) tz, T_OWNED);
-
+    RETURN_WRAPPED_IF_ISINSTANCE(tz, SimpleTimeZone);
     return wrap_TimeZone(tz, T_OWNED);
 }
 
 PyObject *wrap_TimeZone(const TimeZone &tz)
 {
-    if (tz.getDynamicClassID() == SimpleTimeZone::getStaticClassID())
-        return wrap_SimpleTimeZone((SimpleTimeZone *) tz.clone(), T_OWNED);
-
-    return wrap_TimeZone(tz.clone(), T_OWNED);
+    return wrap_TimeZone(tz.clone());
 }
 
 static PyObject *t_timezone_getOffset(t_timezone *self, PyObject *args)
@@ -826,10 +821,7 @@ static PyObject *t_simpletimezone_setDSTSavings(t_simpletimezone *self,
 
 PyObject *wrap_Calendar(Calendar *calendar)
 {
-    if (calendar->getDynamicClassID() ==
-        GregorianCalendar::getStaticClassID())
-        return wrap_GregorianCalendar((GregorianCalendar *) calendar, T_OWNED);
-
+    RETURN_WRAPPED_IF_ISINSTANCE(calendar, GregorianCalendar);
     return wrap_Calendar(calendar, T_OWNED);
 }
 

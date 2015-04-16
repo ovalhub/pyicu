@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2010 Open Source Applications Foundation.
+ * Copyright (c) 2004-2011 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -30,6 +30,10 @@
 #include "macros.h"
 #include "dateformat.h"
 #include "numberformat.h"
+
+#if U_ICU_VERSION_HEX >= 0x04080000
+    DECLARE_CONSTANTS_TYPE(UTimeUnitFormatStyle);
+#endif
 
 /* FieldPosition */
 
@@ -728,7 +732,11 @@ static PyObject *t_measureformat_createCurrencyFormat(PyTypeObject *type,
 static int t_timeunitformat_init(t_timeunitformat *self,
                                  PyObject *args, PyObject *kwds)
 {
+#if U_ICU_VERSION_HEX >= 0x04080000
+    UTimeUnitFormatStyle style;
+#else
     TimeUnitFormat::EStyle style;
+#endif
     Locale *locale;
 
     switch (PyTuple_Size(args)) {
@@ -894,77 +902,24 @@ static PyObject *t_messageformat_toPattern(t_messageformat *self,
     return PyErr_SetArgsError((PyObject *) self, "toPattern", args);
 }
 
-#if U_ICU_VERSION_HEX < 0x04060000
-
 PyObject *wrap_Format(Format *format)
 {
-    UClassID id = format->getDynamicClassID();
-
-    if (id == SimpleDateFormat::getStaticClassID())
-        return wrap_SimpleDateFormat((SimpleDateFormat *) format, T_OWNED);
-
-    if (id == MessageFormat::getStaticClassID())
-        return wrap_MessageFormat((MessageFormat *) format, T_OWNED);
-
+    RETURN_WRAPPED_IF_ISINSTANCE(format, SimpleDateFormat);
+    RETURN_WRAPPED_IF_ISINSTANCE(format, MessageFormat);
 #if U_ICU_VERSION_HEX >= 0x04000000
-    if (id == PluralFormat::getStaticClassID())
-        return wrap_PluralFormat((PluralFormat *) format, T_OWNED);
+    RETURN_WRAPPED_IF_ISINSTANCE(format, PluralFormat);
 #endif
-
 #if U_ICU_VERSION_HEX >= 0x04020000
-    if (id == TimeUnitFormat::getStaticClassID())
-        return wrap_TimeUnitFormat((TimeUnitFormat *) format, T_OWNED);
+    RETURN_WRAPPED_IF_ISINSTANCE(format, TimeUnitFormat);
 #endif
-
 #if U_ICU_VERSION_HEX >= 0x04040000
-    if (id == SelectFormat::getStaticClassID())
-        return wrap_SelectFormat((SelectFormat *) format, T_OWNED);
+    RETURN_WRAPPED_IF_ISINSTANCE(format, SelectFormat);
 #endif
-
-    if (id == ChoiceFormat::getStaticClassID())
-        return wrap_ChoiceFormat((ChoiceFormat *) format, T_OWNED);
-
-    if (id == DecimalFormat::getStaticClassID())
-        return wrap_DecimalFormat((DecimalFormat *) format, T_OWNED);
-
-    if (id == RuleBasedNumberFormat::getStaticClassID())
-        return wrap_RuleBasedNumberFormat((RuleBasedNumberFormat *) format, T_OWNED);
-
+    RETURN_WRAPPED_IF_ISINSTANCE(format, ChoiceFormat);
+    RETURN_WRAPPED_IF_ISINSTANCE(format, DecimalFormat);
+    RETURN_WRAPPED_IF_ISINSTANCE(format, RuleBasedNumberFormat);
     return wrap_Format(format, T_OWNED);
 }
-
-#else
-
-PyObject *wrap_Format(Format *format)
-{
-    if (dynamic_cast<SimpleDateFormat *>(format) != NULL)
-        return wrap_SimpleDateFormat((SimpleDateFormat *) format, T_OWNED);
-
-    if (dynamic_cast<MessageFormat *>(format) != NULL)
-        return wrap_MessageFormat((MessageFormat *) format, T_OWNED);
-
-    if (dynamic_cast<PluralFormat *>(format) != NULL)
-        return wrap_PluralFormat((PluralFormat *) format, T_OWNED);
-
-    if (dynamic_cast<TimeUnitFormat *>(format) != NULL)
-        return wrap_TimeUnitFormat((TimeUnitFormat *) format, T_OWNED);
-
-    if (dynamic_cast<SelectFormat *>(format) != NULL)
-        return wrap_SelectFormat((SelectFormat *) format, T_OWNED);
-
-    if (dynamic_cast<ChoiceFormat *>(format) != NULL)
-        return wrap_ChoiceFormat((ChoiceFormat *) format, T_OWNED);
-
-    if (dynamic_cast<DecimalFormat *>(format) != NULL)
-        return wrap_DecimalFormat((DecimalFormat *) format, T_OWNED);
-
-    if (dynamic_cast<RuleBasedNumberFormat *>(format) != NULL)
-        return wrap_RuleBasedNumberFormat((RuleBasedNumberFormat *) format, T_OWNED);
-
-    return wrap_Format(format, T_OWNED);
-}
-
-#endif
 
 static PyObject *t_messageformat_getFormats(t_messageformat *self)
 {
@@ -1712,8 +1667,13 @@ void _init_format(PyObject *m)
 
     INSTALL_STATIC_INT(FieldPosition, DONT_CARE);
 
-#if U_ICU_VERSION_HEX >= 0x04020000
+#if U_ICU_VERSION_HEX >= 0x04020000 && U_ICU_VERSION_HEX < 0x04080000
     INSTALL_STATIC_INT(TimeUnitFormat, kFull);
     INSTALL_STATIC_INT(TimeUnitFormat, kAbbreviate);
+#endif
+#if U_ICU_VERSION_HEX >= 0x04080000
+    INSTALL_CONSTANTS_TYPE(UTimeUnitFormatStyle, m);
+    INSTALL_ENUM(UTimeUnitFormatStyle, "FULL", UTMUTFMT_FULL_STYLE);
+    INSTALL_ENUM(UTimeUnitFormatStyle, "ABBREVIATED", UTMUTFMT_ABBREVIATED_STYLE);
 #endif
 }

@@ -40,11 +40,11 @@ class TestNormalizer2(TestCase):
         normalizer = Normalizer2.getInstance(None, "nfkc_cf",
                                              UNormalizationMode2.COMPOSE)
 
-        self.assert_(normalizer.normalize("Hi There") == u'hi there')
+        self.assertTrue(normalizer.normalize("Hi There") == u'hi there')
 
         a = UnicodeString()
         normalizer.normalize("Hi There", a)
-        self.assert_(a == UnicodeString(u'hi there'))
+        self.assertTrue(a == UnicodeString(u'hi there'))
         
 
 if __name__ == "__main__":

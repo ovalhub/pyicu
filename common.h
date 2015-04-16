@@ -191,10 +191,12 @@ EXPORT PyObject *PyUnicode_FromUnicodeString(UnicodeString *string);
 EXPORT PyObject *PyUnicode_FromUnicodeString(const UChar *chars, int size);
 
 EXPORT UnicodeString &PyString_AsUnicodeString(PyObject *object,
-                                               char *encoding, char *mode,
+                                               const char *encoding,
+                                               const char *mode,
                                                UnicodeString &string);
 EXPORT UnicodeString &PyObject_AsUnicodeString(PyObject *object,
-                                               char *encoding, char *mode,
+                                               const char *encoding,
+                                               const char *mode,
                                                UnicodeString &string);
 EXPORT UnicodeString &PyObject_AsUnicodeString(PyObject *object,
                                                UnicodeString &string);
@@ -208,10 +210,10 @@ int abstract_init(PyObject *self, PyObject *args, PyObject *kwds);
 #define parseArgs __parseArgs
 #define parseArg __parseArg
 
-int __parseArgs(PyObject *args, char *types, ...);
-int __parseArg(PyObject *arg, char *types, ...);
+int __parseArgs(PyObject *args, const char *types, ...);
+int __parseArg(PyObject *arg, const char *types, ...);
 
-int _parseArgs(PyObject **args, int count, char *types, va_list list);
+int _parseArgs(PyObject **args, int count, const char *types, va_list list);
 
 #else
 
@@ -222,7 +224,7 @@ int _parseArgs(PyObject **args, int count, char *types, va_list list);
 #define parseArg(arg, types, rest...) \
     _parseArgs(&(arg), 1, types, ##rest)
 
-int _parseArgs(PyObject **args, int count, char *types, ...);
+int _parseArgs(PyObject **args, int count, const char *types, ...);
 
 #endif
 
@@ -240,7 +242,7 @@ Formattable *toFormattableArray(PyObject *arg, int *len,
 UObject **pl2cpa(PyObject *arg, int *len, classid id, PyTypeObject *type);
 PyObject *cpa2pl(UObject **array, int len, PyObject *(*wrap)(UObject *, int));
 
-PyObject *PyErr_SetArgsError(PyObject *self, char *name, PyObject *args);
-PyObject *PyErr_SetArgsError(PyTypeObject *type, char *name, PyObject *args);
+PyObject *PyErr_SetArgsError(PyObject *self, const char *name, PyObject *args);
+PyObject *PyErr_SetArgsError(PyTypeObject *type, const char *name, PyObject *args);
 
 #endif /* _common_h */

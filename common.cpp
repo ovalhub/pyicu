@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2005-2010 Open Source Applications Foundation.
+ * Copyright (c) 2005-2011 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -29,6 +29,7 @@
 #include <unicode/ustring.h>
 
 #include "bases.h"
+#include "macros.h"
 
 static PyObject *utcoffset_NAME;
 static PyObject *toordinal_NAME;
@@ -178,7 +179,8 @@ EXPORT PyObject *PyUnicode_FromUnicodeString(const UChar *chars, int size)
 }
 
 EXPORT UnicodeString &PyString_AsUnicodeString(PyObject *object,
-                                               char *encoding, char *mode,
+                                               const char *encoding,
+                                               const char *mode,
                                                UnicodeString &string)
 {
     UErrorCode status = U_ZERO_ERROR;
@@ -206,7 +208,7 @@ EXPORT UnicodeString &PyString_AsUnicodeString(PyObject *object,
 
     if (U_FAILURE(status))
     {
-        char *reasonName;
+        const char *reasonName;
 
         switch (stop.reason) {
           case UCNV_UNASSIGNED:
@@ -241,7 +243,8 @@ EXPORT UnicodeString &PyString_AsUnicodeString(PyObject *object,
 }
 
 EXPORT UnicodeString &PyObject_AsUnicodeString(PyObject *object,
-                                               char *encoding, char *mode,
+                                               const char *encoding,
+                                               const char *mode,
                                                UnicodeString &string)
 {
     if (PyUnicode_Check(object))
@@ -672,7 +675,7 @@ static UBool *toUBoolArray(PyObject *arg, int *len)
 
 #ifdef _MSC_VER
 
-int __parseArgs(PyObject *args, char *types, ...)
+int __parseArgs(PyObject *args, const char *types, ...)
 {
     int count = ((PyTupleObject *)(args))->ob_size;
     va_list list;
@@ -682,7 +685,7 @@ int __parseArgs(PyObject *args, char *types, ...)
     return _parseArgs(((PyTupleObject *)(args))->ob_item, count, types, list);
 }
 
-int __parseArg(PyObject *arg, char *types, ...)
+int __parseArg(PyObject *arg, const char *types, ...)
 {
     va_list list;
 
@@ -692,14 +695,14 @@ int __parseArg(PyObject *arg, char *types, ...)
 }
 
 
-int _parseArgs(PyObject **args, int count, char *types, va_list list)
+int _parseArgs(PyObject **args, int count, const char *types, va_list list)
 {
     if (count != strlen(types))
         return -1;
 
 #else
 
-int _parseArgs(PyObject **args, int count, char *types, ...)
+int _parseArgs(PyObject **args, int count, const char *types, ...)
 {
     va_list list;
 
@@ -1121,7 +1124,7 @@ int _parseArgs(PyObject **args, int count, char *types, ...)
     return 0;
 }
 
-PyObject *PyErr_SetArgsError(PyObject *self, char *name, PyObject *args)
+PyObject *PyErr_SetArgsError(PyObject *self, const char *name, PyObject *args)
 {
     if (!PyErr_Occurred())
     {
@@ -1135,7 +1138,7 @@ PyObject *PyErr_SetArgsError(PyObject *self, char *name, PyObject *args)
     return NULL;
 }
 
-PyObject *PyErr_SetArgsError(PyTypeObject *type, char *name, PyObject *args)
+PyObject *PyErr_SetArgsError(PyTypeObject *type, const char *name, PyObject *args)
 {
     if (!PyErr_Occurred())
     {
@@ -1150,14 +1153,8 @@ PyObject *PyErr_SetArgsError(PyTypeObject *type, char *name, PyObject *args)
 
 int isUnicodeString(PyObject *arg)
 {
-#if U_ICU_VERSION_HEX < 0x04060000
     return (PyObject_TypeCheck(arg, &UObjectType) &&
-            (((t_uobject *) arg)->object->getDynamicClassID() ==
-             UnicodeString::getStaticClassID()));
-#else
-    return (PyObject_TypeCheck(arg, &UObjectType) &&
-            dynamic_cast<UnicodeString *>(((t_uobject *) arg)->object) != NULL);
-#endif
+            ISINSTANCE(((t_uobject *) arg)->object, UnicodeString));
 }
 
 int32_t toUChar32(UnicodeString& u, UChar32 *c, UErrorCode& status)

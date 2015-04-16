@@ -36,7 +36,7 @@ class TestMessageFormat(TestCase):
         f = Formattable(UnicodeString(x))
 
         text = MessageFormat.formatMessage("This is a string: {0}.", [f])
-        self.assert_(text == "This is a string: x.")
+        self.assertTrue(text == "This is a string: x.")
 
     def testFormat(self):
 
@@ -45,11 +45,11 @@ class TestMessageFormat(TestCase):
         msgFormat = MessageFormat("This is a string: {0}")
 
         text = msgFormat.format([f], FieldPosition())
-        self.assert_(text == "This is a string: x")
+        self.assertTrue(text == "This is a string: x")
 
         f = UnicodeString(x)
         text = msgFormat %f
-        self.assert_(text == "This is a string: x")
+        self.assertTrue(text == "This is a string: x")
 
     def testFormatAppend(self):
 
@@ -58,7 +58,7 @@ class TestMessageFormat(TestCase):
         msgFormat = MessageFormat("This is a string: {0}")
 
         text = msgFormat.format([f], UnicodeString("x"), FieldPosition())
-        self.assert_(text == "xThis is a string: x")
+        self.assertTrue(text == "xThis is a string: x")
 
     def testFormats(self):
 
@@ -68,10 +68,10 @@ class TestMessageFormat(TestCase):
         formats = msgFormat.getFormats()
 
         formats[0].setTimeZone(TimeZone.createTimeZone(tzid))
-        self.assert_(msgFormat.getFormats()[0].getTimeZone().getID() == orig)
+        self.assertTrue(msgFormat.getFormats()[0].getTimeZone().getID() == orig)
 
         msgFormat.setFormats(formats)
-        self.assert_(msgFormat.getFormats()[0].getTimeZone().getID() == tzid)
+        self.assertTrue(msgFormat.getFormats()[0].getTimeZone().getID() == tzid)
 
     def testSelectFormat(self):
 
@@ -84,7 +84,7 @@ class TestMessageFormat(TestCase):
         msgFormat = MessageFormat(format, Locale("fr"))
         args = [Formattable("Kirti"), Formattable("female")]
 
-        self.assert_(msgFormat.format(args) == u"Kirti est allée à Paris.")
+        self.assertTrue(msgFormat.format(args) == u"Kirti est allée à Paris.")
 
 
 if __name__ == "__main__":

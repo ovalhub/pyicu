@@ -42,7 +42,7 @@ class TestUDate(TestCase):
         TimeZone.setDefault(ICUtzinfo.getInstance('US/Eastern').timezone)
         after = formatNaiveDatetime()
 
-        self.assert_(before == after)
+        self.assertTrue(before == after)
 
 
 if __name__ == "__main__":

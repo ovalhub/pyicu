@@ -1,5 +1,5 @@
 # ====================================================================
-# Copyright (c) 2007-2010 Open Source Applications Foundation.
+# Copyright (c) 2005-2011 Open Source Applications Foundation.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -27,38 +27,28 @@ from unittest import TestCase, main
 from icu import *
 
 
-class TestCharset(TestCase):
+class TestBreakIterator(TestCase):
 
-    def testDetect(self):
+    def assertIsInstance(self, obj, cls):
+        if hasattr(TestCase, 'assertIsInstance'):
+            TestCase.assertIsInstance(self, obj, cls)
+        else:
+            self.assertTrue(isinstance(obj, cls),
+                            u'%s is not an instance of %s' % (obj, cls))
 
-        detector = CharsetDetector()
-        detector.setText('foo')
+    def testCreateInstancePolymorph(self):
 
-        match = detector.detect()
-        self.assertTrue(match.getName() == 'UTF-8')
+        bi = BreakIterator.createWordInstance(Locale.getEnglish())
+        self.assertIsInstance(bi, RuleBasedBreakIterator)
+        bi = BreakIterator.createLineInstance(Locale.getEnglish())
+        self.assertIsInstance(bi, RuleBasedBreakIterator)
+        bi = BreakIterator.createCharacterInstance(Locale.getEnglish())
+        self.assertIsInstance(bi, RuleBasedBreakIterator)
+        bi = BreakIterator.createSentenceInstance(Locale.getEnglish())
+        self.assertIsInstance(bi, RuleBasedBreakIterator)
+        bi = BreakIterator.createTitleInstance(Locale.getEnglish())
+        self.assertIsInstance(bi, RuleBasedBreakIterator)
 
-    def testDetectAll(self):
-
-        detector = CharsetDetector('foo')
-
-        matches = detector.detectAll()
-        self.assertTrue(matches[0].getName() == 'UTF-8')
-
-    def testDeclared(self):
-
-        detector = CharsetDetector('beaut\xe9 probable', 'iso-8859-1')
-
-        self.assertTrue("ISO-8859-1" in (m.getName()
-                                         for m in detector.detectAll()))
-
-    def testUnicode(self):
-
-        string = 'beaut\xe9 probable'
-        ustring = unicode(CharsetDetector(string).detect())
-
-        self.assertTrue(ustring.encode('iso-8859-1') == string)
-        
-        
 
 if __name__ == "__main__":
     main()

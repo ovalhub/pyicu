@@ -1,6 +1,18 @@
 
 For bug <NUM>, see http://bugzilla.osafoundation.org/show_bug.cgi?id=<NUM>
 
+Version 1.1 -> 1.2
+------------------
+  - fixed bug 13009 (Martin von Gagern)
+  - fixed bug 13011 (Martin von Gagern)
+  - some unit test beautification (Martin von Gagern)
+  - added macros for RTTI checks (Martin von Gagern)
+  - fixed bug 13012
+  - fixed bug 13013 (Yuriy Pilgun)
+  - added wrappers for Locale::isBogus()/setToBogus() (Jimmy Yuen Ho Wong)
+  - fixed bug 13022 (Martin von Gagern)
+  - added support for ICU 4.8
+
 Version 1.0 -> 1.1
 ------------------
   - added support for ICU 4.6

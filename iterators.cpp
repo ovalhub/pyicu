@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2010 Open Source Applications Foundation.
+ * Copyright (c) 2004-2011 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -834,6 +834,22 @@ static PyObject *t_breakiterator_getLocaleID(t_breakiterator *self,
     return PyErr_SetArgsError((PyObject *) self, "getLocaleID", args);
 }
 
+static inline PyObject *wrap_BreakIterator(BreakIterator *iterator)
+{
+#if U_ICU_VERSION_HEX < 0x04060000
+    if (iterator->getDynamicClassID() ==
+        RuleBasedBreakIterator::getStaticClassID())
+        return wrap_RuleBasedBreakIterator(
+            (RuleBasedBreakIterator *) iterator, T_OWNED);
+#else
+    if (dynamic_cast<RuleBasedBreakIterator *>(iterator) != NULL)
+        return wrap_RuleBasedBreakIterator(
+            (RuleBasedBreakIterator *) iterator, T_OWNED);
+#endif
+
+    return wrap_BreakIterator(iterator, T_OWNED);
+}
+
 static PyObject *t_breakiterator_createWordInstance(PyTypeObject *type,
                                                     PyObject *arg)
 {
@@ -843,7 +859,7 @@ static PyObject *t_breakiterator_createWordInstance(PyTypeObject *type,
     if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
     {
         STATUS_CALL(iterator = BreakIterator::createWordInstance(*locale, status));
-        return wrap_BreakIterator(iterator, T_OWNED);
+        return wrap_BreakIterator(iterator);
     }
 
     return PyErr_SetArgsError(type, "createWordInstance", arg);
@@ -858,7 +874,7 @@ static PyObject *t_breakiterator_createLineInstance(PyTypeObject *type,
     if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
     {
         STATUS_CALL(iterator = BreakIterator::createLineInstance(*locale, status));
-        return wrap_BreakIterator(iterator, T_OWNED);
+        return wrap_BreakIterator(iterator);
     }
 
     return PyErr_SetArgsError(type, "createLineInstance", arg);
@@ -873,7 +889,7 @@ static PyObject *t_breakiterator_createCharacterInstance(PyTypeObject *type,
     if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
     {
         STATUS_CALL(iterator = BreakIterator::createCharacterInstance(*locale, status));
-        return wrap_BreakIterator(iterator, T_OWNED);
+        return wrap_BreakIterator(iterator);
     }
 
     return PyErr_SetArgsError(type, "createCharacterInstance", arg);
@@ -888,7 +904,7 @@ static PyObject *t_breakiterator_createSentenceInstance(PyTypeObject *type,
     if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
     {
         STATUS_CALL(iterator = BreakIterator::createSentenceInstance(*locale, status));
-        return wrap_BreakIterator(iterator, T_OWNED);
+        return wrap_BreakIterator(iterator);
     }
 
     return PyErr_SetArgsError(type, "createSentenceInstance", arg);
@@ -903,7 +919,7 @@ static PyObject *t_breakiterator_createTitleInstance(PyTypeObject *type,
     if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
     {
         STATUS_CALL(iterator = BreakIterator::createTitleInstance(*locale, status));
-        return wrap_BreakIterator(iterator, T_OWNED);
+        return wrap_BreakIterator(iterator);
     }
 
     return PyErr_SetArgsError(type, "createTitleInstance", arg);

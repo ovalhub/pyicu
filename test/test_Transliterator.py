@@ -42,8 +42,8 @@ class TestTransliterator(TestCase):
         else:
             result = u"e\u2190'\u2192ve\u2190'\u2192nement"
 
-        self.assert_(trans.transliterate(string) == result)
-        self.assert_(inverse.transliterate(result) == string)
+        self.assertTrue(trans.transliterate(string) == result)
+        self.assertTrue(inverse.transliterate(result) == string)
 
     def testUnicodeString(self):
 
@@ -52,9 +52,9 @@ class TestTransliterator(TestCase):
         string = UnicodeString("Shang4hai3 zi4lai2shui3 lai2 zi4 hai3 shang4")
         result = u'Sh\xe0ngh\u01cei z\xecl\xe1ishu\u01d0 l\xe1i z\xec h\u01cei sh\xe0ng'
 
-        self.assert_(trans.transliterate(unicode(string)) == result)
-        self.assert_(trans.transliterate(string) == result)
-        self.assert_(string == result)
+        self.assertTrue(trans.transliterate(unicode(string)) == result)
+        self.assertTrue(trans.transliterate(string) == result)
+        self.assertTrue(string == result)
 
     def testPythonTransliterator(self):
 
@@ -73,7 +73,7 @@ class TestTransliterator(TestCase):
         # see http://en.wikipedia.org/wiki/Drei_Chinesen_mit_dem_Kontrabass
         string = u"Drei Chinesen mit dem Kontrabass"
         result = u'Drii Chinisin mit dim Kintribiss'
-        self.assert_(trans.transliterate(string) == result)
+        self.assertTrue(trans.transliterate(string) == result)
  
         # test registration
         Transliterator.registerInstance(trans)
@@ -81,7 +81,7 @@ class TestTransliterator(TestCase):
         regTrans = Transliterator.createInstance("vowel",
                                                  UTransDirection.FORWARD)
 
-        self.assert_(regTrans.transliterate(string) == result)
+        self.assertTrue(regTrans.transliterate(string) == result)
 
     def testPythonTransliteratorException(self):
 

@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2010 Open Source Applications Foundation.
+ * Copyright (c) 2004-2011 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -405,6 +405,19 @@ PyTypeObject name##Type = {                                             \
         }                                                               \
         return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg); \
     }
+
+
+#if U_ICU_VERSION_HEX < 0x04060000
+#define ISINSTANCE(obj, type)                                   \
+    ((obj)->getDynamicClassID() == type::getStaticClassID())
+#else
+#define ISINSTANCE(obj, type)                                   \
+    (dynamic_cast<type *>(obj) != NULL)
+#endif
+
+#define RETURN_WRAPPED_IF_ISINSTANCE(obj, type)                 \
+    if (ISINSTANCE(obj, type))                                  \
+        return wrap_##type((type *)(obj), T_OWNED)
 
 
 #endif /* _macros_h */

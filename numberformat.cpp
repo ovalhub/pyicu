@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2010 Open Source Applications Foundation.
+ * Copyright (c) 2004-2011 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -29,6 +29,10 @@
 #include "format.h"
 #include "numberformat.h"
 #include "macros.h"
+
+#if U_ICU_VERSION_HEX >= 0x04080000
+    DECLARE_CONSTANTS_TYPE(UCurrencySpacing);
+#endif
 
 /* DecimalFormatSymbols */
 
@@ -352,16 +356,8 @@ DECLARE_TYPE(RuleBasedNumberFormat, t_rulebasednumberformat, NumberFormat,
 
 PyObject *wrap_NumberFormat(NumberFormat *format)
 {
-    if (format->getDynamicClassID() ==
-        DecimalFormat::getStaticClassID())
-        return wrap_DecimalFormat((DecimalFormat *) format,
-                                  T_OWNED);
-
-    if (format->getDynamicClassID() ==
-        RuleBasedNumberFormat::getStaticClassID())
-        return wrap_RuleBasedNumberFormat((RuleBasedNumberFormat *) format,
-                                          T_OWNED);
-
+    RETURN_WRAPPED_IF_ISINSTANCE(format, DecimalFormat);
+    RETURN_WRAPPED_IF_ISINSTANCE(format, RuleBasedNumberFormat);
     return wrap_NumberFormat(format, T_OWNED);
 }
 
@@ -502,7 +498,11 @@ static PyObject *t_decimalformatsymbols_getLocale(t_decimalformatsymbols *self,
 
 static PyObject *t_decimalformatsymbols_getPatternForCurrencySpacing(t_decimalformatsymbols *self, PyObject *args)
 {
+#if U_ICU_VERSION_HEX >= 0x04080000
+    UCurrencySpacing type;
+#else
     DecimalFormatSymbols::ECurrencySpacing type;
+#endif
     UBool beforeCurrency;
 
     if (!parseArgs(args, "ib", &type, &beforeCurrency))
@@ -518,7 +518,11 @@ static PyObject *t_decimalformatsymbols_getPatternForCurrencySpacing(t_decimalfo
 static PyObject *t_decimalformatsymbols_setPatternForCurrencySpacing(t_decimalformatsymbols *self, PyObject *args)
 {
     UnicodeString *u, _u;
+#if U_ICU_VERSION_HEX >= 0x04080000
+    UCurrencySpacing type;
+#else
     DecimalFormatSymbols::ECurrencySpacing type;
+#endif
     UBool beforeCurrency;
 
     if (!parseArgs(args, "ibS", &type, &beforeCurrency, &u, &_u))
@@ -2286,11 +2290,17 @@ void _init_numberformat(PyObject *m)
     INSTALL_STATIC_INT(DecimalFormatSymbols, kNaNSymbol);
     INSTALL_STATIC_INT(DecimalFormatSymbols, kSignificantDigitSymbol);
 
-#if U_ICU_VERSION_HEX >= 0x04020000
+#if U_ICU_VERSION_HEX >= 0x04020000 && U_ICU_VERSION_HEX < 0x04080000
     INSTALL_STATIC_INT(DecimalFormatSymbols, kCurrencyMatch);
     INSTALL_STATIC_INT(DecimalFormatSymbols, kSurroundingMatch);
     INSTALL_STATIC_INT(DecimalFormatSymbols, kInsert);
     INSTALL_STATIC_INT(DecimalFormatSymbols, kCurrencySpacingCount);
+#endif
+#if U_ICU_VERSION_HEX >= 0x04080000
+    INSTALL_CONSTANTS_TYPE(UCurrencySpacing, m);
+    INSTALL_ENUM(UCurrencySpacing, "MATCH", UNUM_CURRENCY_MATCH);
+    INSTALL_ENUM(UCurrencySpacing, "SURROUNDING_MATCH", UNUM_CURRENCY_SURROUNDING_MATCH);
+    INSTALL_ENUM(UCurrencySpacing, "INSERT", UNUM_CURRENCY_INSERT);
 #endif
 
     INSTALL_STATIC_INT(NumberFormat, kIntegerField);

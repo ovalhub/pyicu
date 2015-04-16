@@ -62,6 +62,8 @@ static PyObject *t_locale_getDisplayCountry(t_locale *self, PyObject *args);
 static PyObject *t_locale_getDisplayVariant(t_locale *self, PyObject *args);
 static PyObject *t_locale_getDisplayName(t_locale *self, PyObject *args);
 static PyObject *t_locale_createKeywords(t_locale *self);
+static PyObject *t_locale_isBogus(t_locale *self);
+static PyObject *t_locale_setToBogus(t_locale *self);
 static PyObject *t_locale_getEnglish(PyTypeObject *type);
 static PyObject *t_locale_getFrench(PyTypeObject *type);
 static PyObject *t_locale_getGerman(PyTypeObject *type);
@@ -108,6 +110,8 @@ static PyMethodDef t_locale_methods[] = {
     DECLARE_METHOD(t_locale, getDisplayVariant, METH_VARARGS),
     DECLARE_METHOD(t_locale, getDisplayName, METH_VARARGS),
     DECLARE_METHOD(t_locale, createKeywords, METH_NOARGS),
+    DECLARE_METHOD(t_locale, isBogus, METH_NOARGS),
+    DECLARE_METHOD(t_locale, setToBogus, METH_NOARGS),
     DECLARE_METHOD(t_locale, getEnglish, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_locale, getFrench, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_locale, getGerman, METH_NOARGS | METH_CLASS),
@@ -490,6 +494,18 @@ static PyObject *t_locale_createKeywords(t_locale *self)
     return wrap_StringEnumeration(se, T_OWNED);
 }
 
+static PyObject *t_locale_isBogus(t_locale *self)
+{
+    int retval = self->object->isBogus();
+    Py_RETURN_BOOL(retval);
+}
+
+static PyObject *t_locale_setToBogus(t_locale *self)
+{
+    self->object->setToBogus();
+    Py_RETURN_NONE;
+}
+
 static PyObject *t_locale_getEnglish(PyTypeObject *self)
 {
     return wrap_Locale(Locale::getEnglish());
@@ -665,7 +681,7 @@ static PyObject *t_locale_getAvailableLocales(PyTypeObject *type)
         Locale *locale = (Locale *) locales + i;
         PyObject *obj = wrap_Locale(locale, 0);
         PyDict_SetItemString(dict, locale->getName(), obj);
-	Py_DECREF(obj);
+        Py_DECREF(obj);
     }
 
     return dict;

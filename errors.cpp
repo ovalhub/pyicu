@@ -26,7 +26,7 @@
 
 #include "errors.h"
 
-static void _setMsg(PyObject *messages, UErrorCode code, char *msg)
+static void _setMsg(PyObject *messages, UErrorCode code, const char *msg)
 {
     PyObject *pycode = PyInt_FromLong((long) code);
     PyObject *pymsg = PyString_FromString(msg);
