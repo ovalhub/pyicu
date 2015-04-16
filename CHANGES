@@ -1,0 +1,78 @@
+
+For bug <NUM>, see http://bugzilla.osafoundation.org/show_bug.cgi?id=<NUM>
+
+Version 0.8 ->
+------------------
+  - 
+
+Version 0.6 -> 0.8
+------------------
+  - ICUtzinfo and FloatingTZ types now written in C for faster performance
+  - fixed bug 8180
+  - fixed bug 9229
+  - reworked FloatingTZ to optionally wrap a specific tzinfo instead of default
+  - incorporated c++ patches by Fredrik Roubert
+  - changed Exact unicode and string check to allow subclasses
+  - replaced Makefile with setup.py for distutils-based build (Bernd Zeimetz)
+  - PyICU supported with ICU 3.6 or 3.8
+  - PyICU supported on 64-bit processors (bug 11394)
+
+Version 0.5 -> 0.6
+------------------
+  - integrated patch to support Python 2.3 and MSVC 6
+  - changed naive datetime to UDate conversion to use ICUtzinfo.default
+  - fixed bug not checking return value of PyImport_ImportModule
+  - PyICU now wraps ICU 3.6
+  - added support for building with Python 2.5
+  - added support for CharsetDetector and CharsetMatch C ICU APIs
+  - added UnicodeString.encode() to access compression and conversion APIs
+  - added support for IDNA APIs to UnicodeString
+  - added support for MessageFormat(string) %(objs) style formatting
+  - fixed bug in Formattable constructor not accepting a python unicode string
+  - added support for BreakIterator::DONE
+  - added support for BreakIterator::getText()
+  - added support for BreakIterator::nextBoundary() to bypass iterator code
+
+Version 0.4 -> 0.5
+------------------
+  - changed OS X linking to resolve all symbols at link time
+  - Collator.getCollationKey() wasn't working
+  - added Collator.getCollationKey(string) overload
+  - using u_strFromUTF32() now to convert 4 byte unicode to 2 byte unicode
+  - improved support for Python 2.3
+  - PyICU no longers uses SWIG, wrappers are written by hand
+  - all APIs returning UnicodeString now return 'unicode'
+  - all APIs returning UnicodeString also take a UnicodeString arg to return it
+
+Version 0.3 -> 0.4
+------------------
+  - PyICU now wraps ICU 3.4
+  - added Calendar.getType(), changed Calendar.__repr__()
+  - added Locale.createKeywords(), Locale.getKeywordValue()
+  - moved Locale to locale.i and added support for ResourceBundle
+  - replaced TimeZone.adoptDefault() with TimeZone.getDefault()
+
+Version 0.2 -> 0.3
+------------------
+  - added support for CanonicalIterator, CollationElementIterator
+  - added static formatMessage() method on MessageFormat
+  - added static encoding helper methods to UnicodeString
+  - reworked PyString_AsUnicodeString() to report decode errors by default
+  - added support for Collator, RuleBasedCollator and CollationKey
+  - added test_Collator unit tests
+  - added test_MessageFormat unit tests
+  - fixed various MessageFormat bugs
+  - fixed bug in ICUtzinfo, now returning copy of ICU TimeZone instance
+  - fixed bug in TimeZone.adoptDefault() not checking type of pointer
+  - added __eq__, __ne__ and __hash__ methods to ICUtzinfo
+  - MessageFormat.getFormats() now returns copies of concrete formats
+
+Version 0.1 -> 0.2
+------------------
+  - added most missing UnicodeString methods
+  - added support for the BreakIterator and CharacterIterator classes
+
+Version 0.0 -> 0.1
+------------------
+
+- initial release
