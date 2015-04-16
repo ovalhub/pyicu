@@ -1,6 +1,15 @@
 
 For bug <NUM>, see http://bugzilla.osafoundation.org/show_bug.cgi?id=<NUM>
 
+Version 1.0 -> 1.0.1
+--------------------
+  - removed variable length array uses in regex.cpp (Chandler Carruth)
+  - fixed bug 12983
+  - fixed bug with BreakIterator.setText() not keeping reference to text
+  - fixed incorrect conditional <windows.h> include in locale.cpp (Ralf Haring)
+  - fixed incorrect spellings of PyErr_SetFromWindowsErrWithFilename (ditto)
+  - fixed incorrect declaration of PythonTransliterator (Christian Heimes)
+
 Version 0.9 -> 1.0
 ------------------
   - added support for UnicodeSet, UnicodeFunctor, UnicodeFilter, UnicodeMatcher

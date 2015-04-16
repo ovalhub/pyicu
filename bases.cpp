@@ -1370,35 +1370,46 @@ static PyObject *t_unicodestring_encode(t_unicodestring *self, PyObject *arg)
 
     if (!parseArg(arg, "c", &encoding))
     {
-        int len = self->object->length();
+        int srcLen = self->object->length();
+        int dstLen = srcLen * 4, _dstLen;
         UErrorCode status = U_ZERO_ERROR;
         UConverter *conv = ucnv_open(encoding, &status);
         PyObject *string;
-        char *dest;
 
         if (U_FAILURE(status))
             return ICUException(status).reportError();
 
-        dest = new char[len * 4];
-        if (!dest)
+        string = PyString_FromStringAndSize(NULL, dstLen);
+
+      retry:
+        if (!string)
         {
             ucnv_close(conv);
-            PyErr_SetNone(PyExc_MemoryError);
             return NULL;
         }
 
-        len = ucnv_fromUChars(conv, dest, len * 4,
-                              self->object->getBuffer(), len, &status);
+        _dstLen = ucnv_fromUChars(conv, PyString_AS_STRING(string), dstLen,
+                                  self->object->getBuffer(), srcLen, &status);
+
+        if (status == U_BUFFER_OVERFLOW_ERROR && _dstLen > dstLen)
+        {
+            _PyString_Resize(&string, _dstLen);
+            dstLen = _dstLen;
+            status = U_ZERO_ERROR;
+
+            goto retry;
+        }
+
         ucnv_close(conv);
 
         if (U_FAILURE(status))
         {
-            delete dest;
+            Py_DECREF(string);
             return ICUException(status).reportError();
         }
 
-        string = PyString_FromStringAndSize(dest, len);
-        delete dest;
+        if (_dstLen != dstLen)
+            _PyString_Resize(&string, _dstLen);
 
         return string;
     }

@@ -248,7 +248,7 @@ static PyObject *t_regexpattern_split(t_regexpattern *self, PyObject *args)
     {
         if (capacity < 32)
         {
-            UnicodeString array[capacity];
+            UnicodeString array[31];
             PyObject *tuple;
 
             STATUS_CALL(count = self->object->split(*u, array, capacity,
@@ -738,7 +738,7 @@ static PyObject *t_regexmatcher_split(t_regexmatcher *self, PyObject *args)
     {
         if (capacity < 32)
         {
-            UnicodeString array[capacity];
+            UnicodeString array[31];
             PyObject *tuple;
 
             STATUS_CALL(count = self->object->split(*u, array, capacity,

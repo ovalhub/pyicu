@@ -7,13 +7,13 @@ except ImportError:
     from distutils.core import setup, Extension
 
 
-VERSION = '1.0'
+VERSION = '1.0.1'
 
 INCLUDES = {
     'darwin': ['/usr/local/include'],
     'linux2': [],
     'freebsd7': ['/usr/local/include'],
-    'win32': [],
+    'win32': ['c:/icu/include'],
     'sunos5': [],
 }
 
@@ -21,7 +21,7 @@ CFLAGS = {
     'darwin': ['-Wno-write-strings'],
     'linux2': [],
     'freebsd7': [],
-    'win32': ['/Zc:wchar_t'],
+    'win32': ['/Zc:wchar_t', '/EHsc'],
     'sunos5': [],
 }
 
@@ -29,7 +29,7 @@ LFLAGS = {
     'darwin': ['-L/usr/local/lib'],
     'linux2': [],
     'freebsd7': ['-L/usr/local/lib'],
-    'win32': [],
+    'win32': ['/LIBPATH:c:/icu/lib'],
     'sunos5': [],
 }
 

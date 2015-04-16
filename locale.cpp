@@ -21,7 +21,7 @@
  * ====================================================================
  */
 
-#if defined(_MSC_VER) && defined(__WIN32)
+#if defined(_MSC_VER) || defined(__WIN32)
 #include <windows.h>
 #else
 #include <sys/fcntl.h>
@@ -1029,12 +1029,12 @@ static PyObject *t_resourcebundle_setAppData(PyTypeObject *type,
         LPVOID data;
 
         if (fd == INVALID_HANDLE_VALUE)
-            return PyErr_SetFromWindowsErrWithFileName(0, path);
+            return PyErr_SetFromWindowsErrWithFilename(0, path);
 
         dwSize = GetFileSize(fd, NULL);
         if (dwSize == INVALID_FILE_SIZE)
         {
-            PyErr_SetFromWindowsErrWithFileName(0, path);
+            PyErr_SetFromWindowsErrWithFilename(0, path);
             CloseHandle(fd);
 
             return NULL;
@@ -1043,7 +1043,7 @@ static PyObject *t_resourcebundle_setAppData(PyTypeObject *type,
         hMap = CreateFileMapping(fd, NULL, PAGE_READONLY, 0, dwSize, NULL);
         if (!hMap)
         {
-            PyErr_SetFromWindowsErrWithFileName(0, path);
+            PyErr_SetFromWindowsErrWithFilename(0, path);
             CloseHandle(fd);
 
             return NULL;
@@ -1053,7 +1053,7 @@ static PyObject *t_resourcebundle_setAppData(PyTypeObject *type,
         data = MapViewOfFile(hMap, FILE_MAP_READ, 0, 0, 0);
         if (!data)
         {
-            PyErr_SetFromWindowsErrWithFileName(0, path);
+            PyErr_SetFromWindowsErrWithFilename(0, path);
             CloseHandle(hMap);
 
             return NULL;

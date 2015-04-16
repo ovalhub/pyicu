@@ -172,6 +172,7 @@ DECLARE_TYPE(StringCharacterIterator, t_stringcharacteriterator,
 class t_breakiterator : public _wrapper {
 public:
     BreakIterator *object;
+    PyObject *text;
 };
 
 static PyObject *t_breakiterator_getText(t_breakiterator *self);
@@ -229,14 +230,26 @@ static PyMethodDef t_breakiterator_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
+static void t_breakiterator_dealloc(t_breakiterator *self)
+{
+    if (self->flags & T_OWNED)
+        delete self->object;
+    self->object = NULL;
+
+    Py_CLEAR(self->text);
+
+    self->ob_type->tp_free((PyObject *) self);
+}
+
 DECLARE_TYPE(BreakIterator, t_breakiterator, UObject, BreakIterator,
-             abstract_init, NULL);
+             abstract_init, t_breakiterator_dealloc);
 
 /* RuleBasedBreakIterator */
 
 class t_rulebasedbreakiterator : public _wrapper {
 public:
     RuleBasedBreakIterator *object;
+    PyObject *text;  /* used by inherited BreakIterator.setText() */
 };
 
 static int t_rulebasedbreakiterator_init(t_rulebasedbreakiterator *self,
@@ -693,11 +706,11 @@ static PyObject *t_breakiterator_getText(t_breakiterator *self)
 
 static PyObject *t_breakiterator_setText(t_breakiterator *self, PyObject *arg)
 {
-    UnicodeString *u, _u;
+    UnicodeString *u;
 
-    if (!parseArg(arg, "S", &u, &_u))
+    if (!parseArg(arg, "W", &u, &self->text))
     {
-        self->object->setText(*u); /* copied */
+        self->object->setText(*u); /* ref'd */
         Py_RETURN_NONE;
     }
 

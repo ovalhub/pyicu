@@ -32,7 +32,7 @@ public:
 
 U_NAMESPACE_BEGIN
 
-class U_I18N_API PythonTransliterator : public Transliterator {
+class U_EXPORT PythonTransliterator : public Transliterator {
   protected:
     t_transliterator *self;
 
@@ -45,7 +45,7 @@ class U_I18N_API PythonTransliterator : public Transliterator {
     /**
      * ICU "poor man's RTTI", returns a UClassID for this class.
      */
-    U_I18N_API static UClassID U_EXPORT2 getStaticClassID();
+    static UClassID getStaticClassID();
 
     PythonTransliterator(t_transliterator *self, UnicodeString& id);
     PythonTransliterator(t_transliterator *self, UnicodeString& id,
