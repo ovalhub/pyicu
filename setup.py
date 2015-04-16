@@ -7,7 +7,7 @@ except ImportError:
     from distutils.core import setup, Extension
 
 
-VERSION = '1.0.1'
+VERSION = '1.1'
 
 INCLUDES = {
     'darwin': ['/usr/local/include'],
@@ -18,11 +18,11 @@ INCLUDES = {
 }
 
 CFLAGS = {
-    'darwin': ['-Wno-write-strings'],
-    'linux2': [],
-    'freebsd7': [],
-    'win32': ['/Zc:wchar_t', '/EHsc'],
-    'sunos5': [],
+    'darwin': ['-Wno-write-strings', '-DPYICU_VER="%s"' %(VERSION)],
+    'linux2': ['-DPYICU_VER="%s"' %(VERSION)],
+    'freebsd7': ['-DPYICU_VER="%s"' %(VERSION)],
+    'win32': ['/Zc:wchar_t', '/EHsc', '/DPYICU_VER=\\"%s\\"' %(VERSION)],
+    'sunos5': ['-DPYICU_VER="%s"' %(VERSION)],
 }
 
 LFLAGS = {
@@ -75,7 +75,5 @@ setup(name="PyICU",
                              include_dirs=_includes,
                              extra_compile_args=_cflags,
                              extra_link_args=_lflags,
-                             libraries=_libraries,
-                             define_macros=[('PYICU_VER', '"%s"' %(VERSION))])
-                   ],
+                             libraries=_libraries)],
       py_modules=['icu', 'PyICU', 'docs'])

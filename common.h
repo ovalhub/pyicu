@@ -117,6 +117,40 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/selfmt.h>
 #endif
 
+#if U_ICU_VERSION_HEX >= 0x04060000
+#include <typeinfo>
+#endif
+
+
+#if U_ICU_VERSION_HEX < 0x04060000
+
+typedef UClassID classid;
+
+enum {
+    UObject_ID,
+    Replaceable_ID,
+    MeasureUnit_ID,
+    Measure_ID,
+    StringEnumeration_ID,
+    ForwardCharacterIterator_ID,
+    CharacterIterator_ID,
+    BreakIterator_ID,
+    Format_ID,
+    MeasureFormat_ID,
+    DateFormat_ID,
+    Calendar_ID,
+    Collator_ID,
+    UnicodeMatcher_ID,
+    SearchIterator_ID
+};
+
+#else
+
+typedef const char *classid;
+
+#endif
+
+
 U_NAMESPACE_USE
 
 /* lifted from ustrenum.h */
@@ -137,24 +171,6 @@ U_NAMESPACE_END
 
 extern PyObject *PyExc_ICUError;
 extern PyObject *PyExc_InvalidArgsError;
-
-enum {
-    UObject_ID,
-    Replaceable_ID,
-    MeasureUnit_ID,
-    Measure_ID,
-    StringEnumeration_ID,
-    ForwardCharacterIterator_ID,
-    CharacterIterator_ID,
-    BreakIterator_ID,
-    Format_ID,
-    MeasureFormat_ID,
-    DateFormat_ID,
-    Calendar_ID,
-    Collator_ID,
-    UnicodeMatcher_ID,
-    SearchIterator_ID
-};
 
 void _init_common(PyObject *m);
 
@@ -214,14 +230,14 @@ int isUnicodeString(PyObject *arg);
 int32_t toUChar32(UnicodeString& u, UChar32 *c, UErrorCode& status);
 UnicodeString fromUChar32(UChar32 c);
 
-int isInstance(PyObject *arg, UClassID id, PyTypeObject *type);
-void registerType(PyTypeObject *type, UClassID id);
+int isInstance(PyObject *arg, classid id, PyTypeObject *type);
+void registerType(PyTypeObject *type, classid id);
 
 Formattable *toFormattable(PyObject *arg);
 Formattable *toFormattableArray(PyObject *arg, int *len,
-                                UClassID id, PyTypeObject *type);
+                                classid id, PyTypeObject *type);
 
-UObject **pl2cpa(PyObject *arg, int *len, UClassID id, PyTypeObject *type);
+UObject **pl2cpa(PyObject *arg, int *len, classid id, PyTypeObject *type);
 PyObject *cpa2pl(UObject **array, int len, PyObject *(*wrap)(UObject *, int));
 
 PyObject *PyErr_SetArgsError(PyObject *self, char *name, PyObject *args);

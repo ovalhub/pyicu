@@ -1257,10 +1257,14 @@ static PyObject *t_dateintervalformat_setDateIntervalInfo(t_dateintervalformat *
 static PyObject *t_dateintervalformat_getDateFormat(t_dateintervalformat *self)
 {
     DateFormat *format = (DateFormat *) self->object->getDateFormat()->clone();
-    UClassID id = format->getDynamicClassID();
 
-    if (id == SimpleDateFormat::getStaticClassID())
+#if U_ICU_VERSION_HEX < 0x04060000
+    if (format->getDynamicClassID() == SimpleDateFormat::getStaticClassID())
         return wrap_SimpleDateFormat((SimpleDateFormat *) format, T_OWNED);
+#else
+    if (dynamic_cast<SimpleDateFormat *>(format) != NULL)
+        return wrap_SimpleDateFormat((SimpleDateFormat *) format, T_OWNED);
+#endif
 
     return wrap_DateFormat(format, T_OWNED);
 }

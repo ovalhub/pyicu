@@ -1,6 +1,12 @@
 
 For bug <NUM>, see http://bugzilla.osafoundation.org/show_bug.cgi?id=<NUM>
 
+Version 1.0 -> 1.1
+------------------
+  - added support for ICU 4.6
+  - switched to using RTTI if ICU >= 4.6 instead of poor man's ICU RTTI
+  - fixed bug with incorrect icu.VERSION string on Windows build
+
 Version 1.0 -> 1.0.1
 --------------------
   - removed variable length array uses in regex.cpp (Chandler Carruth)

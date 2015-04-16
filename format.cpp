@@ -894,6 +894,8 @@ static PyObject *t_messageformat_toPattern(t_messageformat *self,
     return PyErr_SetArgsError((PyObject *) self, "toPattern", args);
 }
 
+#if U_ICU_VERSION_HEX < 0x04060000
+
 PyObject *wrap_Format(Format *format)
 {
     UClassID id = format->getDynamicClassID();
@@ -930,6 +932,39 @@ PyObject *wrap_Format(Format *format)
 
     return wrap_Format(format, T_OWNED);
 }
+
+#else
+
+PyObject *wrap_Format(Format *format)
+{
+    if (dynamic_cast<SimpleDateFormat *>(format) != NULL)
+        return wrap_SimpleDateFormat((SimpleDateFormat *) format, T_OWNED);
+
+    if (dynamic_cast<MessageFormat *>(format) != NULL)
+        return wrap_MessageFormat((MessageFormat *) format, T_OWNED);
+
+    if (dynamic_cast<PluralFormat *>(format) != NULL)
+        return wrap_PluralFormat((PluralFormat *) format, T_OWNED);
+
+    if (dynamic_cast<TimeUnitFormat *>(format) != NULL)
+        return wrap_TimeUnitFormat((TimeUnitFormat *) format, T_OWNED);
+
+    if (dynamic_cast<SelectFormat *>(format) != NULL)
+        return wrap_SelectFormat((SelectFormat *) format, T_OWNED);
+
+    if (dynamic_cast<ChoiceFormat *>(format) != NULL)
+        return wrap_ChoiceFormat((ChoiceFormat *) format, T_OWNED);
+
+    if (dynamic_cast<DecimalFormat *>(format) != NULL)
+        return wrap_DecimalFormat((DecimalFormat *) format, T_OWNED);
+
+    if (dynamic_cast<RuleBasedNumberFormat *>(format) != NULL)
+        return wrap_RuleBasedNumberFormat((RuleBasedNumberFormat *) format, T_OWNED);
+
+    return wrap_Format(format, T_OWNED);
+}
+
+#endif
 
 static PyObject *t_messageformat_getFormats(t_messageformat *self)
 {

@@ -23,6 +23,7 @@
 
 #include "common.h"
 #include <stdarg.h>
+#include <string.h>
 #include <datetime.h>
 
 #include <unicode/ustring.h>
@@ -407,9 +408,13 @@ int abstract_init(PyObject *self, PyObject *args, PyObject *kwds)
 
 static PyObject *types;
 
-void registerType(PyTypeObject *type, UClassID id)
+void registerType(PyTypeObject *type, classid id)
 {
+#if U_ICU_VERSION_HEX < 0x04060000
     PyObject *n = PyInt_FromLong((Py_intptr_t) id);
+#else
+    PyObject *n = PyString_FromString(id);
+#endif
     PyObject *list = PyList_New(0);
     PyObject *bn;
 
@@ -426,17 +431,29 @@ void registerType(PyTypeObject *type, UClassID id)
     Py_DECREF(n);
 }
 
-int isInstance(PyObject *arg, UClassID id, PyTypeObject *type)
+int isInstance(PyObject *arg, classid id, PyTypeObject *type)
 {
     if (PyObject_TypeCheck(arg, &UObjectType))
     {
-        UClassID oid = ((t_uobject *) arg)->object->getDynamicClassID();
+#if U_ICU_VERSION_HEX < 0x04060000
+        classid oid = ((t_uobject *) arg)->object->getDynamicClassID();
 
         if (id == oid)
             return 1;
 
         PyObject *bn = PyInt_FromLong((Py_intptr_t) id);
         PyObject *n = PyInt_FromLong((Py_intptr_t) oid);
+
+#else
+        classid oid = typeid(*(((t_uobject *) arg)->object)).name();
+
+        if (!strcmp(id, oid))
+            return 1;
+
+        PyObject *bn = PyString_FromString(id);
+        PyObject *n = PyString_FromString(oid);
+#endif
+
         PyObject *list = PyDict_GetItem(types, bn);
         int b = PySequence_Contains(list, n);
         
@@ -449,7 +466,7 @@ int isInstance(PyObject *arg, UClassID id, PyTypeObject *type)
     return 0;
 }
 
-UObject **pl2cpa(PyObject *arg, int *len, UClassID id, PyTypeObject *type)
+UObject **pl2cpa(PyObject *arg, int *len, classid id, PyTypeObject *type)
 {
     if (PySequence_Check(arg))
     {
@@ -520,7 +537,7 @@ Formattable *toFormattable(PyObject *arg)
 }
 
 Formattable *toFormattableArray(PyObject *arg, int *len,
-                                UClassID id, PyTypeObject *type)
+                                classid id, PyTypeObject *type)
 {
     if (PySequence_Check(arg))
     {
@@ -752,7 +769,7 @@ int _parseArgs(PyObject **args, int count, char *types, ...)
           case 'P':           /* wrapped ICU object */
           case 'p':           /* wrapped ICU object, to save */
           {
-              UClassID id = va_arg(list, UClassID);
+              classid id = va_arg(list, classid);
               PyTypeObject *type = va_arg(list, PyTypeObject *);
 
               if (isInstance(arg, id, type))
@@ -763,7 +780,7 @@ int _parseArgs(PyObject **args, int count, char *types, ...)
           case 'Q':           /* array of wrapped ICU object pointers */
           case 'R':           /* array of wrapped ICU objects */
           {
-              UClassID id = va_arg(list, UClassID);
+              classid id = va_arg(list, classid);
               PyTypeObject *type = va_arg(list, PyTypeObject *);
               
               if (PySequence_Check(arg))
@@ -1004,7 +1021,7 @@ int _parseArgs(PyObject **args, int count, char *types, ...)
           {
               UObject ***array = va_arg(list, UObject ***);
               int *len = va_arg(list, int *);
-              UClassID id = va_arg(list, UClassID);
+              classid id = va_arg(list, classid);
               PyTypeObject *type = va_arg(list, PyTypeObject *);
               *array = pl2cpa(arg, len, id, type);
               if (!*array)
@@ -1015,10 +1032,10 @@ int _parseArgs(PyObject **args, int count, char *types, ...)
           case 'R':           /* array of wrapped ICU objects */
           {
               typedef UObject *(*convFn)(PyObject *, int *,
-                                         UClassID, PyTypeObject *);
+                                         classid, PyTypeObject *);
               UObject **array = va_arg(list, UObject **);
               int *len = va_arg(list, int *);
-              UClassID id = va_arg(list, UClassID);
+              classid id = va_arg(list, classid);
               PyTypeObject *type = va_arg(list, PyTypeObject *);
               convFn fn = va_arg(list, convFn);
               *array = fn(arg, len, id, type);
@@ -1133,9 +1150,14 @@ PyObject *PyErr_SetArgsError(PyTypeObject *type, char *name, PyObject *args)
 
 int isUnicodeString(PyObject *arg)
 {
+#if U_ICU_VERSION_HEX < 0x04060000
     return (PyObject_TypeCheck(arg, &UObjectType) &&
             (((t_uobject *) arg)->object->getDynamicClassID() ==
              UnicodeString::getStaticClassID()));
+#else
+    return (PyObject_TypeCheck(arg, &UObjectType) &&
+            dynamic_cast<UnicodeString *>(((t_uobject *) arg)->object) != NULL);
+#endif
 }
 
 int32_t toUChar32(UnicodeString& u, UChar32 *c, UErrorCode& status)

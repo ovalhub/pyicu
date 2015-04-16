@@ -271,33 +271,73 @@ PyTypeObject name##Type = {                                             \
     /* tp_itemsize        */   0,                                       \
 };
 
-#define TYPE_CLASSID(name)                      \
-    name::getStaticClassID(), &name##Type
 
-#define TYPE_ID(name)                           \
-    (UClassID) (name##_ID), &name##Type
+#if U_ICU_VERSION_HEX < 0x04060000
 
-#define INSTALL_TYPE(name, module)                                   \
-    if (PyType_Ready(&name##Type) == 0)                              \
-    {                                                                \
-        Py_INCREF(&name##Type);                                      \
-        PyModule_AddObject(module, #name, (PyObject *) &name##Type); \
-        registerType(&name##Type, (UClassID) name##_ID);             \
+#define TYPE_CLASSID(className)                      \
+    className::getStaticClassID(), &className##Type
+
+#define TYPE_ID(className)                           \
+    (UClassID) (className##_ID), &className##Type
+
+#else
+
+#define TYPE_CLASSID(className)                      \
+    typeid(className).name(), &className##Type
+
+#define TYPE_ID(className)                           \
+    typeid(className).name(), &className##Type
+
+#endif
+
+
+#if U_ICU_VERSION_HEX < 0x04060000
+
+#define INSTALL_TYPE(className, module)                                 \
+    if (PyType_Ready(&className##Type) == 0)                            \
+    {                                                                   \
+        Py_INCREF(&className##Type);                                    \
+        PyModule_AddObject(module, #className,                          \
+                           (PyObject *) &className##Type);              \
+        registerType(&className##Type, (UClassID) className##_ID);      \
     }
+
+#define REGISTER_TYPE(className, module)                                \
+    if (PyType_Ready(&className##Type) == 0)                            \
+    {                                                                   \
+        Py_INCREF(&className##Type);                                    \
+        PyModule_AddObject(module, #className,                          \
+                           (PyObject *) &className##Type);              \
+        registerType(&className##Type, className::getStaticClassID());  \
+    }
+
+#else
+
+#define INSTALL_TYPE(className, module)                                 \
+    if (PyType_Ready(&className##Type) == 0)                            \
+    {                                                                   \
+        Py_INCREF(&className##Type);                                    \
+        PyModule_AddObject(module, #className,                          \
+                           (PyObject *) &className##Type);              \
+        registerType(&className##Type, typeid(className).name());	\
+    }
+
+#define REGISTER_TYPE(className, module)                                \
+    if (PyType_Ready(&className##Type) == 0)                            \
+    {                                                                   \
+        Py_INCREF(&className##Type);                                    \
+        PyModule_AddObject(module, #className,                          \
+                           (PyObject *) &className##Type);              \
+        registerType(&className##Type, typeid(className).name());       \
+    }
+
+#endif
 
 #define INSTALL_STRUCT(name, module)                                 \
     if (PyType_Ready(&name##Type) == 0)                              \
     {                                                                \
         Py_INCREF(&name##Type);                                      \
         PyModule_AddObject(module, #name, (PyObject *) &name##Type); \
-    }
-
-#define REGISTER_TYPE(name, module)                                  \
-    if (PyType_Ready(&name##Type) == 0)                              \
-    {                                                                \
-        Py_INCREF(&name##Type);                                      \
-        PyModule_AddObject(module, #name, (PyObject *) &name##Type); \
-        registerType(&name##Type, name::getStaticClassID());    \
     }
 
 #define INSTALL_CONSTANTS_TYPE(name, module)                         \

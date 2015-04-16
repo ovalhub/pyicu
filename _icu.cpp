@@ -242,12 +242,7 @@ extern "C" {
         PyType_Ready(&ConstVariableDescriptorType);
         Py_INCREF(&ConstVariableDescriptorType);
 
-#ifdef _MSC_VER
-#define verstring(n) #n
-        ver = PyString_FromString(verstring(PYICU_VER));
-#else
         ver = PyString_FromString(PYICU_VER);
-#endif
         PyObject_SetAttrString(m, "VERSION", ver); Py_DECREF(ver);
 
         ver = PyString_FromString(U_ICU_VERSION);
