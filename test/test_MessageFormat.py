@@ -88,6 +88,23 @@ class TestMessageFormat(TestCase):
 
         self.assertTrue(msgFormat.format(args) == u"Kirti est allée à Paris.")
 
+    def testNamedArgs(self):
+
+        if ICU_VERSION >= '4.0':
+            msg = \
+                '{num_emails_to_send, plural, ' \
+                '=0 {unused plural form} ' \
+                '=1 {One email will be sent.} ' \
+                'other {# emails will be sent.}}'
+
+            messageFormat = MessageFormat(msg, Locale("en"))
+
+            name0 = "num_emails_to_send"
+            arg0 = Formattable(5)
+
+            result = messageFormat.format([name0], [arg0])
+            self.assertTrue(result == u'5 emails will be sent.')
+
 
 if __name__ == "__main__":
     main()

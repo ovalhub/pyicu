@@ -472,7 +472,7 @@ static PyObject *t_transliterator_filteredTransliterate(t_transliterator *self,
 {
     UnicodeString *u, _u;
     t_utransposition *utransposition;
-    UBool incremental;
+    int incremental;
 
     if (!parseArgs(args, "UOB", &UTransPositionType, &u, &utransposition,
                    &incremental))

@@ -1275,7 +1275,15 @@ static PyObject *t_unicodestring_toTitle(t_unicodestring *self, PyObject *args)
     Locale *locale;
 
     switch (PyTuple_Size(args)) {
+      case 0:
+        self->object->toTitle(NULL);
+        Py_RETURN_SELF();
       case 1:
+        if (!parseArgs(args, "P", TYPE_CLASSID(Locale), &locale))
+        {
+            self->object->toTitle(NULL, *locale);
+            Py_RETURN_SELF();
+        }
         if (!parseArg(args, "P", TYPE_ID(BreakIterator), &iterator))
         {
             self->object->toTitle(iterator);

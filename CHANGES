@@ -1,6 +1,18 @@
 
 For bug <NUM>, see http://bugzilla.osafoundation.org/show_bug.cgi?id=<NUM>
 
+Version 1.4 -> 1.5
+------------------
+  - added wrapper for MessageFormat::format(argumentNames, arguments, ...)
+  - fixed bug in t_transliterator_filteredTransliterate passing UBool for int
+  - added wrapper for DateFormat::format(Calendar)
+  - added wrapper for Calendar::set(UCalendarDateFields field, value)
+  - added wrappers for UnicodeString::toTitle() w/o iterator (Fredrik Roubert)
+  - added support for ICU 50.1
+  - improved test_Collator's testGetSortKey() (Markus Scherer)
+  - added pypi classifiers to PyICU project info, including Python 3 tag
+  - build tested with Python 2.7 and Python 3.3.0
+
 Version 1.3 -> 1.4
 ------------------
   - fixed bug with default tzinfo set on ICUtzinfo type (bug 13038)

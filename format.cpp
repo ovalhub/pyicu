@@ -971,7 +971,7 @@ static PyObject *t_messageformat_format(t_messageformat *self, PyObject *args)
     Formattable *f;
     UnicodeString *u, _u;
     FieldPosition *fp, _fp;
-    int len;
+    int len, u_len;
 
     switch (PyTuple_Size(args)) {
       case 1:
@@ -988,6 +988,7 @@ static PyObject *t_messageformat_format(t_messageformat *self, PyObject *args)
             return PyUnicode_FromUnicodeString(&_u);
         }
         break;
+
       case 2:
         if (!parseArgs(args, "RP",
                        TYPE_CLASSID(Formattable),
@@ -1003,7 +1004,6 @@ static PyObject *t_messageformat_format(t_messageformat *self, PyObject *args)
                 
             return PyUnicode_FromUnicodeString(&_u);
         }
-        break;
         if (!parseArgs(args, "RU", TYPE_CLASSID(Formattable),
                        &f, &len, TYPE_CLASSID(Formattable),
                        toFormattableArray, &u))
@@ -1016,9 +1016,27 @@ static PyObject *t_messageformat_format(t_messageformat *self, PyObject *args)
 
             Py_RETURN_ARG(args, 1);
         }
+#if U_ICU_VERSION_HEX >= VERSION_HEX(4, 0, 0)
+        if (!parseArgs(args, "TR",
+                       TYPE_CLASSID(Formattable),
+                       &u, &u_len,
+                       &f, &len, TYPE_CLASSID(Formattable), toFormattableArray))
+        {
+            STATUS_CALL(
+                {
+                    self->object->format(u, f, len < u_len ? len : u_len,
+                                         _u, status);
+                    delete[] u;
+                    delete[] f;
+                });
+
+            return PyUnicode_FromUnicodeString(&_u);
+        }
+#endif
         break;
+
       case 3:
-        if (!parseArgs(args, "RUP",
+       if (!parseArgs(args, "RUP",
                        TYPE_CLASSID(Formattable),
                        TYPE_CLASSID(FieldPosition),
                        &f, &len, TYPE_CLASSID(Formattable),

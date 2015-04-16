@@ -218,6 +218,16 @@ class U_EXPORT PythonLEFontInstance : public LEFontInstance {
         return 0;
     }
 
+    virtual LEGlyphID mapCharToGlyph(LEUnicode32 u,
+                                     const LECharMapper *mapper) const {
+      return LEFontInstance::mapCharToGlyph(u, mapper);
+    }
+
+    virtual LEGlyphID mapCharToGlyph(LEUnicode32 u, const LECharMapper *mapper,
+                                     le_bool filterZeroWidth) const {
+      return LEFontInstance::mapCharToGlyph(u, mapper, filterZeroWidth);
+    }
+
     virtual void getGlyphAdvance(LEGlyphID glyph, LEPoint &advance) const
     {
         PyObject *name = PyString_FromString("getGlyphAdvance");
@@ -706,7 +716,7 @@ void _init_layoutengine(PyObject *m)
     INSTALL_ENUM(ScriptCode, "sind", sindScriptCode);
     INSTALL_ENUM(ScriptCode, "wara", waraScriptCode);
 
-#if U_ICU_VERSION_HEX >= 0x31000000
+#if U_ICU_VERSION_HEX >= VERSION_HEX(49, 0, 0)
     INSTALL_ENUM(ScriptCode, "afak", afakScriptCode);
     INSTALL_ENUM(ScriptCode, "jurc", jurcScriptCode);
     INSTALL_ENUM(ScriptCode, "khoj", khojScriptCode);

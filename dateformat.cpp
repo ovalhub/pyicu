@@ -609,6 +609,13 @@ static PyObject *t_dateformat_format(t_dateformat *self, PyObject *args)
             self->object->format(date, _u);
             return PyUnicode_FromUnicodeString(&_u);
         }
+        if (!parseArgs(args, "P", TYPE_ID(Calendar), &calendar))
+        {
+            FieldPosition fp0(0);
+
+            self->object->format(*calendar, _u, fp0);
+            return PyUnicode_FromUnicodeString(&_u);
+        }
         break;
       case 2:
         if (!parseArgs(args, "DP", TYPE_CLASSID(FieldPosition),

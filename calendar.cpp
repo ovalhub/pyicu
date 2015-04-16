@@ -1136,8 +1136,15 @@ static PyObject *t_calendar_isSet(t_calendar *self, PyObject *arg)
 static PyObject *t_calendar_set(t_calendar *self, PyObject *args)
 {
     int year, month, date, hour, minute, second;
-
+    int field, value;
     switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "ii", &field, &value))
+        {
+            self->object->set((UCalendarDateFields) field, value);
+            Py_RETURN_NONE;
+        }
+        break;
       case 3:
         if (!parseArgs(args, "iii", &year, &month, &date))
         {

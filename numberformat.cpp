@@ -670,7 +670,7 @@ static PyObject *t_numberformat_parse(t_numberformat *self, PyObject *args)
     return PyErr_SetArgsError((PyObject *) self, "parse", args);
 }
 
-#if U_ICU_VERSION_HEX < 0x31000000  /* < 49.0 */
+#if U_ICU_VERSION_HEX < VERSION_HEX(49, 0, 0)
 static PyObject *t_numberformat_parseCurrency(t_numberformat *self,
                                               PyObject *args)
 {

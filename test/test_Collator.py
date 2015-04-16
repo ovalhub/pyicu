@@ -65,31 +65,34 @@ class TestCollator(TestCase):
 
     def testGetSortKey(self):
 
-        rules = UnicodeString("");
-        collator = RuleBasedCollator(rules)
+        # Do not test sort key byte sequences directly:
+        # They are unstable, that is, likely to change
+        # with every UCA/CLDR/ICU release.
+        # Instead, test that compare() is consistent with
+        # comparing the equivalent sort keys.
+        collator = Collator.createInstance(Locale.getJapanese())
         collator.setAttribute(UCollAttribute.NORMALIZATION_MODE,
                               UCollAttributeValue.ON)
         collator.setAttribute(UCollAttribute.ALTERNATE_HANDLING,
                               UCollAttributeValue.SHIFTED)
         collator.setAttribute(UCollAttribute.STRENGTH,
+                              UCollAttributeValue.TERTIARY)
+
+        # In Japanese, the following characters should be different
+        # only on quaternary level.
+        hira_ge = u'\u3052'  # Hiragana letter Ge
+        kana_ge = u'\u30B2'  # Katakana letter Ge
+        self.assertEqual(0, collator.compare(hira_ge, kana_ge))
+        hira_ge_key = collator.getSortKey(hira_ge)
+        kana_ge_key = collator.getSortKey(kana_ge)
+        self.assertEqual(hira_ge_key, kana_ge_key)
+
+        collator.setAttribute(UCollAttribute.STRENGTH,
                               UCollAttributeValue.QUATERNARY)
-        collator.setAttribute(UCollAttribute.HIRAGANA_QUATERNARY_MODE,
-                              UCollAttributeValue.ON)
-        s = u'\u3052'
-        k = collator.getSortKey(s)
-        if (sys.version_info >= (3,)):
-            byte2int = lambda c: c
-        else:
-            byte2int = ord
-
-        if ICU_VERSION < '4.6':
-            key = "AC300186DC9D019B0501282800"
-        elif ICU_VERSION < '49.0':
-            key = "791C0186DCFD019B05010D0D00"
-        else:
-            key = "791C0186DA95019B05010D0D00"
-
-        self.assertTrue(key == ''.join(['%02X' %(byte2int(c)) for c in k]))
+        self.assertEqual(-1, collator.compare(hira_ge, kana_ge))
+        hira_ge_key = collator.getSortKey(hira_ge)
+        kana_ge_key = collator.getSortKey(kana_ge)
+        self.assertLess(hira_ge_key, kana_ge_key)
 
     def setupCollator(self, collator):
 

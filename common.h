@@ -131,6 +131,9 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/search.h>
 #include <unicode/stsearch.h>
 
+#define VERSION_HEX(major, minor, patch) \
+  (((major) << 24) | ((minor) << 16) | ((patch) << 8))
+
 #define U_ICU_VERSION_HEX ((U_ICU_VERSION_MAJOR_NUM << 24) +    \
                            (U_ICU_VERSION_MINOR_NUM << 16) +    \
                            (U_ICU_VERSION_PATCHLEVEL_NUM << 8))
