@@ -1,0 +1,15 @@
+
+PyICU is a Python extension wrapping IBM's ICU library and wouldn't be
+possible without the tireless efforts of the people and open source projects
+below.
+
+  - the ICU developers,
+    http://www-306.ibm.com/software/globalization/icu/projects.jsp
+
+  - the Open Source Applications Foundation, for hosting the project
+    http://www.osafoundation.org
+
+  - Andi Vajda, PyICU project founder and maintainer
+  - David Bolen for Python 2.3 and MSVC 6 support and finding a huge memory leak
+
+Thank you all !
