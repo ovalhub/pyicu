@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2005-2011 Open Source Applications Foundation.
+ * Copyright (c) 2005-2014 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -381,14 +381,22 @@ EXPORT UDate PyObject_AsUDate(PyObject *object)
 #else
                 long ordinalValue = PyInt_AsLong(ordinal);
 #endif
+
                 double timestamp =
                     (ordinalValue - 719163) * 86400.0 +
                     PyDateTime_DATE_GET_HOUR(object) * 3600.0 +
                     PyDateTime_DATE_GET_MINUTE(object) * 60.0 +
                     (double) PyDateTime_DATE_GET_SECOND(object) +
                     PyDateTime_DATE_GET_MICROSECOND(object) / 1e6 -
+#ifndef PYPY_VERSION
                     (((PyDateTime_Delta *) utcoffset)->days * 86400.0 +
                      (double) ((PyDateTime_Delta *) utcoffset)->seconds);
+#else
+                    (PyDateTime_DELTA_GET_DAYS(
+                        (PyDateTime_Delta *) utcoffset) * 86400.0 +
+                     (double) PyDateTime_DELTA_GET_SECONDS(
+                         (PyDateTime_Delta *) utcoffset));
+#endif
 
                 Py_DECREF(utcoffset);
                 Py_DECREF(ordinal);
@@ -681,7 +689,7 @@ static UBool *toUBoolArray(PyObject *arg, int *len)
     return NULL;
 }
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(PYPY_VERSION)
 
 int __parseArgs(PyObject *args, const char *types, ...)
 {
@@ -689,8 +697,11 @@ int __parseArgs(PyObject *args, const char *types, ...)
     va_list list;
 
     va_start(list, types);
-
+#ifdef PYPY_VERSION
+    return _parseArgs(args, count, types, list);
+#else
     return _parseArgs(((PyTupleObject *)(args))->ob_item, count, types, list);
+#endif
 }
 
 int __parseArg(PyObject *arg, const char *types, ...)
@@ -699,11 +710,30 @@ int __parseArg(PyObject *arg, const char *types, ...)
 
     va_start(list, types);
 
+#ifdef PYPY_VERSION
+    {
+        struct arg_tuple {
+            PyObject *tuple;
+            arg_tuple(PyObject *arg) {
+                tuple = PyTuple_Pack(1, arg);
+            }
+            ~arg_tuple() {
+                Py_DECREF(tuple);
+            }
+        } tuple_arg(arg);
+            
+        return _parseArgs(tuple_arg.tuple, 1, types, list);
+    }
+#else
     return _parseArgs(&arg, 1, types, list);
+#endif
 }
 
-
+#ifdef PYPY_VERSION
+int _parseArgs(PyObject *args, int count, const char *types, va_list list)
+#else
 int _parseArgs(PyObject **args, int count, const char *types, va_list list)
+#endif
 {
     if (count != strlen(types))
         return -1;
@@ -722,7 +752,11 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
 #endif
 
     for (int i = 0; i < count; i++) {
+#ifdef PYPY_VERSION
+        PyObject *arg = PyTuple_GetItem(args, i);
+#else
         PyObject *arg = args[i];
+#endif
         
         switch (types[i]) {
           case 'c':           /* string */
@@ -880,13 +914,20 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
     }
 
     for (int j = 0; j < count; j++) {
+#ifdef PYPY_VERSION
+        PyObject *arg = PyTuple_GetItem(args, j);
+#else
         PyObject *arg = args[j];
-        
+#endif
         switch (types[j]) {
           case 'A':           /* previous Python arg object */
           {
               PyObject **obj = va_arg(list, PyObject **);
+#ifdef PYPY_VERSION
+              *obj = PyTuple_GetItem(args, j - 1);
+#else
               *obj = args[j - 1];
+#endif
               break;
           }
             

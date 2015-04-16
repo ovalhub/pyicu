@@ -38,6 +38,10 @@
     DECLARE_CONSTANTS_TYPE(UCurrencySpacing);
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+    DECLARE_CONSTANTS_TYPE(UNumberCompactStyle);
+#endif
+
 /* DecimalFormatSymbols */
 
 class t_decimalformatsymbols : public _wrapper {
@@ -318,6 +322,28 @@ static PyMethodDef t_decimalformat_methods[] = {
 
 DECLARE_TYPE(DecimalFormat, t_decimalformat, NumberFormat, DecimalFormat,
              t_decimalformat_init, NULL);
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+
+/* CompactDecimalFormat */
+
+class t_compactdecimalformat : public _wrapper {
+public:
+    CompactDecimalFormat *object;
+};
+
+static PyObject *t_compactdecimalformat_createInstance(PyTypeObject *type,
+                                                       PyObject *args);
+
+static PyMethodDef t_compactdecimalformat_methods[] = {
+    DECLARE_METHOD(t_compactdecimalformat, createInstance, METH_VARARGS | METH_CLASS),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(CompactDecimalFormat, t_compactdecimalformat, DecimalFormat,
+             CompactDecimalFormat, abstract_init, NULL);
+
+#endif
 
 /* RuleBasedNumberFormat */
 
@@ -1740,6 +1766,32 @@ static PyObject *t_decimalformat_str(t_decimalformat *self)
     return PyUnicode_FromUnicodeString(&u);
 }
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+
+/* CompactDecimalFormat */
+
+static PyObject *t_compactdecimalformat_createInstance(PyTypeObject *type,
+                                                       PyObject *args)
+{
+    CompactDecimalFormat *format;
+    Locale *locale;
+    UNumberCompactStyle style;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "Pi", TYPE_CLASSID(Locale), &locale, &style))
+        {
+            STATUS_CALL(format = CompactDecimalFormat::createInstance(
+                *locale, style, status));
+            return wrap_CompactDecimalFormat(format, T_OWNED);
+        }
+        break;
+    }
+            
+    return PyErr_SetArgsError(type, "createInstance", args);
+}
+
+#endif
 
 /* RuleBasedNumberFormat */
 
@@ -2311,6 +2363,9 @@ void _init_numberformat(PyObject *m)
     REGISTER_TYPE(CurrencyPluralInfo, m);
 #endif
     REGISTER_TYPE(DecimalFormat, m);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+    REGISTER_TYPE(CompactDecimalFormat, m);
+#endif
     REGISTER_TYPE(RuleBasedNumberFormat, m);
     REGISTER_TYPE(ChoiceFormat, m);
 
@@ -2352,6 +2407,12 @@ void _init_numberformat(PyObject *m)
     INSTALL_ENUM(UCurrencySpacing, "MATCH", UNUM_CURRENCY_MATCH);
     INSTALL_ENUM(UCurrencySpacing, "SURROUNDING_MATCH", UNUM_CURRENCY_SURROUNDING_MATCH);
     INSTALL_ENUM(UCurrencySpacing, "INSERT", UNUM_CURRENCY_INSERT);
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+    INSTALL_CONSTANTS_TYPE(UNumberCompactStyle, m);
+    INSTALL_ENUM(UNumberCompactStyle, "SHORT", UNUM_SHORT);
+    INSTALL_ENUM(UNumberCompactStyle, "LONG", UNUM_LONG);
 #endif
 
     INSTALL_STATIC_INT(NumberFormat, kIntegerField);

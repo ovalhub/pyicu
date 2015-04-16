@@ -488,9 +488,9 @@ static PyObject *t_normalizer_richcmp(t_normalizer *self, PyObject *arg, int op)
     return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg);
 }
 
-static int t_normalizer_hash(t_normalizer *self)
+static long t_normalizer_hash(t_normalizer *self)
 {
-    return self->object->hashCode();
+  return (long) self->object->hashCode();
 }
 
 static PyObject *t_normalizer_iter(t_normalizer *self)

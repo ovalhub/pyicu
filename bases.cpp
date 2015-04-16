@@ -1365,9 +1365,9 @@ static PyObject *t_unicodestring_repr(t_unicodestring *self)
     return repr;
 }
 
-static int t_unicodestring_hash(t_unicodestring *self)
+static long t_unicodestring_hash(t_unicodestring *self)
 {
-    return self->object->hashCode();
+  return (long) self->object->hashCode();
 }
 
 

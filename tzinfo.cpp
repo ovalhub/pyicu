@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2007-2010 Open Source Applications Foundation.
+ * Copyright (c) 2007-2014 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -30,6 +30,10 @@
 #include "tzinfo.h"
 #include "macros.h"
 
+#ifdef PYPY_VERSION
+typedef PyObject PyDateTime_TZInfo;
+#endif
+
 /* A tzinfo extension that wraps an ICU timezone wrapper.
  * The tz field is supposed to be immutable.
  */
@@ -55,7 +59,7 @@ static PyObject *t_tzinfo_new(PyTypeObject *type,
 static int t_tzinfo_init(t_tzinfo *self, PyObject *args, PyObject *kwds);
 static PyObject *t_tzinfo_repr(t_tzinfo *self);
 static PyObject *t_tzinfo_str(t_tzinfo *self);
-static int t_tzinfo_hash(t_tzinfo *self);
+static long t_tzinfo_hash(t_tzinfo *self);
 static PyObject *t_tzinfo_richcmp(t_tzinfo *self, PyObject *other, int op);
 
 static PyObject *t_tzinfo__resetDefault(PyTypeObject *cls);
@@ -154,7 +158,7 @@ static PyObject *t_floatingtz_repr(t_floatingtz *self);
 static PyObject *t_floatingtz_str(t_floatingtz *self);
 static PyObject *t_floatingtz_richcmp(t_floatingtz *self,
                                       PyObject *other, int op);
-static int t_floatingtz_hash(t_floatingtz *self);
+static long t_floatingtz_hash(t_floatingtz *self);
 
 static PyObject *t_floatingtz_utcoffset(t_floatingtz *self, PyObject *dt);
 static PyObject *t_floatingtz_dst(t_floatingtz *self, PyObject *dt);
@@ -349,16 +353,16 @@ static PyObject *t_floatingtz_str(t_floatingtz *self)
     return FLOATING_TZNAME;
 }
 
-static int t_tzinfo_hash(t_tzinfo *self)
+static long t_tzinfo_hash(t_tzinfo *self)
 {
     PyObject *str = PyObject_Str((PyObject *) self->tz);
-    int hash = PyObject_Hash(str);
+    long hash = PyObject_Hash(str);
 
     Py_DECREF(str);
     return hash;
 }
 
-static int t_floatingtz_hash(t_floatingtz *self)
+static long t_floatingtz_hash(t_floatingtz *self)
 {
     return PyObject_Hash(FLOATING_TZNAME);
 }
@@ -669,7 +673,7 @@ static PyObject *t_floatingtz__getTZID(t_floatingtz *self, void *data)
 
 void _init_tzinfo(PyObject *m)
 {
-#if PY_VERSION_HEX > 0x02040000
+#if PY_VERSION_HEX > 0x02040000 && !defined(PYPY_VERSION)
     PyDateTime_IMPORT;
 
     datetime_tzinfoType = PyDateTimeAPI->TZInfoType;

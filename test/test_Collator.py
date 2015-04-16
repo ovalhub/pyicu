@@ -21,7 +21,7 @@
 # ====================================================================
 #
 
-import sys, os, codecs
+import sys, os
 
 from unittest import TestCase, main
 from icu import *
@@ -109,11 +109,7 @@ class TestCollator(TestCase):
 
     def LoadCollatorFromRules(self):
 
-        f = codecs.open(self.filePath("collation-rules.txt"), 'r', 'utf-8')
-        rulelines = f.readlines()
-        f.close()
-
-        rules = UnicodeString("".join(rulelines));
+        rules = u"&z<\u00e6 &h<ch"
         collator = RuleBasedCollator(rules)
         self.setupCollator(collator)
 
@@ -121,20 +117,23 @@ class TestCollator(TestCase):
 
     def LoadCollatorFromBinaryBuffer(self, bin):
 
-        collator = RuleBasedCollator(bin, RuleBasedCollator(""))
+        root = Collator.createInstance(Locale.getRoot())
+        collator = RuleBasedCollator(bin, root)
         self.setupCollator(collator)
 
         return collator
 
     def testCollatorLoading(self):
 
-        if ICU_VERSION >= '4.6' and ICU_VERSION <= '52.1':
+        if ICU_VERSION >= '4.6':
             collator = self.LoadCollatorFromRules()
-            key0 = collator.getSortKey(u'\u3069\u3052\u3056')
+            s = u'hchz\u00e6'
+
+            key0 = collator.getSortKey(s)
             bin = collator.cloneBinary()
 
             collator = self.LoadCollatorFromBinaryBuffer(bin)
-            key1 = collator.getSortKey(u'\u3069\u3052\u3056')
+            key1 = collator.getSortKey(s)
 
             self.assertTrue(key0 == key1)
 

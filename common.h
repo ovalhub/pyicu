@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2005-2010 Open Source Applications Foundation.
+ * Copyright (c) 2005-2014 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -167,6 +167,11 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/listformatter.h>
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+#include <unicode/compactdecimalformat.h>
+#include <unicode/unum.h>
+#endif
+
 #if U_ICU_VERSION_HEX < 0x04060000
 
 typedef UClassID classid;
@@ -311,7 +316,7 @@ public:
     }
 };
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(PYPY_VERSION)
 
 #define parseArgs __parseArgs
 #define parseArg __parseArg
@@ -319,7 +324,11 @@ public:
 int __parseArgs(PyObject *args, const char *types, ...);
 int __parseArg(PyObject *arg, const char *types, ...);
 
+#ifdef PYPY_VERSION
+int _parseArgs(PyObject *args, int count, const char *types, va_list list);
+#else
 int _parseArgs(PyObject **args, int count, const char *types, va_list list);
+#endif
 
 #else
 

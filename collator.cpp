@@ -548,9 +548,9 @@ static PyObject *t_collator_setVariableTop(t_collator *self, PyObject *arg)
 }
 
 
-static int t_collator_hash(t_collator *self)
+static long t_collator_hash(t_collator *self)
 {
-    return self->object->hashCode();
+  return (long) self->object->hashCode();
 }
 
 

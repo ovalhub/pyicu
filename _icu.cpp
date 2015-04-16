@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2010 Open Source Applications Foundation.
+ * Copyright (c) 2004-2014 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -188,6 +188,7 @@ static PyObject *t_descriptor___get__(t_descriptor *self,
 static PyTypeObject *_method_type;
 static PyObject *_install__doc__(PyObject *self, PyObject *args)
 {
+#ifndef PYPY_VERSION
     PyObject *object;
     char *doc;
 
@@ -224,6 +225,9 @@ static PyObject *_install__doc__(PyObject *self, PyObject *args)
 
     PyErr_SetObject(PyExc_TypeError, object);
     return NULL;
+#else
+    Py_RETURN_NONE;
+#endif
 }
 
 static PyMethodDef _icu_funcs[] = {

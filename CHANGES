@@ -1,6 +1,15 @@
 
 For bug <NUM>, see http://bugzilla.osafoundation.org/show_bug.cgi?id=<NUM>
 
+Version 1.7 -> 1.8
+------------------
+  - added wrapper for Locale::getRoot()
+  - added tp_hash implemention for Locale type based on Locale::hashCode()
+  - fixed bug 13112 (Markus Scherer)
+  - added support for building with PyPy (tested on PyPy 2.2.1 / Python 2.7.3)
+  - added Locale(lcid) constructor calling uloc_getLocaleForLCID()
+  - added wrapper for CompactDecimalFormat and its createInstance() method
+
 Version 1.6 -> 1.7
 ------------------
   - added missing #include for <unicode/uscript.h>

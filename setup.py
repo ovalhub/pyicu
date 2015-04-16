@@ -7,7 +7,7 @@ except ImportError:
     from distutils.core import setup, Extension
 
 
-VERSION = '1.7'
+VERSION = '1.8'
 
 INCLUDES = {
     'darwin': ['/usr/local/include'],
@@ -91,17 +91,20 @@ setup(name="PyICU",
       url='http://pyicu.osafoundation.org/',
       author='Open Source Applications Foundation',
       author_email='vajda@osafoundation.org',
-      classifiers=['Development Status :: 5 - Production/Stable',
-                   'Environment :: Console',
-                   'Intended Audience :: Developers',
-                   'License :: OSI Approved',
-                   'Operating System :: OS Independent',
-                   'Programming Language :: C++',
-                   'Programming Language :: Python',
-                   'Programming Language :: Python :: 2',
-                   'Programming Language :: Python :: 3',
-                   'Topic :: Software Development :: Localization',
-                   'Topic :: Software Development :: Internationalization'],
+      classifiers=[
+          'Development Status :: 5 - Production/Stable',
+          'Environment :: Console',
+          'Intended Audience :: Developers',
+          'License :: OSI Approved',
+          'Operating System :: OS Independent',
+          'Programming Language :: C++',
+          'Programming Language :: Python',
+          'Programming Language :: Python :: 2',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: Implementation :: CPython',
+          'Programming Language :: Python :: Implementation :: PyPy',
+          'Topic :: Software Development :: Localization',
+          'Topic :: Software Development :: Internationalization'],
       ext_modules=[Extension('_icu',
                              [filename for filename in os.listdir(os.curdir)
                               if filename.endswith('.cpp')],

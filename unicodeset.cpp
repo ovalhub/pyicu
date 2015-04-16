@@ -1190,9 +1190,9 @@ static PyObject *t_unicodeset_iter(t_unicodeset *self)
                                         (PyObject *) self, NULL);
 }
 
-static int t_unicodeset_hash(t_unicodeset *self)
+static long t_unicodeset_hash(t_unicodeset *self)
 {
-    return self->object->hashCode();
+  return (long) self->object->hashCode();
 }
 
 

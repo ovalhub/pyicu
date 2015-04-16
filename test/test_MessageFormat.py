@@ -47,10 +47,10 @@ class TestMessageFormat(TestCase):
         text = msgFormat.format([f], FieldPosition())
         self.assertTrue(text == "This is a string: x")
 
-        if (sys.version_info < (3,)):
+        if (sys.version_info < (3,) and 'PyPy' not in sys.version):
             # Reduced features of % operator might be intentional
             f = UnicodeString(x)
-            text = msgFormat %f
+            text = msgFormat % f
             self.assertTrue(text == "This is a string: x")
 
     def testFormatAppend(self):

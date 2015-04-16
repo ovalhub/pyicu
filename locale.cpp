@@ -76,6 +76,9 @@ static PyObject *t_locale_removeKeywordValue(t_locale *self, PyObject *arg);
 #endif
 static PyObject *t_locale_isBogus(t_locale *self);
 static PyObject *t_locale_setToBogus(t_locale *self);
+#if U_ICU_VERSION_HEX >= 0x04040000
+static PyObject *t_locale_getRoot(PyTypeObject *type);
+#endif
 static PyObject *t_locale_getEnglish(PyTypeObject *type);
 static PyObject *t_locale_getFrench(PyTypeObject *type);
 static PyObject *t_locale_getGerman(PyTypeObject *type);
@@ -128,6 +131,9 @@ static PyMethodDef t_locale_methods[] = {
 #endif
     DECLARE_METHOD(t_locale, isBogus, METH_NOARGS),
     DECLARE_METHOD(t_locale, setToBogus, METH_NOARGS),
+#if U_ICU_VERSION_HEX >= 0x04040000
+    DECLARE_METHOD(t_locale, getRoot, METH_NOARGS | METH_CLASS),
+#endif
     DECLARE_METHOD(t_locale, getEnglish, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_locale, getFrench, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_locale, getGerman, METH_NOARGS | METH_CLASS),
@@ -199,8 +205,10 @@ static PyObject *t_resourcebundle_getIntVector(t_resourcebundle *self);
 static PyObject *t_resourcebundle_getLocale(t_resourcebundle *self,
                                             PyObject *args);
 
+#ifndef PYPY_VERSION
 static PyObject *t_resourcebundle_setAppData(PyTypeObject *type,
                                              PyObject *args);
+#endif
 
 static PyMethodDef t_resourcebundle_methods[] = {
     DECLARE_METHOD(t_resourcebundle, getSize, METH_NOARGS),
@@ -221,7 +229,9 @@ static PyMethodDef t_resourcebundle_methods[] = {
     DECLARE_METHOD(t_resourcebundle, getBinary, METH_NOARGS),
     DECLARE_METHOD(t_resourcebundle, getIntVector, METH_NOARGS),
     DECLARE_METHOD(t_resourcebundle, getLocale, METH_VARARGS),
+#ifndef PYPY_VERSION
     DECLARE_METHOD(t_resourcebundle, setAppData, METH_CLASS | METH_VARARGS),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -290,6 +300,7 @@ DECLARE_STRUCT(LocaleData, t_localedata, ULocaleData, t_localedata_init,
 static int t_locale_init(t_locale *self, PyObject *args, PyObject *kwds)
 {
     charsArg language, country, variant;
+    int lcid, len;
 
     switch (PyTuple_Size(args)) {
       case 0:
@@ -301,6 +312,19 @@ static int t_locale_init(t_locale *self, PyObject *args, PyObject *kwds)
         {
             self->object = new Locale(language);
             self->flags = T_OWNED;
+            break;
+        }
+        if (!parseArgs(args, "i", &lcid))
+        {
+            char code[128];
+
+            INT_STATUS_CALL(len = uloc_getLocaleForLCID(
+                lcid, code, sizeof(code), &status));
+            if (len < sizeof(code))
+            {
+                self->object = new Locale(code);
+                self->flags = T_OWNED;
+            }
             break;
         }
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
@@ -622,6 +646,13 @@ static PyObject *t_locale_setToBogus(t_locale *self)
     Py_RETURN_NONE;
 }
 
+#if U_ICU_VERSION_HEX >= 0x04040000
+static PyObject *t_locale_getRoot(PyTypeObject *self)
+{
+    return wrap_Locale(Locale::getRoot());
+}
+#endif
+
 static PyObject *t_locale_getEnglish(PyTypeObject *self)
 {
     return wrap_Locale(Locale::getEnglish());
@@ -840,6 +871,11 @@ static PyObject *t_locale_getISOLanguages(PyTypeObject *type)
 static PyObject *t_locale_str(t_locale *self)
 {
     return PyString_FromString(self->object->getName());
+}
+
+static long t_locale_hash(t_locale *self)
+{
+    return (long) self->object->hashCode();
 }
 
 
@@ -1124,6 +1160,7 @@ static PyObject *t_resourcebundle_getLocale(t_resourcebundle *self,
     return PyErr_SetArgsError((PyObject *) self, "getLocale", args);
 }
 
+#ifndef PYPY_VERSION
 #if defined(_MSC_VER) || defined(__WIN32)
 
 static PyObject *t_resourcebundle_setAppData(PyTypeObject *type,
@@ -1233,6 +1270,7 @@ static PyObject *t_resourcebundle_setAppData(PyTypeObject *type,
     return PyErr_SetArgsError(type, "setAppData", args);
 }
 #endif
+#endif  // !PYPY_VERSION
 
 static PyObject *t_resourcebundle_iter(t_resourcebundle *self)
 {
@@ -1439,6 +1477,7 @@ static PyObject *t_localedata_getExemplarSet(t_localedata *self, PyObject *args)
 void _init_locale(PyObject *m)
 {
     LocaleType.tp_str = (reprfunc) t_locale_str;
+    LocaleType.tp_hash = (hashfunc) t_locale_hash;
     ResourceBundleType.tp_iter = (getiterfunc) t_resourcebundle_iter;
     ResourceBundleType.tp_iternext = (iternextfunc) t_resourcebundle_next;
     ResourceBundleType.tp_str = (reprfunc) t_resourcebundle_str;
