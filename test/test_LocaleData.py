@@ -66,9 +66,11 @@ class TestLocaleData(TestCase):
             #language = Locale(locale).getLanguage()
             country = Locale(locale).getCountry()
             
-            # 0 means SI, 1 means US
-            if (['LR', 'MM', 'US'].count(country) > 0):
+            # 0 means SI, 1 means US, 2 mean UK
+            if (country in ['LR', 'MM', 'US']):
                 self.assertTrue(measurementSystem == 1)
+            elif country in ['GB']: 
+                self.assertTrue(measurementSystem in [0, 2])
             elif country: 
                 self.assertTrue(measurementSystem == 0)
             

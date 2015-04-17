@@ -65,34 +65,61 @@ class TestSpoofChecker(TestCase):
         checkSkeleton(MA, "love", "love")
         checkSkeleton(MA, "1ove", "love")   # Digit 1 to letter l
         checkSkeleton(ML, "OOPS", "OOPS")
-        checkSkeleton(ML, "00PS", "00PS")   # Digit 0 unchanged in lower case mode.
+
+        if ICU_VERSION < '55.1':
+            # Digit 0 unchanged in lower case mode.
+            checkSkeleton(ML, "00PS", "00PS")
+        else:
+            checkSkeleton(ML, "00PS", "OOPS")
+
         checkSkeleton(MA, "OOPS", "OOPS")
         checkSkeleton(MA, "00PS", "OOPS")   # Digit 0 to letter O in any case mode only
         checkSkeleton(SL, u"\u059c", u"\u0301")
         checkSkeleton(SL, u"\u2A74", u"\u003A\u003A\u003D")
         checkSkeleton(SL, u"\u247E", u"\u0028\u006C\u006C\u0029")  # "(ll)"
-        checkSkeleton(SL, u"\uFDFB", u"\u062C\u0644\u0020\u062C\u0644\u0627\u0644\u0647")
+
+        if ICU_VERSION < '55.1':
+            checkSkeleton(SL, u"\uFDFB",
+                          u"\u062C\u0644\u0020\u062C\u0644\u0627\u0644\u0647")
+        else:
+            checkSkeleton(SL, u"\uFDFB",
+                          u"\u062C\u0644\u0020\u062c\u0644l\u0644o")
 
         # This mapping exists in the ML and MA tables, does not exist in SL, SA
         # 0C83 ;	0C03 ;	
-        checkSkeleton(SL, u"\u0C83", u"\u0C83")
-        checkSkeleton(SA, u"\u0C83", u"\u0C83")
+        if ICU_VERSION < '55.1':
+            checkSkeleton(SL, u"\u0C83", u"\u0C83")
+            checkSkeleton(SA, u"\u0C83", u"\u0C83")
+        else:
+            checkSkeleton(SL, u"\u0C83", u"\u0983")
+            checkSkeleton(SA, u"\u0C83", u"\u0983")
+
         checkSkeleton(ML, u"\u0C83", u"\u0983")
         checkSkeleton(MA, u"\u0C83", u"\u0983")
         
         # 0391 ; 0041 ;
         # This mapping exists only in the MA table.
         checkSkeleton(MA, u"\u0391", "A")
-        checkSkeleton(SA, u"\u0391", u"\u0391")
-        checkSkeleton(ML, u"\u0391", u"\u0391")
-        checkSkeleton(SL, u"\u0391", u"\u0391")
+        if ICU_VERSION < '55.1':
+            checkSkeleton(SA, u"\u0391", u"\u0391")
+            checkSkeleton(ML, u"\u0391", u"\u0391")
+            checkSkeleton(SL, u"\u0391", u"\u0391")
+        else:
+            checkSkeleton(SA, u"\u0391", u'A')
+            checkSkeleton(ML, u"\u0391", u'A')
+            checkSkeleton(SL, u"\u0391", u'A')
 
         # 13CF ;  0062 ; 
         # This mapping exists in the ML and MA tables
         checkSkeleton(ML, u"\u13CF", "b")
         checkSkeleton(MA, u"\u13CF", "b")
-        checkSkeleton(SL, u"\u13CF", u"\u13CF")
-        checkSkeleton(SA, u"\u13CF", u"\u13CF")
+
+        if ICU_VERSION < '55.1':
+            checkSkeleton(SL, u"\u13CF", u"\u13CF")
+            checkSkeleton(SA, u"\u13CF", u"\u13CF")
+        else:
+            checkSkeleton(SL, u"\u13CF", u'b')
+            checkSkeleton(SA, u"\u13CF", u'b')
 
         # 0022 ;  0027 0027 ; 
         # all tables.

@@ -7,6 +7,8 @@ Version 1.8 ->
   - fixed delete/delete[] bug in common.cpp (Fredrik Roubert)
   - added support for ICU 54.1
   - added wrapper for USpoofChecker and related enums
+  - added support for ICU 55.1
+  - replaced UnicodeString idna methods with new uidna.h UTS #46 wrapper (55.1)
   - 
 
 Version 1.7 -> 1.8

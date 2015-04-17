@@ -189,6 +189,8 @@ static PyObject *t_unicodestring_foldCase(t_unicodestring *self,
                                           PyObject *args);
 static PyObject *t_unicodestring_isBogus(t_unicodestring *self);
 static PyObject *t_unicodestring_encode(t_unicodestring *self, PyObject *arg);
+
+#if U_ICU_VERSION_HEX < VERSION_HEX(55, 1, 0)
 static PyObject *t_unicodestring_idna_toASCII(t_unicodestring *self,
                                               PyObject *args);
 static PyObject *t_unicodestring_idna_toUnicode(t_unicodestring *self,
@@ -199,6 +201,7 @@ static PyObject *t_unicodestring_idna_IDNtoUnicode(t_unicodestring *self,
                                                    PyObject *args);
 static PyObject *t_unicodestring_idna_compare(t_unicodestring *self,
                                               PyObject *args);
+#endif
 
 static PyMethodDef t_unicodestring_methods[] = {
     DECLARE_METHOD(t_unicodestring, getAvailableStandards, METH_NOARGS | METH_CLASS),
@@ -225,11 +228,14 @@ static PyMethodDef t_unicodestring_methods[] = {
     DECLARE_METHOD(t_unicodestring, foldCase, METH_VARARGS),
     DECLARE_METHOD(t_unicodestring, isBogus, METH_NOARGS),
     DECLARE_METHOD(t_unicodestring, encode, METH_O),
+
+#if U_ICU_VERSION_HEX < VERSION_HEX(55, 1, 0)
     DECLARE_METHOD(t_unicodestring, idna_toASCII, METH_VARARGS),
     DECLARE_METHOD(t_unicodestring, idna_toUnicode, METH_VARARGS),
     DECLARE_METHOD(t_unicodestring, idna_IDNtoASCII, METH_VARARGS),
     DECLARE_METHOD(t_unicodestring, idna_IDNtoUnicode, METH_VARARGS),
     DECLARE_METHOD(t_unicodestring, idna_compare, METH_VARARGS),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -1424,6 +1430,8 @@ static PyObject *t_unicodestring_encode(t_unicodestring *self, PyObject *arg)
     return PyErr_SetArgsError((PyObject *) self, "encode", arg);
 }
 
+#if U_ICU_VERSION_HEX < VERSION_HEX(55, 1, 0)
+
 static PyObject *t_unicodestring_idna_toASCII(t_unicodestring *self,
                                               PyObject *args)
 {
@@ -1598,6 +1606,7 @@ static PyObject *t_unicodestring_idna_compare(t_unicodestring *self,
     return PyErr_SetArgsError((PyObject *) self, "idna_compare", args);
 }
 
+#endif
 
 static PyObject *t_unicodestring_richcmp(t_unicodestring *self,
                                          PyObject *arg, int op)
@@ -2584,9 +2593,11 @@ void _init_bases(PyObject *m)
     INSTALL_MODULE_INT(m, U_COMPARE_CODE_POINT_ORDER);
     INSTALL_MODULE_INT(m, U_FOLD_CASE_EXCLUDE_SPECIAL_I);
 
+#if U_ICU_VERSION_HEX < VERSION_HEX(55, 1, 0)
     INSTALL_MODULE_INT(m, UIDNA_DEFAULT);
     INSTALL_MODULE_INT(m, UIDNA_ALLOW_UNASSIGNED);
     INSTALL_MODULE_INT(m, UIDNA_USE_STD3_RULES);
+#endif
 
     INSTALL_STATIC_INT(Formattable, kIsDate);
     INSTALL_STATIC_INT(Formattable, kDate);
