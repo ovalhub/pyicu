@@ -11,10 +11,10 @@ Components for Unicode C++ library (ICU).
 
 PyICU is a project maintained by the Open Source Applications Foundation.
 
-The PyICU homepage is: http://pyicu.osafoundation.org.
-Its source is hosted on GitHub: https://github.com/ovalhub/pyicu.
+The PyICU homepage is http://pyicu.osafoundation.org.
+Its source code is hosted on GitHub https://github.com/ovalhub/pyicu.
 
-The ICU homepage is: http://site.icu-project.org/
+The ICU homepage is http://site.icu-project.org/
 
 
 Building PyICU
