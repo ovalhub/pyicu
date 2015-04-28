@@ -45,6 +45,7 @@
 #include "script.h"
 #include "spoof.h"
 #include "idna.h"
+#include "char.h"
 
 
 /* const variable descriptor */
@@ -288,6 +289,7 @@ static PyObject *PyInit_icu(PyObject *m)
     _init_script(m);
     _init_spoof(m);
     _init_idna(m);
+    _init_char(m);
 
     PyObject *method = PyObject_GetAttrString((PyObject *) &UObjectType,
                                               "getDynamicClassID");

@@ -38,12 +38,12 @@ DECLARE_CONSTANTS_TYPE(UScriptUsage);
 
 /* Script */
 
-struct UScript;
-typedef struct UScript UScript;
+struct UNone;
+typedef struct UNone UNone;
 
 class t_script : public _wrapper {
 public:
-    UScript *object;
+    UNone *object;
     UScriptCode code;
 };
 
@@ -86,7 +86,7 @@ static void t_script_dealloc(t_script *self)
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-DECLARE_STRUCT(Script, t_script, UScript, t_script_init, t_script_dealloc);
+DECLARE_STRUCT(Script, t_script, UNone, t_script_init, t_script_dealloc);
 
 
 /* Script */

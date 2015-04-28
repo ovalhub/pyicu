@@ -600,7 +600,7 @@ static PyObject *t_numberformat_format(t_numberformat *self, PyObject *args)
         }
         if (!parseArgs(args, "L", &l))
         {
-	  self->object->format((int64_t) l, _u);
+          self->object->format((int64_t) l, _u);
             return PyUnicode_FromUnicodeString(&_u);
         }
         break;
@@ -620,7 +620,7 @@ static PyObject *t_numberformat_format(t_numberformat *self, PyObject *args)
         if (!parseArgs(args, "LP", TYPE_CLASSID(FieldPosition),
                        &l, &fp))
         {
-	  self->object->format((int64_t) l, _u, *fp);
+          self->object->format((int64_t) l, _u, *fp);
             return PyUnicode_FromUnicodeString(&_u);
         }
         break;
@@ -640,7 +640,7 @@ static PyObject *t_numberformat_format(t_numberformat *self, PyObject *args)
         if (!parseArgs(args, "LUP", TYPE_CLASSID(FieldPosition),
                        &l, &u, &fp))
         {
-	  self->object->format((int64_t) l, *u, *fp);
+          self->object->format((int64_t) l, *u, *fp);
             Py_RETURN_ARG(args, 1);
         }
         break;
@@ -1045,7 +1045,7 @@ static PyObject *t_numberformat_getAvailableLocales(PyTypeObject *type)
         Locale *locale = (Locale *) locales + i;
         PyObject *obj = wrap_Locale(locale, 0);
         PyDict_SetItemString(dict, locale->getName(), obj);
-	Py_DECREF(obj);
+        Py_DECREF(obj);
     }
 
     return dict;
@@ -2014,7 +2014,7 @@ static PyObject *t_rulebasednumberformat_format(t_rulebasednumberformat *self,
         if (!parseArgs(args, "LSP", TYPE_CLASSID(FieldPosition),
                        &l, &u, &_u, &fp))
         {
-	  STATUS_CALL(self->object->format((int64_t) l, *u, _v, *fp, status));
+          STATUS_CALL(self->object->format((int64_t) l, *u, _v, *fp, status));
             return PyUnicode_FromUnicodeString(&_v);
         }
       case 4:
@@ -2033,7 +2033,7 @@ static PyObject *t_rulebasednumberformat_format(t_rulebasednumberformat *self,
         if (!parseArgs(args, "LSUP", TYPE_CLASSID(FieldPosition),
                        &l, &u, &_u, &v, &fp))
         {
-	  STATUS_CALL(self->object->format((int64_t) l, *u, *v, *fp, status));
+          STATUS_CALL(self->object->format((int64_t) l, *u, *v, *fp, status));
             Py_RETURN_ARG(args, 2);
         }
         break;
