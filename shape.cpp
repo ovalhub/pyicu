@@ -83,7 +83,7 @@ static PyObject *t_shape_shapeArabic(PyTypeObject *type, PyObject *args)
             const size_t len = u->length();
             const size_t capacity = len * 4 + 32;
             UErrorCode status = U_ZERO_ERROR;
-            UChar *dest = new UChar(capacity);
+            UChar *dest = new UChar[capacity];
             PyObject *result;
             size_t size;
 
@@ -97,12 +97,12 @@ static PyObject *t_shape_shapeArabic(PyTypeObject *type, PyObject *args)
                                  options, &status);
             if (U_FAILURE(status))
             {
-                delete dest;
+                delete[] dest;
                 return ICUException(status).reportError();
             }
 
             result = PyUnicode_FromUnicodeString(dest, size);
-            delete dest;
+            delete[] dest;
 
             return result;
         }

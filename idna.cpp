@@ -170,7 +170,7 @@ static PyObject *apply(idna_fn fn, const char *fn_name,
             const size_t len = u->length();
             const size_t capacity = len * 4 + 32;
             UErrorCode status = U_ZERO_ERROR;
-            UChar *dest = new UChar(capacity);
+            UChar *dest = new UChar[capacity];
             UIDNAInfo info = UIDNA_INFO_INITIALIZER;
             PyObject *result;
             size_t size;
@@ -186,12 +186,12 @@ static PyObject *apply(idna_fn fn, const char *fn_name,
 
             if (U_FAILURE(status))
             {
-                delete dest;
+                delete[] dest;
                 return ICUException(status).reportError();
             }
 
             result = PyUnicode_FromUnicodeString(dest, size);
-            delete dest;
+            delete[] dest;
 
             return result;
         }
@@ -203,7 +203,7 @@ static PyObject *apply(idna_fn fn, const char *fn_name,
             const size_t len = u->length();
             const size_t capacity = len * 4 + 32;
             UErrorCode status = U_ZERO_ERROR;
-            UChar *dest = new UChar(capacity);
+            UChar *dest = new UChar[capacity];
             PyObject *result;
             size_t size;
 
@@ -218,12 +218,12 @@ static PyObject *apply(idna_fn fn, const char *fn_name,
 
             if (U_FAILURE(status))
             {
-                delete dest;
+                delete[] dest;
                 return ICUException(status).reportError();
             }
 
             result = PyUnicode_FromUnicodeString(dest, size);
-            delete dest;
+            delete[] dest;
 
             return result;
         }
