@@ -35,6 +35,8 @@ DECLARE_CONSTANTS_TYPE(UProperty);
 DECLARE_CONSTANTS_TYPE(UCharDirection);
 DECLARE_CONSTANTS_TYPE(UCharCategory);
 DECLARE_CONSTANTS_TYPE(UBlockCode);
+DECLARE_CONSTANTS_TYPE(UCharNameChoice);
+DECLARE_CONSTANTS_TYPE(UPropertyNameChoice);
 
 /* Char */
 
@@ -84,9 +86,15 @@ static PyObject *t_char_isMirrored(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_charMirror(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_getBidiPairedBracket(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_charType(PyTypeObject *type, PyObject *arg);
+static PyObject *t_char_enumCharTypes(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_getCombiningClass(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_charDigitValue(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_ublock_getCode(PyTypeObject *type, PyObject *arg);
+static PyObject *t_char_charName(PyTypeObject *type, PyObject *args);
+static PyObject *t_char_charFromName(PyTypeObject *type, PyObject *args);
+static PyObject *t_char_enumCharNames(PyTypeObject *type, PyObject *args);
+static PyObject *t_char_getPropertyName(PyTypeObject *type, PyObject *args);
+static PyObject *t_char_getPropertyEnum(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_isIDStart(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_isIDIgnorable(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_isJavaIDStart(PyTypeObject *type, PyObject *arg);
@@ -99,6 +107,7 @@ static PyObject *t_char_digit(PyTypeObject *type, PyObject *args);
 static PyObject *t_char_forDigit(PyTypeObject *type, PyObject *args);
 static PyObject *t_char_charAge(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_getUnicodeVersion(PyTypeObject *type);
+static PyObject *t_char_getFC_NFKC_Closure(PyTypeObject *type, PyObject *arg);
 
 static PyMethodDef t_char_methods[] = {
     DECLARE_METHOD(t_char, hasBinaryProperty, METH_VARARGS | METH_CLASS),
@@ -133,9 +142,15 @@ static PyMethodDef t_char_methods[] = {
     DECLARE_METHOD(t_char, charMirror, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, getBidiPairedBracket, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, charType, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_char, enumCharTypes, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, getCombiningClass, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, charDigitValue, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, ublock_getCode, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_char, charName, METH_VARARGS | METH_CLASS),
+    DECLARE_METHOD(t_char, charFromName, METH_VARARGS | METH_CLASS),
+    DECLARE_METHOD(t_char, enumCharNames, METH_VARARGS | METH_CLASS),
+    DECLARE_METHOD(t_char, getPropertyName, METH_VARARGS | METH_CLASS),
+    DECLARE_METHOD(t_char, getPropertyEnum, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, isIDStart, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, isIDIgnorable, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, isJavaIDStart, METH_O | METH_CLASS),
@@ -148,6 +163,7 @@ static PyMethodDef t_char_methods[] = {
     DECLARE_METHOD(t_char, forDigit, METH_VARARGS | METH_CLASS),
     DECLARE_METHOD(t_char, charAge, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, getUnicodeVersion, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_char, getFC_NFKC_Closure, METH_O | METH_CLASS),
     { NULL, NULL, 0, NULL }
 };
 
@@ -398,6 +414,37 @@ static PyObject *t_char_charType(PyTypeObject *type, PyObject *arg)
     return PyErr_SetArgsError((PyObject *) type, "charType", arg);
 }
 
+static UBool t_char_enum_types_cb(
+    const void *context, UChar32 start, UChar32 limit, UCharCategory type)
+{
+    PyObject *obj = PyObject_CallFunction(
+        (PyObject *) context, "iii", start, limit, type);
+
+    if (obj == NULL)
+        return false;
+
+    bool result = PyObject_IsTrue(obj);
+
+    Py_DECREF(obj);
+
+    return result;
+}
+
+static PyObject *t_char_enumCharTypes(PyTypeObject *type, PyObject *arg)
+{
+    if (PyCallable_Check(arg))
+    {
+        u_enumCharTypes(t_char_enum_types_cb, arg);
+        if (PyErr_Occurred())
+            return NULL;
+
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) type, "enumCharTypes", arg);
+}
+
+
 static PyObject *t_char_getCombiningClass(PyTypeObject *type, PyObject *arg)
 {
     UnicodeString *u, _u;
@@ -436,6 +483,184 @@ static PyObject *t_char_ublock_getCode(PyTypeObject *type, PyObject *arg)
         return PyInt_FromLong((int) ublock_getCode(u->char32At(0)));
 
     return PyErr_SetArgsError((PyObject *) type, "ublock_getCode", arg);
+}
+
+static PyObject *t_char_charName(PyTypeObject *type, PyObject *args)
+{
+    UnicodeString *u, _u;
+    UCharNameChoice choice = U_UNICODE_CHAR_NAME;
+    char buffer[128];
+    int32_t size;
+    UChar32 c;
+
+    switch (PyTuple_Size(args)) {
+      case 1:
+        if (!parseArgs(args, "i", &c))
+        {
+            STATUS_CALL(size = u_charName(c, choice, buffer,
+                                          sizeof(buffer), &status));
+            return PyString_FromString(buffer);
+        }
+        if (!parseArgs(args, "S", &u, &_u) && u->length() >= 1)
+        {
+            STATUS_CALL(size = u_charName(u->char32At(0), choice,
+                                          buffer, sizeof(buffer), &status));
+            return PyString_FromStringAndSize(buffer, size);
+        }
+        break;
+      case 2:
+        if (!parseArgs(args, "ii", &c, &choice))
+        {
+            STATUS_CALL(size = u_charName(c, choice,
+                                          buffer, sizeof(buffer), &status));
+            return PyString_FromStringAndSize(buffer, size);
+        }
+        if (!parseArgs(args, "Si", &u, &_u, &choice) && u->length() >= 1)
+        {
+            STATUS_CALL(size = u_charName(u->char32At(0), choice,
+                                          buffer, sizeof(buffer), &status));
+            return PyString_FromStringAndSize(buffer, size);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) type, "charName", args);
+}
+
+static PyObject *t_char_charFromName(PyTypeObject *type, PyObject *args)
+{
+    char *name;
+    UCharNameChoice choice = U_UNICODE_CHAR_NAME;
+    UChar32 c;
+
+    switch (PyTuple_Size(args)) {
+      case 1:
+        if (!parseArgs(args, "c", &name))
+        {
+            STATUS_CALL(c = u_charFromName(choice, name, &status));
+            return PyInt_FromLong(c);
+        }
+        break;
+      case 2:
+        if (!parseArgs(args, "ci", &name, &choice))
+        {
+            STATUS_CALL(c = u_charFromName(choice, name, &status));
+            return PyInt_FromLong(c);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) type, "charFromName", args);
+}
+
+static UBool t_char_enum_names_cb(
+    void *context, UChar32 code, UCharNameChoice choice,
+    const char *name, int32_t length)
+{
+    PyObject *obj = PyObject_CallFunction(
+        (PyObject *) context, "is#i", code, name, (int) length, choice);
+
+    if (obj == NULL)
+        return false;
+
+    bool result = PyObject_IsTrue(obj);
+
+    Py_DECREF(obj);
+
+    return result;
+}
+
+static PyObject *t_char_enumCharNames(PyTypeObject *type, PyObject *args)
+{
+    PyObject *callable;
+    UCharNameChoice choice = U_UNICODE_CHAR_NAME;
+    UnicodeString *u, _u, *v, _v;
+    UChar32 start, limit;
+
+    switch (PyTuple_Size(args)) {
+      case 3:
+        if (!parseArgs(args, "iiM", &start, &limit, &callable))
+        {
+            STATUS_CALL(u_enumCharNames(
+                start, limit, t_char_enum_names_cb, callable, choice, &status));
+            if (PyErr_Occurred())
+                return NULL;
+            Py_RETURN_NONE;
+        }
+        if (!parseArgs(args, "SSM", &u, &_u, &v, &_v, &callable) &&
+            u->length() >= 1 && v->length() >= 1)
+        {
+            STATUS_CALL(u_enumCharNames(
+                u->char32At(0), v->char32At(0),
+                t_char_enum_names_cb, callable, choice, &status));
+            if (PyErr_Occurred())
+                return NULL;
+            Py_RETURN_NONE;
+        }
+        break;
+      case 4:
+        if (!parseArgs(args, "iiMi", &start, &limit, &callable, &choice))
+        {
+            STATUS_CALL(u_enumCharNames(
+                start, limit, t_char_enum_names_cb, callable, choice, &status));
+            if (PyErr_Occurred())
+                return NULL;
+            Py_RETURN_NONE;
+        }
+        if (!parseArgs(args, "SSMi", &u, &_u, &v, &_v, &callable, &choice) &&
+            u->length() >= 1 && v->length() >= 1)
+        {
+            STATUS_CALL(u_enumCharNames(
+                u->char32At(0), v->char32At(0),
+                t_char_enum_names_cb, callable, choice, &status));
+            if (PyErr_Occurred())
+                return NULL;
+            Py_RETURN_NONE;
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) type, "enumCharNames", args);
+}
+
+static PyObject *t_char_getPropertyName(PyTypeObject *type, PyObject *args)
+{
+    UPropertyNameChoice choice = U_SHORT_PROPERTY_NAME;
+    UProperty prop;
+    const char *result;
+
+    switch (PyTuple_Size(args)) {
+      case 1:
+        if (!parseArgs(args, "i", &prop))
+        {
+            result = u_getPropertyName(prop, choice);
+            if (result != NULL)
+                return PyString_FromString(result);
+            Py_RETURN_NONE;
+        }
+        break;
+      case 2:
+        if (!parseArgs(args, "ii", &prop, &choice))
+        {
+            result = u_getPropertyName(prop, choice);
+            if (result != NULL)
+                return PyString_FromString(result);
+            Py_RETURN_NONE;
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) type, "getPropertyName", args);
+}
+
+static PyObject *t_char_getPropertyEnum(PyTypeObject *type, PyObject *arg)
+{
+    char *alias;
+
+    if (!parseArg(arg, "c", &alias))
+        return PyInt_FromLong(u_getPropertyEnum(alias));
+
+    return PyErr_SetArgsError((PyObject *) type, "getPropertyEnum", arg);
 }
 
 static PyObject *t_char_fn(uchar32_char_fn fn, char *name,
@@ -587,6 +812,27 @@ static PyObject *t_char_getUnicodeVersion(PyTypeObject *type)
     return PyString_FromString(buffer);
 }
 
+static PyObject *t_char_getFC_NFKC_Closure(PyTypeObject *type, PyObject *arg)
+{
+    UChar buffer[128];
+    UnicodeString *u, _u;
+    UChar32 c;
+    int32_t size;
+
+    if (!parseArg(arg, "i", &c))
+    {
+        STATUS_CALL(size = u_getFC_NFKC_Closure(c, buffer, 128, &status));
+    }
+    else if (!parseArg(arg, "S", &u, &_u) && u->length() >= 1)
+    {
+        STATUS_CALL(size = u_getFC_NFKC_Closure(u->char32At(0),
+                                                buffer, 128, &status));
+    }
+    else
+        return PyErr_SetArgsError((PyObject *) type, "getFC_NFKC_Closure", arg);
+
+    return PyUnicode_FromUnicodeString(buffer, size);
+}
 
 void _init_char(PyObject *m)
 {
@@ -594,6 +840,8 @@ void _init_char(PyObject *m)
     INSTALL_CONSTANTS_TYPE(UCharDirection, m);
     INSTALL_CONSTANTS_TYPE(UCharCategory, m);
     INSTALL_CONSTANTS_TYPE(UBlockCode, m);
+    INSTALL_CONSTANTS_TYPE(UCharNameChoice, m);
+    INSTALL_CONSTANTS_TYPE(UPropertyNameChoice, m);
     INSTALL_STRUCT(Char, m);
 
     INSTALL_ENUM(Char, "FOLD_CASE_DEFAULT", U_FOLD_CASE_DEFAULT);
@@ -1037,4 +1285,13 @@ void _init_char(PyObject *m)
     INSTALL_ENUM(UBlockCode, "WARANG_CITI", UBLOCK_WARANG_CITI);
 #endif
     INSTALL_ENUM(UBlockCode, "INVALID_CODE", UBLOCK_INVALID_CODE);
+
+    INSTALL_ENUM(UCharNameChoice, "UNICODE_CHAR_NAME", U_UNICODE_CHAR_NAME);
+    INSTALL_ENUM(UCharNameChoice, "EXTENDED_CHAR_NAME", U_EXTENDED_CHAR_NAME);
+#if U_ICU_VERSION_HEX >= 0x04040000
+    INSTALL_ENUM(UCharNameChoice, "CHAR_NAME_ALIAS", U_CHAR_NAME_ALIAS);
+#endif
+
+    INSTALL_ENUM(UPropertyNameChoice, "SHORT_PROPERTY_NAME", U_SHORT_PROPERTY_NAME);
+    INSTALL_ENUM(UPropertyNameChoice, "LONG_PROPERTY_NAME", U_LONG_PROPERTY_NAME);
 }

@@ -842,6 +842,16 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
                 break;
             return -1;
 
+          case 'K':           /* python object of any type */
+              break;
+
+          case 'M':           /* python callable */
+          {
+              if (PyCallable_Check(arg))
+                  break;
+              return -1;
+          }
+
           case 'O':           /* python object of given type */
           {
               PyTypeObject *type = va_arg(list, PyTypeObject *);
@@ -1128,6 +1138,8 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
               break;
           }
 
+          case 'K':           /* python object of any type */
+          case 'M':           /* python callable */
           case 'O':           /* python object of given type */
           {
               PyObject **obj = va_arg(list, PyObject **);
