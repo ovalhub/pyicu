@@ -198,7 +198,7 @@ static PyObject *apply(idna_fn fn, const char *fn_name,
         break;
 
       case 2:
-        if (!parseArgs(args, "SO", &IDNAInfoType, &u, &_u, &infoArg))
+        if (!parseArgs(args, "SO", &IDNAInfoType_, &u, &_u, &infoArg))
         {
             const size_t len = u->length();
             const size_t capacity = len * 4 + 32;

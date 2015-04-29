@@ -2372,15 +2372,15 @@ static PyObject *t_choiceformat_str(t_choiceformat *self)
 
 void _init_numberformat(PyObject *m)
 {
-    DecimalFormatSymbolsType.tp_richcompare =
+    DecimalFormatSymbolsType_.tp_richcompare =
         (richcmpfunc) t_decimalformatsymbols_richcmp;
 #if U_ICU_VERSION_HEX >= 0x04020000
-    CurrencyPluralInfoType.tp_richcompare =
+    CurrencyPluralInfoType_.tp_richcompare =
         (richcmpfunc) t_currencypluralinfo_richcmp;
 #endif
-    DecimalFormatType.tp_str = (reprfunc) t_decimalformat_str;
-    RuleBasedNumberFormatType.tp_str = (reprfunc) t_rulebasednumberformat_str;
-    ChoiceFormatType.tp_str = (reprfunc) t_choiceformat_str;
+    DecimalFormatType_.tp_str = (reprfunc) t_decimalformat_str;
+    RuleBasedNumberFormatType_.tp_str = (reprfunc) t_rulebasednumberformat_str;
+    ChoiceFormatType_.tp_str = (reprfunc) t_choiceformat_str;
 
     REGISTER_TYPE(DecimalFormatSymbols, m);
     REGISTER_TYPE(NumberFormat, m);

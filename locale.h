@@ -24,7 +24,7 @@
 #ifndef _locale_h
 #define _locale_h
 
-extern PyTypeObject LocaleType;
+extern PyTypeObject LocaleType_;
 
 PyObject *wrap_Locale(Locale *locale, int flags);
 PyObject *wrap_Locale(const Locale &locale);

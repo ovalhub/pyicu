@@ -55,7 +55,7 @@ static PyGetSetDef t_uobject_properties[] = {
     { NULL, NULL, NULL, NULL, NULL }
 };
 
-PyTypeObject UObjectType = {
+PyTypeObject UObjectType_ = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "icu.UObject",                       /* tp_name */
     sizeof(t_uobject),                   /* tp_basicsize */
@@ -104,7 +104,7 @@ PyObject *wrap_UObject(UObject *object, int flags)
         if (ISINSTANCE(object, UnicodeString))
             return PyUnicode_FromUnicodeString((UnicodeString *) object);
 
-        t_uobject *self = (t_uobject *) UObjectType.tp_alloc(&UObjectType, 0);
+        t_uobject *self = (t_uobject *) UObjectType_.tp_alloc(&UObjectType_, 0);
         if (self)
         {
             self->object = object;
@@ -419,7 +419,7 @@ static PyObject *t_uobject_richcmp(t_uobject *self, PyObject *arg, int op)
     switch (op) {
       case Py_EQ:
       case Py_NE:
-        if (PyObject_TypeCheck(arg, &UObjectType))
+        if (PyObject_TypeCheck(arg, &UObjectType_))
             b = self->object == ((t_uobject *) arg)->object;
         if (op == Py_EQ)
             Py_RETURN_BOOL(b);
@@ -446,8 +446,13 @@ static PyObject *t_uobject_str(t_uobject *self)
     if (self->object)
     {
         char buf[32];
+#if U_ICU_VERSION_HEX < 0x04060000
         sprintf(buf, "0x%lx",
 		(unsigned long) self->object->getDynamicClassID());
+#else
+        sprintf(buf, "0x%llx",
+		(unsigned long long) (intptr_t) self->object);
+#endif
         return PyString_FromString(buf);
     }
 
@@ -2293,7 +2298,7 @@ static PyObject *t_measureunit_richcmp(t_measureunit *self,
     switch (op) {
       case Py_EQ:
       case Py_NE:
-        if (PyObject_TypeCheck(arg, &UObjectType))
+        if (PyObject_TypeCheck(arg, &UObjectType_))
             b = *self->object == *((t_uobject *) arg)->object;
         if (op == Py_EQ)
             Py_RETURN_BOOL(b);
@@ -2331,7 +2336,7 @@ static PyObject *t_measure_richcmp(t_measure *self, PyObject *arg, int op)
     switch (op) {
       case Py_EQ:
       case Py_NE:
-        if (PyObject_TypeCheck(arg, &UObjectType))
+        if (PyObject_TypeCheck(arg, &UObjectType_))
             b = *self->object == *((t_uobject *) arg)->object;
         if (op == Py_EQ)
             Py_RETURN_BOOL(b);
@@ -2561,23 +2566,23 @@ static PyObject *t_stringenumeration_iter(t_stringenumeration *self)
 
 void _init_bases(PyObject *m)
 {
-    UnicodeStringType.tp_str = (reprfunc) t_unicodestring_str;
-    UnicodeStringType.tp_repr = (reprfunc) t_unicodestring_repr;
-    UnicodeStringType.tp_richcompare = (richcmpfunc) t_unicodestring_richcmp;
-    UnicodeStringType.tp_hash = (hashfunc) t_unicodestring_hash;
-    UnicodeStringType.tp_as_sequence = &t_unicodestring_as_sequence;
+    UnicodeStringType_.tp_str = (reprfunc) t_unicodestring_str;
+    UnicodeStringType_.tp_repr = (reprfunc) t_unicodestring_repr;
+    UnicodeStringType_.tp_richcompare = (richcmpfunc) t_unicodestring_richcmp;
+    UnicodeStringType_.tp_hash = (hashfunc) t_unicodestring_hash;
+    UnicodeStringType_.tp_as_sequence = &t_unicodestring_as_sequence;
 #if PY_MAJOR_VERSION >= 3
-    UnicodeStringType.tp_as_mapping = &t_unicodestring_as_mapping;
+    UnicodeStringType_.tp_as_mapping = &t_unicodestring_as_mapping;
 #endif
-    FormattableType.tp_richcompare = (richcmpfunc) t_formattable_richcmp;
-    FormattableType.tp_str = (reprfunc) t_formattable_str;
-    FormattableType.tp_repr = (reprfunc) t_formattable_repr;
-    MeasureUnitType.tp_richcompare = (richcmpfunc) t_measureunit_richcmp;
-    MeasureType.tp_richcompare = (richcmpfunc) t_measure_richcmp;
-    CurrencyUnitType.tp_str = (reprfunc) t_currencyunit_str;
-    CurrencyAmountType.tp_str = (reprfunc) t_currencyamount_str;
-    StringEnumerationType.tp_iter = (getiterfunc) t_stringenumeration_iter;
-    StringEnumerationType.tp_iternext = (iternextfunc) t_stringenumeration_next;
+    FormattableType_.tp_richcompare = (richcmpfunc) t_formattable_richcmp;
+    FormattableType_.tp_str = (reprfunc) t_formattable_str;
+    FormattableType_.tp_repr = (reprfunc) t_formattable_repr;
+    MeasureUnitType_.tp_richcompare = (richcmpfunc) t_measureunit_richcmp;
+    MeasureType_.tp_richcompare = (richcmpfunc) t_measure_richcmp;
+    CurrencyUnitType_.tp_str = (reprfunc) t_currencyunit_str;
+    CurrencyAmountType_.tp_str = (reprfunc) t_currencyamount_str;
+    StringEnumerationType_.tp_iter = (getiterfunc) t_stringenumeration_iter;
+    StringEnumerationType_.tp_iternext = (iternextfunc) t_stringenumeration_next;
 
     INSTALL_TYPE(UObject, m);
     INSTALL_TYPE(Replaceable, m);

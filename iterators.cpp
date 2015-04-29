@@ -1407,23 +1407,23 @@ DEFINE_RICHCMP(CollationElementIterator, t_collationelementiterator);
 
 void _init_iterators(PyObject *m)
 {
-    ForwardCharacterIteratorType.tp_iter =
+    ForwardCharacterIteratorType_.tp_iter =
         (getiterfunc) t_forwardcharacteriterator_iter;
-    ForwardCharacterIteratorType.tp_iternext =
+    ForwardCharacterIteratorType_.tp_iternext =
         (iternextfunc) t_forwardcharacteriterator_nextPostInc;
-    ForwardCharacterIteratorType.tp_richcompare =
+    ForwardCharacterIteratorType_.tp_richcompare =
         (richcmpfunc) t_forwardcharacteriterator_richcmp;
-    BreakIteratorType.tp_iter = (getiterfunc) t_breakiterator_iter;
-    BreakIteratorType.tp_iternext = (iternextfunc) t_breakiterator_iter_next;
-    BreakIteratorType.tp_richcompare = (richcmpfunc) t_breakiterator_richcmp;
-    CanonicalIteratorType.tp_iter = (getiterfunc) t_canonicaliterator_iter;
-    CanonicalIteratorType.tp_iternext =
+    BreakIteratorType_.tp_iter = (getiterfunc) t_breakiterator_iter;
+    BreakIteratorType_.tp_iternext = (iternextfunc) t_breakiterator_iter_next;
+    BreakIteratorType_.tp_richcompare = (richcmpfunc) t_breakiterator_richcmp;
+    CanonicalIteratorType_.tp_iter = (getiterfunc) t_canonicaliterator_iter;
+    CanonicalIteratorType_.tp_iternext =
         (iternextfunc) t_canonicaliterator_iter_next;
-    CollationElementIteratorType.tp_iter =
+    CollationElementIteratorType_.tp_iter =
         (getiterfunc) t_collationelementiterator_iter;
-    CollationElementIteratorType.tp_iternext =
+    CollationElementIteratorType_.tp_iternext =
         (iternextfunc) t_collationelementiterator_iter_next;
-    CollationElementIteratorType.tp_richcompare =
+    CollationElementIteratorType_.tp_richcompare =
         (richcmpfunc) t_collationelementiterator_richcmp;
 
     INSTALL_TYPE(ForwardCharacterIterator, m);

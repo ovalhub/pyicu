@@ -109,7 +109,7 @@ static int t_spoofchecker_init(t_spoofchecker *self,
         self->flags = T_OWNED;
         break;
       case 1:
-        if (!parseArgs(args, "O", &SpoofCheckerType, &sc))
+        if (!parseArgs(args, "O", &SpoofCheckerType_, &sc))
         {
             INT_STATUS_CALL(usc = uspoof_clone(sc->object, &status));
             self->object = usc;

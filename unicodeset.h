@@ -24,8 +24,8 @@
 #ifndef _unicodeset_h
 #define _unicodeset_h
 
-extern PyTypeObject UnicodeFilterType;
-extern PyTypeObject UnicodeSetType;
+extern PyTypeObject UnicodeFilterType_;
+extern PyTypeObject UnicodeSetType_;
 
 PyObject *wrap_UnicodeSet(UnicodeSet *, int);
 PyObject *wrap_UnicodeFilter(UnicodeFilter *, int);

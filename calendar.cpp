@@ -1482,10 +1482,10 @@ static PyObject *t_gregoriancalendar_isLeapYear(t_gregoriancalendar *self, PyObj
 
 void _init_calendar(PyObject *m)
 {
-    TimeZoneType.tp_str = (reprfunc) t_timezone_str;
-    TimeZoneType.tp_richcompare = (richcmpfunc) t_timezone_richcmp;
-    CalendarType.tp_str = (reprfunc) t_calendar_str;
-    CalendarType.tp_richcompare = (richcmpfunc) t_calendar_richcmp;
+    TimeZoneType_.tp_str = (reprfunc) t_timezone_str;
+    TimeZoneType_.tp_richcompare = (richcmpfunc) t_timezone_richcmp;
+    CalendarType_.tp_str = (reprfunc) t_calendar_str;
+    CalendarType_.tp_richcompare = (richcmpfunc) t_calendar_richcmp;
 
     INSTALL_CONSTANTS_TYPE(UCalendarDateFields, m);
     INSTALL_CONSTANTS_TYPE(UCalendarDaysOfWeek, m);

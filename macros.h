@@ -136,7 +136,7 @@ PyObject *make_descriptor(PyObject *(*get)(PyObject *));
     { #name, (PyCFunction) type##_##name, flags, "" }
 
 #define DECLARE_TYPE(name, t_name, base, icuClass, init, dealloc)           \
-PyTypeObject name##Type = {                                                 \
+PyTypeObject name##Type_ = {                                                \
     PyVarObject_HEAD_INIT(NULL, 0)                                          \
     /* tp_name            */   "icu."#name,                                 \
     /* tp_basicsize       */   sizeof(t_name),                              \
@@ -167,7 +167,7 @@ PyTypeObject name##Type = {                                                 \
     /* tp_methods         */   t_name##_methods,                            \
     /* tp_members         */   0,                                           \
     /* tp_getset          */   0,                                           \
-    /* tp_base            */   &base##Type,                                 \
+    /* tp_base            */   &base##Type_,                                \
     /* tp_dict            */   0,                                           \
     /* tp_descr_get       */   0,                                           \
     /* tp_descr_set       */   0,                                           \
@@ -176,19 +176,19 @@ PyTypeObject name##Type = {                                                 \
     /* tp_alloc           */   0,                                           \
     /* tp_new             */   0,                                           \
 };                                                                          \
-PyObject *wrap_##name(icuClass *object, int flags)                      \
-{                                                                       \
-    if (object)                                                         \
-    {                                                                   \
-        t_name *self = (t_name *) name##Type.tp_alloc(&name##Type, 0);  \
-        if (self)                                                       \
-        {                                                               \
-            self->object = object;                                      \
-            self->flags = flags;                                        \
-        }                                                               \
-        return (PyObject *) self;                                       \
-    }                                                                   \
-    Py_RETURN_NONE;                                                     \
+PyObject *wrap_##name(icuClass *object, int flags)                        \
+{                                                                         \
+    if (object)                                                           \
+    {                                                                     \
+        t_name *self = (t_name *) name##Type_.tp_alloc(&name##Type_, 0);  \
+        if (self)                                                         \
+        {                                                                 \
+            self->object = object;                                        \
+            self->flags = flags;                                          \
+        }                                                                 \
+        return (PyObject *) self;                                         \
+    }                                                                     \
+    Py_RETURN_NONE;                                                       \
 }
 
 
@@ -204,7 +204,7 @@ static PyObject *t_name##_new(PyTypeObject *type,                       \
     }                                                                   \
     return (PyObject *) self;                                           \
 }                                                                       \
-PyTypeObject name##Type = {                                                 \
+PyTypeObject name##Type_ = {                                                \
     PyVarObject_HEAD_INIT(NULL, 0)                                          \
     /* tp_name            */   "icu."#name,                                 \
     /* tp_basicsize       */   sizeof(t_name),                              \
@@ -244,24 +244,24 @@ PyTypeObject name##Type = {                                                 \
     /* tp_alloc           */   0,                                           \
     /* tp_new             */   (newfunc)t_name##_new,                       \
 };                                                                          \
-PyObject *wrap_##name(icuStruct *object, int flags)                     \
-{                                                                       \
-    if (object)                                                         \
-    {                                                                   \
-        t_name *self = (t_name *) name##Type.tp_alloc(&name##Type, 0);  \
-        if (self)                                                       \
-        {                                                               \
-            self->object = object;                                      \
-            self->flags = flags;                                        \
-        }                                                               \
-        return (PyObject *) self;                                       \
-    }                                                                   \
-    Py_RETURN_NONE;                                                     \
+PyObject *wrap_##name(icuStruct *object, int flags)                       \
+{                                                                         \
+    if (object)                                                           \
+    {                                                                     \
+        t_name *self = (t_name *) name##Type_.tp_alloc(&name##Type_, 0);  \
+        if (self)                                                         \
+        {                                                                 \
+            self->object = object;                                        \
+            self->flags = flags;                                          \
+        }                                                                 \
+        return (PyObject *) self;                                         \
+    }                                                                     \
+    Py_RETURN_NONE;                                                       \
 }
 
 
 #define DECLARE_CONSTANTS_TYPE(name)                                    \
-PyTypeObject name##Type = {                                             \
+PyTypeObject name##Type_ = {                                            \
     PyVarObject_HEAD_INIT(NULL, 0)                                      \
     /* tp_name            */   "icu."#name,                             \
     /* tp_basicsize       */   0,                                       \
@@ -272,18 +272,18 @@ PyTypeObject name##Type = {                                             \
 #if U_ICU_VERSION_HEX < 0x04060000
 
 #define TYPE_CLASSID(className)                      \
-    className::getStaticClassID(), &className##Type
+    className::getStaticClassID(), &className##Type_
 
 #define TYPE_ID(className)                           \
-    (UClassID) (className##_ID), &className##Type
+    (UClassID) (className##_ID), &className##Type_
 
 #else
 
 #define TYPE_CLASSID(className)                      \
-    typeid(className).name(), &className##Type
+    typeid(className).name(), &className##Type_
 
 #define TYPE_ID(className)                           \
-    typeid(className).name(), &className##Type
+    typeid(className).name(), &className##Type_
 
 #endif
 
@@ -291,68 +291,68 @@ PyTypeObject name##Type = {                                             \
 #if U_ICU_VERSION_HEX < 0x04060000
 
 #define INSTALL_TYPE(className, module)                                 \
-    if (PyType_Ready(&className##Type) == 0)                            \
+    if (PyType_Ready(&className##Type_) == 0)                           \
     {                                                                   \
-        Py_INCREF(&className##Type);                                    \
+        Py_INCREF(&className##Type_);                                   \
         PyModule_AddObject(module, #className,                          \
-                           (PyObject *) &className##Type);              \
-        registerType(&className##Type, (UClassID) className##_ID);      \
+                           (PyObject *) &className##Type_);             \
+        registerType(&className##Type_, (UClassID) className##_ID);     \
     }
 
-#define REGISTER_TYPE(className, module)                                \
-    if (PyType_Ready(&className##Type) == 0)                            \
-    {                                                                   \
-        Py_INCREF(&className##Type);                                    \
-        PyModule_AddObject(module, #className,                          \
-                           (PyObject *) &className##Type);              \
-        registerType(&className##Type, className::getStaticClassID());  \
+#define REGISTER_TYPE(className, module)                                  \
+    if (PyType_Ready(&className##Type_) == 0)                             \
+    {                                                                     \
+        Py_INCREF(&className##Type_);                                     \
+        PyModule_AddObject(module, #className,                            \
+                           (PyObject *) &className##Type_);               \
+        registerType(&className##Type_, className::getStaticClassID());   \
     }
 
 #else
 
 #define INSTALL_TYPE(className, module)                                 \
-    if (PyType_Ready(&className##Type) == 0)                            \
+    if (PyType_Ready(&className##Type_) == 0)                           \
     {                                                                   \
-        Py_INCREF(&className##Type);                                    \
+        Py_INCREF(&className##Type_);                                   \
         PyModule_AddObject(module, #className,                          \
-                           (PyObject *) &className##Type);              \
-        registerType(&className##Type, typeid(className).name());       \
+                           (PyObject *) &className##Type_);             \
+        registerType(&className##Type_, typeid(className).name());      \
     }
 
 #define REGISTER_TYPE(className, module)                                \
-    if (PyType_Ready(&className##Type) == 0)                            \
+    if (PyType_Ready(&className##Type_) == 0)                           \
     {                                                                   \
-        Py_INCREF(&className##Type);                                    \
+        Py_INCREF(&className##Type_);                                   \
         PyModule_AddObject(module, #className,                          \
-                           (PyObject *) &className##Type);              \
-        registerType(&className##Type, typeid(className).name());       \
+                           (PyObject *) &className##Type_);             \
+        registerType(&className##Type_, typeid(className).name());      \
     }
 
 #endif
 
-#define INSTALL_STRUCT(name, module)                                 \
-    if (PyType_Ready(&name##Type) == 0)                              \
-    {                                                                \
-        Py_INCREF(&name##Type);                                      \
-        PyModule_AddObject(module, #name, (PyObject *) &name##Type); \
+#define INSTALL_STRUCT(name, module)                                   \
+    if (PyType_Ready(&name##Type_) == 0)                               \
+    {                                                                  \
+        Py_INCREF(&name##Type_);                                       \
+        PyModule_AddObject(module, #name, (PyObject *) &name##Type_);  \
     }
 
-#define INSTALL_CONSTANTS_TYPE(name, module)                         \
-    if (PyType_Ready(&name##Type) == 0)                              \
-    {                                                                \
-        Py_INCREF(&name##Type);                                      \
-        PyModule_AddObject(module, #name, (PyObject *) &name##Type); \
+#define INSTALL_CONSTANTS_TYPE(name, module)                           \
+    if (PyType_Ready(&name##Type_) == 0)                               \
+    {                                                                  \
+        Py_INCREF(&name##Type_);                                       \
+        PyModule_AddObject(module, #name, (PyObject *) &name##Type_);  \
     }
 
-#define INSTALL_MODULE_INT(module, name)                                \
+#define INSTALL_MODULE_INT(module, name)                               \
     PyModule_AddIntConstant(module, #name, name);
 
 #define INSTALL_STATIC_INT(type, name)                                      \
-    PyDict_SetItemString(type##Type.tp_dict, #name,                         \
+    PyDict_SetItemString(type##Type_.tp_dict, #name,                        \
                          make_descriptor(PyInt_FromLong(type::name)))
 
 #define INSTALL_ENUM(type, name, value)                                 \
-    PyDict_SetItemString(type##Type.tp_dict, name,                      \
+    PyDict_SetItemString(type##Type_.tp_dict, name,                     \
                          make_descriptor(PyInt_FromLong(value)))
 
 #define Py_RETURN_BOOL(b)                       \
@@ -378,28 +378,28 @@ PyTypeObject name##Type = {                                             \
 
 
 #define DEFINE_RICHCMP(name, t_name) \
-    static PyObject *t_name ## _richcmp(t_name *self,                   \
-                                        PyObject *arg, int op)          \
-    {                                                                   \
-        int b = 0;                                                      \
-        name *object;                                                   \
-        if (!parseArg(arg, "P", TYPE_CLASSID(name), &object))           \
-        {                                                               \
-            switch (op) {                                               \
-              case Py_EQ:                                               \
-              case Py_NE:                                               \
-                b = *self->object == *object;                           \
-                if (op == Py_EQ)                                        \
-                    Py_RETURN_BOOL(b);                                  \
-                Py_RETURN_BOOL(!b);                                     \
-              case Py_LT:                                               \
-              case Py_LE:                                               \
-              case Py_GT:                                               \
-              case Py_GE:                                               \
-                PyErr_SetNone(PyExc_NotImplementedError);               \
-                return NULL;                                            \
-            }                                                           \
-        }                                                               \
+    static PyObject *t_name ## _richcmp(t_name *self,                     \
+                                        PyObject *arg, int op)            \
+    {                                                                     \
+        int b = 0;                                                        \
+        name *object;                                                     \
+        if (!parseArg(arg, "P", TYPE_CLASSID(name), &object))             \
+        {                                                                 \
+            switch (op) {                                                 \
+              case Py_EQ:                                                 \
+              case Py_NE:                                                 \
+                b = *self->object == *object;                             \
+                if (op == Py_EQ)                                          \
+                    Py_RETURN_BOOL(b);                                    \
+                Py_RETURN_BOOL(!b);                                       \
+              case Py_LT:                                                 \
+              case Py_LE:                                                 \
+              case Py_GT:                                                 \
+              case Py_GE:                                                 \
+                PyErr_SetNone(PyExc_NotImplementedError);                 \
+                return NULL;                                              \
+            }                                                             \
+        }                                                                 \
         return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg); \
     }
 

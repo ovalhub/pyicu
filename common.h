@@ -174,6 +174,11 @@ typedef intintobjargproc ssizessizeobjargproc;
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
 #include <unicode/compactdecimalformat.h>
 #include <unicode/unum.h>
+#include <unicode/udisplaycontext.h>
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
+#include <unicode/reldatefmt.h>
 #endif
 
 #if U_ICU_VERSION_HEX < 0x04060000

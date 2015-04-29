@@ -953,15 +953,15 @@ static int t_regexmatcher_clear(t_regexmatcher *self)
 
 void _init_regex(PyObject *m)
 {
-    RegexPatternType.tp_str = (reprfunc) t_regexpattern_str;
-    RegexPatternType.tp_richcompare = (richcmpfunc) t_regexpattern_richcmp;
+    RegexPatternType_.tp_str = (reprfunc) t_regexpattern_str;
+    RegexPatternType_.tp_richcompare = (richcmpfunc) t_regexpattern_richcmp;
 
 #if U_ICU_VERSION_HEX >= 0x04000000
-    RegexMatcherType.tp_traverse = (traverseproc) t_regexmatcher_traverse;
-    RegexMatcherType.tp_clear = (inquiry) t_regexmatcher_clear;
-    RegexMatcherType.tp_flags |= Py_TPFLAGS_HAVE_GC;
+    RegexMatcherType_.tp_traverse = (traverseproc) t_regexmatcher_traverse;
+    RegexMatcherType_.tp_clear = (inquiry) t_regexmatcher_clear;
+    RegexMatcherType_.tp_flags |= Py_TPFLAGS_HAVE_GC;
 #endif
-    RegexMatcherType.tp_str = (reprfunc) t_regexmatcher_str;
+    RegexMatcherType_.tp_str = (reprfunc) t_regexmatcher_str;
 
     INSTALL_CONSTANTS_TYPE(URegexpFlag, m);
 

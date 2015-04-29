@@ -24,8 +24,8 @@
 #ifndef _idna_h
 #define _idna_h
 
-extern PyTypeObject IDNAInfoType;
-extern PyTypeObject IDNAType;
+extern PyTypeObject IDNAInfoType_;
+extern PyTypeObject IDNAType_;
 
 void _init_idna(PyObject *m);
 

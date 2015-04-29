@@ -1476,11 +1476,11 @@ static PyObject *t_localedata_getExemplarSet(t_localedata *self, PyObject *args)
 
 void _init_locale(PyObject *m)
 {
-    LocaleType.tp_str = (reprfunc) t_locale_str;
-    LocaleType.tp_hash = (hashfunc) t_locale_hash;
-    ResourceBundleType.tp_iter = (getiterfunc) t_resourcebundle_iter;
-    ResourceBundleType.tp_iternext = (iternextfunc) t_resourcebundle_next;
-    ResourceBundleType.tp_str = (reprfunc) t_resourcebundle_str;
+    LocaleType_.tp_str = (reprfunc) t_locale_str;
+    LocaleType_.tp_hash = (hashfunc) t_locale_hash;
+    ResourceBundleType_.tp_iter = (getiterfunc) t_resourcebundle_iter;
+    ResourceBundleType_.tp_iternext = (iternextfunc) t_resourcebundle_next;
+    ResourceBundleType_.tp_str = (reprfunc) t_resourcebundle_str;
 
     INSTALL_CONSTANTS_TYPE(ULocDataLocaleType, m);
     INSTALL_CONSTANTS_TYPE(UResType, m);

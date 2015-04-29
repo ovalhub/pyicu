@@ -578,7 +578,7 @@ static int t_rulebasedcollator_init(t_rulebasedcollator *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
       case 2:
-        if (!parseArgs(args, "CO", &RuleBasedCollatorType, &buf, &base))
+        if (!parseArgs(args, "CO", &RuleBasedCollatorType_, &buf, &base))
         {
             INT_STATUS_CALL(collator = new RuleBasedCollator((uint8_t *) PyBytes_AS_STRING(buf), PyBytes_GET_SIZE(buf), ((t_rulebasedcollator *) base)->object, status));
             self->object = collator;
@@ -664,10 +664,10 @@ DEFINE_RICHCMP(RuleBasedCollator, t_rulebasedcollator);
 
 void _init_collator(PyObject *m)
 {
-    CollationKeyType.tp_richcompare = (richcmpfunc) t_collationkey_richcmp;
-    CollatorType.tp_hash = (hashfunc) t_collator_hash;
-    RuleBasedCollatorType.tp_str = (reprfunc) t_rulebasedcollator_str;
-    RuleBasedCollatorType.tp_richcompare =
+    CollationKeyType_.tp_richcompare = (richcmpfunc) t_collationkey_richcmp;
+    CollatorType_.tp_hash = (hashfunc) t_collator_hash;
+    RuleBasedCollatorType_.tp_str = (reprfunc) t_rulebasedcollator_str;
+    RuleBasedCollatorType_.tp_richcompare =
         (richcmpfunc) t_rulebasedcollator_richcmp;
 
     INSTALL_CONSTANTS_TYPE(UCollationResult, m);

@@ -725,10 +725,10 @@ static int t_filterednormalizer2_init(t_filterednormalizer2 *self,
 
 void _init_normalizer(PyObject *m)
 {
-    NormalizerType.tp_richcompare = (richcmpfunc) t_normalizer_richcmp;
-    NormalizerType.tp_hash = (hashfunc) t_normalizer_hash;
-    NormalizerType.tp_iter = (getiterfunc) t_normalizer_iter;
-    NormalizerType.tp_iternext = (iternextfunc) t_normalizer_iter_next;
+    NormalizerType_.tp_richcompare = (richcmpfunc) t_normalizer_richcmp;
+    NormalizerType_.tp_hash = (hashfunc) t_normalizer_hash;
+    NormalizerType_.tp_iter = (getiterfunc) t_normalizer_iter;
+    NormalizerType_.tp_iternext = (iternextfunc) t_normalizer_iter_next;
 
     REGISTER_TYPE(Normalizer, m);
 #if U_ICU_VERSION_HEX >= 0x04040000

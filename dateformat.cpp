@@ -32,6 +32,18 @@
 #include "dateformat.h"
 #include "macros.h"
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
+DECLARE_CONSTANTS_TYPE(UDateRelativeDateTimeFormatterStyle);
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+DECLARE_CONSTANTS_TYPE(UDisplayContext);
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
+DECLARE_CONSTANTS_TYPE(UDateDirection);
+DECLARE_CONSTANTS_TYPE(UDateAbsoluteUnit);
+#endif
 
 /* DateFormatSymbols */
 
@@ -262,6 +274,27 @@ static PyMethodDef t_dateintervalformat_methods[] = {
 
 DECLARE_TYPE(DateIntervalFormat, t_dateintervalformat, Format,
              DateIntervalFormat, abstract_init, NULL);
+
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
+
+/* RelativeDateTimeFormatter */
+
+class t_relativedatetimeformatter : public _wrapper {
+public:
+    RelativeDateTimeFormatter *object;
+};
+
+static int t_relativedatetimeformatter_init(t_relativedatetimeformatter *self,
+                                            PyObject *args, PyObject *kwds);
+
+static PyMethodDef t_relativedatetimeformatter_methods[] = {
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(RelativeDateTimeFormatter, t_relativedatetimeformatter, UObject,
+             RelativeDateTimeFormatter, t_relativedatetimeformatter_init, NULL);
 
 #endif
 
@@ -1324,20 +1357,98 @@ DEFINE_RICHCMP(DateIntervalFormat, t_dateintervalformat);
 
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
+
+/* RelativeDateTimeFormatter */
+
+static int t_relativedatetimeformatter_init(t_relativedatetimeformatter *self,
+                                            PyObject *args, PyObject *kwds)
+{
+    Locale *locale;
+    RelativeDateTimeFormatter *fmt;
+    NumberFormat *number_format;
+    UDateRelativeDateTimeFormatterStyle style;
+    UDisplayContext context;
+
+    switch (PyTuple_Size(args)) {
+      case 0:
+        INT_STATUS_CALL(fmt = new RelativeDateTimeFormatter(status));
+        self->object = fmt;
+        self->flags = T_OWNED;
+        break;
+      case 1:
+        if (!parseArgs(args, "P", TYPE_CLASSID(Locale), &locale))
+        {
+            INT_STATUS_CALL(fmt = new RelativeDateTimeFormatter(*locale, status));
+            self->object = fmt;
+            self->flags = T_OWNED;
+            break;
+        }
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+      case 2:
+        if (!parseArgs(args, "PP", TYPE_CLASSID(Locale),
+                       TYPE_CLASSID(NumberFormat), &locale, &number_format))
+        {
+            INT_STATUS_CALL(fmt = new RelativeDateTimeFormatter(
+                *locale, (NumberFormat *) number_format->clone(), status));
+            self->object = fmt;
+            self->flags = T_OWNED;
+            break;
+        }
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+      case 4:
+        if (!parseArgs(args, "PPii", TYPE_CLASSID(Locale),
+                       TYPE_CLASSID(NumberFormat), &locale, &number_format,
+                       &style, &context))
+        {
+            INT_STATUS_CALL(fmt = new RelativeDateTimeFormatter(
+                *locale, (NumberFormat *) number_format->clone(),
+                style, context, status));
+            self->object = fmt;
+            self->flags = T_OWNED;
+            break;
+        }
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+      default:
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+    }
+        
+    if (self->object)
+        return 0;
+
+    return -1;
+}
+
+#endif
 
 void _init_dateformat(PyObject *m)
 {
-    DateFormatSymbolsType.tp_richcompare =
+    DateFormatSymbolsType_.tp_richcompare =
         (richcmpfunc) t_dateformatsymbols_richcmp;
-    SimpleDateFormatType.tp_str = (reprfunc) t_simpledateformat_str;
+    SimpleDateFormatType_.tp_str = (reprfunc) t_simpledateformat_str;
 #if U_ICU_VERSION_HEX >= 0x04000000
-    DateIntervalType.tp_str = (reprfunc) t_dateinterval_str;
-    DateIntervalType.tp_richcompare =
+    DateIntervalType_.tp_str = (reprfunc) t_dateinterval_str;
+    DateIntervalType_.tp_richcompare =
         (richcmpfunc) t_dateinterval_richcmp;
-    DateIntervalInfoType.tp_richcompare =
+    DateIntervalInfoType_.tp_richcompare =
         (richcmpfunc) t_dateintervalinfo_richcmp;
-    DateIntervalFormatType.tp_richcompare =
+    DateIntervalFormatType_.tp_richcompare =
         (richcmpfunc) t_dateintervalformat_richcmp;
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
+    INSTALL_CONSTANTS_TYPE(UDateRelativeDateTimeFormatterStyle, m);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+    INSTALL_CONSTANTS_TYPE(UDisplayContext, m);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
+    INSTALL_CONSTANTS_TYPE(UDateDirection, m);
+    INSTALL_CONSTANTS_TYPE(UDateAbsoluteUnit, m);
 #endif
 
     REGISTER_TYPE(DateFormatSymbols, m);
@@ -1347,6 +1458,9 @@ void _init_dateformat(PyObject *m)
     REGISTER_TYPE(DateInterval, m);
     REGISTER_TYPE(DateIntervalInfo, m);
     REGISTER_TYPE(DateIntervalFormat, m);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
+    INSTALL_TYPE(RelativeDateTimeFormatter, m);
 #endif
 
     INSTALL_STATIC_INT(DateFormatSymbols, FORMAT);
@@ -1423,5 +1537,46 @@ void _init_dateformat(PyObject *m)
     UErrorCode status = U_ZERO_ERROR;
     DateInterval_format =
         DateIntervalFormat::createInstance(UDAT_YEAR_ABBR_MONTH_DAY, status);
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
+    INSTALL_ENUM(UDateRelativeDateTimeFormatterStyle, "LONG", UDAT_STYLE_LONG);
+    INSTALL_ENUM(UDateRelativeDateTimeFormatterStyle, "SHORT", UDAT_STYLE_SHORT);
+    INSTALL_ENUM(UDateRelativeDateTimeFormatterStyle, "NARROW", UDAT_STYLE_NARROW);
+    INSTALL_ENUM(UDateRelativeDateTimeFormatterStyle, "COUNT", UDAT_STYLE_COUNT);
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+    INSTALL_ENUM(UDisplayContext, "STANDARD_NAMES", UDISPCTX_STANDARD_NAMES);
+    INSTALL_ENUM(UDisplayContext, "DIALECT_NAMES", UDISPCTX_DIALECT_NAMES);
+    INSTALL_ENUM(UDisplayContext, "CAPITALIZATION_NONE", UDISPCTX_CAPITALIZATION_NONE);
+    INSTALL_ENUM(UDisplayContext, "CAPITALIZATION_FOR_MIDDLE_OF_SENTENCE", UDISPCTX_CAPITALIZATION_FOR_MIDDLE_OF_SENTENCE);
+    INSTALL_ENUM(UDisplayContext, "CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE", UDISPCTX_CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE);
+    INSTALL_ENUM(UDisplayContext, "CAPITALIZATION_FOR_UI_LIST_OR_MENU", UDISPCTX_CAPITALIZATION_FOR_UI_LIST_OR_MENU);
+    INSTALL_ENUM(UDisplayContext, "CAPITALIZATION_FOR_STANDALONE", UDISPCTX_CAPITALIZATION_FOR_STANDALONE);
+    INSTALL_ENUM(UDisplayContext, "LENGTH_FULL", UDISPCTX_LENGTH_FULL);
+    INSTALL_ENUM(UDisplayContext, "LENGTH_SHORT", UDISPCTX_LENGTH_SHORT);
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
+    INSTALL_ENUM(UDateDirection, "LAST_2", UDAT_DIRECTION_LAST_2);
+    INSTALL_ENUM(UDateDirection, "LAST", UDAT_DIRECTION_LAST);
+    INSTALL_ENUM(UDateDirection, "THIS", UDAT_DIRECTION_THIS);
+    INSTALL_ENUM(UDateDirection, "NEXT", UDAT_DIRECTION_NEXT);
+    INSTALL_ENUM(UDateDirection, "NEXT_2", UDAT_DIRECTION_NEXT_2);
+    INSTALL_ENUM(UDateDirection, "PLAIN", UDAT_DIRECTION_PLAIN);
+
+    INSTALL_ENUM(UDateAbsoluteUnit, "SUNDAY", UDAT_ABSOLUTE_SUNDAY);
+    INSTALL_ENUM(UDateAbsoluteUnit, "MONDAY", UDAT_ABSOLUTE_MONDAY);
+    INSTALL_ENUM(UDateAbsoluteUnit, "TUESDAY", UDAT_ABSOLUTE_TUESDAY);
+    INSTALL_ENUM(UDateAbsoluteUnit, "WEDNESDAY", UDAT_ABSOLUTE_WEDNESDAY);
+    INSTALL_ENUM(UDateAbsoluteUnit, "THURSDAY", UDAT_ABSOLUTE_THURSDAY);
+    INSTALL_ENUM(UDateAbsoluteUnit, "FRIDAY", UDAT_ABSOLUTE_FRIDAY);
+    INSTALL_ENUM(UDateAbsoluteUnit, "SATURDAY", UDAT_ABSOLUTE_SATURDAY);
+    INSTALL_ENUM(UDateAbsoluteUnit, "DAY", UDAT_ABSOLUTE_DAY);
+    INSTALL_ENUM(UDateAbsoluteUnit, "WEEK", UDAT_ABSOLUTE_WEEK);
+    INSTALL_ENUM(UDateAbsoluteUnit, "MONTH", UDAT_ABSOLUTE_MONTH);
+    INSTALL_ENUM(UDateAbsoluteUnit, "YEAR", UDAT_ABSOLUTE_YEAR);
+    INSTALL_ENUM(UDateAbsoluteUnit, "NOW", UDAT_ABSOLUTE_NOW);
 #endif
 }

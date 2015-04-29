@@ -472,7 +472,7 @@ void registerType(PyTypeObject *type, classid id)
     PyDict_SetItem(types, n, list); Py_DECREF(list);
     PyDict_SetItem(types, (PyObject *) type, n);
 
-    while (type != &UObjectType) {
+    while (type != &UObjectType_) {
         type = type->tp_base;
         bn = PyDict_GetItem(types, (PyObject *) type);
         list = PyDict_GetItem(types, bn);
@@ -484,7 +484,7 @@ void registerType(PyTypeObject *type, classid id)
 
 int isInstance(PyObject *arg, classid id, PyTypeObject *type)
 {
-    if (PyObject_TypeCheck(arg, &UObjectType))
+    if (PyObject_TypeCheck(arg, &UObjectType_))
     {
 #if U_ICU_VERSION_HEX < 0x04060000
         classid oid = ((t_uobject *) arg)->object->getDynamicClassID();
@@ -638,7 +638,7 @@ static UnicodeString *toUnicodeStringArray(PyObject *arg, int *len)
         for (int i = 0; i < *len; i++) {
             PyObject *obj = PySequence_GetItem(arg, i);
             
-            if (PyObject_TypeCheck(obj, &UObjectType))
+            if (PyObject_TypeCheck(obj, &UObjectType_))
             {
                 array[i] = *(UnicodeString *) ((t_uobject *) obj)->object;
                 Py_DECREF(obj);
@@ -1074,7 +1074,7 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
               UnicodeString **u = va_arg(list, UnicodeString **);
               UnicodeString *_u = va_arg(list, UnicodeString *);
 
-              if (PyObject_TypeCheck(arg, &UObjectType))
+              if (PyObject_TypeCheck(arg, &UObjectType_))
                   *u = (UnicodeString *) ((t_uobject *) arg)->object;
               else
               {
@@ -1094,7 +1094,7 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
               UnicodeString **u = va_arg(list, UnicodeString **);
               PyObject **obj = va_arg(list, PyObject **);
 
-              if (PyObject_TypeCheck(arg, &UObjectType))
+              if (PyObject_TypeCheck(arg, &UObjectType_))
               {
                   *u = (UnicodeString *) ((t_uobject *) arg)->object;
                   Py_INCREF(arg); Py_XDECREF(*obj); *obj = arg;
@@ -1303,7 +1303,7 @@ PyObject *PyErr_SetArgsError(PyTypeObject *type, const char *name, PyObject *arg
 
 int isUnicodeString(PyObject *arg)
 {
-    return (PyObject_TypeCheck(arg, &UObjectType) &&
+    return (PyObject_TypeCheck(arg, &UObjectType_) &&
             ISINSTANCE(((t_uobject *) arg)->object, UnicodeString));
 }
 

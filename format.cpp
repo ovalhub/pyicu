@@ -1719,18 +1719,18 @@ static PyObject *t_listformatter_createInstance(PyTypeObject *type,
 
 void _init_format(PyObject *m)
 {
-    FieldPositionType.tp_richcompare = (richcmpfunc) t_fieldposition_richcmp;
-    ParsePositionType.tp_richcompare = (richcmpfunc) t_parseposition_richcmp;
-    FormatType.tp_richcompare = (richcmpfunc) t_format_richcmp;
-    MessageFormatType.tp_str = (reprfunc) t_messageformat_str;
-    MessageFormatType.tp_as_number = &t_messageformat_as_number;
-    MessageFormatType.tp_flags |= Py_TPFLAGS_CHECKTYPES;
+    FieldPositionType_.tp_richcompare = (richcmpfunc) t_fieldposition_richcmp;
+    ParsePositionType_.tp_richcompare = (richcmpfunc) t_parseposition_richcmp;
+    FormatType_.tp_richcompare = (richcmpfunc) t_format_richcmp;
+    MessageFormatType_.tp_str = (reprfunc) t_messageformat_str;
+    MessageFormatType_.tp_as_number = &t_messageformat_as_number;
+    MessageFormatType_.tp_flags |= Py_TPFLAGS_CHECKTYPES;
 #if U_ICU_VERSION_HEX >= 0x04000000
-    PluralRulesType.tp_richcompare = (richcmpfunc) t_pluralrules_richcmp;
-    PluralFormatType.tp_str = (reprfunc) t_pluralformat_str;
+    PluralRulesType_.tp_richcompare = (richcmpfunc) t_pluralrules_richcmp;
+    PluralFormatType_.tp_str = (reprfunc) t_pluralformat_str;
 #endif
 #if U_ICU_VERSION_HEX >= 0x04040000
-    SelectFormatType.tp_str = (reprfunc) t_selectformat_str;
+    SelectFormatType_.tp_str = (reprfunc) t_selectformat_str;
 #endif
 
     REGISTER_TYPE(FieldPosition, m);

@@ -39,8 +39,8 @@ public:
 
 void t_uobject_dealloc(t_uobject *self);
 
-extern PyTypeObject UObjectType;
-extern PyTypeObject FormattableType;
+extern PyTypeObject UObjectType_;
+extern PyTypeObject FormattableType_;
 
 PyObject *wrap_StringEnumeration(StringEnumeration *, int);
 PyObject *wrap_Formattable(Formattable *, int);

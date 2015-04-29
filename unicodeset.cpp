@@ -1185,7 +1185,7 @@ static PyObject *t_unicodeset_richcmp(t_unicodeset *self, PyObject *arg, int op)
 
 static PyObject *t_unicodeset_iter(t_unicodeset *self)
 {
-    return PyObject_CallFunctionObjArgs((PyObject *) &UnicodeSetIteratorType,
+    return PyObject_CallFunctionObjArgs((PyObject *) &UnicodeSetIteratorType_,
                                         (PyObject *) self, NULL);
 }
 
@@ -1370,14 +1370,14 @@ static PyObject *t_unicodesetiterator_iter_next(t_unicodesetiterator *self)
 
 void _init_unicodeset(PyObject *m)
 {
-    UnicodeSetType.tp_str = (reprfunc) t_unicodeset_str;
-    UnicodeSetType.tp_richcompare = (richcmpfunc) t_unicodeset_richcmp;
-    UnicodeSetType.tp_hash = (hashfunc) t_unicodeset_hash;
-    UnicodeSetType.tp_iter = (getiterfunc) t_unicodeset_iter;
-    UnicodeSetType.tp_as_sequence = &t_unicodeset_as_sequence;
-    UnicodeSetIteratorType.tp_iter =
+    UnicodeSetType_.tp_str = (reprfunc) t_unicodeset_str;
+    UnicodeSetType_.tp_richcompare = (richcmpfunc) t_unicodeset_richcmp;
+    UnicodeSetType_.tp_hash = (hashfunc) t_unicodeset_hash;
+    UnicodeSetType_.tp_iter = (getiterfunc) t_unicodeset_iter;
+    UnicodeSetType_.tp_as_sequence = &t_unicodeset_as_sequence;
+    UnicodeSetIteratorType_.tp_iter =
         (getiterfunc) t_unicodesetiterator_iter;
-    UnicodeSetIteratorType.tp_iternext =
+    UnicodeSetIteratorType_.tp_iternext =
         (iternextfunc) t_unicodesetiterator_iter_next;
 
     INSTALL_CONSTANTS_TYPE(UMatchDegree, m);

@@ -293,7 +293,7 @@ static PyObject *PyInit_icu(PyObject *m)
     _init_char(m);
     _init_shape(m);
 
-    PyObject *method = PyObject_GetAttrString((PyObject *) &UObjectType,
+    PyObject *method = PyObject_GetAttrString((PyObject *) &UObjectType_,
                                               "getDynamicClassID");
 
     _method_type = method->ob_type;

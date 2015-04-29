@@ -584,10 +584,10 @@ DEFINE_RICHCMP(StringSearch, t_stringsearch);
 
 void _init_search(PyObject *m)
 {
-    SearchIteratorType.tp_iter = (getiterfunc) t_searchiterator_iter;
-    SearchIteratorType.tp_iternext = (iternextfunc) t_searchiterator_iter_next;
-    StringSearchType.tp_str = (reprfunc) t_stringsearch_str;
-    StringSearchType.tp_richcompare = (richcmpfunc) t_stringsearch_richcmp;
+    SearchIteratorType_.tp_iter = (getiterfunc) t_searchiterator_iter;
+    SearchIteratorType_.tp_iternext = (iternextfunc) t_searchiterator_iter_next;
+    StringSearchType_.tp_str = (reprfunc) t_stringsearch_str;
+    StringSearchType_.tp_richcompare = (richcmpfunc) t_stringsearch_richcmp;
 
     INSTALL_CONSTANTS_TYPE(USearchAttribute, m);
     INSTALL_CONSTANTS_TYPE(USearchAttributeValue, m);

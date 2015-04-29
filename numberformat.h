@@ -24,7 +24,7 @@
 #ifndef _numberformat_h
 #define _numberformat_h
 
-extern PyTypeObject NumberFormatType;
+extern PyTypeObject NumberFormatType_;
 
 PyObject *wrap_NumberFormat(NumberFormat *, int);
 PyObject *wrap_DecimalFormat(DecimalFormat *, int);

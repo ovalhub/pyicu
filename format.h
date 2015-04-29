@@ -29,11 +29,11 @@ public:
     Format *object;
 };
 
-extern PyTypeObject FormatType;
-extern PyTypeObject FieldPositionType;
-extern PyTypeObject ParsePositionType;
+extern PyTypeObject FormatType_;
+extern PyTypeObject FieldPositionType_;
+extern PyTypeObject ParsePositionType_;
 #if U_ICU_VERSION_HEX >= 0x04000000
-extern PyTypeObject PluralRulesType;
+extern PyTypeObject PluralRulesType_;
 #endif
 
 PyObject *t_format_format(t_format *self, PyObject *args);

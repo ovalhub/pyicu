@@ -24,9 +24,9 @@
 #ifndef _iterators_h
 #define _iterators_h
 
-extern PyTypeObject BreakIteratorType;
-extern PyTypeObject CharacterIteratorType;
-extern PyTypeObject CollationElementIteratorType;
+extern PyTypeObject BreakIteratorType_;
+extern PyTypeObject CharacterIteratorType_;
+extern PyTypeObject CollationElementIteratorType_;
 
 PyObject *wrap_CollationElementIterator(CollationElementIterator *, int);
 

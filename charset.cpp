@@ -339,7 +339,7 @@ static PyObject *t_charsetmatch_str(t_charsetmatch *self)
 
 void _init_charset(PyObject *m)
 {
-    CharsetMatchType.tp_str = (reprfunc) t_charsetmatch_str;
+    CharsetMatchType_.tp_str = (reprfunc) t_charsetmatch_str;
 
     INSTALL_STRUCT(CharsetDetector, m);
     INSTALL_STRUCT(CharsetMatch, m);

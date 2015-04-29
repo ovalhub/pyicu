@@ -29,8 +29,8 @@ public:
     TimeZone *object;
 };
 
-extern PyTypeObject CalendarType;
-extern PyTypeObject TimeZoneType;
+extern PyTypeObject CalendarType_;
+extern PyTypeObject TimeZoneType_;
 
 
 PyObject *wrap_Calendar(Calendar *, int);
