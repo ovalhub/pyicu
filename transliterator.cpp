@@ -588,12 +588,25 @@ static PyObject *t_transliterator_createInstance(PyTypeObject *type,
 {
     Transliterator *transliterator;
     UnicodeString *u, _u;
-    UTransDirection direction;
+    UTransDirection direction = UTRANS_FORWARD;
 
-    if (!parseArgs(args, "Si", &u, &_u, &direction))
-    {
-        STATUS_CALL(transliterator = Transliterator::createInstance(*u, direction, status));
-        return wrap_Transliterator(transliterator);
+    switch (PyTuple_Size(args)) {
+      case 1:
+        if (!parseArgs(args, "S", &u, &_u))
+        {
+            STATUS_CALL(transliterator = Transliterator::createInstance(
+                *u, direction, status));
+            return wrap_Transliterator(transliterator);
+        }
+        break;
+      case 2:
+        if (!parseArgs(args, "Si", &u, &_u, &direction))
+        {
+            STATUS_CALL(transliterator = Transliterator::createInstance(
+                *u, direction, status));
+            return wrap_Transliterator(transliterator);
+        }
+        break;
     }
 
     return PyErr_SetArgsError(type, "createInstance", args);
@@ -605,12 +618,25 @@ static PyObject *t_transliterator_createFromRules(PyTypeObject *type,
     Transliterator *transliterator;
     UnicodeString *u0, _u0;
     UnicodeString *u1, _u1;
-    UTransDirection direction;
+    UTransDirection direction = UTRANS_FORWARD;
 
-    if (!parseArgs(args, "SSi", &u0, &_u0, &u1, &_u1, &direction))
-    {
-        STATUS_PARSER_CALL(transliterator = Transliterator::createFromRules(*u0, *u1, direction, parseError, status));
-        return wrap_Transliterator(transliterator);
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "SS", &u0, &_u0, &u1, &_u1))
+        {
+            STATUS_PARSER_CALL(transliterator = Transliterator::createFromRules(
+                *u0, *u1, direction, parseError, status));
+            return wrap_Transliterator(transliterator);
+        }
+        break;
+      case 3:
+        if (!parseArgs(args, "SSi", &u0, &_u0, &u1, &_u1, &direction))
+        {
+            STATUS_PARSER_CALL(transliterator = Transliterator::createFromRules(
+                *u0, *u1, direction, parseError, status));
+            return wrap_Transliterator(transliterator);
+        }
+        break;
     }
 
     return PyErr_SetArgsError(type, "createFromRules", args);

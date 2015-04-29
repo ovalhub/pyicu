@@ -43,6 +43,7 @@ DECLARE_CONSTANTS_TYPE(UDisplayContext);
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
 DECLARE_CONSTANTS_TYPE(UDateDirection);
 DECLARE_CONSTANTS_TYPE(UDateAbsoluteUnit);
+DECLARE_CONSTANTS_TYPE(UDateRelativeUnit);
 #endif
 
 /* DateFormatSymbols */
@@ -288,8 +289,23 @@ public:
 
 static int t_relativedatetimeformatter_init(t_relativedatetimeformatter *self,
                                             PyObject *args, PyObject *kwds);
+static PyObject *t_relativedatetimeformatter_format(
+    t_relativedatetimeformatter *self, PyObject *args);
+static PyObject *t_relativedatetimeformatter_combineDateAndTime(
+    t_relativedatetimeformatter *self, PyObject *args);
+static PyObject *t_relativedatetimeformatter_getNumberFormat(
+    t_relativedatetimeformatter *self);
+static PyObject *t_relativedatetimeformatter_getCapitalizationContext(
+    t_relativedatetimeformatter *self);
+static PyObject *t_relativedatetimeformatter_getFormatStyle(
+    t_relativedatetimeformatter *self);
 
 static PyMethodDef t_relativedatetimeformatter_methods[] = {
+    DECLARE_METHOD(t_relativedatetimeformatter, format, METH_VARARGS),
+    DECLARE_METHOD(t_relativedatetimeformatter, combineDateAndTime, METH_VARARGS),
+    DECLARE_METHOD(t_relativedatetimeformatter, getNumberFormat, METH_NOARGS),
+    DECLARE_METHOD(t_relativedatetimeformatter, getCapitalizationContext, METH_NOARGS),
+    DECLARE_METHOD(t_relativedatetimeformatter, getFormatStyle, METH_NOARGS),
     { NULL, NULL, 0, NULL }
 };
 
@@ -1423,6 +1439,120 @@ static int t_relativedatetimeformatter_init(t_relativedatetimeformatter *self,
     return -1;
 }
 
+static PyObject *t_relativedatetimeformatter_format(
+    t_relativedatetimeformatter *self, PyObject *args)
+{
+    UDateDirection direction = UDAT_DIRECTION_PLAIN;
+    UDateAbsoluteUnit abs_unit = UDAT_ABSOLUTE_NOW;
+    UDateRelativeUnit rel_unit = UDAT_RELATIVE_SECONDS;
+    UnicodeString *buffer;
+    double value;
+
+    switch (PyTuple_Size(args)) {
+      case 0: {
+        UnicodeString result;
+
+        STATUS_CALL(self->object->format(direction, abs_unit, result, status));
+        return PyUnicode_FromUnicodeString(&result);
+      }
+      case 1:
+        if (!parseArgs(args, "d", &value))
+        {
+            UnicodeString result;
+
+            STATUS_CALL(self->object->format(
+              value, UDAT_DIRECTION_NEXT, rel_unit, result, status));
+            return PyUnicode_FromUnicodeString(&result);
+        }
+        break;
+      case 2:
+        if (!parseArgs(args, "ii", &direction, &abs_unit))
+        {
+            UnicodeString result;
+
+            STATUS_CALL(self->object->format(
+                direction, abs_unit, result, status));
+            return PyUnicode_FromUnicodeString(&result);
+        }
+        break;
+      case 3:
+        if (!parseArgs(args, "iiU", &direction, &abs_unit, &buffer))
+        {
+            STATUS_CALL(self->object->format(
+                direction, abs_unit, *buffer, status));
+            Py_RETURN_ARG(args, 2);
+        }
+        if (!parseArgs(args, "dii", &value, &direction, &rel_unit))
+        {
+            UnicodeString result;
+
+            STATUS_CALL(self->object->format(
+                value, direction, rel_unit, result, status));
+            return PyUnicode_FromUnicodeString(&result);
+        }
+        break;
+      case 4:
+        if (!parseArgs(args, "diiU", &value, &direction, &rel_unit, &buffer))
+        {
+            STATUS_CALL(self->object->format(
+                value, direction, rel_unit, *buffer, status));
+            Py_RETURN_ARG(args, 3);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "format", args);
+}
+
+static PyObject *t_relativedatetimeformatter_combineDateAndTime(
+    t_relativedatetimeformatter *self, PyObject *args)
+{
+    UnicodeString *u, _u, *v, _v;
+    UnicodeString *buffer;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "SS", &u, &_u, &v, &_v))
+        {
+            UnicodeString result;
+
+            STATUS_CALL(self->object->combineDateAndTime(
+                *u, *v, result, status));
+            return PyUnicode_FromUnicodeString(&result);
+        }
+        break;
+      case 3:
+        if (!parseArgs(args, "SSU", &u, &_u, &v, &_v, &buffer))
+        {
+            STATUS_CALL(self->object->combineDateAndTime(
+                *u, *v, *buffer, status));
+            Py_RETURN_ARG(args, 2);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "combineDateAndTime", args);
+}
+
+static PyObject *t_relativedatetimeformatter_getNumberFormat(
+    t_relativedatetimeformatter *self)
+{
+    const NumberFormat &format = self->object->getNumberFormat();
+    return wrap_NumberFormat(const_cast<NumberFormat *>(&format), 0);
+}
+
+static PyObject *t_relativedatetimeformatter_getCapitalizationContext(
+    t_relativedatetimeformatter *self)
+{
+    return PyInt_FromLong(self->object->getCapitalizationContext());
+}
+
+static PyObject *t_relativedatetimeformatter_getFormatStyle(
+    t_relativedatetimeformatter *self)
+{
+    return PyInt_FromLong(self->object->getFormatStyle());
+}
+
 #endif
 
 void _init_dateformat(PyObject *m)
@@ -1449,6 +1579,7 @@ void _init_dateformat(PyObject *m)
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
     INSTALL_CONSTANTS_TYPE(UDateDirection, m);
     INSTALL_CONSTANTS_TYPE(UDateAbsoluteUnit, m);
+    INSTALL_CONSTANTS_TYPE(UDateRelativeUnit, m);
 #endif
 
     REGISTER_TYPE(DateFormatSymbols, m);
@@ -1578,5 +1709,13 @@ void _init_dateformat(PyObject *m)
     INSTALL_ENUM(UDateAbsoluteUnit, "MONTH", UDAT_ABSOLUTE_MONTH);
     INSTALL_ENUM(UDateAbsoluteUnit, "YEAR", UDAT_ABSOLUTE_YEAR);
     INSTALL_ENUM(UDateAbsoluteUnit, "NOW", UDAT_ABSOLUTE_NOW);
+
+    INSTALL_ENUM(UDateRelativeUnit, "SECONDS", UDAT_RELATIVE_SECONDS);
+    INSTALL_ENUM(UDateRelativeUnit, "MINUTES", UDAT_RELATIVE_MINUTES);
+    INSTALL_ENUM(UDateRelativeUnit, "HOURS", UDAT_RELATIVE_HOURS);
+    INSTALL_ENUM(UDateRelativeUnit, "DAYS", UDAT_RELATIVE_DAYS);
+    INSTALL_ENUM(UDateRelativeUnit, "WEEKS", UDAT_RELATIVE_WEEKS);
+    INSTALL_ENUM(UDateRelativeUnit, "MONTHS", UDAT_RELATIVE_MONTHS);
+    INSTALL_ENUM(UDateRelativeUnit, "YEARS", UDAT_RELATIVE_YEARS);
 #endif
 }
