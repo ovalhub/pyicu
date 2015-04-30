@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # ====================================================================
-# Copyright (c) 2009-2010 Open Source Applications Foundation.
+# Copyright (c) 2009-2015 Open Source Applications Foundation.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -32,8 +32,7 @@ class TestTransliterator(TestCase):
 
     def testTransliterate(self):
 
-        trans = Transliterator.createInstance('Accents-Any',
-                                              UTransDirection.FORWARD)
+        trans = Transliterator.createInstance('Accents-Any')
         inverse = trans.createInverse()
 
         string = u'\xe9v\xe9nement'
@@ -47,8 +46,7 @@ class TestTransliterator(TestCase):
 
     def testUnicodeString(self):
 
-        trans = Transliterator.createInstance('NumericPinyin-Latin',
-                                              UTransDirection.FORWARD)
+        trans = Transliterator.createInstance('NumericPinyin-Latin')
         string = UnicodeString("Shang4hai3 zi4lai2shui3 lai2 zi4 hai3 shang4")
         result = u'Sh\xe0ngh\u01cei z\xecl\xe1ishu\u01d0 l\xe1i z\xec h\u01cei sh\xe0ng'
 
@@ -78,8 +76,7 @@ class TestTransliterator(TestCase):
         # test registration
         Transliterator.registerInstance(trans)
 
-        regTrans = Transliterator.createInstance("vowel",
-                                                 UTransDirection.FORWARD)
+        regTrans = Transliterator.createInstance("vowel")
 
         self.assertTrue(regTrans.transliterate(string) == result)
 
