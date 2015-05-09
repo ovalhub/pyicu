@@ -724,6 +724,7 @@ static PyObject *t_char_foldCase(PyTypeObject *type, PyObject *args)
         
             return PyUnicode_FromUnicodeString(&result);
         }
+        break;
       case 2:
         if (!parseArgs(args, "ii", &c, &options))
             return PyInt_FromLong(u_foldCase(c, options));
@@ -734,6 +735,7 @@ static PyObject *t_char_foldCase(PyTypeObject *type, PyObject *args)
         
             return PyUnicode_FromUnicodeString(&result);
         }
+        break;
     }
 
     return PyErr_SetArgsError((PyObject *) type, "foldCase", args);

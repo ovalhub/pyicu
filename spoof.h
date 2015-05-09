@@ -24,8 +24,6 @@
 #ifndef _spoof_h
 #define _spoof_h
 
-extern PyTypeObject SpoofType;
-
 PyObject *wrap_Spoof(NumberFormat *, int);
 
 void _init_spoof(PyObject *m);
