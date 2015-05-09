@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2011 Open Source Applications Foundation.
+ * Copyright (c) 2004-2015 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -1573,9 +1573,11 @@ void _init_dateformat(PyObject *m)
 #if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
     INSTALL_CONSTANTS_TYPE(UDateRelativeDateTimeFormatterStyle, m);
 #endif
+
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
     INSTALL_CONSTANTS_TYPE(UDisplayContext, m);
 #endif
+
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
     INSTALL_CONSTANTS_TYPE(UDateDirection, m);
     INSTALL_CONSTANTS_TYPE(UDateAbsoluteUnit, m);

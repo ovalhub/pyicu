@@ -1,7 +1,7 @@
 
 For bug <NUM>, see http://bugzilla.osafoundation.org/show_bug.cgi?id=<NUM>
 
-Version 1.8 -> 
+Version 1.8 -> 1.9
 ------------------
   - fixed utf-8 conversion error position reporting (bug 13113)
   - fixed delete/delete[] bug in common.cpp (Fredrik Roubert)
@@ -10,9 +10,9 @@ Version 1.8 ->
   - added support for ICU 55.1
   - replaced UnicodeString idna methods with new uidna.h UTS #46 wrapper (55.1)
   - added wrapper for Char functions and related enums (from uchar.h)
-  - added wrapper for Shape defines and shapeArabic (from ushape.h)
+  - added wrapper for Shape defines and shapeArabic() (from ushape.h)
   - added wrapper for RelativeDateTimeFormatter (bug 13115)
-  - 
+  - build tested with Python 2.7.5, Python 3.3.0 and PyPy 2.2.1
 
 Version 1.7 -> 1.8
 ------------------
