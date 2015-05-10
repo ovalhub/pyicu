@@ -84,7 +84,9 @@ static PyObject *t_char_isbase(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_charDirection(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_isMirrored(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_charMirror(PyTypeObject *type, PyObject *arg);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(52, 0, 0)
 static PyObject *t_char_getBidiPairedBracket(PyTypeObject *type, PyObject *arg);
+#endif
 static PyObject *t_char_charType(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_enumCharTypes(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_getCombiningClass(PyTypeObject *type, PyObject *arg);
@@ -140,7 +142,9 @@ static PyMethodDef t_char_methods[] = {
     DECLARE_METHOD(t_char, charDirection, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, isMirrored, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, charMirror, METH_O | METH_CLASS),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(52, 0, 0)
     DECLARE_METHOD(t_char, getBidiPairedBracket, METH_O | METH_CLASS),
+#endif
     DECLARE_METHOD(t_char, charType, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, enumCharTypes, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, getCombiningClass, METH_O | METH_CLASS),
@@ -687,10 +691,12 @@ static PyObject *t_char_charMirror(PyTypeObject *type, PyObject *arg)
     return t_char_fn(u_charMirror, "charMirror", type, arg);
 }
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(52, 0, 0)
 static PyObject *t_char_getBidiPairedBracket(PyTypeObject *type, PyObject *arg)
 {
     return t_char_fn(u_getBidiPairedBracket, "getBidiPairedBracket", type, arg);
 }
+#endif
 
 static PyObject *t_char_tolower(PyTypeObject *type, PyObject *arg)
 {
