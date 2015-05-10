@@ -86,7 +86,6 @@ else:
 setup(name="PyICU",
       description='Python extension wrapping the ICU C++ API',
       long_description=open('README.md').read(),
-      data_files=['README.md'],
       version=VERSION,
       test_suite="test",
       url='http://pyicu.osafoundation.org/',
