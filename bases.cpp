@@ -51,7 +51,7 @@ static PyMethodDef t_uobject_methods[] = {
 };
 
 static PyGetSetDef t_uobject_properties[] = {
-    { "owned", (getter) t_uobject__getOwned, NULL, "", NULL },
+    { (char *) "owned", (getter) t_uobject__getOwned, NULL, (char *) "", NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 

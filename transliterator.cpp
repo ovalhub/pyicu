@@ -178,12 +178,12 @@ void PythonTransliterator::handleTransliterate(Replaceable& text,
 static int t_utransposition_init(t_utransposition *self,
                                  PyObject *args, PyObject *kwds)
 {
-    static char *kwnames[] = {
+    static const char *kwnames[] = {
         "contextStart", "contextLimit", "start", "limit", NULL
     };
     int contextStart = 0, contextLimit = 0, start = 0, limit = 0;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|iiii", kwnames,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|iiii", (char **) kwnames,
                                      &contextStart, &contextLimit,
                                      &start, &limit))
         return -1;
@@ -273,25 +273,25 @@ static int t_utransposition_setStart(t_utransposition *self,
 }
 
 static PyGetSetDef t_utransposition_properties[] = {
-    {"contextLimit",
+    {(char *) "contextLimit",
      (getter) t_utransposition_getContextLimit,
      (setter) t_utransposition_setContextLimit,
-     "Ending index, exclusive, of the context to be considered for a transliteration operation.",
+     (char *) "Ending index, exclusive, of the context to be considered for a transliteration operation.",
      NULL},
-    {"contextStart",
+    {(char *) "contextStart",
      (getter) t_utransposition_getContextStart,
      (setter) t_utransposition_setContextStart,
-     "Beginning index, inclusive, of the context to be considered for a transliteration operation.",
+     (char *) "Beginning index, inclusive, of the context to be considered for a transliteration operation.",
      NULL},
-    {"limit",
+    {(char *) "limit",
      (getter) t_utransposition_getLimit,
      (setter) t_utransposition_setLimit,
-     "Ending index, exclusive, of the text to be transliterated.",
+     (char *) "Ending index, exclusive, of the text to be transliterated.",
      NULL},
-    {"start",
+    {(char *) "start",
      (getter) t_utransposition_getStart,
      (setter) t_utransposition_setStart,
-     "Beginning index, inclusive, of the text to be transliterated.",
+     (char *) "Beginning index, inclusive, of the text to be transliterated.",
      NULL},
     {NULL}  /* Sentinel */
 };

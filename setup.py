@@ -18,7 +18,7 @@ INCLUDES = {
 }
 
 CFLAGS = {
-    'darwin': ['-Wno-write-strings', '-DPYICU_VER="%s"' %(VERSION)],
+    'darwin': ['-Wwrite-strings', '-DPYICU_VER="%s"' %(VERSION)],
     'linux': ['-DPYICU_VER="%s"' %(VERSION)],
     'freebsd': ['-DPYICU_VER="%s"' %(VERSION)],
     'win32': ['/Zc:wchar_t', '/EHsc', '/DPYICU_VER=\\"%s\\"' %(VERSION)],

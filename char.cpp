@@ -270,7 +270,7 @@ static PyObject *t_char_getNumericValue(PyTypeObject *type, PyObject *arg)
     return PyFloat_FromDouble(value);
 }
 
-static PyObject *t_char_fn(bool_char_fn fn, char *name,
+static PyObject *t_char_fn(bool_char_fn fn, const char *name,
                            PyTypeObject *type, PyObject *arg)
 {
     UnicodeString *u, _u;
@@ -422,7 +422,7 @@ static UBool t_char_enum_types_cb(
     const void *context, UChar32 start, UChar32 limit, UCharCategory type)
 {
     PyObject *obj = PyObject_CallFunction(
-        (PyObject *) context, "iii", start, limit, type);
+        (PyObject *) context, (char *) "iii", start, limit, type);
 
     if (obj == NULL)
         return false;
@@ -562,7 +562,8 @@ static UBool t_char_enum_names_cb(
     const char *name, int32_t length)
 {
     PyObject *obj = PyObject_CallFunction(
-        (PyObject *) context, "is#i", code, name, (int) length, choice);
+        (PyObject *) context, (char *) "is#i", code, name, (int) length,
+        choice);
 
     if (obj == NULL)
         return false;
@@ -667,7 +668,7 @@ static PyObject *t_char_getPropertyEnum(PyTypeObject *type, PyObject *arg)
     return PyErr_SetArgsError((PyObject *) type, "getPropertyEnum", arg);
 }
 
-static PyObject *t_char_fn(uchar32_char_fn fn, char *name,
+static PyObject *t_char_fn(uchar32_char_fn fn, const char *name,
                            PyTypeObject *type, PyObject *arg)
 {
     UnicodeString *u, _u;

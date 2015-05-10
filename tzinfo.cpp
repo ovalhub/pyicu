@@ -98,10 +98,10 @@ static PyMethodDef t_tzinfo_methods[] = {
 };
 
 static PyGetSetDef t_tzinfo_properties[] = {
-    { "timezone", (getter) t_tzinfo__getTimezone, NULL,
-      "timezone property", NULL },
-    { "tzid", (getter) t_tzinfo__getTZID, NULL,
-      "tzid property", NULL },
+    { (char *) "timezone", (getter) t_tzinfo__getTimezone, NULL,
+      (char *) "timezone property", NULL },
+    { (char *) "tzid", (getter) t_tzinfo__getTZID, NULL,
+      (char *) "tzid property", NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -168,7 +168,8 @@ static PyObject *t_floatingtz__getTimezone(t_floatingtz *self, void *data);
 static PyObject *t_floatingtz__getTZID(t_floatingtz *self, void *data);
 
 static PyMemberDef t_floatingtz_members[] = {
-    { "tzinfo", T_OBJECT, offsetof(t_floatingtz, tzinfo), 0, "" },
+    { (char *) "tzinfo", T_OBJECT, offsetof(t_floatingtz, tzinfo), 0,
+      (char *) "" },
     { NULL, 0, 0, 0, NULL }
 };
 
@@ -180,10 +181,10 @@ static PyMethodDef t_floatingtz_methods[] = {
 };
 
 static PyGetSetDef t_floatingtz_properties[] = {
-    { "timezone", (getter) t_floatingtz__getTimezone, NULL,
-      "timezone property", NULL },
-    { "tzid", (getter) t_floatingtz__getTZID, NULL,
-      "tzid property", NULL },
+    { (char *) "timezone", (getter) t_floatingtz__getTimezone, NULL,
+      (char *) "timezone property", NULL },
+    { (char *) "tzid", (getter) t_floatingtz__getTZID, NULL,
+      (char *) "tzid property", NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 

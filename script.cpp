@@ -219,7 +219,7 @@ static PyObject *t_script_getScript(PyTypeObject *type, PyObject *arg)
   
         STATUS_CALL(code = uscript_getScript(u->char32At(0), &status));
 
-        return PyObject_CallFunction((PyObject *) type, "i", code);
+        return PyObject_CallFunction((PyObject *) type, (char *) "i", code);
     }
 
     return PyErr_SetArgsError((PyObject *) type, "getScript", arg);
