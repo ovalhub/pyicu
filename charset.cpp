@@ -323,12 +323,12 @@ static PyObject *t_charsetmatch_str(t_charsetmatch *self)
         size = ucsdet_getUChars(self->object, buf, size, &status);
         if (U_FAILURE(status))
         {
-            delete buf;
+            delete[] buf;
             return ICUException(status).reportError();
         }
         
         u = PyUnicode_FromUnicodeString(buf, size);
-        delete buf;
+        delete[] buf;
 
         return u;
     }
