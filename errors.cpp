@@ -72,7 +72,7 @@ static void registerErrors(PyObject *messages)
     _setMsg(messages, U_CE_NOT_FOUND_ERROR, "Currently used only while setting variable top, but can be used generally");
     _setMsg(messages, U_PRIMARY_TOO_LONG_ERROR, "User tried to set variable top to a primary that is longer than two bytes");
     _setMsg(messages, U_STATE_TOO_OLD_ERROR, "ICU cannot construct a service from this state, as it is no longer supported");
-    _setMsg(messages, U_TOO_MANY_ALIASES_ERROR, "There are too many aliases in the path to the requested resource. It is very possible that a circular alias definition has occured");
+    _setMsg(messages, U_TOO_MANY_ALIASES_ERROR, "There are too many aliases in the path to the requested resource. It is very possible that a circular alias definition has occurred");
     _setMsg(messages, U_ENUM_OUT_OF_SYNC_ERROR, "UEnumeration out of sync with underlying collection");
     _setMsg(messages, U_INVARIANT_CONVERSION_ERROR, "Unable to convert a UChar* string to char* with the invariant converter.");
     _setMsg(messages, U_INVALID_STATE_ERROR, "Requested operation can not be completed with ICU in its current state");
