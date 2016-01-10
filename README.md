@@ -91,22 +91,22 @@ used to translate from the C++ APIs to the corresponding Python APIs.
 
     1. The ICU way
 
-        >>> from icu import UnicodeString, Locale
-        >>> locale = Locale('pt_BR')
-        >>> string = UnicodeString()
-        >>> name = locale.getDisplayName(string)
-        >>> name
-        <UnicodeString: Portuguese (Brazil)>
-        >>> name is string
-        True                  <-- string arg was returned, modified in place
+            >>> from icu import UnicodeString, Locale
+            >>> locale = Locale('pt_BR')
+            >>> string = UnicodeString()
+            >>> name = locale.getDisplayName(string)
+            >>> name
+            <UnicodeString: Portuguese (Brazil)>
+            >>> name is string
+            True                  <-- string arg was returned, modified in place
 
     2. The Python way
 
-        >>> from icu import Locale
-        >>> locale = Locale('pt_BR')
-        >>> name = locale.getDisplayName()
-        >>> name
-        u'Portuguese (Brazil)'
+            >>> from icu import Locale
+            >>> locale = Locale('pt_BR')
+            >>> name = locale.getDisplayName()
+            >>> name
+            u'Portuguese (Brazil)'
 
         A ``UnicodeString`` object was allocated and converted to a Python
         ``unicode`` object.
@@ -202,29 +202,29 @@ used to translate from the C++ APIs to the corresponding Python APIs.
 
     For example, let ``e`` be a ``StringEnumeration`` instance::
 
-      [s for s in e] is a list of 'str' objects
-      [s for s in iter(e.unext, None)] is a list of 'unicode' objects
-      [s for s in iter(e.snext, None)] is a list of 'UnicodeString' objects
+        [s for s in e] is a list of 'str' objects
+        [s for s in iter(e.unext, None)] is a list of 'unicode' objects
+        [s for s in iter(e.snext, None)] is a list of 'UnicodeString' objects
 
   - timezones
 
     The ICU ``TimeZone`` type may be wrapped with an ``ICUtzinfo`` type for
     usage with Python's ``datetime`` type. For example::
 
-       tz = ICUtzinfo(TimeZone.createTimeZone('US/Mountain'))
-       datetime.now(tz)
+        tz = ICUtzinfo(TimeZone.createTimeZone('US/Mountain'))
+        datetime.now(tz)
 
     or, even simpler::
 
-       tz = ICUtzinfo.getInstance('Pacific/Fiji')
-       datetime.now(tz)
+        tz = ICUtzinfo.getInstance('Pacific/Fiji')
+        datetime.now(tz)
 
     To get the default time zone use::
 
-       defaultTZ = ICUtzinfo.getDefault()
+        defaultTZ = ICUtzinfo.getDefault()
 
     To get the time zone's id, use the ``tzid`` attribute or coerce the time
     zone to a string::
 
-       ICUtzinfo.getInstance('Pacific/Fiji').tzid -> 'Pacific/Fiji'
-       str(ICUtzinfo.getInstance('Pacific/Fiji')) -> 'Pacific/Fiji'
+        ICUtzinfo.getInstance('Pacific/Fiji').tzid -> 'Pacific/Fiji'
+        str(ICUtzinfo.getInstance('Pacific/Fiji')) -> 'Pacific/Fiji'
