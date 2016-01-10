@@ -23,7 +23,7 @@ Version 1.8 -> 1.9
 Version 1.7 -> 1.8
 ------------------
   - added wrapper for Locale::getRoot()
-  - added tp_hash implemention for Locale type based on Locale::hashCode()
+  - added tp_hash implementation for Locale type based on Locale::hashCode()
   - fixed bug 13112 (Markus Scherer)
   - added support for building with PyPy (tested on PyPy 2.2.1 / Python 2.7.3)
   - added Locale(lcid) constructor calling uloc_getLocaleForLCID()
@@ -187,7 +187,7 @@ Version 0.4 -> 0.5
   - added Collator.getCollationKey(string) overload
   - using u_strFromUTF32() now to convert 4 byte unicode to 2 byte unicode
   - improved support for Python 2.3
-  - PyICU no longers uses SWIG, wrappers are written by hand
+  - PyICU no longer uses SWIG, wrappers are written by hand
   - all APIs returning UnicodeString now return 'unicode'
   - all APIs returning UnicodeString also take a UnicodeString arg to return it
 

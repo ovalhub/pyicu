@@ -447,7 +447,7 @@ PyObject *t_timezone_createTimeZone(PyTypeObject *type, PyObject *arg)
          * Only an Olson ID can be used with createTimeZone().
          * If GMT is returned, it means the requested id was incorrect.
          * Matching it with the default timezone increases the likelihood of
-         * returning a sensical timezone with the intended raw offset as the
+         * returning a sensible timezone with the intended raw offset as the
          * non-Olson requested id is likely to have come from the OS's default
          * timezone id in the first place.
          */
