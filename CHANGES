@@ -1,6 +1,10 @@
 
 For bug <NUM>, see http://bugzilla.osafoundation.org/show_bug.cgi?id=<NUM>
 
+Version 1.9.2 ->
+--------------------
+  - added missing conditionals around uses of features in newer ICU versions
+
 Version 1.9 -> 1.9.2
 --------------------
   - added MANIFEST.in to ensure nothing's missing in the 'sdist' package
