@@ -4,6 +4,8 @@ For bug <NUM>, see http://bugzilla.osafoundation.org/show_bug.cgi?id=<NUM>
 Version 1.9.2 ->
 --------------------
   - added missing conditionals around uses of features in newer ICU versions
+  - added wrappers for TimeZone::getIDForWindowsID, TimeZone::getWindowsID
+  - 
 
 Version 1.9 -> 1.9.2
 --------------------
