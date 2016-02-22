@@ -55,7 +55,7 @@ static PyObject *t_timezone_getEquivalentID(PyTypeObject *type, PyObject *args);
 #if U_ICU_VERSION_HEX >= VERSION_HEX(52, 0, 0)
 static PyObject *t_timezone_getIDForWindowsID(PyTypeObject *type,
                                               PyObject *args);
-static PyObject *t_timezone_getWindowsID(PyTypeObject *type, PyObject *args);
+static PyObject *t_timezone_getWindowsID(PyTypeObject *type, PyObject *arg);
 #endif
 static PyObject *t_timezone_createDefault(PyTypeObject *type);
 static PyObject *t_timezone_setDefault(PyTypeObject *type, PyObject *arg);
@@ -78,7 +78,7 @@ static PyMethodDef t_timezone_methods[] = {
     DECLARE_METHOD(t_timezone, getEquivalentID, METH_VARARGS | METH_CLASS),
 #if U_ICU_VERSION_HEX >= VERSION_HEX(52, 0, 0)
     DECLARE_METHOD(t_timezone, getIDForWindowsID, METH_VARARGS | METH_CLASS),
-    DECLARE_METHOD(t_timezone, getWindowsID, METH_VARARGS | METH_CLASS),
+    DECLARE_METHOD(t_timezone, getWindowsID, METH_O | METH_CLASS),
 #endif
     DECLARE_METHOD(t_timezone, createDefault, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_timezone, setDefault, METH_O | METH_CLASS),
@@ -564,12 +564,12 @@ static PyObject *t_timezone_getIDForWindowsID(PyTypeObject *type,
     return PyErr_SetArgsError(type, "getIDForWindowsID", args);
 }
 
-static PyObject *t_timezone_getWindowsID(PyTypeObject *type, PyObject *args)
+static PyObject *t_timezone_getWindowsID(PyTypeObject *type, PyObject *arg)
 {
     UnicodeString *id;
     UnicodeString _id;
 
-    if (!parseArgs(args, "S", &id, &_id))
+    if (!parseArg(arg, "S", &id, &_id))
     {
         UnicodeString winId;
 
@@ -577,7 +577,7 @@ static PyObject *t_timezone_getWindowsID(PyTypeObject *type, PyObject *args)
         return PyUnicode_FromUnicodeString(&winId);
     }
 
-    return PyErr_SetArgsError(type, "getWindowsID", args);
+    return PyErr_SetArgsError(type, "getWindowsID", arg);
 }
 #endif
 
