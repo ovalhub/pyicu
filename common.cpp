@@ -144,7 +144,7 @@ EXPORT PyObject *ICUException::reportError()
 }
 
 
-EXPORT PyObject *PyUnicode_FromUnicodeString(UnicodeString *string)
+EXPORT PyObject *PyUnicode_FromUnicodeString(const UnicodeString *string)
 {
     if (!string)
     {

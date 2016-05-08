@@ -32,6 +32,13 @@
 #include "dateformat.h"
 #include "macros.h"
 
+DECLARE_CONSTANTS_TYPE(UDateTimePatternConflict);
+DECLARE_CONSTANTS_TYPE(UDateTimePatternField);
+
+#if U_ICU_VERSION_HEX >= 0x04040000
+DECLARE_CONSTANTS_TYPE(UDateTimePatternMatchOptions);
+#endif
+
 #if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
 DECLARE_CONSTANTS_TYPE(UDateRelativeDateTimeFormatterStyle);
 #endif
@@ -191,6 +198,82 @@ PyObject *wrap_DateFormat(DateFormat *format)
     RETURN_WRAPPED_IF_ISINSTANCE(format, SimpleDateFormat);
     return wrap_DateFormat(format, T_OWNED);
 }
+
+/* DateTimePatternGenerator */
+
+class t_datetimepatterngenerator : public _wrapper {
+public:
+    DateTimePatternGenerator *object;
+};
+
+static PyObject *t_datetimepatterngenerator_createEmptyInstance(
+    PyTypeObject *type);
+static PyObject *t_datetimepatterngenerator_createInstance(
+    PyTypeObject *type, PyObject *args);
+static PyObject *t_datetimepatterngenerator_staticGetSkeleton(
+    PyTypeObject *type, PyObject *arg);
+static PyObject *t_datetimepatterngenerator_staticGetBaseSkeleton(
+    PyTypeObject *type, PyObject *arg);
+static PyObject *t_datetimepatterngenerator_getSkeleton(
+    t_datetimepatterngenerator *self, PyObject *arg);
+static PyObject *t_datetimepatterngenerator_getBaseSkeleton(
+    t_datetimepatterngenerator *self, PyObject *arg);
+static PyObject *t_datetimepatterngenerator_addPattern(
+    t_datetimepatterngenerator *self, PyObject *args);
+static PyObject *t_datetimepatterngenerator_getBestPattern(
+    t_datetimepatterngenerator *self, PyObject *args);
+static PyObject *t_datetimepatterngenerator_setAppendItemFormat(
+    t_datetimepatterngenerator *self, PyObject *args);
+static PyObject *t_datetimepatterngenerator_setAppendItemName(
+    t_datetimepatterngenerator *self, PyObject *args);
+static PyObject *t_datetimepatterngenerator_getAppendItemFormat(
+    t_datetimepatterngenerator *self, PyObject *arg);
+static PyObject *t_datetimepatterngenerator_getAppendItemName(
+    t_datetimepatterngenerator *self, PyObject *arg);
+static PyObject *t_datetimepatterngenerator_replaceFieldTypes(
+    t_datetimepatterngenerator *self, PyObject *args);
+static PyObject *t_datetimepatterngenerator_getSkeletons(
+    t_datetimepatterngenerator *self);
+static PyObject *t_datetimepatterngenerator_getBaseSkeletons(
+    t_datetimepatterngenerator *self);
+static PyObject *t_datetimepatterngenerator_getRedundants(
+    t_datetimepatterngenerator *self);
+static PyObject *t_datetimepatterngenerator_getPatternForSkeleton(
+    t_datetimepatterngenerator *self, PyObject *arg);
+static PyObject *t_datetimepatterngenerator_setDecimal(
+    t_datetimepatterngenerator *self, PyObject *arg);
+static PyObject *t_datetimepatterngenerator_getDecimal(
+    t_datetimepatterngenerator *self);
+
+static PyMethodDef t_datetimepatterngenerator_methods[] = {
+    DECLARE_METHOD(t_datetimepatterngenerator, createEmptyInstance,
+                   METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_datetimepatterngenerator, createInstance,
+                   METH_VARARGS | METH_CLASS),
+    DECLARE_METHOD(t_datetimepatterngenerator, staticGetSkeleton,
+                   METH_O | METH_CLASS),
+    DECLARE_METHOD(t_datetimepatterngenerator, staticGetBaseSkeleton,
+                   METH_O | METH_CLASS),
+    DECLARE_METHOD(t_datetimepatterngenerator, getSkeleton, METH_O),
+    DECLARE_METHOD(t_datetimepatterngenerator, getBaseSkeleton, METH_O),
+    DECLARE_METHOD(t_datetimepatterngenerator, addPattern, METH_VARARGS),
+    DECLARE_METHOD(t_datetimepatterngenerator, getBestPattern, METH_VARARGS),
+    DECLARE_METHOD(t_datetimepatterngenerator, setAppendItemFormat, METH_VARARGS),
+    DECLARE_METHOD(t_datetimepatterngenerator, setAppendItemName, METH_VARARGS),
+    DECLARE_METHOD(t_datetimepatterngenerator, getAppendItemFormat, METH_O),
+    DECLARE_METHOD(t_datetimepatterngenerator, getAppendItemName, METH_O),
+    DECLARE_METHOD(t_datetimepatterngenerator, replaceFieldTypes, METH_VARARGS),
+    DECLARE_METHOD(t_datetimepatterngenerator, getSkeletons, METH_NOARGS),
+    DECLARE_METHOD(t_datetimepatterngenerator, getBaseSkeletons, METH_NOARGS),
+    DECLARE_METHOD(t_datetimepatterngenerator, getRedundants, METH_NOARGS),
+    DECLARE_METHOD(t_datetimepatterngenerator, getPatternForSkeleton, METH_O),
+    DECLARE_METHOD(t_datetimepatterngenerator, setDecimal, METH_O),
+    DECLARE_METHOD(t_datetimepatterngenerator, getDecimal, METH_NOARGS),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(DateTimePatternGenerator, t_datetimepatterngenerator,
+             UObject, DateTimePatternGenerator, abstract_init, NULL);
 
 #if U_ICU_VERSION_HEX >= 0x04000000
 
@@ -1070,6 +1153,333 @@ static PyObject *t_simpledateformat_str(t_simpledateformat *self)
 }
 
 
+/* DateTimePatternGenerator */
+
+static PyObject *t_datetimepatterngenerator_createEmptyInstance(
+    PyTypeObject *type)
+{
+    DateTimePatternGenerator *dtpg;
+
+    STATUS_CALL(dtpg = DateTimePatternGenerator::createEmptyInstance(status));
+
+    return wrap_DateTimePatternGenerator(dtpg, T_OWNED);
+}
+
+static PyObject *t_datetimepatterngenerator_createInstance(PyTypeObject *type,
+                                                           PyObject *args)
+{
+    DateTimePatternGenerator *dtpg;
+    Locale *locale;
+
+    switch (PyTuple_Size(args)) {
+      case 0:
+        STATUS_CALL(dtpg = DateTimePatternGenerator::createInstance(status));
+        break;
+      case 1:
+        if (!parseArgs(args, "P", TYPE_CLASSID(Locale), &locale))
+        {
+            STATUS_CALL(dtpg = DateTimePatternGenerator::createInstance(
+                            *locale, status));
+            break;
+        }
+        return PyErr_SetArgsError(type, "createInstance", args);
+      default:
+        return PyErr_SetArgsError(type, "createInstance", args);
+    }
+        
+    return wrap_DateTimePatternGenerator(dtpg, T_OWNED);
+}
+
+static PyObject *t_datetimepatterngenerator_staticGetSkeleton(
+    PyTypeObject *type, PyObject *arg)
+{
+    UnicodeString *u, _u;
+
+    if (!parseArg(arg, "S", &u, &_u))
+    {
+        UnicodeString result;
+
+        STATUS_CALL(result = DateTimePatternGenerator::staticGetSkeleton(
+                        *u, status));
+        return PyUnicode_FromUnicodeString(&result);
+    }
+
+    return PyErr_SetArgsError(type, "staticGetSkeleton", arg);
+}
+
+static PyObject *t_datetimepatterngenerator_staticGetBaseSkeleton(
+    PyTypeObject *type, PyObject *arg)
+{
+    UnicodeString *u, _u;
+
+    if (!parseArg(arg, "S", &u, &_u))
+    {
+        UnicodeString result;
+
+        STATUS_CALL(result = DateTimePatternGenerator::staticGetBaseSkeleton(
+                        *u, status));
+        return PyUnicode_FromUnicodeString(&result);
+    }
+
+    return PyErr_SetArgsError(type, "staticGetBaseSkeleton", arg);
+}
+
+static PyObject *t_datetimepatterngenerator_getSkeleton(
+    t_datetimepatterngenerator *self, PyObject *arg)
+{
+    UnicodeString *u, _u;
+
+    if (!parseArg(arg, "S", &u, &_u))
+    {
+        UnicodeString result;
+
+        STATUS_CALL(result = self->object->getSkeleton(*u, status));
+        return PyUnicode_FromUnicodeString(&result);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getSkeleton", arg);
+}
+
+static PyObject *t_datetimepatterngenerator_getBaseSkeleton(
+    t_datetimepatterngenerator *self, PyObject *arg)
+{
+    UnicodeString *u, _u;
+
+    if (!parseArg(arg, "S", &u, &_u))
+    {
+        UnicodeString result;
+
+        STATUS_CALL(result = self->object->getBaseSkeleton(*u, status));
+        return PyUnicode_FromUnicodeString(&result);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "staticGetBaseSkeleton", arg);
+}
+
+static PyObject *t_datetimepatterngenerator_addPattern(
+    t_datetimepatterngenerator *self, PyObject *args)
+{
+    UnicodeString *u, _u;
+    int override;
+
+    if (!parseArgs(args, "Sb", &u, &_u, &override))
+    {
+        UDateTimePatternConflict conflict;
+        UnicodeString conflictPattern;
+
+        STATUS_CALL(conflict = self->object->addPattern(
+                        *u, override, conflictPattern, status));
+        PyObject *result = PyTuple_New(2);
+
+        PyTuple_SET_ITEM(result, 0, PyInt_FromLong(conflict));
+        PyTuple_SET_ITEM(result, 1, PyUnicode_FromUnicodeString(&conflictPattern));
+
+        return result;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "addPattern", args);
+}
+
+static PyObject *t_datetimepatterngenerator_getBestPattern(
+    t_datetimepatterngenerator *self, PyObject *args)
+{
+    UnicodeString *u, _u;
+#if U_ICU_VERSION_HEX >= 0x04040000
+    int options;
+#endif
+
+    switch (PyTuple_Size(args)) {
+      case 1:
+        if (!parseArgs(args, "S", &u, &_u))
+        {
+            UnicodeString result;
+
+            STATUS_CALL(result = self->object->getBestPattern(*u, status));
+            return PyUnicode_FromUnicodeString(&result);
+        }
+        break;
+#if U_ICU_VERSION_HEX >= 0x04040000
+      case 2:
+        if (!parseArgs(args, "Si", &u, &_u, &options))
+        {
+            UnicodeString result;
+
+            STATUS_CALL(result = self->object->getBestPattern(
+                            *u, (UDateTimePatternMatchOptions) options,
+                            status));
+            return PyUnicode_FromUnicodeString(&result);
+        }
+        break;
+#endif
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getBestPattern", args);
+}
+
+static PyObject *t_datetimepatterngenerator_setAppendItemFormat(
+    t_datetimepatterngenerator *self, PyObject *args)
+{
+    UnicodeString *u, _u;
+    int field;
+
+    if (!parseArgs(args, "iS", &field, &u, &_u))
+    {
+        self->object->setAppendItemFormat((UDateTimePatternField) field, *u);
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setAppendItemFormat", args);
+}
+
+static PyObject *t_datetimepatterngenerator_setAppendItemName(
+    t_datetimepatterngenerator *self, PyObject *args)
+{
+    UnicodeString *u, _u;
+    int field;
+
+    if (!parseArgs(args, "iS", &field, &u, &_u))
+    {
+        self->object->setAppendItemName((UDateTimePatternField) field, *u);
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setAppendItemName", args);
+}
+
+static PyObject *t_datetimepatterngenerator_getAppendItemFormat(
+    t_datetimepatterngenerator *self, PyObject *arg)
+{
+    int field;
+
+    if (!parseArg(arg, "i", &field))
+    {
+        const UnicodeString &result = self->object->getAppendItemFormat(
+            (UDateTimePatternField) field);
+
+        return PyUnicode_FromUnicodeString(&result);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getAppendItemFormat", arg);
+}
+
+static PyObject *t_datetimepatterngenerator_getAppendItemName(
+    t_datetimepatterngenerator *self, PyObject *arg)
+{
+    int field;
+
+    if (!parseArg(arg, "i", &field))
+    {
+        const UnicodeString &result = self->object->getAppendItemName(
+            (UDateTimePatternField) field);
+
+        return PyUnicode_FromUnicodeString(&result);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getAppendItemName", arg);
+}
+
+static PyObject *t_datetimepatterngenerator_replaceFieldTypes(
+    t_datetimepatterngenerator *self, PyObject *args)
+{
+    UnicodeString *u, _u, *v, _v;;
+#if U_ICU_VERSION_HEX >= 0x04040000
+    int options;
+#endif
+    
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "SS", &u, &_u, &v, &_v))
+        {
+            UnicodeString result;
+
+            STATUS_CALL(result = self->object->replaceFieldTypes(
+                            *u, *v, status));
+            return PyUnicode_FromUnicodeString(&result);
+        }
+        break;
+#if U_ICU_VERSION_HEX >= 0x04040000
+      case 3:
+        if (!parseArgs(args, "SSi", &u, &_u, &v, &_v, &options))
+        {
+            UnicodeString result;
+
+            STATUS_CALL(result = self->object->replaceFieldTypes(
+                            *u, *v, (UDateTimePatternMatchOptions) options,
+                            status));
+            return PyUnicode_FromUnicodeString(&result);
+        }
+        break;
+#endif
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "replaceFieldTypes", args);
+}
+
+static PyObject *t_datetimepatterngenerator_getSkeletons(
+    t_datetimepatterngenerator *self)
+{
+    StringEnumeration *se;
+    STATUS_CALL(se = self->object->getSkeletons(status));
+
+    return wrap_StringEnumeration(se, T_OWNED);
+}
+
+static PyObject *t_datetimepatterngenerator_getBaseSkeletons(
+    t_datetimepatterngenerator *self)
+{
+    StringEnumeration *se;
+    STATUS_CALL(se = self->object->getBaseSkeletons(status));
+
+    return wrap_StringEnumeration(se, T_OWNED);
+}
+
+static PyObject *t_datetimepatterngenerator_getRedundants(
+    t_datetimepatterngenerator *self)
+{
+    StringEnumeration *se;
+    STATUS_CALL(se = self->object->getRedundants(status));
+
+    return wrap_StringEnumeration(se, T_OWNED);
+}
+
+static PyObject *t_datetimepatterngenerator_getPatternForSkeleton(
+    t_datetimepatterngenerator *self, PyObject *arg)
+{
+    UnicodeString *u, _u;;
+    
+    if (!parseArg(arg, "S", &u, &_u))
+    {
+        UnicodeString result;
+
+        result = self->object->getPatternForSkeleton(*u);
+        return PyUnicode_FromUnicodeString(&result);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getPatternForSkeleton", arg);
+}
+
+static PyObject *t_datetimepatterngenerator_setDecimal(
+    t_datetimepatterngenerator *self, PyObject *arg)
+{
+    UnicodeString *u, _u;;
+    
+    if (!parseArg(arg, "S", &u, &_u))
+    {
+        self->object->setDecimal(*u);
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setDecimal", arg);
+}
+
+static PyObject *t_datetimepatterngenerator_getDecimal(
+    t_datetimepatterngenerator *self)
+{
+    const UnicodeString &result = self->object->getDecimal();
+    return PyUnicode_FromUnicodeString(&result);
+}
+
+
 #if U_ICU_VERSION_HEX >= 0x04000000
 
 /* DateInterval */
@@ -1570,6 +1980,12 @@ void _init_dateformat(PyObject *m)
         (richcmpfunc) t_dateintervalformat_richcmp;
 #endif
 
+    INSTALL_CONSTANTS_TYPE(UDateTimePatternConflict, m);
+    INSTALL_CONSTANTS_TYPE(UDateTimePatternField, m);
+#if U_ICU_VERSION_HEX >= 0x04040000
+    INSTALL_CONSTANTS_TYPE(UDateTimePatternMatchOptions, m);
+#endif
+
 #if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
     INSTALL_CONSTANTS_TYPE(UDateRelativeDateTimeFormatterStyle, m);
 #endif
@@ -1587,6 +2003,7 @@ void _init_dateformat(PyObject *m)
     REGISTER_TYPE(DateFormatSymbols, m);
     INSTALL_TYPE(DateFormat, m);
     REGISTER_TYPE(SimpleDateFormat, m);
+    REGISTER_TYPE(DateTimePatternGenerator, m);
 #if U_ICU_VERSION_HEX >= 0x04000000
     REGISTER_TYPE(DateInterval, m);
     REGISTER_TYPE(DateIntervalInfo, m);
@@ -1662,9 +2079,39 @@ void _init_dateformat(PyObject *m)
     INSTALL_STATIC_INT(DateFormat, HOUR0_FIELD);
     INSTALL_STATIC_INT(DateFormat, TIMEZONE_FIELD);
 
+    INSTALL_ENUM(UDateTimePatternConflict, "NO_CONFLICT", UDATPG_NO_CONFLICT);
+    INSTALL_ENUM(UDateTimePatternConflict, "BASE_CONFLICT", UDATPG_BASE_CONFLICT);
+    INSTALL_ENUM(UDateTimePatternConflict, "CONFLICT", UDATPG_CONFLICT);
+    INSTALL_ENUM(UDateTimePatternConflict, "CONFLICT_COUNT", UDATPG_CONFLICT_COUNT);
+
+    INSTALL_ENUM(UDateTimePatternField, "ERA_FIELD", UDATPG_ERA_FIELD);
+    INSTALL_ENUM(UDateTimePatternField, "YEAR_FIELD", UDATPG_YEAR_FIELD);
+    INSTALL_ENUM(UDateTimePatternField, "QUARTER_FIELD", UDATPG_QUARTER_FIELD);
+    INSTALL_ENUM(UDateTimePatternField, "MONTH_FIELD", UDATPG_MONTH_FIELD);
+    INSTALL_ENUM(UDateTimePatternField, "WEEK_OF_YEAR_FIELD", UDATPG_WEEK_OF_YEAR_FIELD);
+    INSTALL_ENUM(UDateTimePatternField, "WEEK_OF_MONTH_FIELD", UDATPG_WEEK_OF_MONTH_FIELD);
+    INSTALL_ENUM(UDateTimePatternField, "WEEKDAY_FIELD", UDATPG_WEEKDAY_FIELD);
+    INSTALL_ENUM(UDateTimePatternField, "DAY_OF_YEAR_FIELD", UDATPG_DAY_OF_YEAR_FIELD);
+    INSTALL_ENUM(UDateTimePatternField, "DAY_OF_WEEK_IN_MONTH_FIELD", UDATPG_DAY_OF_WEEK_IN_MONTH_FIELD);
+    INSTALL_ENUM(UDateTimePatternField, "DAY_FIELD", UDATPG_DAY_FIELD);
+    INSTALL_ENUM(UDateTimePatternField, "DAYPERIOD_FIELD", UDATPG_DAYPERIOD_FIELD);
+    INSTALL_ENUM(UDateTimePatternField, "HOUR_FIELD", UDATPG_HOUR_FIELD);
+    INSTALL_ENUM(UDateTimePatternField, "MINUTE_FIELD", UDATPG_MINUTE_FIELD);
+    INSTALL_ENUM(UDateTimePatternField, "SECOND_FIELD", UDATPG_SECOND_FIELD);
+    INSTALL_ENUM(UDateTimePatternField, "FRACTIONAL_SECOND_FIELD", UDATPG_FRACTIONAL_SECOND_FIELD);
+    INSTALL_ENUM(UDateTimePatternField, "ZONE_FIELD", UDATPG_ZONE_FIELD);
+    INSTALL_ENUM(UDateTimePatternField, "FIELD_COUNT", UDATPG_FIELD_COUNT);
+
 #if U_ICU_VERSION_HEX >= 0x04040000
+    INSTALL_ENUM(UDateTimePatternMatchOptions, "NO_OPTIONS",
+                 UDATPG_MATCH_NO_OPTIONS);
+    INSTALL_ENUM(UDateTimePatternMatchOptions, "HOUR_FIELD_LENGTH",
+                 UDATPG_MATCH_HOUR_FIELD_LENGTH);
+    INSTALL_ENUM(UDateTimePatternMatchOptions, "ALL_FIELDS_LENGTH",
+                 UDATPG_MATCH_ALL_FIELDS_LENGTH);
+
     INSTALL_STATIC_INT(DateIntervalInfo, kMaxIntervalPatternIndex);
-#endif    
+#endif
 
 #if U_ICU_VERSION_HEX >= 0x04000000
     UErrorCode status = U_ZERO_ERROR;

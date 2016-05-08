@@ -93,6 +93,7 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/format.h>
 #include <unicode/datefmt.h>
 #include <unicode/smpdtfmt.h>
+#include <unicode/dtptngen.h>
 #include <unicode/measfmt.h>
 #include <unicode/msgfmt.h>
 #include <unicode/numfmt.h>
@@ -247,7 +248,7 @@ public:
     EXPORT PyObject *reportError();
 };
 
-EXPORT PyObject *PyUnicode_FromUnicodeString(UnicodeString *string);
+EXPORT PyObject *PyUnicode_FromUnicodeString(const UnicodeString *string);
 EXPORT PyObject *PyUnicode_FromUnicodeString(const UChar *chars, int size);
 
 EXPORT UnicodeString &PyBytes_AsUnicodeString(PyObject *object,
