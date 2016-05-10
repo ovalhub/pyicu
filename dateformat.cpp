@@ -45,12 +45,14 @@ DECLARE_CONSTANTS_TYPE(UDateRelativeDateTimeFormatterStyle);
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
 DECLARE_CONSTANTS_TYPE(UDisplayContext);
+DECLARE_CONSTANTS_TYPE(UDisplayContextType);
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
 DECLARE_CONSTANTS_TYPE(UDateDirection);
 DECLARE_CONSTANTS_TYPE(UDateAbsoluteUnit);
 DECLARE_CONSTANTS_TYPE(UDateRelativeUnit);
+DECLARE_CONSTANTS_TYPE(UDateFormatBooleanAttribute);
 #endif
 
 /* DateFormatSymbols */
@@ -133,6 +135,14 @@ static PyObject *t_dateformat_createDateInstance(PyTypeObject *type,
 static PyObject *t_dateformat_createDateTimeInstance(PyTypeObject *type,
                                                      PyObject *args);
 static PyObject *t_dateformat_getAvailableLocales(PyTypeObject *type);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
+static PyObject *t_dateformat_setContext(t_dateformat *self, PyObject *arg);
+static PyObject *t_dateformat_getContext(t_dateformat *self, PyObject *arg);
+static PyObject *t_dateformat_setBooleanAttribute(t_dateformat *self,
+                                                  PyObject *args);
+static PyObject *t_dateformat_getBooleanAttribute(t_dateformat *self,
+                                                  PyObject *arg);
+#endif
 
 static PyMethodDef t_dateformat_methods[] = {
     DECLARE_METHOD(t_dateformat, isLenient, METH_NOARGS),
@@ -150,6 +160,12 @@ static PyMethodDef t_dateformat_methods[] = {
     DECLARE_METHOD(t_dateformat, createDateInstance, METH_VARARGS | METH_CLASS),
     DECLARE_METHOD(t_dateformat, createDateTimeInstance, METH_VARARGS | METH_CLASS),
     DECLARE_METHOD(t_dateformat, getAvailableLocales, METH_NOARGS | METH_CLASS),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
+    DECLARE_METHOD(t_dateformat, setContext, METH_O),
+    DECLARE_METHOD(t_dateformat, getContext, METH_O),
+    DECLARE_METHOD(t_dateformat, setBooleanAttribute, METH_VARARGS),
+    DECLARE_METHOD(t_dateformat, getBooleanAttribute, METH_O),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -967,12 +983,78 @@ static PyObject *t_dateformat_getAvailableLocales(PyTypeObject *type)
         Locale *locale = (Locale *) locales + i;
         PyObject *obj = wrap_Locale(locale, 0);
         PyDict_SetItemString(dict, locale->getName(), obj);
-	Py_DECREF(obj);
+        Py_DECREF(obj);
     }
 
     return dict;
 }
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
+
+static PyObject *t_dateformat_setContext(t_dateformat *self, PyObject *arg)
+{
+    int context;
+
+    if (!parseArg(arg, "i", &context))
+    {
+        STATUS_CALL(self->object->setContext(
+                        (UDisplayContext) context, status));
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setContext", arg);
+}
+
+static PyObject *t_dateformat_getContext(t_dateformat *self, PyObject *arg)
+{
+    int context, type;
+
+    if (!parseArg(arg, "i", &type))
+    {
+        STATUS_CALL(context = self->object->getContext(
+                        (UDisplayContextType) type, status));
+
+        return PyInt_FromLong(context);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getContext", arg);
+}
+
+static PyObject *t_dateformat_setBooleanAttribute(t_dateformat *self,
+                                                  PyObject *args)
+{
+    int attribute, value;
+
+    if (!parseArgs(args, "ii", &attribute, &value))
+    {
+        STATUS_CALL(self->object->setBooleanAttribute(
+                        (UDateFormatBooleanAttribute) attribute,
+                        (UBool) value, status));
+        Py_RETURN_SELF();
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setBooleanAttribute", args);
+}
+
+static PyObject *t_dateformat_getBooleanAttribute(t_dateformat *self,
+                                                  PyObject *arg)
+{
+    int attribute;
+
+    if (!parseArg(arg, "i", &attribute))
+    {
+        UBool result;
+
+        STATUS_CALL(result = self->object->getBooleanAttribute(
+                        (UDateFormatBooleanAttribute) attribute,
+                        status));
+        Py_RETURN_BOOL(result);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getBooleanAttribute", arg);
+}
+
+#endif
 
 /* SimpleDateFormat */
 
@@ -1992,12 +2074,14 @@ void _init_dateformat(PyObject *m)
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
     INSTALL_CONSTANTS_TYPE(UDisplayContext, m);
+    INSTALL_CONSTANTS_TYPE(UDisplayContextType, m);
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
     INSTALL_CONSTANTS_TYPE(UDateDirection, m);
     INSTALL_CONSTANTS_TYPE(UDateAbsoluteUnit, m);
     INSTALL_CONSTANTS_TYPE(UDateRelativeUnit, m);
+    INSTALL_CONSTANTS_TYPE(UDateFormatBooleanAttribute, m);
 #endif
 
     REGISTER_TYPE(DateFormatSymbols, m);
@@ -2134,10 +2218,18 @@ void _init_dateformat(PyObject *m)
     INSTALL_ENUM(UDisplayContext, "CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE", UDISPCTX_CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE);
     INSTALL_ENUM(UDisplayContext, "CAPITALIZATION_FOR_UI_LIST_OR_MENU", UDISPCTX_CAPITALIZATION_FOR_UI_LIST_OR_MENU);
     INSTALL_ENUM(UDisplayContext, "CAPITALIZATION_FOR_STANDALONE", UDISPCTX_CAPITALIZATION_FOR_STANDALONE);
+
+    INSTALL_ENUM(UDisplayContextType, "TYPE_DIALECT_HANDLING",
+                 UDISPCTX_TYPE_DIALECT_HANDLING);
+    INSTALL_ENUM(UDisplayContextType, "TYPE_CAPITALIZATION",
+                 UDISPCTX_TYPE_CAPITALIZATION);
 #endif
 #if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
     INSTALL_ENUM(UDisplayContext, "LENGTH_FULL", UDISPCTX_LENGTH_FULL);
     INSTALL_ENUM(UDisplayContext, "LENGTH_SHORT", UDISPCTX_LENGTH_SHORT);
+
+    INSTALL_ENUM(UDisplayContextType, "TYPE_DISPLAY_LENGTH",
+                 UDISPCTX_TYPE_DISPLAY_LENGTH);
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
@@ -2168,5 +2260,19 @@ void _init_dateformat(PyObject *m)
     INSTALL_ENUM(UDateRelativeUnit, "WEEKS", UDAT_RELATIVE_WEEKS);
     INSTALL_ENUM(UDateRelativeUnit, "MONTHS", UDAT_RELATIVE_MONTHS);
     INSTALL_ENUM(UDateRelativeUnit, "YEARS", UDAT_RELATIVE_YEARS);
+
+    INSTALL_ENUM(UDateFormatBooleanAttribute, "PARSE_ALLOW_WHITESPACE",
+                 UDAT_PARSE_ALLOW_WHITESPACE);
+    INSTALL_ENUM(UDateFormatBooleanAttribute, "PARSE_ALLOW_NUMERIC",
+                 UDAT_PARSE_ALLOW_NUMERIC);
+    INSTALL_ENUM(UDateFormatBooleanAttribute, "BOOLEAN_ATTRIBUTE_COUNT",
+                 UDAT_BOOLEAN_ATTRIBUTE_COUNT);
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(56, 0, 0)
+    INSTALL_ENUM(UDateFormatBooleanAttribute, "PARSE_PARTIAL_LITERAL_MATCH",
+                 UDAT_PARSE_PARTIAL_LITERAL_MATCH);
+    INSTALL_ENUM(UDateFormatBooleanAttribute, "PARSE_MULTIPLE_PATTERNS_FOR_MATCH",
+                 UDAT_PARSE_MULTIPLE_PATTERNS_FOR_MATCH);
 #endif
 }

@@ -93,6 +93,8 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/format.h>
 #include <unicode/datefmt.h>
 #include <unicode/smpdtfmt.h>
+#include <unicode/udat.h>
+#include <unicode/udatpg.h>
 #include <unicode/dtptngen.h>
 #include <unicode/measfmt.h>
 #include <unicode/msgfmt.h>

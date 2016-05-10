@@ -6,6 +6,7 @@ Version 1.9.2 ->
   - added missing conditionals around uses of features in newer ICU versions
   - added wrappers for TimeZone::getIDForWindowsID, TimeZone::getWindowsID
   - added wrappers for DateTimePatternGenerator
+  - added missing Context and BooleanAttribute wrappers on DateFormat
   - 
 
 Version 1.9 -> 1.9.2
