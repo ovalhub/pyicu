@@ -226,10 +226,6 @@ static PyObject *t_datetimepatterngenerator_createEmptyInstance(
     PyTypeObject *type);
 static PyObject *t_datetimepatterngenerator_createInstance(
     PyTypeObject *type, PyObject *args);
-static PyObject *t_datetimepatterngenerator_staticGetSkeleton(
-    PyTypeObject *type, PyObject *arg);
-static PyObject *t_datetimepatterngenerator_staticGetBaseSkeleton(
-    PyTypeObject *type, PyObject *arg);
 static PyObject *t_datetimepatterngenerator_getSkeleton(
     t_datetimepatterngenerator *self, PyObject *arg);
 static PyObject *t_datetimepatterngenerator_getBaseSkeleton(
@@ -260,16 +256,18 @@ static PyObject *t_datetimepatterngenerator_setDecimal(
     t_datetimepatterngenerator *self, PyObject *arg);
 static PyObject *t_datetimepatterngenerator_getDecimal(
     t_datetimepatterngenerator *self);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(56, 0, 0)
+static PyObject *t_datetimepatterngenerator_staticGetSkeleton(
+    PyTypeObject *type, PyObject *arg);
+static PyObject *t_datetimepatterngenerator_staticGetBaseSkeleton(
+    PyTypeObject *type, PyObject *arg);
+#endif
 
 static PyMethodDef t_datetimepatterngenerator_methods[] = {
     DECLARE_METHOD(t_datetimepatterngenerator, createEmptyInstance,
                    METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_datetimepatterngenerator, createInstance,
                    METH_VARARGS | METH_CLASS),
-    DECLARE_METHOD(t_datetimepatterngenerator, staticGetSkeleton,
-                   METH_O | METH_CLASS),
-    DECLARE_METHOD(t_datetimepatterngenerator, staticGetBaseSkeleton,
-                   METH_O | METH_CLASS),
     DECLARE_METHOD(t_datetimepatterngenerator, getSkeleton, METH_O),
     DECLARE_METHOD(t_datetimepatterngenerator, getBaseSkeleton, METH_O),
     DECLARE_METHOD(t_datetimepatterngenerator, addPattern, METH_VARARGS),
@@ -285,6 +283,12 @@ static PyMethodDef t_datetimepatterngenerator_methods[] = {
     DECLARE_METHOD(t_datetimepatterngenerator, getPatternForSkeleton, METH_O),
     DECLARE_METHOD(t_datetimepatterngenerator, setDecimal, METH_O),
     DECLARE_METHOD(t_datetimepatterngenerator, getDecimal, METH_NOARGS),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(56, 0, 0)
+    DECLARE_METHOD(t_datetimepatterngenerator, staticGetSkeleton,
+                   METH_O | METH_CLASS),
+    DECLARE_METHOD(t_datetimepatterngenerator, staticGetBaseSkeleton,
+                   METH_O | METH_CLASS),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -1272,6 +1276,8 @@ static PyObject *t_datetimepatterngenerator_createInstance(PyTypeObject *type,
     return wrap_DateTimePatternGenerator(dtpg, T_OWNED);
 }
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(56, 0, 0)
+
 static PyObject *t_datetimepatterngenerator_staticGetSkeleton(
     PyTypeObject *type, PyObject *arg)
 {
@@ -1305,6 +1311,8 @@ static PyObject *t_datetimepatterngenerator_staticGetBaseSkeleton(
 
     return PyErr_SetArgsError(type, "staticGetBaseSkeleton", arg);
 }
+
+#endif
 
 static PyObject *t_datetimepatterngenerator_getSkeleton(
     t_datetimepatterngenerator *self, PyObject *arg)
