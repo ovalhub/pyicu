@@ -30,7 +30,7 @@
 #include "tzinfo.h"
 #include "macros.h"
 
-#ifdef PYPY_VERSION
+#if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x05020000
 typedef PyObject PyDateTime_TZInfo;
 #endif
 
