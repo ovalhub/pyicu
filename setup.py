@@ -7,7 +7,7 @@ except ImportError:
     from distutils.core import setup, Extension
 
 
-VERSION = '1.9.2'
+VERSION = '1.9.3'
 
 INCLUDES = {
     'darwin': ['/usr/local/include'],

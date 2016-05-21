@@ -320,7 +320,7 @@ static int t_locale_init(t_locale *self, PyObject *args, PyObject *kwds)
 
             INT_STATUS_CALL(len = uloc_getLocaleForLCID(
                 lcid, code, sizeof(code), &status));
-            if (len < sizeof(code))
+            if ((size_t) len < sizeof(code))
             {
                 self->object = new Locale(code);
                 self->flags = T_OWNED;

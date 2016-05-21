@@ -59,7 +59,9 @@ U_STABLE void U_EXPORT2 _stopDecode(const void *context,
     if (chars && length)
     {
         const int size = stop->src_length - length + 1;
-        const int len = length < sizeof(stop->chars) - 1 ? length : sizeof(stop->chars) - 1;
+        const size_t len = (size_t) length < sizeof(stop->chars) - 1
+            ? (size_t) length
+            : sizeof(stop->chars) - 1;
 
         strncpy(stop->chars, chars, len); stop->chars[len] = '\0';
         stop->error_position = -1;

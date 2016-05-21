@@ -1,13 +1,12 @@
 
-For bug <NUM>, see http://bugzilla.osafoundation.org/show_bug.cgi?id=<NUM>
-
-Version 1.9.2 ->
---------------------
+Version 1.9.2 -> 1.9.3
+----------------------
   - added missing conditionals around uses of features in newer ICU versions
   - added wrappers for TimeZone::getIDForWindowsID, TimeZone::getWindowsID
   - added wrappers for DateTimePatternGenerator
   - added missing Context and BooleanAttribute wrappers on DateFormat
-  - 
+  - added support for ICU 57.1
+  - build tested with Python 2.7.5, Python 3.5.1 and PyPy 2.2.1
 
 Version 1.9 -> 1.9.2
 --------------------
