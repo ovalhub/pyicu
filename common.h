@@ -32,6 +32,10 @@
 
 #include <Python.h>
 
+#if !defined(PYPY_VERSION) && defined(PYPY_VERSION_NUM)
+#define PYPY_VERSION
+#endif
+
 #if PY_VERSION_HEX < 0x02040000
 #define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
 #define Py_RETURN_TRUE return Py_INCREF(Py_True), Py_True

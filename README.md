@@ -9,10 +9,7 @@ Welcome
 Welcome to PyICU, a Python extension wrapping IBM's International
 Components for Unicode C++ library (ICU).
 
-PyICU is a project maintained by the Open Source Applications Foundation.
-
-The PyICU homepage is http://pyicu.osafoundation.org.
-Its source code is hosted on GitHub at https://github.com/ovalhub/pyicu.
+The PyICU source code is hosted on GitHub at https://github.com/ovalhub/pyicu.
 
 The ICU homepage is http://site.icu-project.org/
 
@@ -91,22 +88,22 @@ used to translate from the C++ APIs to the corresponding Python APIs.
 
     1. The ICU way
 
-            >>> from icu import UnicodeString, Locale
-            >>> locale = Locale('pt_BR')
-            >>> string = UnicodeString()
-            >>> name = locale.getDisplayName(string)
-            >>> name
-            <UnicodeString: Portuguese (Brazil)>
-            >>> name is string
-            True                  <-- string arg was returned, modified in place
+        >>> from icu import UnicodeString, Locale
+        >>> locale = Locale('pt_BR')
+        >>> string = UnicodeString()
+        >>> name = locale.getDisplayName(string)
+        >>> name
+        <UnicodeString: Portuguese (Brazil)>
+        >>> name is string
+        True                  <-- string arg was returned, modified in place
 
     2. The Python way
 
-            >>> from icu import Locale
-            >>> locale = Locale('pt_BR')
-            >>> name = locale.getDisplayName()
-            >>> name
-            u'Portuguese (Brazil)'
+        >>> from icu import Locale
+        >>> locale = Locale('pt_BR')
+        >>> name = locale.getDisplayName()
+        >>> name
+        u'Portuguese (Brazil)'
 
         A ``UnicodeString`` object was allocated and converted to a Python
         ``unicode`` object.
