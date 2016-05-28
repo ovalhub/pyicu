@@ -71,6 +71,7 @@ class TestDateTimePatternGenerator(TestCase):
             for index, skeleton in enumerate(skeletons):
                 pattern = dtpg.getBestPattern(skeleton)
                 sdf = SimpleDateFormat(pattern, locale)
+                sdf.setTimeZone(self.tz)
                 self.assertEqual(sdf.format(self.date), locale_data[index])
 
     def testReplaceFieldType(self):
