@@ -91,6 +91,7 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/unistr.h>
 #include <unicode/ucnv.h>
 #include <unicode/locid.h>
+#include <unicode/uloc.h>
 #include <unicode/resbund.h>
 #include <unicode/calendar.h>
 #include <unicode/gregocal.h>

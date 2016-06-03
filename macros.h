@@ -51,6 +51,14 @@ PyObject *make_descriptor(PyObject *(*get)(PyObject *));
             return ICUException(status).reportError();                  \
     }
 
+#define API_STATUS_CALL(var, api, args)                                 \
+    {                                                                   \
+        UErrorCode status = U_ZERO_ERROR;                               \
+        var = api args;                                                 \
+        if (U_FAILURE(status))                                          \
+            return ICUException(status).reportError();                  \
+    }
+
 #define STATUS_PYTHON_CALL(action)                                      \
     {                                                                   \
         UErrorCode status = U_ZERO_ERROR;                               \

@@ -76,6 +76,10 @@ static PyObject *t_locale_removeKeywordValue(t_locale *self, PyObject *arg);
 #endif
 static PyObject *t_locale_isBogus(t_locale *self);
 static PyObject *t_locale_setToBogus(t_locale *self);
+#if U_ICU_VERSION_HEX >= 0x04000000
+static PyObject *t_locale_addLikelySubtags(t_locale *self);
+static PyObject *t_locale_minimizeSubtags(t_locale *self);
+#endif
 #if U_ICU_VERSION_HEX >= 0x04040000
 static PyObject *t_locale_getRoot(PyTypeObject *type);
 #endif
@@ -131,6 +135,10 @@ static PyMethodDef t_locale_methods[] = {
 #endif
     DECLARE_METHOD(t_locale, isBogus, METH_NOARGS),
     DECLARE_METHOD(t_locale, setToBogus, METH_NOARGS),
+#if U_ICU_VERSION_HEX >= 0x04000000
+    DECLARE_METHOD(t_locale, addLikelySubtags, METH_NOARGS),
+    DECLARE_METHOD(t_locale, minimizeSubtags, METH_NOARGS),
+#endif
 #if U_ICU_VERSION_HEX >= 0x04040000
     DECLARE_METHOD(t_locale, getRoot, METH_NOARGS | METH_CLASS),
 #endif
@@ -645,6 +653,33 @@ static PyObject *t_locale_setToBogus(t_locale *self)
     self->object->setToBogus();
     Py_RETURN_NONE;
 }
+
+#if U_ICU_VERSION_HEX >= 0x04000000
+static PyObject *t_locale_addLikelySubtags(t_locale *self)
+{
+    char maximized[128];
+    int32_t size;
+
+    API_STATUS_CALL(size, uloc_addLikelySubtags,
+                    (self->object->getName(), maximized,
+                     sizeof(maximized), &status));
+
+    return PyString_FromStringAndSize(maximized, size);
+}
+
+static PyObject *t_locale_minimizeSubtags(t_locale *self)
+{
+    char minimized[128];
+    int32_t size;
+
+    API_STATUS_CALL(size, uloc_minimizeSubtags,
+                    (self->object->getName(), minimized,
+                     sizeof(minimized), &status));
+
+    return PyString_FromStringAndSize(minimized, size);
+}
+#endif
+
 
 #if U_ICU_VERSION_HEX >= 0x04040000
 static PyObject *t_locale_getRoot(PyTypeObject *self)

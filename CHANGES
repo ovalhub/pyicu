@@ -1,3 +1,7 @@
+Version 1.9.3 ->
+----------------------
+  - added wrappers for uloc_addLikelySubtags(), uloc_minimizeSubtags() on Locale
+  - 
 
 Version 1.9.2 -> 1.9.3
 ----------------------
