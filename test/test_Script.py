@@ -41,5 +41,12 @@ class TestScript(TestCase):
                  for i in xrange(pairs.countChar32())]
         self.assertEqual(['Latn', 'Deva', 'Hani', 'Hani'], names)
 
+        iterator = StringCharacterIterator(pairs)
+        names = []
+        while iterator.hasNext():
+            desc = Script.getScript(iterator.next32PostInc()).getShortName()
+            names.append(desc)
+        self.assertEqual(['Latn', 'Deva', 'Hani', 'Hani'], names)
+
 if __name__ == "__main__":
     main()
