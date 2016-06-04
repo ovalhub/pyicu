@@ -202,22 +202,32 @@ static PyObject *t_script_getCode(PyTypeObject *type, PyObject *arg)
 static PyObject *t_script_getScript(PyTypeObject *type, PyObject *arg)
 {
     UnicodeString *u, _u;
+    int cp;
 
     if (!parseArg(arg, "S", &u, &_u))
     {
         UScriptCode code;
 
-        if (u->length() != 1)
+        if (u->countChar32() != 1)
         {
-            PyObject *tuple = Py_BuildValue("(sO)", "length must be 1", arg);
+            PyObject *tuple = Py_BuildValue(
+                "(sO)", "string must contain only one codepoint", arg);
 
             PyErr_SetObject(PyExc_ValueError, tuple);
             Py_DECREF(tuple);
 
             return NULL;
         }
-  
+
         STATUS_CALL(code = uscript_getScript(u->char32At(0), &status));
+
+        return PyObject_CallFunction((PyObject *) type, (char *) "i", code);
+    }
+    if (!parseArg(arg, "i", &cp))
+    {
+        UScriptCode code;
+
+        STATUS_CALL(code = uscript_getScript((UChar32) cp, &status));
 
         return PyObject_CallFunction((PyObject *) type, (char *) "i", code);
     }
@@ -229,23 +239,32 @@ static PyObject *t_script_hasScript(PyTypeObject *type, PyObject *args)
 {
     UnicodeString *u, _u;
     UScriptCode code;
+    int cp;
 
     switch (PyTuple_Size(args)) {
       case 2:
         if (!parseArgs(args, "Si", &u, &_u, &code))
         {
-            if (u->length() != 1)
+            if (u->countChar32() != 1)
             {
-                PyObject *tuple = Py_BuildValue("(sO)", "length must be 1",
-                                                PyTuple_GET_ITEM(args, 0));
+                PyObject *tuple = Py_BuildValue(
+                    "(sO)", "string must contain only one codepoint",
+                    PyTuple_GET_ITEM(args, 0));
 
                 PyErr_SetObject(PyExc_ValueError, tuple);
                 Py_DECREF(tuple);
 
                 return NULL;
             }
-  
+
             if (uscript_hasScript(u->char32At(0), code))
+                Py_RETURN_TRUE;
+
+            Py_RETURN_FALSE;
+        }
+        if (!parseArgs(args, "ii", &cp, &code))
+        {
+            if (uscript_hasScript((UChar32) cp, code))
                 Py_RETURN_TRUE;
 
             Py_RETURN_FALSE;
@@ -259,24 +278,42 @@ static PyObject *t_script_hasScript(PyTypeObject *type, PyObject *args)
 static PyObject *t_script_getScriptExtensions(PyTypeObject *type, PyObject *arg)
 {
     UnicodeString *u, _u;
+    int cp;
 
     if (!parseArg(arg, "S", &u, &_u))
     {
-        if (u->length() != 1)
+        if (u->countChar32() != 1)
         {
-            PyObject *tuple = Py_BuildValue("(sO)", "length must be 1", arg);
+            PyObject *tuple = Py_BuildValue(
+                "(sO)", "string must contain only one codepoint", arg);
 
             PyErr_SetObject(PyExc_ValueError, tuple);
             Py_DECREF(tuple);
 
             return NULL;
         }
-  
+
         UScriptCode codes[256];
         int count;
 
         STATUS_CALL(count = uscript_getScriptExtensions(
             u->char32At(0), codes, sizeof(codes) / sizeof(UScriptCode),
+            &status));
+
+        PyObject *tuple = PyTuple_New(count);
+
+        for (int i = 0; i < count; ++i)
+            PyTuple_SET_ITEM(tuple, i, PyInt_FromLong(codes[i]));
+
+        return tuple;
+    }
+    if (!parseArg(arg, "i", &cp))
+    {
+        UScriptCode codes[256];
+        int count;
+
+        STATUS_CALL(count = uscript_getScriptExtensions(
+            (UChar32) cp, codes, sizeof(codes) / sizeof(UScriptCode),
             &status));
 
         PyObject *tuple = PyTuple_New(count);

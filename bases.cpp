@@ -190,6 +190,9 @@ static PyObject *t_unicodestring_foldCase(t_unicodestring *self,
 static PyObject *t_unicodestring_isBogus(t_unicodestring *self);
 static PyObject *t_unicodestring_encode(t_unicodestring *self, PyObject *arg);
 
+static PyObject *t_unicodestring_countChar32(t_unicodestring *self,
+                                             PyObject *args);
+
 #if U_ICU_VERSION_HEX < VERSION_HEX(55, 1, 0)
 static PyObject *t_unicodestring_idna_toASCII(t_unicodestring *self,
                                               PyObject *args);
@@ -228,6 +231,7 @@ static PyMethodDef t_unicodestring_methods[] = {
     DECLARE_METHOD(t_unicodestring, foldCase, METH_VARARGS),
     DECLARE_METHOD(t_unicodestring, isBogus, METH_NOARGS),
     DECLARE_METHOD(t_unicodestring, encode, METH_O),
+    DECLARE_METHOD(t_unicodestring, countChar32, METH_VARARGS),
 
 #if U_ICU_VERSION_HEX < VERSION_HEX(55, 1, 0)
     DECLARE_METHOD(t_unicodestring, idna_toASCII, METH_VARARGS),
@@ -1435,6 +1439,37 @@ static PyObject *t_unicodestring_encode(t_unicodestring *self, PyObject *arg)
     return PyErr_SetArgsError((PyObject *) self, "encode", arg);
 }
 
+static PyObject *t_unicodestring_countChar32(t_unicodestring *self,
+                                             PyObject *args)
+{
+    int32_t start = 0, length = INT32_MAX;
+    int32_t len;
+
+    switch (PyTuple_Size(args)) {
+      case 0:
+        len = self->object->countChar32();
+        return PyInt_FromLong(len);
+
+      case 1:
+        if (!parseArgs(args, "i", &start))
+        {
+            len = self->object->countChar32(start);
+            return PyInt_FromLong(len);
+        }
+        break;
+
+      case 2:
+        if (!parseArgs(args, "ii", &start, &length))
+        {
+            len = self->object->countChar32(start, length);
+            return PyInt_FromLong(len);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "countChar32", args);
+}
+
 #if U_ICU_VERSION_HEX < VERSION_HEX(55, 1, 0)
 
 static PyObject *t_unicodestring_idna_toASCII(t_unicodestring *self,
@@ -2555,7 +2590,7 @@ static PyObject *t_stringenumeration_snext(t_stringenumeration *self)
     }
 
     return wrap_UnicodeString(new UnicodeString(*str), T_OWNED);
-}                
+}
 
 static PyObject *t_stringenumeration_iter(t_stringenumeration *self)
 {

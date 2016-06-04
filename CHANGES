@@ -1,6 +1,8 @@
 Version 1.9.3 ->
 ----------------------
   - added wrappers for uloc_addLikelySubtags(), uloc_minimizeSubtags() on Locale
+  - fixed bug in some script.cpp wrappers not accepting surrogate pairs
+  - added wrapper for UnicodeString.countChar32() and test
   - 
 
 Version 1.9.2 -> 1.9.3

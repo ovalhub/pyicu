@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # ====================================================================
-# Copyright (c) 2009-2015 Open Source Applications Foundation.
+# Copyright (c) 2016-2016 Open Source Applications Foundation.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
