@@ -112,7 +112,7 @@ setup(name="PyICU",
                              extra_compile_args=_cflags,
                              extra_link_args=_lflags,
                              libraries=_libraries)],
-      py_modules=['icu', 'PyICU', 'docs'])
+      py_modules=['icu', 'PyICU', '_icu_docs'])
 
 
 if sys.version_info >= (3,):
