@@ -51,7 +51,7 @@ LIBRARIES = {
 }
 
 platform = sys.platform
-if platform.startswith('linux'):
+if platform.startswith(('linux', 'gnu')):
     platform = 'linux'
 elif platform.startswith('freebsd'):
     platform = 'freebsd'
