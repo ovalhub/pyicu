@@ -88,6 +88,13 @@ EXPORT ICUException::ICUException()
     msg = NULL;
 }
 
+EXPORT ICUException::ICUException(const ICUException &e)
+    : code(e.code), msg(e.msg)
+{
+    Py_XINCREF(code);
+    Py_XINCREF(msg);
+}
+
 EXPORT ICUException::ICUException(UErrorCode status)
 {
     PyObject *messages = PyObject_GetAttrString(PyExc_ICUError, "messages");
