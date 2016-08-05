@@ -88,22 +88,22 @@ used to translate from the C++ APIs to the corresponding Python APIs.
 
     1. The ICU way
 
-        >>> from icu import UnicodeString, Locale
-        >>> locale = Locale('pt_BR')
-        >>> string = UnicodeString()
-        >>> name = locale.getDisplayName(string)
-        >>> name
-        <UnicodeString: Portuguese (Brazil)>
-        >>> name is string
-        True                  <-- string arg was returned, modified in place
+            >>> from icu import UnicodeString, Locale
+            >>> locale = Locale('pt_BR')
+            >>> string = UnicodeString()
+            >>> name = locale.getDisplayName(string)
+            >>> name
+            <UnicodeString: Portuguese (Brazil)>
+            >>> name is string
+            True                  <-- string arg was returned, modified in place
 
     2. The Python way
 
-        >>> from icu import Locale
-        >>> locale = Locale('pt_BR')
-        >>> name = locale.getDisplayName()
-        >>> name
-        u'Portuguese (Brazil)'
+            >>> from icu import Locale
+            >>> locale = Locale('pt_BR')
+            >>> name = locale.getDisplayName()
+            >>> name
+            u'Portuguese (Brazil)'
 
         A ``UnicodeString`` object was allocated and converted to a Python
         ``unicode`` object.
@@ -157,7 +157,7 @@ used to translate from the C++ APIs to the corresponding Python APIs.
         >>> f = Formattable(940284258.0, Formattable.kIsDate)
         >>> df.format(f)
         u'10/18/99 3:04 PM'
-     
+
     Of course, the simpler ``'UnicodeString &DateFormat::format(UDate,
     UnicodeString &)'`` documented here:
     http://icu-project.org/apiref/icu4c/classDateFormat.html
@@ -195,7 +195,7 @@ used to translate from the C++ APIs to the corresponding Python APIs.
     returns a ``str`` objects, ``unext()`` which returns ``unicode`` objects
     and ``snext()`` which returns ``UnicodeString`` objects.
     Any of these methods can be used as an iterator, using the Python
-    built-in ``iter`` function. 
+    built-in ``iter`` function.
 
     For example, let ``e`` be a ``StringEnumeration`` instance::
 
