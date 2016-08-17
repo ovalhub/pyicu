@@ -82,6 +82,11 @@ if 'PYICU_LIBRARIES' in os.environ:
 else:
     _libraries = LIBRARIES[platform]
 
+if sys.version_info < (2, 4):
+    def sorted(iterable, *args, **kwargs):
+        iterable = list(iterable)
+        iterable.sort(*args, **kwargs)
+        return iterable
 
 setup(name="PyICU",
       description='Python extension wrapping the ICU C++ API',
@@ -106,7 +111,7 @@ setup(name="PyICU",
           'Topic :: Software Development :: Localization',
           'Topic :: Software Development :: Internationalization'],
       ext_modules=[Extension('_icu',
-                             [filename for filename in os.listdir(os.curdir)
+                             [filename for filename in sorted(os.listdir(os.curdir))
                               if filename.endswith('.cpp')],
                              include_dirs=_includes,
                              extra_compile_args=_cflags,
