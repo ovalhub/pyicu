@@ -31,11 +31,17 @@ class TestScript(TestCase):
     def testSurrogatePairs(self):
         pairs = u'a\u0950\u4e2d\U00029efa'
         names = [Script.getScript(cp).getShortName() for cp in pairs]
-        self.assertEqual(['Latn', 'Deva', 'Hani', 'Zzzz', 'Zzzz'], names)
+        if sys.version_info >= (3,):
+            self.assertEqual(['Latn', 'Deva', 'Hani', 'Hani'], names)
+        else:
+            self.assertEqual(['Latn', 'Deva', 'Hani', 'Zzzz', 'Zzzz'], names)
 
         pairs = UnicodeString(pairs)
         names = [Script.getScript(cp).getShortName() for cp in pairs]
-        self.assertEqual(['Latn', 'Deva', 'Hani', 'Zzzz', 'Zzzz'], names)
+        if sys.version_info >= (3,):
+            self.assertEqual(['Latn', 'Deva', 'Hani', 'Hani', 'Hani'], names)
+        else:
+            self.assertEqual(['Latn', 'Deva', 'Hani', 'Zzzz', 'Zzzz'], names)
 
         names = [Script.getScript(pairs.char32At(i)).getShortName()
                  for i in xrange(pairs.countChar32())]
