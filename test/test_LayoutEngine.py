@@ -28,73 +28,80 @@ from unittest import TestCase, main
 from icu import *
 
 try:
+    if ICU_VERSION >= '58':
+        raise NotImplementedError
     from fontTools.ttLib import TTFont
 except ImportError, e:
     print >>sys.stderr, "\nfontTools package not found, skipping LayoutEngine tests\n"
+except NotImplementedError:
+    print >>sys.stderr, "\nLayoutEngine not available in ICU %s" %(ICU_VERSION)
+else:
+    class TTXLEFont(LEFontInstance):
 
+        def __init__(self, fname, size=12):
+            super(TTXLEFont, self).__init__()
 
-class TTXLEFont(LEFontInstance):
+            self.ttx = TTFont(fname)
+            self.size = size
+            self.upem = self.ttx['head'].unitsPerEm
+            self.cmap = self.ttx['cmap'].getcmap(3, 1).cmap
 
-    def __init__(self, fname, size=12):
-        super(TTXLEFont, self).__init__()
+        def getFontTable(self, table):
+            return self.ttx.getTableData(table)
 
-        self.ttx = TTFont(fname)
-        self.size = size
-        self.upem = self.ttx['head'].unitsPerEm
-        self.cmap = self.ttx['cmap'].getcmap(3, 1).cmap
+        def getAscent(self):
+            self.ttx['hhea'].ascent * self.size * 1. / self.upem
 
-    def getFontTable(self, table):
-        return self.ttx.getTableData(table)
+        def getDescent(self):
+            self.ttx['hhea'].descent * self.size * 1. / self.upem
 
-    def getAscent(self):
-        self.ttx['hhea'].ascent * self.size * 1. / self.upem
+        def getLeading(self):
+            self.ttx['hhea'].lineGap * self.size * 1. / self.upem
 
-    def getDescent(self):
-        self.ttx['hhea'].descent * self.size * 1. / self.upem
+        def getUnitsPerEm(self):
+            return self.upem
 
-    def getLeading(self):
-        self.ttx['hhea'].lineGap * self.size * 1. / self.upem
+        def mapCharToGlyph(self, code):
+            return self.ttx.getGlyphID(self.cmap[code])
 
-    def getUnitsPerEm(self):
-        return self.upem
+        def getGlyphAdvance(self, glyph):
 
-    def mapCharToGlyph(self, code):
-        return self.ttx.getGlyphID(self.cmap[code])
+            if glyph >= self.ttx['maxp'].numGlyphs:
+                return (0., 0.)
 
-    def getGlyphAdvance(self, glyph):
+            name = self.ttx.getGlyphName(glyph)
+            x = self.ttx['hmtx'][name][0] * self.size * 1. / self.upem
 
-        if glyph >= self.ttx['maxp'].numGlyphs:
+            if 'vmtx' in self.ttx:
+                y = self.ttx['vmtx'][name][0] * self.size * 1. / self.upem
+            else:
+                y = 0.
+
+            return (x, y)
+
+        def getGlyphPoint(self, glyph, point):
             return (0., 0.)
 
-        name = self.ttx.getGlyphName(glyph)
-        x = self.ttx['hmtx'][name][0] * self.size * 1. / self.upem
+        def getXPixelsPerEm(self):
+            return self.size
 
-        if 'vmtx' in self.ttx:
-            y = self.ttx['vmtx'][name][0] * self.size * 1. / self.upem
-        else:
-            y = 0.
+        def getYPixelsPerEm(self):
+            return self.size
 
-        return (x, y)
+        def getScaleFactorX(self):
+            return 1.
 
-    def getGlyphPoint(self, glyph, point):
-        return (0., 0.)
-
-    def getXPixelsPerEm(self):
-        return self.size
-
-    def getYPixelsPerEm(self):
-        return self.size
-
-    def getScaleFactorX(self):
-        return 1.
-
-    def getScaleFactorY(self):
-        return 1.
+        def getScaleFactorY(self):
+            return 1.
 
 
 try:
+    if ICU_VERSION >= '58':
+        raise NotImplementedError
     import fontTools
 except ImportError:
+    pass
+except NotImplementedError:
     pass
 else:
     class TestLayoutEngine(TestCase):
@@ -119,8 +126,12 @@ else:
 
 if __name__ == "__main__":
     try:
+        if ICU_VERSION >= '58':
+            raise NotImplementedError
         import fontTools
     except ImportError:
+        pass
+    except NotImplementedError:
         pass
     else:
         main()

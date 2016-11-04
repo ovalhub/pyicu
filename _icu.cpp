@@ -41,7 +41,9 @@
 #include "regex.h"
 #include "normalizer.h"
 #include "search.h"
+#if U_ICU_VERSION_HEX < VERSION_HEX(58, 0, 0)
 #include "layoutengine.h"
+#endif
 #include "script.h"
 #include "spoof.h"
 #include "idna.h"
@@ -60,7 +62,7 @@ public:
         PyObject *(*get)(PyObject *);
     } access;
 };
-    
+
 #define DESCRIPTOR_STATIC 0x1
 
 static void t_descriptor_dealloc(t_descriptor *self);
@@ -286,7 +288,9 @@ static PyObject *PyInit_icu(PyObject *m)
     _init_regex(m);
     _init_normalizer(m);
     _init_search(m);
+#if U_ICU_VERSION_HEX < VERSION_HEX(58, 0, 0)
     _init_layoutengine(m);
+#endif
     _init_script(m);
     _init_spoof(m);
     _init_idna(m);
@@ -323,7 +327,7 @@ extern "C" {
         PyObject *m = PyModule_Create(&moduledef);
         return PyInit_icu(m);
     }
-}        
+}
 #else
 extern "C" {
     void init_icu(void)

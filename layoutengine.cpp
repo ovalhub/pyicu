@@ -24,6 +24,8 @@
 #include "common.h"
 #include "structmember.h"
 
+#if U_ICU_VERSION_HEX < VERSION_HEX(58, 0, 0)
+
 #include <layout/LayoutEngine.h>
 #include <layout/LEFontInstance.h>
 #include <layout/LELanguages.h>
@@ -816,3 +818,5 @@ void _init_layoutengine(PyObject *m)
 
     getFontTable_NAME = PyString_FromString("getFontTable");
 }
+
+#endif  /* < 58 */

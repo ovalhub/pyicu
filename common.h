@@ -248,7 +248,7 @@ private:
     PyObject *msg;
 public:
     EXPORT ICUException();
-    EXPORT ICUException(const ICUException &);
+    EXPORT ICUException(const ICUException &e);
     EXPORT ICUException(UErrorCode status);
     EXPORT ICUException(UErrorCode status, char *format, ...);
     EXPORT ICUException(UParseError &pe, UErrorCode status);
