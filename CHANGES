@@ -5,6 +5,8 @@ Version 1.9.3 -> 1.9.4
   - added wrapper for UnicodeString.countChar32() and test
   - fixed crasher due to ICUException not incref'ing members during copy
   - added support for ICU 58.1 (conditionally removed layout engine wrapper)
+  - fixed bug in StringCharacterIterator's dealloc freeing random memory
+  - reworked Python <-> Unicode conversions for Python 3.3+ to use new APIs
 
 Version 1.9.2 -> 1.9.3
 ----------------------

@@ -163,9 +163,18 @@ static PyMethodDef t_stringcharacteriterator_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
+static void t_stringcharacteriterator_dealloc(t_stringcharacteriterator *self)
+{
+    if (self->flags & T_OWNED)
+        delete self->object;
+    self->object = NULL;
+
+    Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
 DECLARE_TYPE(StringCharacterIterator, t_stringcharacteriterator,
              UCharCharacterIterator, StringCharacterIterator,
-             t_stringcharacteriterator_init, NULL);
+             t_stringcharacteriterator_init, t_stringcharacteriterator_dealloc);
 
 /* BreakIterator */
 
@@ -675,7 +684,7 @@ static int t_stringcharacteriterator_init(t_stringcharacteriterator *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 

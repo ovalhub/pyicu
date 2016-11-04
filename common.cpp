@@ -122,7 +122,7 @@ EXPORT ICUException::ICUException(UParseError &pe, UErrorCode status)
     PyObject *tuple = PyTuple_New(5);
 
     ICUException::code = PyInt_FromLong((long) status);
-    
+
     PyTuple_SET_ITEM(tuple, 0, PyObject_GetItem(messages, code));
     PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(pe.line));
     PyTuple_SET_ITEM(tuple, 2, PyInt_FromLong(pe.offset));
@@ -148,7 +148,7 @@ EXPORT PyObject *ICUException::reportError()
         PyErr_SetObject(PyExc_ICUError, tuple);
         Py_DECREF(tuple);
     }
-        
+
     return NULL;
 }
 
@@ -160,6 +160,7 @@ EXPORT PyObject *PyUnicode_FromUnicodeString(const UnicodeString *string)
         Py_INCREF(Py_None);
         return Py_None;
     }
+#if PY_VERSION_HEX < 0x03030000
     else if (sizeof(Py_UNICODE) == sizeof(UChar))
         return PyUnicode_FromUnicode((const Py_UNICODE *) string->getBuffer(),
                                      (int) string->length());
@@ -175,10 +176,15 @@ EXPORT PyObject *PyUnicode_FromUnicodeString(const UnicodeString *string)
 
             for (int i = 0; i < len; i++)
                 pchars[i] = chars[i];
-        }        
+        }
 
         return u;
     }
+#else
+    return PyUnicode_FromKindAndData(
+        PyUnicode_2BYTE_KIND, (const void *) string->getBuffer(),
+        (Py_ssize_t) string->length());
+#endif
 }
 
 EXPORT PyObject *PyUnicode_FromUnicodeString(const UChar *chars, int size)
@@ -188,6 +194,7 @@ EXPORT PyObject *PyUnicode_FromUnicodeString(const UChar *chars, int size)
         Py_INCREF(Py_None);
         return Py_None;
     }
+#if PY_VERSION_HEX < 0x03030000
     else if (sizeof(Py_UNICODE) == sizeof(UChar))
         return PyUnicode_FromUnicode((const Py_UNICODE *) chars, size);
     else
@@ -201,9 +208,13 @@ EXPORT PyObject *PyUnicode_FromUnicodeString(const UChar *chars, int size)
             for (int i = 0; i < size; i++)
                 pchars[i] = chars[i];
         }
-        
+
         return u;
     }
+#else
+    return PyUnicode_FromKindAndData(
+        PyUnicode_2BYTE_KIND, (const void *) chars, (Py_ssize_t) size);
+#endif
 }
 
 EXPORT UnicodeString &PyBytes_AsUnicodeString(PyObject *object,
@@ -293,6 +304,7 @@ EXPORT UnicodeString &PyObject_AsUnicodeString(PyObject *object,
 {
     if (PyUnicode_Check(object))
     {
+#if PY_VERSION_HEX < 0x03030000
         if (sizeof(Py_UNICODE) == sizeof(UChar))
             string.setTo((const UChar *) PyUnicode_AS_UNICODE(object),
                          (int32_t) PyUnicode_GET_SIZE(object));
@@ -316,6 +328,95 @@ EXPORT UnicodeString &PyObject_AsUnicodeString(PyObject *object,
             string.setTo((const UChar *) chars, (int32_t) dstLen);
             delete[] chars;
         }
+#else
+        PyUnicode_READY(object);
+
+        switch (PyUnicode_KIND(object)) {
+          case PyUnicode_WCHAR_KIND: {
+              if (sizeof(Py_UNICODE) == sizeof(UChar))
+              {
+                  Py_ssize_t len;
+                  Py_UNICODE *pchars = PyUnicode_AsUnicodeAndSize(object, &len);
+
+                  string.setTo((const UChar *) pchars, len);
+              }
+              else
+              {
+                  Py_ssize_t len;
+                  Py_UNICODE *pchars = PyUnicode_AsUnicodeAndSize(object, &len);
+                  UChar *chars = new UChar[len * 5];
+                  UErrorCode status = U_ZERO_ERROR;
+                  int32_t dstLen;
+
+                  u_strFromUTF32(chars, len * 5, &dstLen,
+                                 (const UChar32 *) pchars, len, &status);
+
+                  if (U_FAILURE(status))
+                  {
+                      delete[] chars;
+                      throw ICUException(status);
+                  }
+
+                  string.setTo((const UChar *) chars, (int32_t) dstLen);
+                  delete[] chars;
+              }
+
+              break;
+          }
+
+          case PyUnicode_1BYTE_KIND: {
+              Py_ssize_t len = PyUnicode_GET_LENGTH(object);
+              Py_UCS1 *pchars = PyUnicode_1BYTE_DATA(object);
+              UChar *chars = new UChar[len];
+              UErrorCode status = U_ZERO_ERROR;
+
+              for (int i = 0; i < len; ++i)
+                  chars[i] = (UChar) pchars[i];
+
+              if (U_FAILURE(status))
+              {
+                  delete[] chars;
+                  throw ICUException(status);
+              }
+
+              string.setTo((const UChar *) chars, (int32_t) len);
+              delete[] chars;
+
+              break;
+          }
+
+          case PyUnicode_2BYTE_KIND: {
+              Py_ssize_t len = PyUnicode_GET_LENGTH(object);
+              Py_UCS2 *pchars = PyUnicode_2BYTE_DATA(object);
+
+              string.setTo((const UChar *) pchars, len);
+
+              break;
+          }
+
+          case PyUnicode_4BYTE_KIND: {
+              Py_ssize_t len = PyUnicode_GET_LENGTH(object);
+              Py_UCS4 *pchars = PyUnicode_4BYTE_DATA(object);
+              UChar *chars = new UChar[len * 5];
+              UErrorCode status = U_ZERO_ERROR;
+              int32_t dstLen;
+
+              u_strFromUTF32(chars, len * 5, &dstLen,
+                             (const UChar32 *) pchars, len, &status);
+
+              if (U_FAILURE(status))
+              {
+                  delete[] chars;
+                  throw ICUException(status);
+              }
+
+              string.setTo((const UChar *) chars, (int32_t) dstLen);
+              delete[] chars;
+
+              break;
+          }
+        }
+#endif
     }
     else if (PyBytes_Check(object))
         PyBytes_AsUnicodeString(object, encoding, mode, string);
