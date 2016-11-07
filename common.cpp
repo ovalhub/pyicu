@@ -181,9 +181,24 @@ EXPORT PyObject *PyUnicode_FromUnicodeString(const UnicodeString *string)
         return u;
     }
 #else
-    return PyUnicode_FromKindAndData(
-        PyUnicode_2BYTE_KIND, (const void *) string->getBuffer(),
-        (Py_ssize_t) string->length());
+    {
+        UErrorCode status = U_ZERO_ERROR;
+        int32_t size = string->toUTF32(NULL, 0, status);
+        PyObject *result = PyUnicode_New(size, 1114111);  // 4bytes kind
+
+        if (result != NULL)
+        {
+            status = U_ZERO_ERROR;
+            string->toUTF32((UChar32 *) PyUnicode_DATA(result), size, status);
+            if (U_FAILURE(status))
+            {
+                Py_DECREF(result);
+                throw ICUException(status);
+            }
+        }
+
+        return result;
+    }
 #endif
 }
 

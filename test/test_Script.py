@@ -54,5 +54,18 @@ class TestScript(TestCase):
             names.append(desc)
         self.assertEqual(['Latn', 'Deva', 'Hani', 'Hani'], names)
 
+    def testSmileyFace(self):
+        char = u'\U0001f600'
+        if sys.version_info >= (3,):
+            self.assertEqual(len(char), 1)
+            u = UnicodeString(char)
+            self.assertEqual(u.countChar32(), 1)
+            self.assertEqual(str(u), char)
+        else:
+            self.assertEqual(len(char), 2)
+            u = UnicodeString(char)
+            self.assertEqual(u.countChar32(), 1)
+            self.assertEqual(unicode(u), char)
+
 if __name__ == "__main__":
     main()

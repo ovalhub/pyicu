@@ -1,6 +1,7 @@
 Version 1.9.4 ->
 ----------------------
   - added icu-config --version check in setup.py to exclude libicule from libs
+  - fixed bug with Python <-> UnicodeString conversion with surrogate pairs
   - 
 
 Version 1.9.3 -> 1.9.4
