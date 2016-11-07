@@ -80,7 +80,8 @@ else:
 
 if 'PYICU_LIBRARIES' in os.environ:
     _libraries = os.environ['PYICU_LIBRARIES'].split(os.pathsep)
-elif ICU_VERSION < '58':
+elif ((sys.version_info >= (3,) and str(ICU_VERSION, 'ascii') < '58') or
+      (sys.version_info < (3,) and ICU_VERSION < '58')):
     _libraries = LIBRARIES[platform][:] + ['icule']
 else:
     _libraries = LIBRARIES[platform]
