@@ -1,3 +1,8 @@
+Version 1.9.4 ->
+----------------------
+  - added icu-config --version check in setup.py to exclude libicule from libs
+  - 
+
 Version 1.9.3 -> 1.9.4
 ----------------------
   - added wrappers for uloc_addLikelySubtags(), uloc_minimizeSubtags() on Locale

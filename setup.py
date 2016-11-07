@@ -1,5 +1,5 @@
 
-import os, sys
+import os, sys, subprocess
 
 try:
     from setuptools import setup, Extension
@@ -8,6 +8,7 @@ except ImportError:
 
 
 VERSION = '1.9.4'
+ICU_VERSION = subprocess.check_output(('icu-config', '--version')).strip()
 
 INCLUDES = {
     'darwin': ['/usr/local/include'],
@@ -43,11 +44,11 @@ LFLAGS = {
 }
 
 LIBRARIES = {
-    'darwin': ['icui18n', 'icuuc', 'icudata', 'icule'],
-    'linux': ['icui18n', 'icuuc', 'icudata', 'icule'],
-    'freebsd': ['icui18n', 'icuuc', 'icudata', 'icule'],
-    'win32': ['icuin', 'icuuc', 'icudt', 'icule'],
-    'sunos5': ['icui18n', 'icuuc', 'icudata', 'icule'],
+    'darwin': ['icui18n', 'icuuc', 'icudata'],
+    'linux': ['icui18n', 'icuuc', 'icudata'],
+    'freebsd': ['icui18n', 'icuuc', 'icudata'],
+    'win32': ['icuin', 'icuuc', 'icudt'],
+    'sunos5': ['icui18n', 'icuuc', 'icudata'],
 }
 
 platform = sys.platform
@@ -79,6 +80,8 @@ else:
 
 if 'PYICU_LIBRARIES' in os.environ:
     _libraries = os.environ['PYICU_LIBRARIES'].split(os.pathsep)
+elif ICU_VERSION < '58':
+    _libraries = LIBRARIES[platform][:] + ['icule']
 else:
     _libraries = LIBRARIES[platform]
 
@@ -87,6 +90,7 @@ if sys.version_info < (2, 4):
         iterable = list(iterable)
         iterable.sort(*args, **kwargs)
         return iterable
+
 
 setup(name="PyICU",
       description='Python extension wrapping the ICU C++ API',
