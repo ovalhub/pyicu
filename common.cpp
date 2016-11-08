@@ -184,17 +184,52 @@ EXPORT PyObject *PyUnicode_FromUnicodeString(const UnicodeString *string)
     {
         UErrorCode status = U_ZERO_ERROR;
         int32_t size = string->toUTF32(NULL, 0, status);
-        PyObject *result = PyUnicode_New(size, 1114111);  // 4bytes kind
+        UChar32 *chars = new UChar32[size];
+        PyObject *result = NULL;
 
-        if (result != NULL)
+        if (chars != NULL)
         {
             status = U_ZERO_ERROR;
-            string->toUTF32((UChar32 *) PyUnicode_DATA(result), size, status);
+            string->toUTF32(chars, size, status);
             if (U_FAILURE(status))
             {
-                Py_DECREF(result);
+                delete[] chars;
                 throw ICUException(status);
             }
+
+            UChar32 max_char = 0;
+
+            for (int32_t i = 0; i < size; ++i)
+              if (chars[i] > max_char)
+                max_char = chars[i];
+
+            result = PyUnicode_New(size, max_char);
+            if (result == NULL)
+            {
+                delete[] chars;
+                return NULL;
+            }
+
+            switch (PyUnicode_KIND(result)) {
+              case PyUnicode_1BYTE_KIND:
+                for (int32_t i = 0; i < size; ++i)
+                  PyUnicode_1BYTE_DATA(result)[i] = (Py_UCS1) (chars[i]);
+                break;
+              case PyUnicode_2BYTE_KIND:
+                for (int32_t i = 0; i < size; ++i)
+                  PyUnicode_2BYTE_DATA(result)[i] = (Py_UCS2) (chars[i]);
+                break;
+              case PyUnicode_4BYTE_KIND:
+                for (int32_t i = 0; i < size; ++i)
+                  PyUnicode_4BYTE_DATA(result)[i] = (Py_UCS4) (chars[i]);
+                break;
+              default:
+                delete[] chars;
+                Py_DECREF(result);
+                return NULL;
+            }
+
+            delete[] chars;
         }
 
         return result;
