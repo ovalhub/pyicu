@@ -105,9 +105,11 @@ static PyObject *t_numberformat_setMaximumFractionDigits(t_numberformat *self,
 static PyObject *t_numberformat_getMinimumFractionDigits(t_numberformat *self);
 static PyObject *t_numberformat_setMinimumFractionDigits(t_numberformat *self,
                                                         PyObject *arg);
+#if U_ICU_VERSION_HEX >= 0x04080000
 static PyObject *t_numberformat_isLenient(t_numberformat *self);
 static PyObject *t_numberformat_setLenient(t_numberformat *self,
                                            PyObject *arg);
+#endif
 static PyObject *t_numberformat_getCurrency(t_numberformat *self);
 static PyObject *t_numberformat_setCurrency(t_numberformat *self,
                                             PyObject *arg);
@@ -137,8 +139,10 @@ static PyMethodDef t_numberformat_methods[] = {
     DECLARE_METHOD(t_numberformat, setMaximumFractionDigits, METH_O),
     DECLARE_METHOD(t_numberformat, getMinimumFractionDigits, METH_NOARGS),
     DECLARE_METHOD(t_numberformat, setMinimumFractionDigits, METH_O),
+#if U_ICU_VERSION_HEX >= 0x04080000
     DECLARE_METHOD(t_numberformat, isLenient, METH_NOARGS),
     DECLARE_METHOD(t_numberformat, setLenient, METH_O),
+#endif
     DECLARE_METHOD(t_numberformat, getCurrency, METH_NOARGS),
     DECLARE_METHOD(t_numberformat, setCurrency, METH_O),
     DECLARE_METHOD(t_numberformat, createInstance, METH_VARARGS | METH_CLASS),
@@ -907,6 +911,8 @@ static PyObject *t_numberformat_setMinimumFractionDigits(t_numberformat *self,
     return PyErr_SetArgsError((PyObject *) self, "setMinimumFractionDigits", arg);
 }
 
+#if U_ICU_VERSION_HEX >= 0x04080000
+
 static PyObject *t_numberformat_isLenient(t_numberformat *self)
 {
     UBool n = self->object->isLenient();
@@ -926,6 +932,8 @@ static PyObject *t_numberformat_setLenient(t_numberformat *self,
 
     return PyErr_SetArgsError((PyObject *) self, "setLenient", arg);
 }
+
+#endif
 
 static PyObject *t_numberformat_getCurrency(t_numberformat *self)
 {
