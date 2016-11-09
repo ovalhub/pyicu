@@ -30,15 +30,16 @@ class TestScript(TestCase):
 
     def testSurrogatePairs(self):
         pairs = u'a\u0950\u4e2d\U00029efa'
+        unicode_32bit = (len(pairs) == 4)
         names = [Script.getScript(cp).getShortName() for cp in pairs]
-        if sys.version_info >= (3,):
+        if sys.version_info >= (3,) or unicode_32bit:
             self.assertEqual(['Latn', 'Deva', 'Hani', 'Hani'], names)
         else:
             self.assertEqual(['Latn', 'Deva', 'Hani', 'Zzzz', 'Zzzz'], names)
 
         pairs = UnicodeString(pairs)
         names = [Script.getScript(cp).getShortName() for cp in pairs]
-        if sys.version_info >= (3,):
+        if sys.version_info >= (3,) or unicode_32bit:
             self.assertEqual(['Latn', 'Deva', 'Hani', 'Hani', 'Hani'], names)
         else:
             self.assertEqual(['Latn', 'Deva', 'Hani', 'Zzzz', 'Zzzz'], names)
@@ -56,13 +57,14 @@ class TestScript(TestCase):
 
     def testSmileyFace(self):
         char = u'\U0001f600'
+        unicode_32bit = (len(char) == 1)
         if sys.version_info >= (3,):
             self.assertEqual(len(char), 1)
             u = UnicodeString(char)
             self.assertEqual(u.countChar32(), 1)
             self.assertEqual(str(u), char)
         else:
-            self.assertEqual(len(char), 2)
+            self.assertEqual(len(char), 1 if unicode_32bit else 2)
             u = UnicodeString(char)
             self.assertEqual(u.countChar32(), 1)
             self.assertEqual(unicode(u), char)
