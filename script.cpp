@@ -51,6 +51,12 @@ static int t_script_init(t_script *self, PyObject *args, PyObject *kwds);
 static PyObject *t_script_getName(t_script *self);
 static PyObject *t_script_getShortName(t_script *self);
 static PyObject *t_script_getScriptCode(t_script *self);
+static PyObject *t_script_getCode(PyTypeObject *type, PyObject *arg);
+static PyObject *t_script_getScript(PyTypeObject *type, PyObject *arg);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(49, 0, 0)
+static PyObject *t_script_hasScript(PyTypeObject *type, PyObject *args);
+static PyObject *t_script_getScriptExtensions(PyTypeObject *type, PyObject *arg);
+#endif
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
 static PyObject *t_script_isRightToLeft(t_script *self);
 static PyObject *t_script_isCased(t_script *self);
@@ -58,15 +64,17 @@ static PyObject *t_script_breaksBetweenLetters(t_script *self);
 static PyObject *t_script_getSampleString(t_script *self);
 static PyObject *t_script_getUsage(t_script *self);
 #endif
-static PyObject *t_script_getCode(PyTypeObject *type, PyObject *arg);
-static PyObject *t_script_getScript(PyTypeObject *type, PyObject *arg);
-static PyObject *t_script_hasScript(PyTypeObject *type, PyObject *args);
-static PyObject *t_script_getScriptExtensions(PyTypeObject *type, PyObject *arg);
 
 static PyMethodDef t_script_methods[] = {
     DECLARE_METHOD(t_script, getName, METH_NOARGS),
     DECLARE_METHOD(t_script, getShortName, METH_NOARGS),
     DECLARE_METHOD(t_script, getScriptCode, METH_NOARGS),
+    DECLARE_METHOD(t_script, getCode, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_script, getScript, METH_O | METH_CLASS),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(49, 0, 0)
+    DECLARE_METHOD(t_script, hasScript, METH_VARARGS | METH_CLASS),
+    DECLARE_METHOD(t_script, getScriptExtensions, METH_O | METH_CLASS),
+#endif
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
     DECLARE_METHOD(t_script, isRightToLeft, METH_NOARGS),
     DECLARE_METHOD(t_script, isCased, METH_NOARGS),
@@ -74,10 +82,6 @@ static PyMethodDef t_script_methods[] = {
     DECLARE_METHOD(t_script, getSampleString, METH_NOARGS),
     DECLARE_METHOD(t_script, getUsage, METH_NOARGS),
 #endif
-    DECLARE_METHOD(t_script, getCode, METH_O | METH_CLASS),
-    DECLARE_METHOD(t_script, getScript, METH_O | METH_CLASS),
-    DECLARE_METHOD(t_script, hasScript, METH_VARARGS | METH_CLASS),
-    DECLARE_METHOD(t_script, getScriptExtensions, METH_O | METH_CLASS),
     { NULL, NULL, 0, NULL }
 };
 
@@ -133,48 +137,6 @@ static PyObject *t_script_getScriptCode(t_script *self)
 {
     return PyInt_FromLong(self->code);
 }
-
-#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
-static PyObject *t_script_isRightToLeft(t_script *self)
-{
-    if (uscript_isRightToLeft(self->code))
-        Py_RETURN_TRUE;
-
-    Py_RETURN_FALSE;
-}
-
-static PyObject *t_script_isCased(t_script *self)
-{
-    if (uscript_isCased(self->code))
-        Py_RETURN_TRUE;
-
-    Py_RETURN_FALSE;
-}
-
-static PyObject *t_script_breaksBetweenLetters(t_script *self)
-{
-    if (uscript_breaksBetweenLetters(self->code))
-        Py_RETURN_TRUE;
-
-    Py_RETURN_FALSE;
-}
-
-static PyObject *t_script_getSampleString(t_script *self)
-{
-    UChar dest[32];
-    int32_t count;
-
-    STATUS_CALL(count = uscript_getSampleString(self->code, dest, sizeof(dest),
-                                                &status));
-
-    return PyUnicode_FromUnicodeString(dest, count);
-}
-
-static PyObject *t_script_getUsage(t_script *self)
-{
-    return PyInt_FromLong(uscript_getUsage(self->code));
-}
-#endif
 
 static PyObject *t_script_getCode(PyTypeObject *type, PyObject *arg)
 {
@@ -235,6 +197,7 @@ static PyObject *t_script_getScript(PyTypeObject *type, PyObject *arg)
     return PyErr_SetArgsError((PyObject *) type, "getScript", arg);
 }
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(49, 0, 0)
 static PyObject *t_script_hasScript(PyTypeObject *type, PyObject *args)
 {
     UnicodeString *u, _u;
@@ -326,6 +289,49 @@ static PyObject *t_script_getScriptExtensions(PyTypeObject *type, PyObject *arg)
 
     return PyErr_SetArgsError((PyObject *) type, "getScriptExtensions", arg);
 }
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+static PyObject *t_script_isRightToLeft(t_script *self)
+{
+    if (uscript_isRightToLeft(self->code))
+        Py_RETURN_TRUE;
+
+    Py_RETURN_FALSE;
+}
+
+static PyObject *t_script_isCased(t_script *self)
+{
+    if (uscript_isCased(self->code))
+        Py_RETURN_TRUE;
+
+    Py_RETURN_FALSE;
+}
+
+static PyObject *t_script_breaksBetweenLetters(t_script *self)
+{
+    if (uscript_breaksBetweenLetters(self->code))
+        Py_RETURN_TRUE;
+
+    Py_RETURN_FALSE;
+}
+
+static PyObject *t_script_getSampleString(t_script *self)
+{
+    UChar dest[32];
+    int32_t count;
+
+    STATUS_CALL(count = uscript_getSampleString(self->code, dest, sizeof(dest),
+                                                &status));
+
+    return PyUnicode_FromUnicodeString(dest, count);
+}
+
+static PyObject *t_script_getUsage(t_script *self)
+{
+    return PyInt_FromLong(uscript_getUsage(self->code));
+}
+#endif
 
 
 void _init_script(PyObject *m)
@@ -421,9 +427,7 @@ void _init_script(PyObject *m)
     INSTALL_ENUM(UScriptCode, "LATIN_GAELIC", USCRIPT_LATIN_GAELIC);
     INSTALL_ENUM(UScriptCode, "LEPCHA", USCRIPT_LEPCHA);
     INSTALL_ENUM(UScriptCode, "LINEAR_A", USCRIPT_LINEAR_A);
-    INSTALL_ENUM(UScriptCode, "MANDAIC", USCRIPT_MANDAIC);
     INSTALL_ENUM(UScriptCode, "MANDAEAN", USCRIPT_MANDAEAN);
-    INSTALL_ENUM(UScriptCode, "MEROITIC_HIEROGLYPHS", USCRIPT_MEROITIC_HIEROGLYPHS);
     INSTALL_ENUM(UScriptCode, "MEROITIC", USCRIPT_MEROITIC);
     INSTALL_ENUM(UScriptCode, "ORKHON", USCRIPT_ORKHON);
     INSTALL_ENUM(UScriptCode, "OLD_PERMIC", USCRIPT_OLD_PERMIC);
@@ -485,8 +489,10 @@ void _init_script(PyObject *m)
     INSTALL_ENUM(UScriptCode, "GRANTHA", USCRIPT_GRANTHA);
     INSTALL_ENUM(UScriptCode, "KPELLE", USCRIPT_KPELLE);
     INSTALL_ENUM(UScriptCode, "LOMA", USCRIPT_LOMA);
+    INSTALL_ENUM(UScriptCode, "MANDAIC", USCRIPT_MANDAIC);
     INSTALL_ENUM(UScriptCode, "MENDE", USCRIPT_MENDE);
     INSTALL_ENUM(UScriptCode, "MEROITIC_CURSIVE", USCRIPT_MEROITIC_CURSIVE);
+    INSTALL_ENUM(UScriptCode, "MEROITIC_HIEROGLYPHS", USCRIPT_MEROITIC_HIEROGLYPHS);
     INSTALL_ENUM(UScriptCode, "OLD_NORTH_ARABIAN", USCRIPT_OLD_NORTH_ARABIAN);
     INSTALL_ENUM(UScriptCode, "NABATAEAN", USCRIPT_NABATAEAN);
     INSTALL_ENUM(UScriptCode, "PALMYRENE", USCRIPT_PALMYRENE);
