@@ -57,11 +57,11 @@ static PyObject *t_script_isCased(t_script *self);
 static PyObject *t_script_breaksBetweenLetters(t_script *self);
 static PyObject *t_script_getSampleString(t_script *self);
 static PyObject *t_script_getUsage(t_script *self);
+static PyObject *t_script_hasScript(PyTypeObject *type, PyObject *args);
+static PyObject *t_script_getScriptExtensions(PyTypeObject *type, PyObject *arg);
 #endif
 static PyObject *t_script_getCode(PyTypeObject *type, PyObject *arg);
 static PyObject *t_script_getScript(PyTypeObject *type, PyObject *arg);
-static PyObject *t_script_hasScript(PyTypeObject *type, PyObject *args);
-static PyObject *t_script_getScriptExtensions(PyTypeObject *type, PyObject *arg);
 
 static PyMethodDef t_script_methods[] = {
     DECLARE_METHOD(t_script, getName, METH_NOARGS),
@@ -73,11 +73,11 @@ static PyMethodDef t_script_methods[] = {
     DECLARE_METHOD(t_script, breaksBetweenLetters, METH_NOARGS),
     DECLARE_METHOD(t_script, getSampleString, METH_NOARGS),
     DECLARE_METHOD(t_script, getUsage, METH_NOARGS),
+    DECLARE_METHOD(t_script, hasScript, METH_VARARGS | METH_CLASS),
+    DECLARE_METHOD(t_script, getScriptExtensions, METH_O | METH_CLASS),
 #endif
     DECLARE_METHOD(t_script, getCode, METH_O | METH_CLASS),
     DECLARE_METHOD(t_script, getScript, METH_O | METH_CLASS),
-    DECLARE_METHOD(t_script, hasScript, METH_VARARGS | METH_CLASS),
-    DECLARE_METHOD(t_script, getScriptExtensions, METH_O | METH_CLASS),
     { NULL, NULL, 0, NULL }
 };
 
@@ -174,66 +174,6 @@ static PyObject *t_script_getUsage(t_script *self)
 {
     return PyInt_FromLong(uscript_getUsage(self->code));
 }
-#endif
-
-static PyObject *t_script_getCode(PyTypeObject *type, PyObject *arg)
-{
-    charsArg name;
-
-    if (!parseArg(arg, "n", &name))
-    {
-        UScriptCode codes[256];
-        int count;
-
-        STATUS_CALL(count = uscript_getCode(
-            name, codes, sizeof(codes) / sizeof(UScriptCode), &status));
-
-        PyObject *tuple = PyTuple_New(count);
-
-        for (int i = 0; i < count; ++i)
-            PyTuple_SET_ITEM(tuple, i, PyInt_FromLong(codes[i]));
-
-        return tuple;
-    }
-
-    return PyErr_SetArgsError((PyObject *) type, "getCode", arg);
-}
-
-static PyObject *t_script_getScript(PyTypeObject *type, PyObject *arg)
-{
-    UnicodeString *u, _u;
-    int cp;
-
-    if (!parseArg(arg, "S", &u, &_u))
-    {
-        UScriptCode code;
-
-        if (u->countChar32() != 1)
-        {
-            PyObject *tuple = Py_BuildValue(
-                "(sO)", "string must contain only one codepoint", arg);
-
-            PyErr_SetObject(PyExc_ValueError, tuple);
-            Py_DECREF(tuple);
-
-            return NULL;
-        }
-
-        STATUS_CALL(code = uscript_getScript(u->char32At(0), &status));
-
-        return PyObject_CallFunction((PyObject *) type, (char *) "i", code);
-    }
-    if (!parseArg(arg, "i", &cp))
-    {
-        UScriptCode code;
-
-        STATUS_CALL(code = uscript_getScript((UChar32) cp, &status));
-
-        return PyObject_CallFunction((PyObject *) type, (char *) "i", code);
-    }
-
-    return PyErr_SetArgsError((PyObject *) type, "getScript", arg);
-}
 
 static PyObject *t_script_hasScript(PyTypeObject *type, PyObject *args)
 {
@@ -326,7 +266,66 @@ static PyObject *t_script_getScriptExtensions(PyTypeObject *type, PyObject *arg)
 
     return PyErr_SetArgsError((PyObject *) type, "getScriptExtensions", arg);
 }
+#endif
 
+static PyObject *t_script_getCode(PyTypeObject *type, PyObject *arg)
+{
+    charsArg name;
+
+    if (!parseArg(arg, "n", &name))
+    {
+        UScriptCode codes[256];
+        int count;
+
+        STATUS_CALL(count = uscript_getCode(
+            name, codes, sizeof(codes) / sizeof(UScriptCode), &status));
+
+        PyObject *tuple = PyTuple_New(count);
+
+        for (int i = 0; i < count; ++i)
+            PyTuple_SET_ITEM(tuple, i, PyInt_FromLong(codes[i]));
+
+        return tuple;
+    }
+
+    return PyErr_SetArgsError((PyObject *) type, "getCode", arg);
+}
+
+static PyObject *t_script_getScript(PyTypeObject *type, PyObject *arg)
+{
+    UnicodeString *u, _u;
+    int cp;
+
+    if (!parseArg(arg, "S", &u, &_u))
+    {
+        UScriptCode code;
+
+        if (u->countChar32() != 1)
+        {
+            PyObject *tuple = Py_BuildValue(
+                "(sO)", "string must contain only one codepoint", arg);
+
+            PyErr_SetObject(PyExc_ValueError, tuple);
+            Py_DECREF(tuple);
+
+            return NULL;
+        }
+
+        STATUS_CALL(code = uscript_getScript(u->char32At(0), &status));
+
+        return PyObject_CallFunction((PyObject *) type, (char *) "i", code);
+    }
+    if (!parseArg(arg, "i", &cp))
+    {
+        UScriptCode code;
+
+        STATUS_CALL(code = uscript_getScript((UChar32) cp, &status));
+
+        return PyObject_CallFunction((PyObject *) type, (char *) "i", code);
+    }
+
+    return PyErr_SetArgsError((PyObject *) type, "getScript", arg);
+}
 
 void _init_script(PyObject *m)
 {
@@ -421,9 +420,6 @@ void _init_script(PyObject *m)
     INSTALL_ENUM(UScriptCode, "LATIN_GAELIC", USCRIPT_LATIN_GAELIC);
     INSTALL_ENUM(UScriptCode, "LEPCHA", USCRIPT_LEPCHA);
     INSTALL_ENUM(UScriptCode, "LINEAR_A", USCRIPT_LINEAR_A);
-    INSTALL_ENUM(UScriptCode, "MANDAIC", USCRIPT_MANDAIC);
-    INSTALL_ENUM(UScriptCode, "MANDAEAN", USCRIPT_MANDAEAN);
-    INSTALL_ENUM(UScriptCode, "MEROITIC_HIEROGLYPHS", USCRIPT_MEROITIC_HIEROGLYPHS);
     INSTALL_ENUM(UScriptCode, "MEROITIC", USCRIPT_MEROITIC);
     INSTALL_ENUM(UScriptCode, "ORKHON", USCRIPT_ORKHON);
     INSTALL_ENUM(UScriptCode, "OLD_PERMIC", USCRIPT_OLD_PERMIC);
@@ -485,8 +481,11 @@ void _init_script(PyObject *m)
     INSTALL_ENUM(UScriptCode, "GRANTHA", USCRIPT_GRANTHA);
     INSTALL_ENUM(UScriptCode, "KPELLE", USCRIPT_KPELLE);
     INSTALL_ENUM(UScriptCode, "LOMA", USCRIPT_LOMA);
+    INSTALL_ENUM(UScriptCode, "MANDAIC", USCRIPT_MANDAIC);
+    INSTALL_ENUM(UScriptCode, "MANDAEAN", USCRIPT_MANDAEAN);
     INSTALL_ENUM(UScriptCode, "MENDE", USCRIPT_MENDE);
     INSTALL_ENUM(UScriptCode, "MEROITIC_CURSIVE", USCRIPT_MEROITIC_CURSIVE);
+    INSTALL_ENUM(UScriptCode, "MEROITIC_HIEROGLYPHS", USCRIPT_MEROITIC_HIEROGLYPHS);
     INSTALL_ENUM(UScriptCode, "OLD_NORTH_ARABIAN", USCRIPT_OLD_NORTH_ARABIAN);
     INSTALL_ENUM(UScriptCode, "NABATAEAN", USCRIPT_NABATAEAN);
     INSTALL_ENUM(UScriptCode, "PALMYRENE", USCRIPT_PALMYRENE);
