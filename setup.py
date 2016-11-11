@@ -7,7 +7,7 @@ except ImportError:
     from distutils.core import setup, Extension
 
 
-VERSION = '1.9.4'
+VERSION = '1.9.5'
 ICU_VERSION = subprocess.check_output(('icu-config', '--version')).strip()
 
 INCLUDES = {

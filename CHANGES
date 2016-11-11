@@ -1,11 +1,10 @@
-Version 1.9.4 ->
+Version 1.9.4 -> 1.9.5
 ----------------------
   - added icu-config --version check in setup.py to exclude libicule from libs
   - fixed bug with Python3.3+ <-> UnicodeString conversion with surrogate pairs
   - reworked Python3.3+ <-> UnicodeString with no allocations (Markus Scherer)
-  - fixed bugs with 32bit Python2->Python3.2 <-> UnicodeString conversions
+  - fixed bugs with 32bit Python2..Python3.2 <-> UnicodeString conversions
   - added conditionals around uses of features in newer ICUs (Keegan Parker)
-  - 
 
 Version 1.9.3 -> 1.9.4
 ----------------------
