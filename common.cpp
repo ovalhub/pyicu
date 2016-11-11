@@ -177,15 +177,7 @@ EXPORT PyObject *PyUnicode_FromUnicodeString(const UChar *utf16, int len16)
         return PyUnicode_FromUnicode((const Py_UNICODE *) utf16, len16);
     else
     {
-        int32_t len32 = 0;
-
-        for (int32_t i = 0; i < len16;) {
-            UChar32 cp;
-
-            U16_NEXT(utf16, i, len16, cp);
-            len32 += 1;
-        }
-
+        int32_t len32 = u_countChar32(utf16, len16);
         PyObject *u = PyUnicode_FromUnicode(NULL, len32);
 
         if (u)

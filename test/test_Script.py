@@ -26,20 +26,25 @@ import sys, os
 from unittest import TestCase, main
 from icu import *
 
+# python2 can be build with 16- or 32-bit unicode chars (UCS2 or UCS4)
+# python3 uses 32-bit unicode chars (logically)
+def is_unicode_32bit():
+    return len(u'\U0001f600') == 1
+
 class TestScript(TestCase):
 
     def testSurrogatePairs(self):
         pairs = u'a\u0950\u4e2d\U00029efa'
-        unicode_32bit = (len(pairs) == 4)
+        unicode_32bit = is_unicode_32bit()
         names = [Script.getScript(cp).getShortName() for cp in pairs]
-        if sys.version_info >= (3,) or unicode_32bit:
+        if unicode_32bit:
             self.assertEqual(['Latn', 'Deva', 'Hani', 'Hani'], names)
         else:
             self.assertEqual(['Latn', 'Deva', 'Hani', 'Zzzz', 'Zzzz'], names)
 
         pairs = UnicodeString(pairs)
         names = [Script.getScript(cp).getShortName() for cp in pairs]
-        if sys.version_info >= (3,) or unicode_32bit:
+        if unicode_32bit:
             self.assertEqual(['Latn', 'Deva', 'Hani', 'Hani', 'Hani'], names)
         else:
             self.assertEqual(['Latn', 'Deva', 'Hani', 'Zzzz', 'Zzzz'], names)
@@ -57,16 +62,17 @@ class TestScript(TestCase):
 
     def testSmileyFace(self):
         char = u'\U0001f600'
-        unicode_32bit = (len(char) == 1)
+        u = UnicodeString(char)
+        self.assertEqual(u.countChar32(), 1)
+
         if sys.version_info >= (3,):
             self.assertEqual(len(char), 1)
-            u = UnicodeString(char)
-            self.assertEqual(u.countChar32(), 1)
             self.assertEqual(str(u), char)
+        elif is_unicode_32bit():
+            self.assertEqual(len(char), 1)
+            self.assertEqual(unicode(u), char)
         else:
-            self.assertEqual(len(char), 1 if unicode_32bit else 2)
-            u = UnicodeString(char)
-            self.assertEqual(u.countChar32(), 1)
+            self.assertEqual(len(char), 2)
             self.assertEqual(unicode(u), char)
 
 if __name__ == "__main__":
