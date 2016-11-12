@@ -26,7 +26,7 @@ import sys, os
 from unittest import TestCase, main
 from icu import *
 
-# python2 can be build with 16- or 32-bit unicode chars (UCS2 or UCS4)
+# python2 can be built with 16- or 32-bit unicode chars (UCS2 or UCS4)
 # python3 uses 32-bit unicode chars (logically)
 def is_unicode_32bit():
     return len(u'\U0001f600') == 1

@@ -223,7 +223,7 @@ EXPORT PyObject *PyUnicode_FromUnicodeString(const UChar *utf16, int len16)
 
           case PyUnicode_2BYTE_KIND:
             // note: len16 == len32
-            u_memcpy(PyUnicode_2BYTE_DATA(result), utf16, len16);
+            u_memcpy((UChar *) PyUnicode_2BYTE_DATA(result), utf16, len16);
             break;
 
           case PyUnicode_4BYTE_KIND: {
