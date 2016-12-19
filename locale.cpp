@@ -1282,7 +1282,7 @@ static PyObject *t_resourcebundle_setAppData(PyTypeObject *type,
             return NULL;
         }
 
-        data = mmap(NULL, buf.st_size, PROT_READ, MAP_SHARED, fd, 0);
+        data = mmap(NULL, (size_t) buf.st_size, PROT_READ, MAP_SHARED, fd, 0);
         if (data == MAP_FAILED)
         {
             PyErr_SetFromErrnoWithFilename(PyExc_ValueError, path);
@@ -1295,7 +1295,7 @@ static PyObject *t_resourcebundle_setAppData(PyTypeObject *type,
         udata_setAppData(packageName, data, &status);
         if (U_FAILURE(status))
         {
-            munmap(data, buf.st_size);
+            munmap(data, (size_t) buf.st_size);
             return ICUException(status).reportError();
         }
 

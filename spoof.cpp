@@ -131,7 +131,7 @@ static int t_spoofchecker_init(t_spoofchecker *self,
 
 static PyObject *t_spoofchecker_setChecks(t_spoofchecker *self, PyObject *arg)
 {
-    int32_t checks = PyInt_AsLong(arg);
+    int32_t checks = (int32_t) PyInt_AsLong(arg);
 
     if (PyErr_Occurred())
         return NULL;
@@ -288,7 +288,7 @@ static PyObject *t_spoofchecker_getSkeleton(t_spoofchecker *self,
 static PyObject *t_spoofchecker_setRestrictionLevel(t_spoofchecker *self,
                                                     PyObject *arg)
 {
-    int32_t level = PyInt_AsLong(arg);
+    int32_t level = (int32_t) PyInt_AsLong(arg);
 
     if (PyErr_Occurred())
         return NULL;

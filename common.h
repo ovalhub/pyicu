@@ -352,7 +352,7 @@ int _parseArgs(PyObject **args, int count, const char *types, va_list list);
 
 #define parseArgs(args, types, rest...) \
     _parseArgs(((PyTupleObject *)(args))->ob_item, \
-               PyObject_Size(args), types, ##rest)
+               (int) PyObject_Size(args), types, ##rest)
 
 #define parseArg(arg, types, rest...) \
     _parseArgs(&(arg), 1, types, ##rest)

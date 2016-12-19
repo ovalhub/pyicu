@@ -310,7 +310,7 @@ static PyObject *t_charsetmatch_str(t_charsetmatch *self)
     if (self->detector && self->detector->text)
     {
         UErrorCode status = U_ZERO_ERROR;
-        int size = PyBytes_GET_SIZE(self->detector->text);
+        int size = (int) PyBytes_GET_SIZE(self->detector->text);
         UChar *buf = new UChar[size];
         PyObject *u;
 
@@ -326,7 +326,7 @@ static PyObject *t_charsetmatch_str(t_charsetmatch *self)
             delete[] buf;
             return ICUException(status).reportError();
         }
-        
+
         u = PyUnicode_FromUnicodeString(buf, size);
         delete[] buf;
 

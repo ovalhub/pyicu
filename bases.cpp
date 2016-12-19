@@ -1732,8 +1732,8 @@ static PyObject *t_unicodestring_repeat(t_unicodestring *self, Py_ssize_t n)
     else
     {
         UnicodeString *u = self->object;
-        UnicodeString *v = new UnicodeString(u->length() * n, 0, 0);
-    
+        UnicodeString *v = new UnicodeString(u->length() * (int32_t) n, 0, 0);
+
         while (n-- > 0)
             *v += *u;
 
@@ -1788,7 +1788,7 @@ static PyObject *t_unicodestring_slice(t_unicodestring *self,
     if (l >= 0 && h >= 0)
     {
         if (h > l)
-            u->extract(l, h - l, *v);
+          u->extract((int32_t) l, (int32_t) (h - l), *v);
 
         return wrap_UnicodeString(v, T_OWNED);
     }
@@ -1813,9 +1813,9 @@ static int t_unicodestring_ass_item(t_unicodestring *self,
         if (!parseArg(arg, "i", &i))
         {
             if (sizeof(Py_UNICODE) == sizeof(UChar))
-                u->replace(n, 1, (UChar) i);
+                u->replace((int32_t) n, 1, (UChar) i);
             else
-                u->replace(n, 1, (UChar32) i);
+                u->replace((int32_t) n, 1, (UChar32) i);
 
             return 0;
         }
@@ -1827,7 +1827,7 @@ static int t_unicodestring_ass_item(t_unicodestring *self,
         {
             if (v->length() == 1)
             {
-                u->setCharAt(n, v->charAt(0));
+                u->setCharAt((int32_t) n, v->charAt(0));
                 return 0;
             }
             else
@@ -1872,7 +1872,7 @@ static int t_unicodestring_ass_slice(t_unicodestring *self,
 
         if (h >= 0 && l >= 0)
         {
-            u->replaceBetween(l, h, *v);
+            u->replaceBetween((int32_t) l, (int32_t) h, *v);
             return 0;
         }
 

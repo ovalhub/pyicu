@@ -80,12 +80,12 @@ static PyObject *t_shape_shapeArabic(PyTypeObject *type, PyObject *args)
       case 2:
         if (!parseArgs(args, "Si", &u, &_u, &options))
         {
-            const size_t len = u->length();
-            const size_t capacity = len * 4 + 32;
+            const int32_t len = u->length();
+            const int32_t capacity = len * 4 + 32;
             UErrorCode status = U_ZERO_ERROR;
             UChar *dest = new UChar[capacity];
             PyObject *result;
-            size_t size;
+            int32_t size;
 
             if (!dest)
             {

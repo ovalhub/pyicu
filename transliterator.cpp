@@ -215,7 +215,7 @@ static int t_utransposition_setter(int32_t *slot, PyObject *value)
         return -1;
     }
 
-    n = PyInt_AsLong(value);
+    n = (int32_t) PyInt_AsLong(value);
     if (PyErr_Occurred())
         return -1;
 
@@ -505,7 +505,7 @@ static PyObject *t_transliterator_countElements(t_transliterator *self)
 static PyObject *t_transliterator_getElement(t_transliterator *self,
                                              PyObject *arg)
 {
-    int32_t i = PyInt_AsLong(arg);
+    int32_t i = (int32_t) PyInt_AsLong(arg);
     const Transliterator *transliterator;
 
     if (PyErr_Occurred())

@@ -280,9 +280,9 @@ EXPORT UnicodeString &PyBytes_AsUnicodeString(PyObject *object,
 
     PyBytes_AsStringAndSize(object, &src, &len);
     stop.src = src;
-    stop.src_length = len;
+    stop.src_length = (int) len;
 
-    buffer = target = new UChar[len];
+    buffer = target = new UChar[(int) len];
     if (buffer == NULL)
     {
         ucnv_close(conv);
@@ -291,7 +291,7 @@ EXPORT UnicodeString &PyBytes_AsUnicodeString(PyObject *object,
         throw ICUException();
     }
 
-    ucnv_toUnicode(conv, &target, target + len,
+    ucnv_toUnicode(conv, &target, target + (int) len,
                    (const char **) &src, src + len, NULL, true, &status);
 
     if (U_FAILURE(status))
@@ -322,7 +322,7 @@ EXPORT UnicodeString &PyBytes_AsUnicodeString(PyObject *object,
         throw ICUException();
     }
 
-    string.setTo(buffer, target - buffer);
+    string.setTo(buffer, (int32_t) (target - buffer));
 
     delete[] buffer;
     ucnv_close(conv);
@@ -602,7 +602,7 @@ int isInstance(PyObject *arg, classid id, PyTypeObject *type)
 
         PyObject *list = PyDict_GetItem(types, bn);
         int b = PySequence_Contains(list, n);
-        
+
         Py_DECREF(bn);
         Py_DECREF(n);
 
@@ -616,7 +616,7 @@ UObject **pl2cpa(PyObject *arg, int *len, classid id, PyTypeObject *type)
 {
     if (PySequence_Check(arg))
     {
-        *len = PySequence_Size(arg);
+        *len = (int) PySequence_Size(arg);
         UObject **array = (UObject **) calloc(*len, sizeof(UObject *));
 
         for (int i = 0; i < *len; i++) {
@@ -637,7 +637,7 @@ UObject **pl2cpa(PyObject *arg, int *len, classid id, PyTypeObject *type)
 
         return array;
     }
-    
+
     return NULL;
 }
 
@@ -687,7 +687,7 @@ Formattable *toFormattableArray(PyObject *arg, int *len,
 {
     if (PySequence_Check(arg))
     {
-        *len = PySequence_Size(arg);
+        *len = (int) PySequence_Size(arg);
         Formattable *array = new Formattable[*len + 1];
 
         for (int i = 0; i < *len; i++) {
@@ -727,12 +727,12 @@ static UnicodeString *toUnicodeStringArray(PyObject *arg, int *len)
 {
     if (PySequence_Check(arg))
     {
-        *len = PySequence_Size(arg);
+        *len = (int) PySequence_Size(arg);
         UnicodeString *array = new UnicodeString[*len + 1];
 
         for (int i = 0; i < *len; i++) {
             PyObject *obj = PySequence_GetItem(arg, i);
-            
+
             if (PyObject_TypeCheck(obj, &UObjectType_))
             {
                 array[i] = *(UnicodeString *) ((t_uobject *) obj)->object;
@@ -762,7 +762,7 @@ static double *toDoubleArray(PyObject *arg, int *len)
 {
     if (PySequence_Check(arg))
     {
-        *len = PySequence_Size(arg);
+        *len = (int) PySequence_Size(arg);
         double *array = new double[*len + 1];
 
         for (int i = 0; i < *len; i++) {
@@ -803,7 +803,7 @@ static UBool *toUBoolArray(PyObject *arg, int *len)
 {
     if (PySequence_Check(arg))
     {
-        *len = PySequence_Size(arg);
+        *len = (int) PySequence_Size(arg);
         UBool *array = new UBool[*len + 1];
 
         for (int i = 0; i < *len; i++) {
@@ -1086,7 +1086,7 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
               char **c = va_arg(list, char **);
               int *l = va_arg(list, int *);
               *c = PyBytes_AS_STRING(arg);
-              *l = PyBytes_GET_SIZE(arg);
+              *l = (int) PyBytes_GET_SIZE(arg);
               break;
           }
 
@@ -1315,7 +1315,7 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
               if ((*n = PyLong_AsLong(arg)) == -1 && PyErr_Occurred())
                   return -1;
 #else
-              *n = PyInt_AsLong(arg);
+              *n = (int) PyInt_AsLong(arg);
 #endif
               break;
           }

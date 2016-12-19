@@ -167,13 +167,13 @@ static PyObject *apply(idna_fn fn, const char *fn_name,
       case 1:
         if (!parseArgs(args, "S", &u, &_u))
         {
-            const size_t len = u->length();
-            const size_t capacity = len * 4 + 32;
+            const int32_t len = u->length();
+            const int32_t capacity = len * 4 + 32;
             UErrorCode status = U_ZERO_ERROR;
             UChar *dest = new UChar[capacity];
             UIDNAInfo info = UIDNA_INFO_INITIALIZER;
             PyObject *result;
-            size_t size;
+            int32_t size;
 
             if (!dest)
             {
@@ -200,12 +200,12 @@ static PyObject *apply(idna_fn fn, const char *fn_name,
       case 2:
         if (!parseArgs(args, "SO", &IDNAInfoType_, &u, &_u, &infoArg))
         {
-            const size_t len = u->length();
-            const size_t capacity = len * 4 + 32;
+            const int32_t len = u->length();
+            const int32_t capacity = len * 4 + 32;
             UErrorCode status = U_ZERO_ERROR;
             UChar *dest = new UChar[capacity];
             PyObject *result;
-            size_t size;
+            int32_t size;
 
             if (!dest)
             {
