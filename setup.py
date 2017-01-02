@@ -1,14 +1,25 @@
 
-import os, sys, subprocess
+import os, sys
 
 try:
     from setuptools import setup, Extension
 except ImportError:
     from distutils.core import setup, Extension
 
+try:
+    from subprocess import check_output
+except ImportError:
+    from subprocess import Popen, PIPE
+    def check_output(*popenargs):
+        process = Popen(stdout=PIPE, *popenargs)
+        output, ignore = process.communicate()
+        retcode = process.poll()
+        if retcode:
+            raise Exception((retcode, popenargs[0], output))
+        return output
 
 VERSION = '1.9.5'
-ICU_VERSION = subprocess.check_output(('icu-config', '--version')).strip()
+ICU_VERSION = check_output(('icu-config', '--version')).strip()
 
 INCLUDES = {
     'darwin': ['/usr/local/include'],
