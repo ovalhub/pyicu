@@ -19,7 +19,7 @@ except ImportError:
         return output
 
 VERSION = '1.9.5'
-ICU_VERSION = check_output(('icu-config', '--version')).strip()
+ICU_VERSION = os.environ['ICU_VERSION']
 
 INCLUDES = {
     'darwin': ['/usr/local/include'],
