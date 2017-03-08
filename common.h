@@ -93,6 +93,10 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/locid.h>
 #include <unicode/uloc.h>
 #include <unicode/resbund.h>
+/* apparently a macro defined by some versions of the MSVC compiler */
+#ifdef daylight
+#undef daylight
+#endif
 #include <unicode/calendar.h>
 #include <unicode/gregocal.h>
 #include <unicode/format.h>
