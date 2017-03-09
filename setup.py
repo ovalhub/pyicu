@@ -19,7 +19,16 @@ except ImportError:
         return output
 
 VERSION = '1.9.5'
-ICU_VERSION = check_output(('icu-config', '--version')).strip()
+
+platform = sys.platform
+
+if 'ICU_VERSION' in os.environ:
+    ICU_VERSION = str.encode(os.environ['ICU_VERSION'])
+elif platform.startswith('win'):
+    uconv_version = check_output(('uconv', '--version')).strip()
+    ICU_VERSION = str.encode(str(uconv_version).split(' ')[3].split('.')[0])
+else:
+    ICU_VERSION = check_output(('icu-config', '--version')).strip()
 
 INCLUDES = {
     'darwin': ['/usr/local/include'],
@@ -50,7 +59,7 @@ LFLAGS = {
     'darwin': ['-L/usr/local/lib'],
     'linux': [],
     'freebsd': ['-L/usr/local/lib'],
-    'win32': ['/LIBPATH:c:/icu/lib'],
+    'win32': ['/LIBPATH:c:/icu/lib', '/LIBPATH:c:/icu/lib64'],
     'sunos5': [],
 }
 
@@ -62,7 +71,6 @@ LIBRARIES = {
     'sunos5': ['icui18n', 'icuuc', 'icudata'],
 }
 
-platform = sys.platform
 if platform.startswith(('linux', 'gnu')):
     platform = 'linux'
 elif platform.startswith('freebsd'):
