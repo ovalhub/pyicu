@@ -6,20 +6,33 @@ try:
 except ImportError:
     from distutils.core import setup, Extension
 
-try:
-    from subprocess import check_output
-except ImportError:
-    from subprocess import Popen, PIPE
-    def check_output(*popenargs):
-        process = Popen(stdout=PIPE, *popenargs)
-        output, ignore = process.communicate()
-        retcode = process.poll()
-        if retcode:
-            raise Exception((retcode, popenargs[0], output))
-        return output
-
 VERSION = '1.9.5'
-ICU_VERSION = check_output(('icu-config', '--version')).strip()
+
+try:
+    ICU_VERSION = os.environ['ICU_VERSION']
+except:
+    try:
+        from subprocess import check_output
+    except ImportError:
+        from subprocess import Popen, PIPE
+        def check_output(*popenargs):
+            process = Popen(stdout=PIPE, *popenargs)
+            output, ignore = process.communicate()
+            retcode = process.poll()
+            if retcode:
+                raise RuntimeError((retcode, popenargs[0], output))
+            return output
+    try:
+        ICU_VERSION = check_output(('icu-config', '--version')).strip()
+    except:
+        raise RuntimeError('''
+Please set the ICU_VERSION environment variable to the version of
+ICU you have installed.
+        ''')
+
+print('''
+Building PyICU %s for ICU %s
+''' %(VERSION, ICU_VERSION))
 
 INCLUDES = {
     'darwin': ['/usr/local/include'],
