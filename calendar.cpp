@@ -6,10 +6,10 @@
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions: 
+ * Software is furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software. 
+ * in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -28,6 +28,11 @@
 #include "locale.h"
 #include "calendar.h"
 #include "macros.h"
+
+/* apparently a macro defined by some versions of the MSVC compiler */
+#ifdef daylight
+#undef daylight
+#endif
 
 DECLARE_CONSTANTS_TYPE(UCalendarDateFields);
 DECLARE_CONSTANTS_TYPE(UCalendarDaysOfWeek);
@@ -391,7 +396,7 @@ static PyObject *t_timezone_getDisplayName(t_timezone *self, PyObject *args)
         }
         break;
     }
-        
+
     return PyErr_SetArgsError((PyObject *) self, "getDisplayName", args);
 }
 
@@ -449,7 +454,7 @@ PyObject *t_timezone_createTimeZone(PyTypeObject *type, PyObject *arg)
         TimeZone *tz = TimeZone::createTimeZone(*u);
         const TimeZone *gmt = TimeZone::getGMT();
         UnicodeString tzid, GMT;
-        
+
         /* PyICU bug 8180 and ICU bug 5612:
          *    https://bugzilla.osafoundation.org/show_bug.cgi?id=8180
          *    http://bugs.icu-project.org/trac/ticket/5612
@@ -601,7 +606,7 @@ static PyObject *t_timezone_setDefault(PyTypeObject *type, PyObject *arg)
 
         Py_DECREF(m);
         Py_DECREF(cls);
-        
+
         return result;
     }
 
@@ -712,7 +717,7 @@ static int t_simpletimezone_init(t_simpletimezone *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
@@ -786,7 +791,7 @@ static PyObject *t_simpletimezone_setStartRule(t_simpletimezone *self,
         }
         break;
     }
-        
+
     return PyErr_SetArgsError((PyObject *) self, "setStartRule", args);
 }
 
@@ -841,7 +846,7 @@ static PyObject *t_simpletimezone_setEndRule(t_simpletimezone *self,
         }
         break;
     }
-        
+
     return PyErr_SetArgsError((PyObject *) self, "setEndRule", args);
 }
 
@@ -1228,7 +1233,7 @@ static PyObject *t_calendar_set(t_calendar *self, PyObject *args)
         }
         break;
     }
-    
+
     return PyErr_SetArgsError((PyObject *) self, "set", args);
 }
 
@@ -1248,7 +1253,7 @@ static PyObject *t_calendar_clear(t_calendar *self, PyObject *args)
         }
         break;
     }
-            
+
     return PyErr_SetArgsError((PyObject *) self, "clear", args);
 }
 
@@ -1330,7 +1335,7 @@ static PyObject *t_calendar_createInstance(PyTypeObject *type, PyObject *args)
         {
             STATUS_CALL(calendar = Calendar::createInstance(*tz, status));
             return wrap_Calendar(calendar);
-        }          
+        }
         if (!parseArgs(args, "P", TYPE_CLASSID(Locale), &locale))
         {
             STATUS_CALL(calendar = Calendar::createInstance(*locale, status));
@@ -1500,7 +1505,7 @@ static int t_gregoriancalendar_init(t_gregoriancalendar *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
