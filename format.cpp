@@ -187,6 +187,10 @@ static PyObject *t_messageformat_setFormats(t_messageformat *self,
                                             PyObject *arg);
 static PyObject *t_messageformat_setFormat(t_messageformat *self,
                                            PyObject *args);
+#if U_ICU_VERSION_HEX >= 0x04000000
+static PyObject *t_messageformat_getFormatNames(t_messageformat *self);
+#endif
+
 static PyObject *t_messageformat_format(t_messageformat *self, PyObject *args);
 static PyObject *t_messageformat_parse(t_messageformat *self, PyObject *args);
 static PyObject *t_messageformat_formatMessage(PyTypeObject *type,
@@ -209,6 +213,9 @@ static PyMethodDef t_messageformat_methods[] = {
     DECLARE_METHOD(t_messageformat, getFormats, METH_NOARGS),
     DECLARE_METHOD(t_messageformat, setFormats, METH_O),
     DECLARE_METHOD(t_messageformat, setFormat, METH_VARARGS),
+#if U_ICU_VERSION_HEX >= 0x04000000
+    DECLARE_METHOD(t_messageformat, getFormatNames, METH_NOARGS),
+#endif
     DECLARE_METHOD(t_messageformat, format, METH_VARARGS),
     DECLARE_METHOD(t_messageformat, parse, METH_VARARGS),
     DECLARE_METHOD(t_messageformat, formatMessage, METH_VARARGS | METH_CLASS),
@@ -862,7 +869,7 @@ static int t_messageformat_init(t_messageformat *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
@@ -949,8 +956,16 @@ static PyObject *t_messageformat_getFormats(t_messageformat *self)
     PyObject *list = PyList_New(count);
 
     for (int i = 0; i < count; i++) {
-        PyObject *obj = wrap_Format(formats[i]->clone());
-        PyList_SET_ITEM(list, i, obj);
+        if (formats[i] == NULL)
+        {
+            PyList_SET_ITEM(list, i, Py_None);
+            Py_INCREF(Py_None);
+        }
+        else
+        {
+            PyObject *obj = wrap_Format(formats[i]->clone());
+            PyList_SET_ITEM(list, i, obj);
+        }
     }
 
     return list;
@@ -1005,7 +1020,7 @@ static PyObject *t_messageformat_format(t_messageformat *self, PyObject *args)
                     self->object->format(f, len, _u, _fp, status);
                     delete[] f;
                 });
-                
+
             return PyUnicode_FromUnicodeString(&_u);
         }
         break;
@@ -1022,7 +1037,7 @@ static PyObject *t_messageformat_format(t_messageformat *self, PyObject *args)
                     self->object->format(f, len, _u, *fp, status);
                     delete[] f;
                 });
-                
+
             return PyUnicode_FromUnicodeString(&_u);
         }
         if (!parseArgs(args, "RU", TYPE_CLASSID(Formattable),
@@ -1077,11 +1092,23 @@ static PyObject *t_messageformat_format(t_messageformat *self, PyObject *args)
     return t_format_format((t_format *) self, args);
 }
 
+#if U_ICU_VERSION_HEX >= 0x04000000
+
+static PyObject *t_messageformat_getFormatNames(t_messageformat *self)
+{
+    StringEnumeration *se;
+    STATUS_CALL(se = self->object->getFormatNames(status));
+
+    return wrap_StringEnumeration(se, T_OWNED);
+}
+
+#endif
+
 static PyObject *fromFormattableArray(Formattable *formattables,
                                       int len, int dispose)
 {
     PyObject *list = PyList_New(len);
-    
+
     for (int i = 0; i < len; i++)
         PyList_SET_ITEM(list, i, wrap_Formattable(formattables[i]));
 
@@ -1119,7 +1146,7 @@ static PyObject *t_messageformat_parse(t_messageformat *self, PyObject *args)
         }
         break;
     }
-    
+
     return PyErr_SetArgsError((PyObject *) self, "parse", args);
 }
 
@@ -1227,7 +1254,7 @@ static PyObject *t_pluralrules_select(t_pluralrules *self, PyObject *arg)
         u = self->object->select(d);
     else
         return PyErr_SetArgsError((PyObject *) self, "select", arg);
-        
+
     return PyUnicode_FromUnicodeString(&u);
 }
 

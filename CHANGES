@@ -3,6 +3,7 @@ Version 1.9.5 ->
   - turned icu into a package and moved docs.py into it
   - fixed a bunch of warnings about  missing int/int32_t casts
   - added reduced version of missing in < 2.7 check_output() used in setup.py
+  - added wrapper for MessageFormat::getFormatNames()
   - 
 
 Version 1.9.4 -> 1.9.5

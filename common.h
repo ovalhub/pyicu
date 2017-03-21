@@ -87,6 +87,11 @@ typedef intintobjargproc ssizessizeobjargproc;
 # endif
 #endif
 
+/* apparently a macro defined by some versions of the MSVC compiler */
+#ifdef daylight
+#undef daylight
+#endif
+
 #include <unicode/utypes.h>
 #include <unicode/unistr.h>
 #include <unicode/ucnv.h>
