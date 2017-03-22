@@ -36,7 +36,7 @@ class InvalidArgsError(Exception):
     pass
 
 
-if sys.version_info >= sys.version_info >= (3,):
+if sys.version_info >= (3,):
     from .docs import *
 else:
     from docs import *
