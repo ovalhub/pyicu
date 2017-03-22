@@ -20,6 +20,7 @@
  # DEALINGS IN THE SOFTWARE.
  # ====================================================================
 
+import sys
 
 class ICUError(Exception):
     messages = {}
@@ -34,4 +35,8 @@ class ICUError(Exception):
 class InvalidArgsError(Exception):
     pass
 
-from docs import *
+
+if sys.version_info >= sys.version_info >= (3,):
+    from .docs import *
+else:
+    from docs import *
