@@ -225,7 +225,7 @@ static PyObject *_install__doc__(PyObject *self, PyObject *args)
     /* classes */
     if (PyType_Check(object))
     {
-        object->ob_type->tp_doc = strdup(doc);
+        ((PyTypeObject *) object)->tp_doc = strdup(doc);
         Py_RETURN_NONE;
     }
 
