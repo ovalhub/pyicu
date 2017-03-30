@@ -334,8 +334,21 @@ static PyObject *t_script_getUsage(t_script *self)
 #endif
 
 
+static PyObject *t_script__getCode(t_script *self, void *data)
+{
+    return PyInt_FromLong(self->code);
+}
+
+static PyGetSetDef t_script_properties[] = {
+    { (char *) "code", (getter) t_script__getCode, NULL, (char *) "", NULL },
+    { NULL, NULL, NULL, NULL, NULL }
+};
+
+
 void _init_script(PyObject *m)
 {
+    ScriptType_.tp_getset = t_script_properties;
+
     INSTALL_CONSTANTS_TYPE(UScriptCode, m);
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
     INSTALL_CONSTANTS_TYPE(UScriptUsage, m);
