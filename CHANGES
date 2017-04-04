@@ -5,6 +5,7 @@ Version 1.9.5 ->
   - added reduced version of missing in < 2.7 check_output() used in setup.py
   - added wrapper for MessageFormat::getFormatNames()
   - added check for ICU_VERSION env variable before calling icu-config
+  - added wrappers for static Normalizer2 constructors that appeared in ICU 49
   - 
 
 Version 1.9.4 -> 1.9.5

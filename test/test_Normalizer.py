@@ -7,10 +7,10 @@
 # to deal in the Software without restriction, including without limitation
 # the rights to use, copy, modify, merge, publish, distribute, sublicense,
 # and/or sell copies of the Software, and to permit persons to whom the
-# Software is furnished to do so, subject to the following conditions: 
+# Software is furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included
-# in all copies or substantial portions of the Software. 
+# in all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
 # OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -45,7 +45,82 @@ class TestNormalizer2(TestCase):
         a = UnicodeString()
         normalizer.normalize("Hi There", a)
         self.assertTrue(a == UnicodeString(u'hi there'))
-        
+
+    def testNormalizeNFC(self):
+
+        try:
+            from icu import Normalizer2
+        except ImportError:
+            return
+
+        normalizer = Normalizer2.getNFCInstance()
+
+        self.assertTrue(normalizer.normalize("Hi There") == u'Hi There')
+
+        a = UnicodeString()
+        normalizer.normalize("Hi There", a)
+        self.assertTrue(a == UnicodeString(U'Hi There'))
+
+    def testNormalizeNFD(self):
+
+        try:
+            from icu import Normalizer2
+        except ImportError:
+            return
+
+        normalizer = Normalizer2.getNFDInstance()
+
+        self.assertTrue(normalizer.normalize("Hi There") == u'Hi There')
+
+        a = UnicodeString()
+        normalizer.normalize("Hi There", a)
+        self.assertTrue(a == UnicodeString(U'Hi There'))
+
+    def testNormalizeNFKC(self):
+
+        try:
+            from icu import Normalizer2
+        except ImportError:
+            return
+
+        normalizer = Normalizer2.getNFKCInstance()
+
+        self.assertTrue(normalizer.normalize("Hi There") == u'Hi There')
+
+        a = UnicodeString()
+        normalizer.normalize("Hi There", a)
+        self.assertTrue(a == UnicodeString(U'Hi There'))
+
+    def testNormalizeNFKD(self):
+
+        try:
+            from icu import Normalizer2
+        except ImportError:
+            return
+
+        normalizer = Normalizer2.getNFKDInstance()
+
+        self.assertTrue(normalizer.normalize("Hi There") == u'Hi There')
+
+        a = UnicodeString()
+        normalizer.normalize("Hi There", a)
+        self.assertTrue(a == UnicodeString(U'Hi There'))
+
+    def testNormalizeNFKCCasefold(self):
+
+        try:
+            from icu import Normalizer2
+        except ImportError:
+            return
+
+        normalizer = Normalizer2.getNFKCCasefoldInstance()
+
+        self.assertTrue(normalizer.normalize("Hi There") == u'hi there')
+
+        a = UnicodeString()
+        normalizer.normalize("Hi There", a)
+        self.assertTrue(a == UnicodeString(U'hi there'))
+
 
 if __name__ == "__main__":
     main()

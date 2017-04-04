@@ -120,6 +120,14 @@ static PyObject *t_normalizer2_hasBoundaryAfter(t_normalizer2 *self,
 static PyObject *t_normalizer2_isInert(t_normalizer2 *self, PyObject *arg);
 static PyObject *t_normalizer2_getInstance(PyTypeObject *type, PyObject *args);
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(49, 0, 0)
+static PyObject *t_normalizer2_getNFCInstance(PyTypeObject *type);
+static PyObject *t_normalizer2_getNFDInstance(PyTypeObject *type);
+static PyObject *t_normalizer2_getNFKCInstance(PyTypeObject *type);
+static PyObject *t_normalizer2_getNFKDInstance(PyTypeObject *type);
+static PyObject *t_normalizer2_getNFKCCasefoldInstance(PyTypeObject *type);
+#endif
+
 static PyMethodDef t_normalizer2_methods[] = {
     DECLARE_METHOD(t_normalizer2, normalize, METH_VARARGS),
     DECLARE_METHOD(t_normalizer2, normalizeSecondAndAppend, METH_VARARGS),
@@ -131,6 +139,13 @@ static PyMethodDef t_normalizer2_methods[] = {
     DECLARE_METHOD(t_normalizer2, hasBoundaryAfter, METH_O),
     DECLARE_METHOD(t_normalizer2, isInert, METH_O),
     DECLARE_METHOD(t_normalizer2, getInstance, METH_VARARGS | METH_CLASS),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(49, 0, 0)
+    DECLARE_METHOD(t_normalizer2, getNFCInstance, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_normalizer2, getNFDInstance, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_normalizer2, getNFKCInstance, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_normalizer2, getNFKDInstance, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_normalizer2, getNFKCCasefoldInstance, METH_NOARGS | METH_CLASS),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -697,6 +712,49 @@ static PyObject *t_normalizer2_getInstance(PyTypeObject *type, PyObject *args)
     return PyErr_SetArgsError(type, "getInstance", args);
 }
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(49, 0, 0)
+
+static PyObject *t_normalizer2_getNFCInstance(PyTypeObject *type)
+{
+    const Normalizer2 *normalizer;
+
+    STATUS_CALL(normalizer = Normalizer2::getNFCInstance(status));
+    return wrap_Normalizer2((Normalizer2 *) normalizer, 0);
+}
+
+static PyObject *t_normalizer2_getNFDInstance(PyTypeObject *type)
+{
+    const Normalizer2 *normalizer;
+
+    STATUS_CALL(normalizer = Normalizer2::getNFDInstance(status));
+    return wrap_Normalizer2((Normalizer2 *) normalizer, 0);
+}
+
+static PyObject *t_normalizer2_getNFKCInstance(PyTypeObject *type)
+{
+    const Normalizer2 *normalizer;
+
+    STATUS_CALL(normalizer = Normalizer2::getNFKCInstance(status));
+    return wrap_Normalizer2((Normalizer2 *) normalizer, 0);
+}
+
+static PyObject *t_normalizer2_getNFKDInstance(PyTypeObject *type)
+{
+    const Normalizer2 *normalizer;
+
+    STATUS_CALL(normalizer = Normalizer2::getNFKDInstance(status));
+    return wrap_Normalizer2((Normalizer2 *) normalizer, 0);
+}
+
+static PyObject *t_normalizer2_getNFKCCasefoldInstance(PyTypeObject *type)
+{
+    const Normalizer2 *normalizer;
+
+    STATUS_CALL(normalizer = Normalizer2::getNFKCCasefoldInstance(status));
+    return wrap_Normalizer2((Normalizer2 *) normalizer, 0);
+}
+
+#endif
 
 /* FilteredNormalizer2 */
 
@@ -705,7 +763,7 @@ static int t_filterednormalizer2_init(t_filterednormalizer2 *self,
 {
     Normalizer2 *normalizer;
     UnicodeSet *filter;
-    
+
     if (!parseArgs(args, "pp",
                    TYPE_CLASSID(Normalizer2), TYPE_CLASSID(UnicodeSet),
                    &normalizer, &self->normalizer, &filter, &self->filter))
