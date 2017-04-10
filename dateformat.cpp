@@ -1883,7 +1883,9 @@ static int t_relativedatetimeformatter_init(t_relativedatetimeformatter *self,
     Locale *locale;
     RelativeDateTimeFormatter *fmt;
     NumberFormat *number_format;
+#if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
     UDateRelativeDateTimeFormatterStyle style;
+#endif
     UDisplayContext context;
 
     switch (PyTuple_Size(args)) {
@@ -1914,6 +1916,7 @@ static int t_relativedatetimeformatter_init(t_relativedatetimeformatter *self,
         }
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
+#if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
       case 4:
         if (!parseArgs(args, "PPii", TYPE_CLASSID(Locale),
                        TYPE_CLASSID(NumberFormat), &locale, &number_format,
@@ -1928,11 +1931,12 @@ static int t_relativedatetimeformatter_init(t_relativedatetimeformatter *self,
         }
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
+#endif
       default:
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
