@@ -1873,7 +1873,7 @@ DEFINE_RICHCMP(DateIntervalFormat, t_dateintervalformat);
 
 #endif
 
-#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
+#if U_ICU_VERSION_HEX >= VERSION_HEX(55, 0, 0)
 
 /* RelativeDateTimeFormatter */
 
