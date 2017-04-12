@@ -7,10 +7,10 @@
 # to deal in the Software without restriction, including without limitation
 # the rights to use, copy, modify, merge, publish, distribute, sublicense,
 # and/or sell copies of the Software, and to permit persons to whom the
-# Software is furnished to do so, subject to the following conditions: 
+# Software is furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included
-# in all copies or substantial portions of the Software. 
+# in all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
 # OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,7 +22,7 @@
 # ====================================================================
 #
 
-import sys, os
+import sys, os, six
 
 from unittest import TestCase, main
 from icu import *
@@ -31,10 +31,10 @@ try:
     if ICU_VERSION >= '58':
         raise NotImplementedError
     from fontTools.ttLib import TTFont
-except ImportError, e:
-    print >>sys.stderr, "\nfontTools package not found, skipping LayoutEngine tests\n"
+except ImportError as e:
+    sys.stderr.write("\nfontTools package not found, skipping LayoutEngine tests\n")
 except NotImplementedError:
-    print >>sys.stderr, "\nLayoutEngine not available in ICU %s" %(ICU_VERSION)
+    sys.stderr.write("\nLayoutEngine not available in ICU %s" %(ICU_VERSION))
 else:
     class TTXLEFont(LEFontInstance):
 

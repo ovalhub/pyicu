@@ -43,11 +43,11 @@ INCLUDES = {
 }
 
 CFLAGS = {
-    'darwin': ['-DPYICU_VER="%s"' %(VERSION)],
-    'linux': ['-DPYICU_VER="%s"' %(VERSION)],
-    'freebsd': ['-DPYICU_VER="%s"' %(VERSION)],
+    'darwin': ['-DPYICU_VER="%s"' %(VERSION), '-std=c++11'],
+    'linux': ['-DPYICU_VER="%s"' %(VERSION), '-std=c++11'],
+    'freebsd': ['-DPYICU_VER="%s"' %(VERSION), '-std=c++11'],
     'win32': ['/Zc:wchar_t', '/EHsc', '/DPYICU_VER=\\"%s\\"' %(VERSION)],
-    'sunos5': ['-DPYICU_VER="%s"' %(VERSION)],
+    'sunos5': ['-DPYICU_VER="%s"' %(VERSION), '-std=c++11'],
 }
 
 # added to CFLAGS when setup is invoked with --debug
@@ -147,14 +147,5 @@ setup(name="PyICU",
                              extra_link_args=_lflags,
                              libraries=_libraries)],
       packages=['icu'],
-      py_modules=['PyICU'])
-
-
-if sys.version_info >= (3,):
-    path = os.path.join('test', '2to3.note')
-    if not os.path.exists(path):
-        from lib2to3.main import main
-        main("lib2to3.fixes", ['-w', '-n', '--no-diffs', 'test'])
-        output = open(path, 'w')
-        output.write('tests auto-converted by 2to3 during setup\n')
-        output.close()
+      py_modules=['PyICU'],
+      tests_require=['pytest', 'six'])

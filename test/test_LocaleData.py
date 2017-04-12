@@ -6,10 +6,10 @@
 # to deal in the Software without restriction, including without limitation
 # the rights to use, copy, modify, merge, publish, distribute, sublicense,
 # and/or sell copies of the Software, and to permit persons to whom the
-# Software is furnished to do so, subject to the following conditions: 
+# Software is furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included
-# in all copies or substantial portions of the Software. 
+# in all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
 # OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,7 +22,7 @@
 #
 # This is a python translation of ICU's LocaleDataTest.java
 
-import sys, os
+import sys, os, six
 
 from unittest import TestCase, main
 from icu import *
@@ -54,7 +54,7 @@ class TestLocaleData(TestCase):
             papersize = LocaleData(locale).getPaperSize()
             #language = Locale(locale).getLanguage()
             country = Locale(locale).getCountry()
-            
+
             if (['BZ','CA','CL','CO','CR','GT','MX','NI','PA','PH','PR','SV','US','VE'].count(country) > 0):
                 self.assertTrue(papersize == (279, 216))
             elif country:
@@ -65,19 +65,19 @@ class TestLocaleData(TestCase):
             measurementSystem = LocaleData(locale).getMeasurementSystem()
             #language = Locale(locale).getLanguage()
             country = Locale(locale).getCountry()
-            
+
             # 0 means SI, 1 means US, 2 mean UK
             if (country in ['LR', 'MM', 'US']):
                 self.assertTrue(measurementSystem == 1)
-            elif country in ['GB']: 
+            elif country in ['GB']:
                 self.assertTrue(measurementSystem in [0, 2])
-            elif country: 
+            elif country:
                 self.assertTrue(measurementSystem == 0)
-            
+
     def testExemplarSet(self):
         testedExemplars = set()
         equalCount = 0
-        
+
         for locale in self.availableLocales:
             scriptCodes = Script.getCode(locale)
             exemplarSets = []
@@ -108,18 +108,18 @@ class TestLocaleData(TestCase):
                                     break
                     if existsInScript == False:
                         print_output("ExemplarSet containment failed for locale : "+ locale)
-            print_output(locale + " exemplar " + repr(unicode(exemplarSets[0])))
-            print_output(locale + " exemplar(case-folded) " + repr(unicode(exemplarSets[1])))
+            print_output(locale + " exemplar " + repr(six.text_type(exemplarSets[0])))
+            print_output(locale + " exemplar(case-folded) " + repr(six.text_type(exemplarSets[1])))
             self.assertTrue(locale + " case-folded is a superset", exemplarSets[1].containsAll(exemplarSets[0]))
             if (exemplarSets[1] == exemplarSets[0]):
                 ++equalCount
         self.assertTrue("case-folded is sometimes a strict superset, and sometimes equal",\
                         equalCount > 0 and equalCount < len(self.availableLocales))
-    
+
     def testExemplarSet2(self):
         testedExemplars = set()
         equalCount = 0
-        
+
         for locale in self.availableLocales:
             ld = LocaleData(locale)
             scriptCodes = Script.getCode(locale)
@@ -154,10 +154,10 @@ class TestLocaleData(TestCase):
                             if existsInScript == False and h == 0:
                                 print_output("ExemplarSet containment failed for locale,option,type : " \
                                       + locale + "," + str(option) + "," + str(esType))
-            print_output(locale + " exemplar(ES_STANDARD)" + repr(unicode(exemplarSets[0])))
-            print_output(locale + " exemplar(ES_AUXILIARY)" + repr(unicode(exemplarSets[1])))
-            print_output(locale + " exemplar(case-folded,ES_STANDARD)" + repr(unicode(exemplarSets[2])))
-            print_output(locale + " exemplar(case-folded,ES_AUXILIARY)" + repr(unicode(exemplarSets[3])))
+            print_output(locale + " exemplar(ES_STANDARD)" + repr(six.text_type(exemplarSets[0])))
+            print_output(locale + " exemplar(ES_AUXILIARY)" + repr(six.text_type(exemplarSets[1])))
+            print_output(locale + " exemplar(case-folded,ES_STANDARD)" + repr(six.text_type(exemplarSets[2])))
+            print_output(locale + " exemplar(case-folded,ES_AUXILIARY)" + repr(six.text_type(exemplarSets[3])))
             self.assertTrue(locale + " case-folded is a superset", exemplarSets[2].containsAll(exemplarSets[0]))
             self.assertTrue(locale + " case-folder is a superset", exemplarSets[3].containsAll(exemplarSets[1]))
             if (exemplarSets[2] == exemplarSets[0]):
@@ -174,7 +174,7 @@ class TestLocaleData(TestCase):
         self.assertEqual(t, ld.getNoSubstitute())
         for i in range(4):
             print_output(repr(ld.getDelimiter(i)))
-    
+
     def testLocaleDisplayPattern(self):
         ld = LocaleData(Locale().getName())
         print_output("Default locale LocaleDisplayPattern:" + ld.getLocaleDisplayPattern());
@@ -184,7 +184,7 @@ class TestLocaleData(TestCase):
             try:
                 print_output(locale + " LocaleDisplayPattern:" + repr(ld.getLocaleDisplayPattern()))
                 getLocaleDisplayPattern = True
-            except ICUError, e:  # resource not found
+            except ICUError as e:  # resource not found
                 getLocaleDisplayPattern = str(e) == NOT_FOUND_ERR
             except:
                 getLocaleDisplayPattern = False
@@ -192,12 +192,12 @@ class TestLocaleData(TestCase):
             try:
                 print_output(locale + " LocaleSeparator:" + repr(ld.getLocaleSeparator()))
                 getLocaleSeparator = True
-            except ICUError, e:  # resource not found
+            except ICUError as e:  # resource not found
                 getLocaleSeparator = str(e) == NOT_FOUND_ERR
             except:
                 getLocaleSeparator = False
             self.assertTrue(getLocaleSeparator)
-        
-    
+
+
 if __name__ == "__main__":
     main()

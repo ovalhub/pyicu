@@ -6,10 +6,10 @@
 # to deal in the Software without restriction, including without limitation
 # the rights to use, copy, modify, merge, publish, distribute, sublicense,
 # and/or sell copies of the Software, and to permit persons to whom the
-# Software is furnished to do so, subject to the following conditions: 
+# Software is furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included
-# in all copies or substantial portions of the Software. 
+# in all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
 # OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +21,7 @@
 # ====================================================================
 #
 
-import sys, os
+import sys, os, six
 
 from unittest import TestCase, main
 from icu import *
@@ -59,11 +59,11 @@ class TestCharset(TestCase):
     def testUnicode(self):
 
         bytes = u'beaut\xe9 probable'.encode('iso-8859-1')
-        ustring = unicode(CharsetDetector(bytes).detect())
+        ustring = six.text_type(CharsetDetector(bytes).detect())
 
         self.assertTrue(ustring.encode('iso-8859-1') == bytes)
-        
-        
+
+
 
 if __name__ == "__main__":
     main()
