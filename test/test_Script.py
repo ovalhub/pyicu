@@ -21,7 +21,7 @@
 # ====================================================================
 #
 
-import sys, os
+import sys, os, six
 
 from unittest import TestCase, main
 from icu import *
@@ -50,7 +50,7 @@ class TestScript(TestCase):
             self.assertEqual(['Latn', 'Deva', 'Hani', 'Zzzz', 'Zzzz'], names)
 
         names = [Script.getScript(pairs.char32At(i)).getShortName()
-                 for i in xrange(pairs.countChar32())]
+                 for i in range(pairs.countChar32())]
         self.assertEqual(['Latn', 'Deva', 'Hani', 'Hani'], names)
 
         iterator = StringCharacterIterator(pairs)
@@ -70,10 +70,10 @@ class TestScript(TestCase):
             self.assertEqual(str(u), char)
         elif is_unicode_32bit():
             self.assertEqual(len(char), 1)
-            self.assertEqual(unicode(u), char)
+            self.assertEqual(six.text_type(u), char)
         else:
             self.assertEqual(len(char), 2)
-            self.assertEqual(unicode(u), char)
+            self.assertEqual(six.text_type(u), char)
 
 if __name__ == "__main__":
     main()

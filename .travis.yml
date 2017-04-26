@@ -1,0 +1,42 @@
+language: python
+sudo: false
+dist: trusty
+
+notifications:
+  email: false
+
+python:
+  - "2.6"
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+
+env:
+  global:
+    - ICU_VERSION="59.1"
+    - PYICU_LIBRARIES="icui18n:icuuc:icudata"
+    - PYICU_INCLUDES="/tmp/icu4c/include"
+    - PYICU_LFLAGS="-L/tmp/icu4c/lib"
+
+cache:
+  ccache: true
+  pip: true
+  timeout: 1000
+  directories:
+    - /tmp/icu4c
+
+before_install:
+  # install ICU4C from source
+  - mkdir -p /tmp/icu4c
+  - export ICU_URL="https://downloads.sourceforge.net/project/icu/ICU4C/$ICU_VERSION/icu4c-${ICU_VERSION/./_}-src.tgz"
+  - wget -nv -O /tmp/icu4c/icu4c.tgz "$ICU_URL"
+  - tar -xzf /tmp/icu4c/icu4c.tgz -C /tmp/icu4c
+  - pushd /tmp/icu4c/icu/source && ./configure --prefix=/tmp/icu4c && make && make install && popd
+
+install:
+  - pip install . pytest six
+
+script:
+  - LD_LIBRARY_PATH="/tmp/icu4c/lib" py.test
