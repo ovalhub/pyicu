@@ -30,6 +30,16 @@
 #define EXPORT
 #endif
 
+#ifdef __GNUG__
+#define GCC_VERSION \
+    (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+#if GCC_VERSION < 40800  // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=54249
+namespace std {
+    typedef decltype(nullptr) nullptr_t;
+}
+#endif
+#endif
+
 #include <Python.h>
 
 #if !defined(PYPY_VERSION) && defined(PYPY_VERSION_NUM)
