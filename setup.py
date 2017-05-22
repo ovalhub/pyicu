@@ -42,6 +42,7 @@ INCLUDES = {
     'freebsd': ['/usr/local/include'],
     'win32': ['c:/icu/include'],
     'sunos5': [],
+    'cygwin': [],
 }
 
 CFLAGS = {
@@ -50,6 +51,7 @@ CFLAGS = {
     'freebsd': ['-DPYICU_VER="%s"' %(VERSION), '-std=c++11'],
     'win32': ['/Zc:wchar_t', '/EHsc', '/DPYICU_VER=\\"%s\\"' %(VERSION)],
     'sunos5': ['-DPYICU_VER="%s"' %(VERSION), '-std=c++11'],
+    'cygwin': ['-DPYICU_VER="%s"' %(VERSION), '-D_GNU_SOURCE=1', '-std=c++11'],
 }
 
 # added to CFLAGS when setup is invoked with --debug
@@ -59,6 +61,7 @@ DEBUG_CFLAGS = {
     'freebsd': ['-O0', '-g', '-DDEBUG'],
     'win32': ['/Od', '/DDEBUG'],
     'sunos5': ['-DDEBUG'],
+    'cygwin': ['-Og', '-g', '-DDEBUG'],
 }
 
 LFLAGS = {
@@ -67,6 +70,7 @@ LFLAGS = {
     'freebsd': ['-L/usr/local/lib'],
     'win32': ['/LIBPATH:c:/icu/lib'],
     'sunos5': [],
+    'cygwin': [],
 }
 
 LIBRARIES = {
@@ -75,6 +79,7 @@ LIBRARIES = {
     'freebsd': ['icui18n', 'icuuc', 'icudata'],
     'win32': ['icuin', 'icuuc', 'icudt'],
     'sunos5': ['icui18n', 'icuuc', 'icudata'],
+    'cygwin': ['icui18n', 'icuuc', 'icudata'],
 }
 
 platform = sys.platform
