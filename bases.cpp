@@ -1664,7 +1664,7 @@ static PyObject *t_unicodestring_richcmp(t_unicodestring *self,
         } catch (ICUException e) {
             return e.reportError();
         }
-        
+
     switch (op) {
       case Py_EQ:
         b = *self->object == *u;
@@ -1692,6 +1692,7 @@ static PyObject *t_unicodestring_richcmp(t_unicodestring *self,
     Py_RETURN_BOOL(b);
 }
 
+// unicodestring as sequence of UChar, not codepoints
 static Py_ssize_t t_unicodestring_length(t_unicodestring *self)
 {
     return self->object->length();
@@ -1714,10 +1715,7 @@ static PyObject *t_unicodestring_concat(t_unicodestring *self, PyObject *arg)
     {
         UnicodeString *v = new UnicodeString(*self->object);
 
-        if (sizeof(Py_UNICODE) == sizeof(UChar))
-            v->append((UChar) i);
-        else
-            v->append((UChar32) i);
+        v->append((UChar32) i);
 
         return wrap_UnicodeString(v, T_OWNED);
     }
@@ -1751,16 +1749,9 @@ static PyObject *t_unicodestring_item(t_unicodestring *self, int n)
 
     if (n >= 0 && n < len)
     {
-        if (sizeof(Py_UNICODE) == sizeof(UChar))
-        {
-            Py_UNICODE c = (Py_UNICODE) u->charAt(n);
-            return PyUnicode_FromUnicode(&c, 1);
-        }
-        else
-        {
-            Py_UNICODE c = (Py_UNICODE) u->char32At(n);
-            return PyUnicode_FromUnicode(&c, 1);
-        }
+        // unicodestring as sequence of UChar, not codepoints
+        Py_UNICODE c = (Py_UNICODE) u->charAt(n);
+        return PyUnicode_FromUnicode(&c, 1);
     }
 
     PyErr_SetNone(PyExc_IndexError);
@@ -1788,7 +1779,7 @@ static PyObject *t_unicodestring_slice(t_unicodestring *self,
     if (l >= 0 && h >= 0)
     {
         if (h > l)
-          u->extract((int32_t) l, (int32_t) (h - l), *v);
+            u->extract((int32_t) l, (int32_t) (h - l), *v);
 
         return wrap_UnicodeString(v, T_OWNED);
     }
@@ -1812,11 +1803,8 @@ static int t_unicodestring_ass_item(t_unicodestring *self,
 
         if (!parseArg(arg, "i", &i))
         {
-            if (sizeof(Py_UNICODE) == sizeof(UChar))
-                u->replace((int32_t) n, 1, (UChar) i);
-            else
-                u->replace((int32_t) n, 1, (UChar32) i);
-
+            // unicodestring as sequence of UChar, not codepoints
+            u->replace((int32_t) n, 1, (UChar) i);
             return 0;
         }
 
@@ -1827,6 +1815,7 @@ static int t_unicodestring_ass_item(t_unicodestring *self,
         {
             if (v->length() == 1)
             {
+                // unicodestring as sequence of UChar, not codepoints
                 u->setCharAt((int32_t) n, v->charAt(0));
                 return 0;
             }
@@ -1913,10 +1902,7 @@ static PyObject *t_unicodestring_inplace_concat(t_unicodestring *self,
 
     if (!parseArg(arg, "i", &i))
     {
-        if (sizeof(Py_UNICODE) == sizeof(UChar))
-            self->object->append((UChar) i);
-        else
-            self->object->append((UChar32) i);
+        self->object->append((UChar32) i);
 
         Py_INCREF(self);
         return (PyObject *) self;
@@ -1941,6 +1927,7 @@ static PyObject *t_unicodestring_inplace_repeat(t_unicodestring *self,
     return (PyObject *) self;
 }
 
+// unicodestring as sequence of UChar, not codepoints
 static PySequenceMethods t_unicodestring_as_sequence = {
     (lenfunc) t_unicodestring_length,                   /* sq_length */
     (binaryfunc) t_unicodestring_concat,                /* sq_concat */

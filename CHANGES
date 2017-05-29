@@ -1,3 +1,8 @@
+Version 1.9.7 ->
+----------------------
+  - fixed bugs in "UnicodeString as sequence"; it's a sequence of 16-bit UChar
+  - 
+
 Version 1.9.6 -> 1.9.7
 ----------------------
   - fixed bug in setup.py with Python 3 when ICU_VERSION obtained from env

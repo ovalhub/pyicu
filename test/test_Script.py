@@ -43,12 +43,11 @@ class TestScript(TestCase):
             self.assertEqual(['Latn', 'Deva', 'Hani', 'Zzzz', 'Zzzz'], names)
 
         pairs = UnicodeString(pairs)
+        # iterating UChar, not codepoints
         names = [Script.getScript(cp).getShortName() for cp in pairs]
-        if unicode_32bit:
-            self.assertEqual(['Latn', 'Deva', 'Hani', 'Hani', 'Hani'], names)
-        else:
-            self.assertEqual(['Latn', 'Deva', 'Hani', 'Zzzz', 'Zzzz'], names)
+        self.assertEqual(['Latn', 'Deva', 'Hani', 'Zzzz', 'Zzzz'], names)
 
+        # iterating codepoints, not UChar
         names = [Script.getScript(pairs.char32At(i)).getShortName()
                  for i in range(pairs.countChar32())]
         self.assertEqual(['Latn', 'Deva', 'Hani', 'Hani'], names)
