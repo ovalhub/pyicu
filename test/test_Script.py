@@ -44,8 +44,16 @@ class TestScript(TestCase):
 
         pairs = UnicodeString(pairs)
         # iterating UChar, not codepoints
-        names = [Script.getScript(cp).getShortName() for cp in pairs]
+        names = [Script.getScript(c).getShortName() for c in pairs]
         self.assertEqual(['Latn', 'Deva', 'Hani', 'Zzzz', 'Zzzz'], names)
+
+        # iterating codepoints not UChar
+        names = [Script.getScript(cp).getShortName()
+                 for cp in six.text_type(pairs)]
+        if unicode_32bit:
+            self.assertEqual(['Latn', 'Deva', 'Hani', 'Hani'], names)
+        else:
+            self.assertEqual(['Latn', 'Deva', 'Hani', 'Zzzz', 'Zzzz'], names)
 
         # iterating codepoints, not UChar
         names = [Script.getScript(pairs.char32At(i)).getShortName()
