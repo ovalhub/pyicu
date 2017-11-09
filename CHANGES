@@ -1,7 +1,7 @@
-Version 1.9.7 ->
+Version 1.9.7 -> 1.9.8
 ----------------------
   - fixed bugs in "UnicodeString as sequence"; it's a sequence of 16-bit UChar
-  - 
+  - added support for ICU 60.1
 
 Version 1.9.6 -> 1.9.7
 ----------------------

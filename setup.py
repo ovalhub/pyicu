@@ -6,7 +6,7 @@ try:
 except ImportError:
     from distutils.core import setup, Extension
 
-VERSION = '1.9.7'
+VERSION = '1.9.8'
 
 try:
     ICU_VERSION = os.environ['ICU_VERSION']

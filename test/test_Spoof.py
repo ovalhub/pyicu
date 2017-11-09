@@ -6,10 +6,10 @@
 # to deal in the Software without restriction, including without limitation
 # the rights to use, copy, modify, merge, publish, distribute, sublicense,
 # and/or sell copies of the Software, and to permit persons to whom the
-# Software is furnished to do so, subject to the following conditions: 
+# Software is furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included
-# in all copies or substantial portions of the Software. 
+# in all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
 # OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -54,12 +54,19 @@ class TestSpoofChecker(TestCase):
             skeleton = self.checker.getSkeleton(checks, string)
             self.assertEqual(skeleton, result)
 
+        self.maxDiff = None
         checkSkeleton(MA, "I1l0O", "lllOO")
 
         # A long "identifier" that will overflow implementation stack buffers,
         # forcing heap allocations.
+
+        if ICU_VERSION < '60.1':
+            skeleton = u" A long 'identifier' that vvill overflovv irnplernentation stack buffers, forcing heap allocations. A long 'identifier' that vvill overflovv irnplernentation stack buffers, forcing heap allocations. A long 'identifier' that vvill overflovv irnplernentation stack buffers, forcing heap allocations. A long 'identifier' that vvill overflovv irnplernentation stack buffers, forcing heap allocations."
+        else:
+            skeleton = u" A long 'identifier' that will overflow irnplernentation stack buffers, forcing heap allocations. A long 'identifier' that will overflow irnplernentation stack buffers, forcing heap allocations. A long 'identifier' that will overflow irnplernentation stack buffers, forcing heap allocations. A long 'identifier' that will overflow irnplernentation stack buffers, forcing heap allocations."
+
         checkSkeleton(SL, u" A 1ong \u02b9identifier' that will overflow implementation stack buffers, forcing heap allocations. A 1ong 'identifier' that will overflow implementation stack buffers, forcing heap allocations. A 1ong 'identifier' that will overflow implementation stack buffers, forcing heap allocations. A 1ong 'identifier' that will overflow implementation stack buffers, forcing heap allocations.",
-                      u" A long 'identifier' that vvill overflovv irnplernentation stack buffers, forcing heap allocations. A long 'identifier' that vvill overflovv irnplernentation stack buffers, forcing heap allocations. A long 'identifier' that vvill overflovv irnplernentation stack buffers, forcing heap allocations. A long 'identifier' that vvill overflovv irnplernentation stack buffers, forcing heap allocations.")
+                      skeleton)
 
         checkSkeleton(SL, "nochange", "nochange")
         checkSkeleton(MA, "love", "love")
@@ -86,7 +93,7 @@ class TestSpoofChecker(TestCase):
                           u"\u062C\u0644\u0020\u062c\u0644l\u0644o")
 
         # This mapping exists in the ML and MA tables, does not exist in SL, SA
-        # 0C83 ;	0C03 ;	
+        # 0C83 ;        0C03 ;
         if ICU_VERSION < '55.1':
             checkSkeleton(SL, u"\u0C83", u"\u0C83")
             checkSkeleton(SA, u"\u0C83", u"\u0C83")
@@ -96,7 +103,7 @@ class TestSpoofChecker(TestCase):
 
         checkSkeleton(ML, u"\u0C83", u"\u0983")
         checkSkeleton(MA, u"\u0C83", u"\u0983")
-        
+
         # 0391 ; 0041 ;
         # This mapping exists only in the MA table.
         checkSkeleton(MA, u"\u0391", "A")
@@ -109,7 +116,7 @@ class TestSpoofChecker(TestCase):
             checkSkeleton(ML, u"\u0391", u'A')
             checkSkeleton(SL, u"\u0391", u'A')
 
-        # 13CF ;  0062 ; 
+        # 13CF ;  0062 ;
         # This mapping exists in the ML and MA tables
         checkSkeleton(ML, u"\u13CF", "b")
         checkSkeleton(MA, u"\u13CF", "b")
@@ -121,7 +128,7 @@ class TestSpoofChecker(TestCase):
             checkSkeleton(SL, u"\u13CF", u'b')
             checkSkeleton(SA, u"\u13CF", u'b')
 
-        # 0022 ;  0027 0027 ; 
+        # 0022 ;  0027 0027 ;
         # all tables.
         checkSkeleton(SL, u"\u0022", u"\u0027\u0027")
         checkSkeleton(SA, u"\u0022", u"\u0027\u0027")
@@ -134,7 +141,7 @@ class TestSpoofChecker(TestCase):
         checkSkeleton(SA, u"\u017F", "f")
 
     def testInvisible(self):
-        
+
         checks = self.checker.check(u"abcd\u0301ef")
         self.assertEquals(checks, 0)
 
@@ -145,7 +152,7 @@ class TestSpoofChecker(TestCase):
         # and one separate.
         checks = self.checker.check(u"abcd\u00e1\u0301xyz")
         self.assertEquals(checks, USpoofChecks.INVISIBLE)
-        
+
 
 if __name__ == "__main__":
     main()
