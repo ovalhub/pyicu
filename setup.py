@@ -6,22 +6,27 @@ try:
 except ImportError:
     from distutils.core import setup, Extension
 
+from distutils.spawn import find_executable
+
 VERSION = '1.9.8'
+
+try:
+    from subprocess import check_output
+except ImportError:
+    from subprocess import Popen, PIPE
+
+
+    def check_output(*popenargs):
+        process = Popen(stdout=PIPE, *popenargs)
+        output, ignore = process.communicate()
+        retcode = process.poll()
+        if retcode:
+            raise RuntimeError((retcode, popenargs[0], output))
+        return output
 
 try:
     ICU_VERSION = os.environ['ICU_VERSION']
 except:
-    try:
-        from subprocess import check_output
-    except ImportError:
-        from subprocess import Popen, PIPE
-        def check_output(*popenargs):
-            process = Popen(stdout=PIPE, *popenargs)
-            output, ignore = process.communicate()
-            retcode = process.poll()
-            if retcode:
-                raise RuntimeError((retcode, popenargs[0], output))
-            return output
     try:
         ICU_VERSION = check_output(('icu-config', '--version')).strip()
         if sys.version_info >= (3,):
@@ -97,6 +102,15 @@ if 'PYICU_CFLAGS' in os.environ:
     _cflags = os.environ['PYICU_CFLAGS'].split(os.pathsep)
 else:
     _cflags = CFLAGS[platform]
+    try:
+        output = check_output(('icu-config', '--cxxflags', '--cppflags')).strip()
+        if sys.version_info >= (3,):
+            output = str(output, 'ascii')
+        _cflags.extend(output.split())
+        if output:
+            print('Adding CXXFLAGS="%s" from %s' % (output, find_executable('icu-config')))
+    except:
+        pass
 
 if '--debug' in sys.argv:
     if 'PYICU_DEBUG_CFLAGS' in os.environ:
@@ -108,6 +122,15 @@ if 'PYICU_LFLAGS' in os.environ:
     _lflags = os.environ['PYICU_LFLAGS'].split(os.pathsep)
 else:
     _lflags = LFLAGS[platform]
+    try:
+        output = check_output(('icu-config', '--ldflags')).strip()
+        if sys.version_info >= (3,):
+            output = str(output, 'ascii')
+        _lflags.extend(output.split())
+        if output:
+            print('Adding LDFLAGS="%s" from %s' % (output, find_executable('icu-config')))
+    except:
+        pass
 
 if 'PYICU_LIBRARIES' in os.environ:
     _libraries = os.environ['PYICU_LIBRARIES'].split(os.pathsep)
