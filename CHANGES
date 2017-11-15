@@ -1,3 +1,8 @@
+Version 1.9.8 ->
+----------------------
+  - use icu-config for configuring compiler and linker (Constantine Peresypkin)
+  - 
+
 Version 1.9.7 -> 1.9.8
 ----------------------
   - fixed bugs in "UnicodeString as sequence"; it's a sequence of 16-bit UChar

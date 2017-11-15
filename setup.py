@@ -6,22 +6,42 @@ try:
 except ImportError:
     from distutils.core import setup, Extension
 
+from distutils.spawn import find_executable
+
 VERSION = '1.9.8'
+
+try:
+    from subprocess import check_output
+except ImportError:
+    from subprocess import Popen, PIPE
+
+
+    def check_output(*popenargs):
+        process = Popen(stdout=PIPE, *popenargs)
+        output, ignore = process.communicate()
+        retcode = process.poll()
+        if retcode:
+            raise RuntimeError((retcode, popenargs[0], output))
+        return output
+
+
+def configure_with_icu_config(flags, config_args, label):
+    try:
+        output = check_output(('icu-config',) + config_args).strip()
+        if sys.version_info >= (3,):
+            output = str(output, 'ascii')
+        flags.extend(output.split())
+        if output:
+            print('Adding %s="%s" from %s' % (label, output,
+                                              find_executable('icu-config')))
+    except:
+        print('Could not configure %s with icu-config' %(label))
+        raise
+
 
 try:
     ICU_VERSION = os.environ['ICU_VERSION']
 except:
-    try:
-        from subprocess import check_output
-    except ImportError:
-        from subprocess import Popen, PIPE
-        def check_output(*popenargs):
-            process = Popen(stdout=PIPE, *popenargs)
-            output, ignore = process.communicate()
-            retcode = process.poll()
-            if retcode:
-                raise RuntimeError((retcode, popenargs[0], output))
-            return output
     try:
         ICU_VERSION = check_output(('icu-config', '--version')).strip()
         if sys.version_info >= (3,):
@@ -36,8 +56,17 @@ print('''
 Building PyICU %s for ICU %s
 ''' %(VERSION, ICU_VERSION))
 
+CONFIGURE_WITH_ICU_CONFIG = {
+    'darwin': True,
+    'linux': True,
+    'freebsd': False, # not tested
+    'win32': False,   # no icu-config
+    'sunos5': False,  # not tested
+    'cygwin': False,  # not tested
+}
+
 INCLUDES = {
-    'darwin': ['/usr/local/include'],
+    'darwin': [],
     'linux': [],
     'freebsd': ['/usr/local/include'],
     'win32': ['c:/icu/include'],
@@ -46,8 +75,8 @@ INCLUDES = {
 }
 
 CFLAGS = {
-    'darwin': ['-DPYICU_VER="%s"' %(VERSION), '-std=c++11'],
-    'linux': ['-DPYICU_VER="%s"' %(VERSION), '-std=c++11'],
+    'darwin': ['-DPYICU_VER="%s"' %(VERSION)],
+    'linux': ['-DPYICU_VER="%s"' %(VERSION)],
     'freebsd': ['-DPYICU_VER="%s"' %(VERSION), '-std=c++11'],
     'win32': ['/Zc:wchar_t', '/EHsc', '/DPYICU_VER=\\"%s\\"' %(VERSION)],
     'sunos5': ['-DPYICU_VER="%s"' %(VERSION), '-std=c++11'],
@@ -65,7 +94,7 @@ DEBUG_CFLAGS = {
 }
 
 LFLAGS = {
-    'darwin': ['-L/usr/local/lib'],
+    'darwin': [],
     'linux': [],
     'freebsd': ['-L/usr/local/lib'],
     'win32': ['/LIBPATH:c:/icu/lib'],
@@ -74,8 +103,8 @@ LFLAGS = {
 }
 
 LIBRARIES = {
-    'darwin': ['icui18n', 'icuuc', 'icudata'],
-    'linux': ['icui18n', 'icuuc', 'icudata'],
+    'darwin': [],
+    'linux': [],
     'freebsd': ['icui18n', 'icuuc', 'icudata'],
     'win32': ['icuin', 'icuuc', 'icudt'],
     'sunos5': ['icui18n', 'icuuc', 'icudata'],
@@ -97,6 +126,9 @@ if 'PYICU_CFLAGS' in os.environ:
     _cflags = os.environ['PYICU_CFLAGS'].split(os.pathsep)
 else:
     _cflags = CFLAGS[platform]
+    if CONFIGURE_WITH_ICU_CONFIG[platform]:
+        configure_with_icu_config(
+            _cflags, ('--cxxflags', '--cppflags'), 'CXXFLAGS')
 
 if '--debug' in sys.argv:
     if 'PYICU_DEBUG_CFLAGS' in os.environ:
@@ -108,6 +140,8 @@ if 'PYICU_LFLAGS' in os.environ:
     _lflags = os.environ['PYICU_LFLAGS'].split(os.pathsep)
 else:
     _lflags = LFLAGS[platform]
+    if CONFIGURE_WITH_ICU_CONFIG[platform]:
+        configure_with_icu_config(_lflags, ('--ldflags',), 'LDFLAGS')
 
 if 'PYICU_LIBRARIES' in os.environ:
     _libraries = os.environ['PYICU_LIBRARIES'].split(os.pathsep)
