@@ -1,6 +1,9 @@
 Version 1.9.8 ->
 ----------------------
   - use icu-config for configuring compiler and linker (Constantine Peresypkin)
+  - added wrappers for UBidiPairedBracketType enum
+  - added wrappers for UWordBreakValues enum
+  - added wrappers for UJoiningGroup enum
   - 
 
 Version 1.9.7 -> 1.9.8
