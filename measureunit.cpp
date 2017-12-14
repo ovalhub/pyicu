@@ -1680,7 +1680,7 @@ static int t_measure_init(t_measure *self, PyObject *args, PyObject *kwds)
 
     switch (PyTuple_Size(args)) {
       case 2:
-        if (!parseArgs(args, "dP", TYPE_CLASSID(MeasureUnit), &d, &unit))
+        if (!parseArgs(args, "dP", TYPE_ID(MeasureUnit), &d, &unit))
         {
             INT_STATUS_CALL(self->object = new Measure(
                 Formattable(d), (MeasureUnit *) unit->clone(), status));
@@ -1688,7 +1688,7 @@ static int t_measure_init(t_measure *self, PyObject *args, PyObject *kwds)
             break;
         }
         if (!parseArgs(args, "PP", TYPE_CLASSID(Formattable),
-                       TYPE_CLASSID(MeasureUnit), &number, &unit))
+                       TYPE_ID(MeasureUnit), &number, &unit))
         {
             INT_STATUS_CALL(self->object = new Measure(
                 *number, (MeasureUnit *) unit->clone(), status));
@@ -2003,8 +2003,8 @@ void _init_measureunit(PyObject *m)
     INSTALL_CONSTANTS_TYPE(UTimeUnitFields, m);
 #endif
 
-    REGISTER_TYPE(MeasureUnit, m);
-    REGISTER_TYPE(Measure, m);
+    INSTALL_TYPE(MeasureUnit, m);
+    INSTALL_TYPE(Measure, m);
 #if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
     REGISTER_TYPE(NoUnit, m);
 #endif
