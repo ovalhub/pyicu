@@ -1675,31 +1675,23 @@ static PyObject *t_measureunit_createPoint(PyTypeObject *type)
 static int t_measure_init(t_measure *self, PyObject *args, PyObject *kwds)
 {
     Formattable *number;
-    t_uobject *unit;
+    MeasureUnit *unit;
     double d;
 
-    // because the type of MeasureUnit instances are not all known wrapper
-    // classes the usual 'P' TYPE_CLASSID() check can't be used
     switch (PyTuple_Size(args)) {
       case 2:
-        if (!parseArgs(args, "dX", &d, &unit) &&
-            ISINSTANCE(unit->object, MeasureUnit))
+        if (!parseArgs(args, "dP", TYPE_CLASSID(MeasureUnit), &d, &unit))
         {
             INT_STATUS_CALL(self->object = new Measure(
-                Formattable(d),
-                (MeasureUnit *) ((MeasureUnit *) unit->object)->clone(),
-                status));
+                Formattable(d), (MeasureUnit *) unit->clone(), status));
             self->flags = T_OWNED;
             break;
         }
-        if (!parseArgs(args, "PX", TYPE_CLASSID(Formattable), &number,
-                       &unit) &&
-            ISINSTANCE(unit->object, MeasureUnit))
+        if (!parseArgs(args, "PP", TYPE_CLASSID(Formattable),
+                       TYPE_CLASSID(MeasureUnit), &number, &unit))
         {
             INT_STATUS_CALL(self->object = new Measure(
-                *number,
-                (MeasureUnit *) ((MeasureUnit *) unit->object)->clone(),
-                status));
+                *number, (MeasureUnit *) unit->clone(), status));
             self->flags = T_OWNED;
             break;
         }
