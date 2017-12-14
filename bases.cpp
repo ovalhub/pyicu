@@ -293,78 +293,6 @@ PyObject *wrap_Formattable(Formattable &formattable)
 }
 
 
-/* MeasureUnit */
-
-class t_measureunit : public _wrapper {
-public:
-    MeasureUnit *object;
-};
-
-static PyMethodDef t_measureunit_methods[] = {
-    { NULL, NULL, 0, NULL }
-};
-
-DECLARE_TYPE(MeasureUnit, t_measureunit, UObject, MeasureUnit,
-             abstract_init, NULL);
-
-/* Measure */
-
-class t_measure : public _wrapper {
-public:
-    Measure *object;
-};
-
-static PyObject *t_measure_getNumber(t_measure *self);
-static PyObject *t_measure_getUnit(t_measure *self);
-
-static PyMethodDef t_measure_methods[] = {
-    DECLARE_METHOD(t_measure, getNumber, METH_NOARGS),
-    DECLARE_METHOD(t_measure, getUnit, METH_NOARGS),
-    { NULL, NULL, 0, NULL }
-};
-
-DECLARE_TYPE(Measure, t_measure, UObject, Measure, abstract_init, NULL);
-
-/* CurrencyUnit */
-
-class t_currencyunit : public _wrapper {
-public:
-    CurrencyUnit *object;
-};
-
-static int t_currencyunit_init(t_currencyunit *self,
-                               PyObject *args, PyObject *kwds);
-static PyObject *t_currencyunit_getISOCurrency(t_currencyunit *self);
-
-static PyMethodDef t_currencyunit_methods[] = {
-    DECLARE_METHOD(t_currencyunit, getISOCurrency, METH_NOARGS),
-    { NULL, NULL, 0, NULL }
-};
-
-DECLARE_TYPE(CurrencyUnit, t_currencyunit, MeasureUnit, CurrencyUnit,
-             t_currencyunit_init, NULL);
-
-/* CurrencyAmount */
-
-class t_currencyamount : public _wrapper {
-public:
-    CurrencyAmount *object;
-};
-
-static int t_currencyamount_init(t_currencyamount *self,
-                                 PyObject *args, PyObject *kwds);
-static PyObject *t_currencyamount_getCurrency(t_currencyamount *self);
-static PyObject *t_currencyamount_getISOCurrency(t_currencyamount *self);
-
-static PyMethodDef t_currencyamount_methods[] = {
-    DECLARE_METHOD(t_currencyamount, getCurrency, METH_NOARGS),
-    DECLARE_METHOD(t_currencyamount, getISOCurrency, METH_NOARGS),
-    { NULL, NULL, 0, NULL }
-};
-
-DECLARE_TYPE(CurrencyAmount, t_currencyamount, Measure, CurrencyAmount,
-             t_currencyamount_init, NULL);
-
 /* StringEnumeration */
 
 class t_stringenumeration : public _wrapper {
@@ -2292,7 +2220,7 @@ static PyObject *t_formattable_repr(t_formattable *self)
     }
     if (!str)
         return NULL;
-    
+
 #if PY_VERSION_HEX < 0x02040000
     PyObject *args = Py_BuildValue("(OO)", name, str);
 #else
@@ -2310,204 +2238,13 @@ static PyObject *t_formattable_repr(t_formattable *self)
 }
 
 
-/* MeasureUnit */
-
-static PyObject *t_measureunit_richcmp(t_measureunit *self,
-                                       PyObject *arg, int op)
-{
-    int b = 0;
-
-    switch (op) {
-      case Py_EQ:
-      case Py_NE:
-        if (PyObject_TypeCheck(arg, &UObjectType_))
-            b = *self->object == *((t_uobject *) arg)->object;
-        if (op == Py_EQ)
-            Py_RETURN_BOOL(b);
-        Py_RETURN_BOOL(!b);
-      case Py_LT:
-      case Py_LE:
-      case Py_GT:
-      case Py_GE:
-        PyErr_SetNone(PyExc_NotImplementedError);
-        return NULL;
-    }
-
-    return NULL;
-}
-
-
-/* Measure */
-
-static PyObject *t_measure_getNumber(t_measure *self)
-{
-    Formattable *f = new Formattable(self->object->getNumber());
-    return wrap_Formattable(f, T_OWNED);
-}
-
-static PyObject *t_measure_getUnit(t_measure *self)
-{
-    MeasureUnit *u = (MeasureUnit *) self->object->getUnit().clone();
-    return wrap_MeasureUnit(u, T_OWNED);
-}
-
-static PyObject *t_measure_richcmp(t_measure *self, PyObject *arg, int op)
-{
-    int b = 0;
-
-    switch (op) {
-      case Py_EQ:
-      case Py_NE:
-        if (PyObject_TypeCheck(arg, &UObjectType_))
-            b = *self->object == *((t_uobject *) arg)->object;
-        if (op == Py_EQ)
-            Py_RETURN_BOOL(b);
-        Py_RETURN_BOOL(!b);
-      case Py_LT:
-      case Py_LE:
-      case Py_GT:
-      case Py_GE:
-        PyErr_SetNone(PyExc_NotImplementedError);
-        return NULL;
-    }
-
-    return NULL;
-}
-
-
-/* CurrencyUnit */
-
-static int t_currencyunit_init(t_currencyunit *self,
-                               PyObject *args, PyObject *kwds)
-{
-    UErrorCode status = U_ZERO_ERROR;
-    UnicodeString *u;
-    UnicodeString _u;
-
-    if (!parseArgs(args, "S", &u, &_u))
-    {
-        CurrencyUnit *cu = new CurrencyUnit(u->getTerminatedBuffer(), status);
-
-        if (U_FAILURE(status))
-        {
-            ICUException(status).reportError();
-            return -1;
-        }
-
-        self->object = cu;
-        self->flags = T_OWNED;
-
-        return 0;
-    }
-
-    PyErr_SetArgsError((PyObject *) self, "__init__", args);
-    return -1;
-}
-
-static PyObject *t_currencyunit_getISOCurrency(t_currencyunit *self)
-{
-    UnicodeString u(self->object->getISOCurrency());
-    return PyUnicode_FromUnicodeString(&u);
-}
-
-static PyObject *t_currencyunit_str(t_currencyunit *self)
-{
-    UnicodeString u(self->object->getISOCurrency());
-    return PyUnicode_FromUnicodeString(&u);
-}
-
-
-/* CurrencyAmount */
-
-static int t_currencyamount_init(t_currencyamount *self,
-                                 PyObject *args, PyObject *kwds)
-{
-    UErrorCode status = U_ZERO_ERROR;
-    Formattable *f;
-    double d;
-    UnicodeString *u;
-    UnicodeString _u;
-
-    if (!parseArgs(args, "PS", TYPE_CLASSID(Formattable),
-                   &f, &u, &_u))
-    {
-        CurrencyAmount *ca =
-            new CurrencyAmount(*f, u->getTerminatedBuffer(), status);
-
-        if (U_FAILURE(status))
-        {
-            ICUException(status).reportError();
-            return -1;
-        }
-
-        self->object = ca;
-        self->flags = T_OWNED;
-
-        return 0;
-    }
-
-    if (!parseArgs(args, "dS", &d, &u, &_u))
-    {
-        CurrencyAmount *ca =
-            new CurrencyAmount(d, u->getTerminatedBuffer(), status);
-
-        if (U_FAILURE(status))
-        {
-            ICUException(status).reportError();
-            return -1;
-        }
-
-        self->object = ca;
-        self->flags = T_OWNED;
-
-        return 0;
-    }
-
-    PyErr_SetArgsError((PyObject *) self, "__init__", args);
-    return -1;
-}
-
-static PyObject *t_currencyamount_getCurrency(t_currencyamount *self)
-{
-    CurrencyUnit *cu = new CurrencyUnit(self->object->getCurrency());
-    return wrap_CurrencyUnit(cu, T_OWNED);
-}
-
-static PyObject *t_currencyamount_getISOCurrency(t_currencyamount *self)
-{
-    UnicodeString u(self->object->getISOCurrency());
-    return PyUnicode_FromUnicodeString(&u);
-}
-
-static PyObject *t_currencyamount_str(t_currencyamount *self)
-{
-    UnicodeString u(self->object->getISOCurrency());
-    UErrorCode status = U_ZERO_ERROR;
-    double d = self->object->getNumber().getDouble(status);
-
-    PyObject *currency = PyUnicode_FromUnicodeString(&u);
-    PyObject *amount = PyFloat_FromDouble(d);
-    PyObject *format = PyString_FromString("%s %0.2f");
-    PyObject *tuple = PyTuple_New(2);
-    PyObject *str;
-
-    PyTuple_SET_ITEM(tuple, 0, currency);
-    PyTuple_SET_ITEM(tuple, 1, amount);
-    str = PyString_Format(format, tuple);
-    Py_DECREF(tuple);
-    Py_DECREF(format);
-
-    return str;
-}
-
-
 /* StringEnumeration */
 
 static PyObject *t_stringenumeration_count(t_stringenumeration *self)
 {
     UErrorCode status = U_ZERO_ERROR;
     int i = self->object->count(status);
-  
+
     if (U_FAILURE(status))
         return ICUException(status).reportError();
 
@@ -2517,7 +2254,7 @@ static PyObject *t_stringenumeration_count(t_stringenumeration *self)
 static PyObject *t_stringenumeration_reset(t_stringenumeration *self)
 {
     UErrorCode status = U_ZERO_ERROR;
-  
+
     self->object->reset(status);
     if (U_FAILURE(status))
         return ICUException(status).reportError();
@@ -2599,10 +2336,6 @@ void _init_bases(PyObject *m)
     FormattableType_.tp_richcompare = (richcmpfunc) t_formattable_richcmp;
     FormattableType_.tp_str = (reprfunc) t_formattable_str;
     FormattableType_.tp_repr = (reprfunc) t_formattable_repr;
-    MeasureUnitType_.tp_richcompare = (richcmpfunc) t_measureunit_richcmp;
-    MeasureType_.tp_richcompare = (richcmpfunc) t_measure_richcmp;
-    CurrencyUnitType_.tp_str = (reprfunc) t_currencyunit_str;
-    CurrencyAmountType_.tp_str = (reprfunc) t_currencyamount_str;
     StringEnumerationType_.tp_iter = (getiterfunc) t_stringenumeration_iter;
     StringEnumerationType_.tp_iternext = (iternextfunc) t_stringenumeration_next;
 
@@ -2610,10 +2343,6 @@ void _init_bases(PyObject *m)
     INSTALL_TYPE(Replaceable, m);
     REGISTER_TYPE(UnicodeString, m);
     REGISTER_TYPE(Formattable, m);
-    INSTALL_TYPE(MeasureUnit, m);
-    INSTALL_TYPE(Measure, m);
-    REGISTER_TYPE(CurrencyUnit, m);
-    REGISTER_TYPE(CurrencyAmount, m);
     INSTALL_TYPE(StringEnumeration, m);
 
     INSTALL_MODULE_INT(m, U_FOLD_CASE_DEFAULT);

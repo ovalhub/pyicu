@@ -4,6 +4,10 @@ Version 1.9.8 ->
   - added wrappers for UBidiPairedBracketType enum
   - added wrappers for UWordBreakValues enum
   - added wrappers for UJoiningGroup enum
+  - added wrappers for 120+ MeasureUnit static factory methods
+  - added wrapper for NoUnit class
+  - added wrapper for TimeUnit class
+  - added missing Measure constructor(Formattable or number, MeasureUnit)
   - 
 
 Version 1.9.7 -> 1.9.8

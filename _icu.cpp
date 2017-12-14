@@ -49,6 +49,7 @@
 #include "idna.h"
 #include "char.h"
 #include "shape.h"
+#include "measureunit.h"
 
 
 /* const variable descriptor */
@@ -296,6 +297,7 @@ static PyObject *PyInit_icu(PyObject *m)
     _init_idna(m);
     _init_char(m);
     _init_shape(m);
+    _init_measureunit(m);
 
     PyObject *method = PyObject_GetAttrString((PyObject *) &UObjectType_,
                                               "getDynamicClassID");
