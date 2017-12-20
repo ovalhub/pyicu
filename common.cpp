@@ -27,6 +27,7 @@
 #include <datetime.h>
 
 #include <unicode/ustring.h>
+#include <unicode/utf16.h>
 
 #include "bases.h"
 #include "macros.h"
