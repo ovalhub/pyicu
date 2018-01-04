@@ -352,6 +352,7 @@ PyTypeObject name##Type_ = {                                            \
 
 #endif
 
+// used for structs and for classes without typeid() support
 #define INSTALL_STRUCT(name, module)                                   \
     if (PyType_Ready(&name##Type_) == 0)                               \
     {                                                                  \
@@ -369,8 +370,8 @@ PyTypeObject name##Type_ = {                                            \
 #define INSTALL_MODULE_INT(module, name)                               \
     PyModule_AddIntConstant(module, #name, name);
 
-#define INSTALL_STATIC_INT(type, name)                                      \
-    PyDict_SetItemString(type##Type_.tp_dict, #name,                        \
+#define INSTALL_STATIC_INT(type, name)                                 \
+    PyDict_SetItemString(type##Type_.tp_dict, #name,                   \
                          make_descriptor(PyInt_FromLong(type::name)))
 
 #define INSTALL_ENUM(type, name, value)                                 \

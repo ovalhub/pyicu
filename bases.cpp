@@ -29,64 +29,61 @@
 #include "iterators.h"
 #include "macros.h"
 
+/* UMemory */
 
-/* UObject */
-
-static PyObject *t_uobject_new(PyTypeObject *type,
+static PyObject *t_umemory_new(PyTypeObject *type,
                                PyObject *args, PyObject *kwds);
 
-static PyObject *t_uobject_richcmp(t_uobject *, PyObject *o2, int op);
-static PyObject *t_uobject_str(t_uobject *self);
-static PyObject *t_uobject_repr(t_uobject *self);
-static PyObject *t_uobject_getDynamicClassID(t_uobject *self);
-static PyObject *t_uobject__getOwned(t_uobject *self, void *data);
+static PyObject *t_umemory_str(t_umemory *self);
+static PyObject *t_umemory_repr(t_umemory *self);
 
-static PyMemberDef t_uobject_members[] = {
-    { NULL, 0, 0, 0, NULL }
-};
-
-static PyMethodDef t_uobject_methods[] = {
-    DECLARE_METHOD(t_uobject, getDynamicClassID, METH_NOARGS),
+static PyMethodDef t_umemory_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-static PyGetSetDef t_uobject_properties[] = {
-    { (char *) "owned", (getter) t_uobject__getOwned, NULL, (char *) "", NULL },
+static PyMemberDef t_umemory_members[] = {
+    { NULL, 0, 0, 0, NULL }
+};
+
+static PyObject *t_umemory__getOwned(t_umemory *self, void *data);
+
+static PyGetSetDef t_umemory_properties[] = {
+    { (char *) "owned", (getter) t_umemory__getOwned, NULL, (char *) "", NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
-PyTypeObject UObjectType_ = {
+PyTypeObject UMemoryType_ = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "icu.UObject",                       /* tp_name */
-    sizeof(t_uobject),                   /* tp_basicsize */
+    "icu.UMemory",                       /* tp_name */
+    sizeof(t_umemory),                   /* tp_basicsize */
     0,                                   /* tp_itemsize */
-    (destructor)t_uobject_dealloc,       /* tp_dealloc */
+    (destructor)t_umemory_dealloc,       /* tp_dealloc */
     0,                                   /* tp_print */
     0,                                   /* tp_getattr */
     0,                                   /* tp_setattr */
     0,                                   /* tp_compare */
-    (reprfunc)t_uobject_repr,            /* tp_repr */
+    (reprfunc)t_umemory_repr,            /* tp_repr */
     0,                                   /* tp_as_number */
     0,                                   /* tp_as_sequence */
     0,                                   /* tp_as_mapping */
     0,                                   /* tp_hash  */
     0,                                   /* tp_call */
-    (reprfunc)t_uobject_str,             /* tp_str */
+    (reprfunc)t_umemory_str,             /* tp_str */
     0,                                   /* tp_getattro */
     0,                                   /* tp_setattro */
     0,                                   /* tp_as_buffer */
     (Py_TPFLAGS_DEFAULT |
      Py_TPFLAGS_BASETYPE),               /* tp_flags */
-    "t_uobject objects",                 /* tp_doc */
+    "t_umemory objects",                 /* tp_doc */
     0,                                   /* tp_traverse */
     0,                                   /* tp_clear */
-    (richcmpfunc)t_uobject_richcmp,      /* tp_richcompare */
+    0,                                   /* tp_richcompare */
     0,                                   /* tp_weaklistoffset */
     0,                                   /* tp_iter */
     0,                                   /* tp_iternext */
-    t_uobject_methods,                   /* tp_methods */
-    t_uobject_members,                   /* tp_members */
-    t_uobject_properties,                /* tp_getset */
+    t_umemory_methods,                   /* tp_methods */
+    t_umemory_members,                   /* tp_members */
+    t_umemory_properties,                /* tp_getset */
     0,                                   /* tp_base */
     0,                                   /* tp_dict */
     0,                                   /* tp_descr_get */
@@ -94,34 +91,24 @@ PyTypeObject UObjectType_ = {
     0,                                   /* tp_dictoffset */
     (initproc)abstract_init,             /* tp_init */
     0,                                   /* tp_alloc */
-    (newfunc)t_uobject_new,              /* tp_new */
+    (newfunc)t_umemory_new,              /* tp_new */
 };
 
-PyObject *wrap_UObject(UObject *object, int flags)
-{
-    if (object)
-    {
-        if (ISINSTANCE(object, UnicodeString))
-            return PyUnicode_FromUnicodeString((UnicodeString *) object);
 
-        t_uobject *self = (t_uobject *) UObjectType_.tp_alloc(&UObjectType_, 0);
-        if (self)
-        {
-            self->object = object;
-            self->flags = flags;
-        }
+/* UObject */
 
-        return (PyObject *) self;
-    }
+static PyObject *t_uobject_richcmp(t_uobject *, PyObject *o2, int op);
+static PyObject *t_uobject_str(t_uobject *self);
+static PyObject *t_uobject_getDynamicClassID(t_uobject *self);
 
-    Py_RETURN_NONE;
-}
+static PyMethodDef t_uobject_methods[] = {
+    DECLARE_METHOD(t_uobject, getDynamicClassID, METH_NOARGS),
+    { NULL, NULL, 0, NULL }
+};
 
-static PyObject *t_uobject__getOwned(t_uobject *self, void *data)
-{
-    int b = self->flags & T_OWNED;
-    Py_RETURN_BOOL(b);
-}
+DECLARE_TYPE(UObject, t_uobject, UMemory, UObject,
+             abstract_init, t_uobject_dealloc);
+
 
 /* Replaceable */
 
@@ -145,6 +132,7 @@ static PyMethodDef t_replaceable_methods[] = {
 
 DECLARE_TYPE(Replaceable, t_replaceable, UObject, Replaceable,
              abstract_init, NULL);
+
 
 /* UnicodeString */
 
@@ -319,6 +307,72 @@ DECLARE_TYPE(StringEnumeration, t_stringenumeration, UObject,
              StringEnumeration, abstract_init, NULL);
 
 
+/* UMemory */
+
+static PyObject *t_umemory_new(PyTypeObject *type,
+                               PyObject *args, PyObject *kwds)
+{
+    t_umemory *self = (t_umemory *) type->tp_alloc(type, 0);
+
+    if (self)
+    {
+        self->object = NULL;
+        self->flags = 0;
+    }
+
+    return (PyObject *) self;
+}
+
+void t_umemory_dealloc(t_umemory *self)
+{
+    if (self->flags & T_OWNED)
+        delete self->object;
+    self->object = NULL;
+
+    Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
+static PyObject *t_umemory__getOwned(t_umemory *self, void *data)
+{
+    int b = self->flags & T_OWNED;
+    Py_RETURN_BOOL(b);
+}
+
+static PyObject *t_umemory_str(t_umemory *self)
+{
+    if (self->object)
+    {
+        char buf[32];
+        sprintf(buf, "0x%llx", (unsigned long long) (intptr_t) self->object);
+
+        return PyString_FromString(buf);
+    }
+
+    return PyString_FromString("<null>");
+}
+
+static PyObject *t_umemory_repr(t_umemory *self)
+{
+    PyObject *name = PyObject_GetAttrString((PyObject *) Py_TYPE(self),
+                                            "__name__");
+    PyObject *str = Py_TYPE(self)->tp_str((PyObject *) self);
+#if PY_VERSION_HEX < 0x02040000
+    PyObject *args = Py_BuildValue("(OO)", name, str);
+#else
+    PyObject *args = PyTuple_Pack(2, name, str);
+#endif
+    PyObject *format = PyString_FromString("<%s: %s>");
+    PyObject *repr = PyString_Format(format, args);
+
+    Py_DECREF(name);
+    Py_DECREF(str);
+    Py_DECREF(args);
+    Py_DECREF(format);
+
+    return repr;
+}
+
+
 /* UObject */
 
 void t_uobject_dealloc(t_uobject *self)
@@ -328,20 +382,6 @@ void t_uobject_dealloc(t_uobject *self)
     self->object = NULL;
 
     Py_TYPE(self)->tp_free((PyObject *) self);
-}
-
-static PyObject *t_uobject_new(PyTypeObject *type,
-                               PyObject *args, PyObject *kwds)
-{
-    t_uobject *self = (t_uobject *) type->tp_alloc(type, 0);
-
-    if (self)
-    {
-        self->object = NULL;
-        self->flags = 0;
-    }
-
-    return (PyObject *) self;
 }
 
 static PyObject *t_uobject_richcmp(t_uobject *self, PyObject *arg, int op)
@@ -389,27 +429,6 @@ static PyObject *t_uobject_str(t_uobject *self)
     }
 
     return PyString_FromString("<null>");
-}
-
-static PyObject *t_uobject_repr(t_uobject *self)
-{
-    PyObject *name = PyObject_GetAttrString((PyObject *) Py_TYPE(self),
-                                            "__name__");
-    PyObject *str = Py_TYPE(self)->tp_str((PyObject *) self);
-#if PY_VERSION_HEX < 0x02040000
-    PyObject *args = Py_BuildValue("(OO)", name, str);
-#else
-    PyObject *args = PyTuple_Pack(2, name, str);
-#endif
-    PyObject *format = PyString_FromString("<%s: %s>");
-    PyObject *repr = PyString_Format(format, args);
-
-    Py_DECREF(name);
-    Py_DECREF(str);
-    Py_DECREF(args);
-    Py_DECREF(format);
-
-    return repr;
 }
 
 static PyObject *t_uobject_getDynamicClassID(t_uobject *self)
@@ -484,6 +503,7 @@ static int t_unicodestring_init(t_unicodestring *self,
         self->object = new UnicodeString();
         self->flags = T_OWNED;
         break;
+
       case 1:
         if (!parseArgs(args, "u", &u))
         {
@@ -505,6 +525,7 @@ static int t_unicodestring_init(t_unicodestring *self,
         }
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
+
       case 2:
         if (!parseArgs(args, "Cn", &obj, &encoding))
         {
@@ -528,6 +549,7 @@ static int t_unicodestring_init(t_unicodestring *self,
         }
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
+
       case 3:
         if (!parseArgs(args, "Cnn", &obj, &encoding, &mode))
         {
@@ -549,11 +571,12 @@ static int t_unicodestring_init(t_unicodestring *self,
         }
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
+
       default:
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
@@ -588,7 +611,7 @@ static PyObject *t_unicodestring_getAvailableEncodings(PyTypeObject *type,
       default:
         return PyErr_SetArgsError(type, "getAvailableEncodings", args);
     }
-        
+
     int count = ucnv_countAvailable();
     PyObject *list = PyList_New(0);
 
@@ -682,8 +705,7 @@ static int verifyStartEnd(int &start, int &end, int len)
 
 static PyObject *t_unicodestring_append(t_unicodestring *self, PyObject *args)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
     int i, start, len;
 
     switch (PyTuple_Size(args)) {
@@ -721,14 +743,13 @@ static PyObject *t_unicodestring_append(t_unicodestring *self, PyObject *args)
         }
         break;
     }
-    
+
     return PyErr_SetArgsError((PyObject *) self, "append", args);
 }
 
 static PyObject *t_unicodestring_compare(t_unicodestring *self, PyObject *args)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
     int start, len;
 
     switch (PyTuple_Size(args)) {
@@ -752,7 +773,7 @@ static PyObject *t_unicodestring_compare(t_unicodestring *self, PyObject *args)
         }
         break;
     }
-    
+
     return PyErr_SetArgsError((PyObject *) self, "compare", args);
 }
 
@@ -772,19 +793,18 @@ static PyObject *t_unicodestring_compareBetween(t_unicodestring *self,
                                                  srcStart, srcEnd);
             return PyInt_FromLong(c);
         }
-        
+
         PyErr_SetObject(PyExc_IndexError, args);
         return NULL;
     }
-    
+
     return PyErr_SetArgsError((PyObject *) self, "compareBetween", args);
 }
 
 static PyObject *t_unicodestring_compareCodePointOrder(t_unicodestring *self,
                                                        PyObject *args)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
     int start, len;
 
     switch (PyTuple_Size(args)) {
@@ -809,14 +829,13 @@ static PyObject *t_unicodestring_compareCodePointOrder(t_unicodestring *self,
         }
         break;
     }
-    
+
     return PyErr_SetArgsError((PyObject *) self, "compareCodePointOrder", args);
 }
 
 static PyObject *t_unicodestring_compareCodePointOrderBetween(t_unicodestring *self, PyObject *args)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
     int start, end, srcStart, srcEnd;
 
     if (!parseArgs(args, "iiSii", &start, &end, &u, &_u, &srcStart, &srcEnd))
@@ -827,11 +846,11 @@ static PyObject *t_unicodestring_compareCodePointOrderBetween(t_unicodestring *s
             int c = self->object->compareCodePointOrderBetween(start, end, *u, srcStart, srcEnd);
             return PyInt_FromLong(c);
         }
-        
+
         PyErr_SetObject(PyExc_IndexError, args);
         return NULL;
     }
-    
+
     return PyErr_SetArgsError((PyObject *) self, "compareCodePointOrderBetween",
                               args);
 }
@@ -839,8 +858,7 @@ static PyObject *t_unicodestring_compareCodePointOrderBetween(t_unicodestring *s
 static PyObject *t_unicodestring_caseCompare(t_unicodestring *self,
                                              PyObject *args)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
     int start, len, options;
 
     switch (PyTuple_Size(args)) {
@@ -865,15 +883,14 @@ static PyObject *t_unicodestring_caseCompare(t_unicodestring *self,
         }
         break;
     }
-    
+
     return PyErr_SetArgsError((PyObject *) self, "caseCompare", args);
 }
 
 static PyObject *t_unicodestring_caseCompareBetween(t_unicodestring *self,
                                                     PyObject *args)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
     int start, end, srcStart, srcEnd, options;
 
     if (!parseArgs(args, "iiSiii", &start, &end, &u, &_u, &srcStart, &srcEnd,
@@ -886,19 +903,18 @@ static PyObject *t_unicodestring_caseCompareBetween(t_unicodestring *self,
                                                      srcStart, srcEnd, options);
             return PyInt_FromLong(c);
         }
-        
+
         PyErr_SetObject(PyExc_IndexError, args);
         return NULL;
     }
-    
+
     return PyErr_SetArgsError((PyObject *) self, "caseCompareBetween", args);
 }
 
 static PyObject *t_unicodestring_startsWith(t_unicodestring *self,
                                             PyObject *args)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
     int start, len;
 
     switch (PyTuple_Size(args)) {
@@ -923,15 +939,14 @@ static PyObject *t_unicodestring_startsWith(t_unicodestring *self,
         }
         break;
     }
-    
+
     return PyErr_SetArgsError((PyObject *) self, "startsWith", args);
 }
 
 static PyObject *t_unicodestring_endsWith(t_unicodestring *self,
                                           PyObject *args)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
     int start, len;
 
     switch (PyTuple_Size(args)) {
@@ -956,14 +971,13 @@ static PyObject *t_unicodestring_endsWith(t_unicodestring *self,
         }
         break;
     }
-    
+
     return PyErr_SetArgsError((PyObject *) self, "endsWith", args);
 }
 
 static PyObject *t_unicodestring_indexOf(t_unicodestring *self, PyObject *args)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
     int c, start, len, srcStart, srcLen;
 
     switch (PyTuple_Size(args)) {
@@ -1062,8 +1076,7 @@ static PyObject *t_unicodestring_indexOf(t_unicodestring *self, PyObject *args)
 static PyObject *t_unicodestring_lastIndexOf(t_unicodestring *self,
                                              PyObject *args)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
     int c, start, len, srcStart, srcLen;
 
     switch (PyTuple_Size(args)) {
@@ -1291,7 +1304,7 @@ static PyObject *t_unicodestring_repr(t_unicodestring *self)
     }
     if (!str)
         return NULL;
-    
+
 #if PY_VERSION_HEX < 0x02040000
     PyObject *args = Py_BuildValue("(OO)", name, str);
 #else
@@ -1310,7 +1323,7 @@ static PyObject *t_unicodestring_repr(t_unicodestring *self)
 
 static long t_unicodestring_hash(t_unicodestring *self)
 {
-  return (long) self->object->hashCode();
+    return (long) self->object->hashCode();
 }
 
 
@@ -2325,6 +2338,8 @@ static PyObject *t_stringenumeration_iter(t_stringenumeration *self)
 
 void _init_bases(PyObject *m)
 {
+    UObjectType_.tp_str = (reprfunc) t_uobject_str;
+    UObjectType_.tp_richcompare = (richcmpfunc) t_uobject_richcmp;
     UnicodeStringType_.tp_str = (reprfunc) t_unicodestring_str;
     UnicodeStringType_.tp_repr = (reprfunc) t_unicodestring_repr;
     UnicodeStringType_.tp_richcompare = (richcmpfunc) t_unicodestring_richcmp;
@@ -2339,6 +2354,7 @@ void _init_bases(PyObject *m)
     StringEnumerationType_.tp_iter = (getiterfunc) t_stringenumeration_iter;
     StringEnumerationType_.tp_iternext = (iternextfunc) t_stringenumeration_next;
 
+    INSTALL_STRUCT(UMemory, m);  // no typeid()
     INSTALL_TYPE(UObject, m);
     INSTALL_TYPE(Replaceable, m);
     REGISTER_TYPE(UnicodeString, m);

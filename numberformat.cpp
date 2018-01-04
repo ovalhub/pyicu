@@ -448,7 +448,6 @@ DECLARE_TYPE(ChoiceFormat, t_choiceformat, NumberFormat, ChoiceFormat,
 using icu::number::NumberFormatter;
 using icu::number::UnlocalizedNumberFormatter;
 using icu::number::LocalizedNumberFormatter;
-using icu::number::FormattedNumber;
 using icu::number::Notation;
 using icu::number::ScientificNotation;
 using icu::number::IntegerWidth;
@@ -478,7 +477,7 @@ static PyMethodDef t_numberformatter_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(NumberFormatter, t_numberformatter, UObject, NumberFormatter,
+DECLARE_TYPE(NumberFormatter, t_numberformatter, UMemory, NumberFormatter,
              abstract_init, NULL);
 
 
@@ -527,7 +526,7 @@ static int t_unlocalizednumberformatter_init(t_unlocalizednumberformatter *self,
                                              PyObject *args, PyObject *kwds);
 
 DECLARE_BY_VALUE_TYPE(UnlocalizedNumberFormatter, t_unlocalizednumberformatter,
-                      UObject, UnlocalizedNumberFormatter,
+                      UMemory, UnlocalizedNumberFormatter,
                       t_unlocalizednumberformatter_init);
 
 
@@ -582,7 +581,7 @@ static int t_localizednumberformatter_init(t_localizednumberformatter *self,
                                            PyObject *args, PyObject *kwds);
 
 DECLARE_BY_VALUE_TYPE(LocalizedNumberFormatter, t_localizednumberformatter,
-                      UObject, LocalizedNumberFormatter,
+                      UMemory, LocalizedNumberFormatter,
                       t_localizednumberformatter_init);
 
 
@@ -609,7 +608,7 @@ static PyMethodDef t_notation_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_BY_VALUE_TYPE(Notation, t_notation, UObject, Notation, abstract_init);
+DECLARE_BY_VALUE_TYPE(Notation, t_notation, UMemory, Notation, abstract_init);
 
 
 /* ScientificNotation */
@@ -652,7 +651,7 @@ static PyMethodDef t_integerwidth_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_BY_VALUE_TYPE(IntegerWidth, t_integerwidth, UObject, IntegerWidth,
+DECLARE_BY_VALUE_TYPE(IntegerWidth, t_integerwidth, UMemory, IntegerWidth,
                       abstract_init);
 
 
@@ -695,7 +694,7 @@ static PyMethodDef t_rounder_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_BY_VALUE_TYPE(Rounder, t_rounder, UObject, Rounder, abstract_init);
+DECLARE_BY_VALUE_TYPE(Rounder, t_rounder, UMemory, Rounder, abstract_init);
 
 
 /* FractionRounder */
@@ -2717,10 +2716,8 @@ static PyObject *t_numberformatter_withLocale(PyTypeObject *type,
     Locale *locale;
 
     if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
-    {
         return wrap_LocalizedNumberFormatter(
             NumberFormatter::withLocale(*locale));
-    }
 
     return PyErr_SetArgsError(type, "withLocale", arg);
 }
@@ -2737,9 +2734,6 @@ static int t_unlocalizednumberformatter_init(t_unlocalizednumberformatter *self,
         self->object = &self->the_object;
         self->flags = 0;
         break;
-      default:
-        PyErr_SetArgsError((PyObject *) self, "__init__", args);
-        return -1;
     }
 
     if (self->object)
@@ -2883,9 +2877,6 @@ static int t_localizednumberformatter_init(t_localizednumberformatter *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         break;
       }
-      default:
-        PyErr_SetArgsError((PyObject *) self, "__init__", args);
-        return -1;
     }
 
     if (self->object)
@@ -3348,16 +3339,16 @@ void _init_numberformat(PyObject *m)
     REGISTER_TYPE(RuleBasedNumberFormat, m);
     REGISTER_TYPE(ChoiceFormat, m);
 #if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
-    INSTALL_TYPE(NumberFormatter, m);
-    INSTALL_TYPE(UnlocalizedNumberFormatter, m);
-    INSTALL_TYPE(LocalizedNumberFormatter, m);
-    INSTALL_TYPE(Notation, m);
-    INSTALL_TYPE(ScientificNotation, m);
-    INSTALL_TYPE(IntegerWidth, m);
-    INSTALL_TYPE(Rounder, m);
-    INSTALL_TYPE(FractionRounder, m);
-    INSTALL_TYPE(IncrementRounder, m);
-    INSTALL_TYPE(CurrencyRounder, m);
+    INSTALL_STRUCT(NumberFormatter, m);
+    INSTALL_STRUCT(UnlocalizedNumberFormatter, m);
+    INSTALL_STRUCT(LocalizedNumberFormatter, m);
+    INSTALL_STRUCT(Notation, m);
+    INSTALL_STRUCT(ScientificNotation, m);
+    INSTALL_STRUCT(IntegerWidth, m);
+    INSTALL_STRUCT(Rounder, m);
+    INSTALL_STRUCT(FractionRounder, m);
+    INSTALL_STRUCT(IncrementRounder, m);
+    INSTALL_STRUCT(CurrencyRounder, m);
 #endif
 
     INSTALL_STATIC_INT(DecimalFormatSymbols, kDecimalSeparatorSymbol);

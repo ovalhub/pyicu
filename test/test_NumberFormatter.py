@@ -30,6 +30,7 @@ from icu import *
 class TestNumberFormatter(TestCase):
 
     def testBasic(self):
+
         text = NumberFormatter.withLocale(Locale.getUS()).formatInt(1234)
         self.assertEqual(text, u'1,234')
 

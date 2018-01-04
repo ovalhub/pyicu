@@ -32,13 +32,20 @@ public:
     int flags;
 };
 
+class t_umemory : public _wrapper {
+public:
+    UMemory *object;
+};
+
 class t_uobject : public _wrapper {
 public:
     UObject *object;
 };
 
+void t_umemory_dealloc(t_umemory *self);
 void t_uobject_dealloc(t_uobject *self);
 
+extern PyTypeObject UMemoryType_;
 extern PyTypeObject UObjectType_;
 extern PyTypeObject FormattableType_;
 

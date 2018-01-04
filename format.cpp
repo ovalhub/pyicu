@@ -413,7 +413,7 @@ static void t_simpleformatter_dealloc(t_simpleformatter *self)
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-DECLARE_TYPE(SimpleFormatter, t_simpleformatter, UObject, SimpleFormatter,
+DECLARE_TYPE(SimpleFormatter, t_simpleformatter, UMemory, SimpleFormatter,
              t_simpleformatter_init, t_simpleformatter_dealloc);
 
 #endif
@@ -2012,7 +2012,7 @@ void _init_format(PyObject *m)
     INSTALL_TYPE(ListFormatter, m);
 #endif
 #if U_ICU_VERSION_HEX >= VERSION_HEX(57, 0, 0)
-    INSTALL_TYPE(SimpleFormatter, m);
+    INSTALL_STRUCT(SimpleFormatter, m);
 #endif
 
     INSTALL_STATIC_INT(FieldPosition, DONT_CARE);

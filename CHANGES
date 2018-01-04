@@ -11,6 +11,7 @@ Version 1.9.8 -> 2.0
   - added wrappers for NumberFormatter and related classes and enums, and tests
   - added wrapper for SimpleFormatter and tests
   - fixed bugs in test_LocaleData.py using undefined values (Fredrik Roubert)
+  - added wrapper for UMemory and made it UObject's base
   - 
 
 Version 1.9.7 -> 1.9.8
