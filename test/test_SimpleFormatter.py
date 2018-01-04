@@ -1,5 +1,5 @@
 # ====================================================================
-# Copyright (c) 2014 Open Source Applications Foundation.
+# Copyright (c) 2018 Open Source Applications Foundation.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -26,23 +26,16 @@ import sys, os
 from unittest import TestCase, main
 from icu import *
 
-class TestListFormatter(TestCase):
+class TestSimpleFormatter(TestCase):
 
     def testDefault(self):
 
-        Locale.setDefault(Locale.getUS())
-        formatter = ListFormatter.createInstance()
-        text = formatter.format(('a', 'b', 'c'))
+        formatter = SimpleFormatter("{1} '{born}' in {0}")
+        text = formatter %("england", "paul")
 
-        self.assertTrue(text == u'a, b, and c')
-
-    def testLocale(self):
-
-        formatter = ListFormatter.createInstance(Locale.getFrance())
-        text = formatter.format(('a', 'b', 'c'))
-
-        self.assertTrue(text == u'a, b et c')
+        self.assertTrue(text == u'paul {born} in england')
 
 
 if __name__ == "__main__":
-    main()
+    if ICU_VERSION >= '57.0':
+        main()

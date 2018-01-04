@@ -199,6 +199,20 @@ PyObject *wrap_##name(icuClass *object, int flags)                        \
     Py_RETURN_NONE;                                                       \
 }
 
+#define DECLARE_BY_VALUE_TYPE(name, t_name, base, icuClass, init)     \
+DECLARE_TYPE(name, t_name, base, icuClass, init, NULL)                \
+PyObject *wrap_##name(icuClass object)                                \
+{                                                                     \
+    t_name *self = (t_name *) name##Type_.tp_alloc(&name##Type_, 0);  \
+    if (self)                                                         \
+    {                                                                 \
+        self->the_object = object;                                    \
+        self->object = &self->the_object;                             \
+        self->flags = 0;                                              \
+    }                                                                 \
+    return (PyObject *) self;                                         \
+}
+
 
 #define DECLARE_STRUCT(name, t_name, icuStruct, init, dealloc)          \
 static PyObject *t_name##_new(PyTypeObject *type,                       \

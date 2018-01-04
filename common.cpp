@@ -852,7 +852,7 @@ int __parseArg(PyObject *arg, const char *types, ...)
                 Py_DECREF(tuple);
             }
         } tuple_arg(arg);
-            
+
         return _parseArgs(tuple_arg.tuple, 1, types, list);
     }
 #else
@@ -891,7 +891,7 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
 #else
         PyObject *arg = args[i];
 #endif
-        
+
         switch (types[i]) {
           case 'c':           /* string */
           case 'k':           /* string and size */
@@ -1074,7 +1074,7 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
 #endif
               break;
           }
-            
+
           case 'c':           /* string */
           {
               char **c = va_arg(list, char **);
@@ -1423,7 +1423,7 @@ UnicodeString fromUChar32(UChar32 c)
     return UnicodeString(c);
 #endif
 }
-    
+
 
 void _init_common(PyObject *m)
 {

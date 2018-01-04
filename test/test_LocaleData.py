@@ -96,14 +96,14 @@ class TestLocaleData(TestCase):
                     existsInScript = False
                     iter = UnicodeSetIterator(exemplarSet)
                     while (not existsInScript and iter.nextRange()):
-                        if (iter.getCodepoint != iter.isString()):
+                        if (not iter.isString()):
                             for j in range(len(sets)):
                                 if sets[j].contains(iter.getCodepoint(), iter.getCodepointEnd()):
                                     existsInScript = True
                                     break
                         else:
                             for j in range(len(sets)):
-                                if sets[j].contains(iter.getString):
+                                if sets[j].contains(iter.getString()):
                                     existsInScript = True
                                     break
                     if existsInScript == False:
@@ -141,14 +141,14 @@ class TestLocaleData(TestCase):
                             existsInScript = False
                             iter = UnicodeSetIterator(exemplarSet)
                             while (not existsInScript and iter.nextRange()):
-                                if (iter.getCodepoint != iter.isString()):
+                                if (not iter.isString()):
                                     for j in range(len(sets)):
                                         if sets[j].contains(iter.getCodepoint(), iter.getCodepointEnd()):
                                             existsInScript = True
                                             break
                                 else:
                                     for j in range(len(sets)):
-                                        if sets[j].contains(iter.getString):
+                                        if sets[j].contains(iter.getString()):
                                             existsInScript = True
                                             break
                             if existsInScript == False and h == 0:

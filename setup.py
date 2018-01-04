@@ -8,7 +8,7 @@ except ImportError:
 
 from distutils.spawn import find_executable
 
-VERSION = '1.9.8'
+VERSION = '2.0'
 
 try:
     from subprocess import check_output

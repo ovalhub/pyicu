@@ -1,5 +1,5 @@
-Version 1.9.8 ->
-----------------------
+Version 1.9.8 -> 2.0
+--------------------
   - use icu-config for configuring compiler and linker (Constantine Peresypkin)
   - added wrappers for UBidiPairedBracketType enum
   - added wrappers for UWordBreakValues enum
@@ -8,6 +8,9 @@ Version 1.9.8 ->
   - added wrapper for NoUnit class
   - added wrapper for TimeUnit class
   - added missing Measure constructor(Formattable or number, MeasureUnit)
+  - added wrappers for NumberFormatter and related classes and enums, and tests
+  - added wrapper for SimpleFormatter and tests
+  - fixed bugs in test_LocaleData.py using undefined values (Fredrik Roubert)
   - 
 
 Version 1.9.7 -> 1.9.8

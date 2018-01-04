@@ -181,6 +181,7 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/uspoof.h>
 #include <unicode/tmunit.h>
 #include <unicode/tmutamt.h>
+#include <unicode/stringpiece.h>
 #endif
 
 #if U_ICU_VERSION_HEX >= 0x04040000
@@ -206,8 +207,13 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/reldatefmt.h>
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(57, 0, 0)
+#include <unicode/simpleformatter.h>
+#endif
+
 #if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
 #include <unicode/nounit.h>
+#include <unicode/numberformatter.h>
 #endif
 
 #if U_ICU_VERSION_HEX < 0x04060000

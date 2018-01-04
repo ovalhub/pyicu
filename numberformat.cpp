@@ -28,11 +28,15 @@
 #include "locale.h"
 #include "format.h"
 #include "numberformat.h"
+#include "measureunit.h"
 #include "macros.h"
 
 #if U_HAVE_RBNF
     DECLARE_CONSTANTS_TYPE(URBNFRuleSetTag);
 #endif
+
+DECLARE_CONSTANTS_TYPE(UNumberFormatRoundingMode);
+DECLARE_CONSTANTS_TYPE(UNumberFormatStyle);
 
 #if U_ICU_VERSION_HEX >= 0x04080000
     DECLARE_CONSTANTS_TYPE(UCurrencySpacing);
@@ -40,6 +44,10 @@
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
     DECLARE_CONSTANTS_TYPE(UNumberCompactStyle);
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
+    DECLARE_CONSTANTS_TYPE(UCurrencyUsage);
 #endif
 
 /* DecimalFormatSymbols */
@@ -435,6 +443,322 @@ DECLARE_TYPE(ChoiceFormat, t_choiceformat, NumberFormat, ChoiceFormat,
              t_choiceformat_init, NULL);
 
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
+
+using icu::number::NumberFormatter;
+using icu::number::UnlocalizedNumberFormatter;
+using icu::number::LocalizedNumberFormatter;
+using icu::number::FormattedNumber;
+using icu::number::Notation;
+using icu::number::ScientificNotation;
+using icu::number::IntegerWidth;
+using icu::number::Rounder;
+using icu::number::FractionRounder;
+using icu::number::IncrementRounder;
+using icu::number::CurrencyRounder;
+
+DECLARE_CONSTANTS_TYPE(UNumberSignDisplay);
+DECLARE_CONSTANTS_TYPE(UNumberDecimalSeparatorDisplay);
+DECLARE_CONSTANTS_TYPE(UNumberUnitWidth);
+
+/* NumberFormatter */
+
+class t_numberformatter : public _wrapper {
+public:
+    NumberFormatter *object;
+};
+
+static PyObject *t_numberformatter_with_(PyTypeObject *type, PyObject *args);
+static PyObject *t_numberformatter_withLocale(PyTypeObject *type,
+                                              PyObject *arg);
+
+static PyMethodDef t_numberformatter_methods[] = {
+    DECLARE_METHOD(t_numberformatter, with_, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_numberformatter, withLocale, METH_O | METH_CLASS),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(NumberFormatter, t_numberformatter, UObject, NumberFormatter,
+             abstract_init, NULL);
+
+
+/* UnlocalizedNumberFormatter */
+
+class t_unlocalizednumberformatter : public _wrapper {
+public:
+    UnlocalizedNumberFormatter *object;
+    UnlocalizedNumberFormatter the_object;
+};
+
+static PyObject *t_unlocalizednumberformatter_unit(
+    t_unlocalizednumberformatter *self, PyObject *arg);
+static PyObject *t_unlocalizednumberformatter_rounding(
+    t_unlocalizednumberformatter *self, PyObject *arg);
+static PyObject *t_unlocalizednumberformatter_symbols(
+    t_unlocalizednumberformatter *self, PyObject *arg);
+static PyObject *t_unlocalizednumberformatter_notation(
+    t_unlocalizednumberformatter *self, PyObject *arg);
+static PyObject *t_unlocalizednumberformatter_sign(
+    t_unlocalizednumberformatter *self, PyObject *arg);
+static PyObject *t_unlocalizednumberformatter_decimal(
+    t_unlocalizednumberformatter *self, PyObject *arg);
+static PyObject *t_unlocalizednumberformatter_unitWidth(
+    t_unlocalizednumberformatter *self, PyObject *arg);
+static PyObject *t_unlocalizednumberformatter_integerWidth(
+    t_unlocalizednumberformatter *self, PyObject *arg);
+
+static PyObject *t_unlocalizednumberformatter_locale(
+    t_unlocalizednumberformatter *self, PyObject *arg);
+
+static PyMethodDef t_unlocalizednumberformatter_methods[] = {
+    DECLARE_METHOD(t_unlocalizednumberformatter, unit, METH_O),
+    DECLARE_METHOD(t_unlocalizednumberformatter, rounding, METH_O),
+    DECLARE_METHOD(t_unlocalizednumberformatter, symbols, METH_O),
+    DECLARE_METHOD(t_unlocalizednumberformatter, notation, METH_O),
+    DECLARE_METHOD(t_unlocalizednumberformatter, sign, METH_O),
+    DECLARE_METHOD(t_unlocalizednumberformatter, decimal, METH_O),
+    DECLARE_METHOD(t_unlocalizednumberformatter, unitWidth, METH_O),
+    DECLARE_METHOD(t_unlocalizednumberformatter, integerWidth, METH_O),
+    DECLARE_METHOD(t_unlocalizednumberformatter, locale, METH_O),
+    { NULL, NULL, 0, NULL }
+};
+
+static int t_unlocalizednumberformatter_init(t_unlocalizednumberformatter *self,
+                                             PyObject *args, PyObject *kwds);
+
+DECLARE_BY_VALUE_TYPE(UnlocalizedNumberFormatter, t_unlocalizednumberformatter,
+                      UObject, UnlocalizedNumberFormatter,
+                      t_unlocalizednumberformatter_init);
+
+
+/* LocalizedNumberFormatter */
+
+class t_localizednumberformatter : public _wrapper {
+public:
+    LocalizedNumberFormatter *object;
+    LocalizedNumberFormatter the_object;
+};
+
+static PyObject *t_localizednumberformatter_unit(
+    t_localizednumberformatter *self, PyObject *arg);
+static PyObject *t_localizednumberformatter_rounding(
+    t_localizednumberformatter *self, PyObject *arg);
+static PyObject *t_localizednumberformatter_symbols(
+    t_localizednumberformatter *self, PyObject *arg);
+static PyObject *t_localizednumberformatter_notation(
+    t_localizednumberformatter *self, PyObject *arg);
+static PyObject *t_localizednumberformatter_sign(
+    t_localizednumberformatter *self, PyObject *arg);
+static PyObject *t_localizednumberformatter_decimal(
+    t_localizednumberformatter *self, PyObject *arg);
+static PyObject *t_localizednumberformatter_unitWidth(
+    t_localizednumberformatter *self, PyObject *arg);
+static PyObject *t_localizednumberformatter_integerWidth(
+    t_localizednumberformatter *self, PyObject *arg);
+
+static PyObject *t_localizednumberformatter_formatInt(
+    t_localizednumberformatter *self, PyObject *arg);
+static PyObject *t_localizednumberformatter_formatDouble(
+    t_localizednumberformatter *self, PyObject *arg);
+static PyObject *t_localizednumberformatter_formatDecimal(
+    t_localizednumberformatter *self, PyObject *arg);
+
+static PyMethodDef t_localizednumberformatter_methods[] = {
+    DECLARE_METHOD(t_localizednumberformatter, unit, METH_O),
+    DECLARE_METHOD(t_localizednumberformatter, rounding, METH_O),
+    DECLARE_METHOD(t_localizednumberformatter, symbols, METH_O),
+    DECLARE_METHOD(t_localizednumberformatter, notation, METH_O),
+    DECLARE_METHOD(t_localizednumberformatter, sign, METH_O),
+    DECLARE_METHOD(t_localizednumberformatter, decimal, METH_O),
+    DECLARE_METHOD(t_localizednumberformatter, unitWidth, METH_O),
+    DECLARE_METHOD(t_localizednumberformatter, integerWidth, METH_O),
+    DECLARE_METHOD(t_localizednumberformatter, formatInt, METH_O),
+    DECLARE_METHOD(t_localizednumberformatter, formatDouble, METH_O),
+    DECLARE_METHOD(t_localizednumberformatter, formatDecimal, METH_O),
+    { NULL, NULL, 0, NULL }
+};
+
+static int t_localizednumberformatter_init(t_localizednumberformatter *self,
+                                           PyObject *args, PyObject *kwds);
+
+DECLARE_BY_VALUE_TYPE(LocalizedNumberFormatter, t_localizednumberformatter,
+                      UObject, LocalizedNumberFormatter,
+                      t_localizednumberformatter_init);
+
+
+/* Notation */
+
+class t_notation : public _wrapper {
+public:
+    Notation *object;
+    Notation the_object;
+};
+
+static PyObject *t_notation_scientific(PyTypeObject *type, PyObject *args);
+static PyObject *t_notation_engineering(PyTypeObject *type, PyObject *arg);
+static PyObject *t_notation_compactShort(PyTypeObject *type, PyObject *arg);
+static PyObject *t_notation_compactLong(PyTypeObject *type, PyObject *arg);
+static PyObject *t_notation_simple(PyTypeObject *type, PyObject *arg);
+
+static PyMethodDef t_notation_methods[] = {
+    DECLARE_METHOD(t_notation, scientific, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_notation, engineering, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_notation, compactShort, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_notation, compactLong, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_notation, simple, METH_NOARGS | METH_CLASS),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_BY_VALUE_TYPE(Notation, t_notation, UObject, Notation, abstract_init);
+
+
+/* ScientificNotation */
+
+class t_scientificnotation : public _wrapper {
+public:
+    ScientificNotation *object;
+    ScientificNotation the_object;
+};
+
+static PyObject *t_scientificnotation_withMinExponentDigits(
+    t_scientificnotation *self, PyObject *args);
+static PyObject *t_scientificnotation_withExponentSignDisplay(
+    t_scientificnotation *self, PyObject *args);
+
+static PyMethodDef t_scientificnotation_methods[] = {
+    DECLARE_METHOD(t_scientificnotation, withMinExponentDigits, METH_O),
+    DECLARE_METHOD(t_scientificnotation, withExponentSignDisplay, METH_O),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_BY_VALUE_TYPE(ScientificNotation, t_scientificnotation, Notation,
+                      ScientificNotation, abstract_init);
+
+
+/* IntegerWidth */
+
+class t_integerwidth : public _wrapper {
+public:
+    IntegerWidth *object;
+    IntegerWidth the_object;
+};
+
+static PyObject *t_integerwidth_zeroFillTo(PyTypeObject *type, PyObject *arg);
+static PyObject *t_integerwidth_truncateAt(t_integerwidth *self, PyObject *arg);
+
+static PyMethodDef t_integerwidth_methods[] = {
+    DECLARE_METHOD(t_integerwidth, zeroFillTo, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_integerwidth, truncateAt, METH_O),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_BY_VALUE_TYPE(IntegerWidth, t_integerwidth, UObject, IntegerWidth,
+                      abstract_init);
+
+
+/* Rounder */
+
+class t_rounder : public _wrapper {
+public:
+    Rounder *object;
+    Rounder the_object;
+};
+
+static PyObject *t_rounder_unlimited(PyTypeObject *type, PyObject *args);
+static PyObject *t_rounder_integer(PyTypeObject *type, PyObject *args);
+static PyObject *t_rounder_fixedFraction(PyTypeObject *type, PyObject *arg);
+static PyObject *t_rounder_minFraction(PyTypeObject *type, PyObject *arg);
+static PyObject *t_rounder_maxFraction(PyTypeObject *type, PyObject *arg);
+static PyObject *t_rounder_minMaxFraction(PyTypeObject *type, PyObject *args);
+static PyObject *t_rounder_fixedDigits(PyTypeObject *type, PyObject *arg);
+static PyObject *t_rounder_minDigits(PyTypeObject *type, PyObject *arg);
+static PyObject *t_rounder_maxDigits(PyTypeObject *type, PyObject *arg);
+static PyObject *t_rounder_minMaxDigits(PyTypeObject *type, PyObject *args);
+static PyObject *t_rounder_increment(PyTypeObject *type, PyObject *arg);
+static PyObject *t_rounder_currency(PyTypeObject *type, PyObject *arg);
+static PyObject *t_rounder_withMode(t_rounder *self, PyObject *arg);
+
+static PyMethodDef t_rounder_methods[] = {
+    DECLARE_METHOD(t_rounder, unlimited, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_rounder, integer, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_rounder, fixedFraction, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_rounder, minFraction, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_rounder, maxFraction, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_rounder, minMaxFraction, METH_VARARGS | METH_CLASS),
+    DECLARE_METHOD(t_rounder, fixedDigits, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_rounder, minDigits, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_rounder, maxDigits, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_rounder, minMaxDigits, METH_VARARGS | METH_CLASS),
+    DECLARE_METHOD(t_rounder, increment, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_rounder, currency, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_rounder, withMode, METH_O),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_BY_VALUE_TYPE(Rounder, t_rounder, UObject, Rounder, abstract_init);
+
+
+/* FractionRounder */
+
+class t_fractionrounder : public _wrapper {
+public:
+    FractionRounder *object;
+    FractionRounder the_object;
+};
+
+static PyObject *t_fractionrounder_withMinDigits(t_fractionrounder *self, PyObject *arg);
+static PyObject *t_fractionrounder_withMaxDigits(t_fractionrounder *self, PyObject *arg);
+
+static PyMethodDef t_fractionrounder_methods[] = {
+    DECLARE_METHOD(t_fractionrounder, withMinDigits, METH_O),
+    DECLARE_METHOD(t_fractionrounder, withMaxDigits, METH_O),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_BY_VALUE_TYPE(FractionRounder, t_fractionrounder, Rounder,
+                      FractionRounder, abstract_init);
+
+
+/* IncrementRounder */
+
+class t_incrementrounder : public _wrapper {
+public:
+    IncrementRounder *object;
+    IncrementRounder the_object;
+};
+
+static PyObject *t_incrementrounder_withMinFraction(t_incrementrounder *self, PyObject *arg);
+
+static PyMethodDef t_incrementrounder_methods[] = {
+    DECLARE_METHOD(t_incrementrounder, withMinFraction, METH_O),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_BY_VALUE_TYPE(IncrementRounder, t_incrementrounder, Rounder,
+                      IncrementRounder, abstract_init);
+
+
+/* CurrencyRounder */
+
+class t_currencyrounder : public _wrapper {
+public:
+    CurrencyRounder *object;
+    CurrencyRounder the_object;
+};
+
+static PyObject *t_currencyrounder_withCurrency(t_currencyrounder *self, PyObject *arg);
+
+static PyMethodDef t_currencyrounder_methods[] = {
+    DECLARE_METHOD(t_currencyrounder, withCurrency, METH_O),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_BY_VALUE_TYPE(CurrencyRounder, t_currencyrounder, Rounder,
+                      CurrencyRounder, abstract_init);
+
+#endif
+
+
 /* DecimalFormatSymbols */
 
 static int t_decimalformatsymbols_init(t_decimalformatsymbols *self,
@@ -463,7 +787,7 @@ static int t_decimalformatsymbols_init(t_decimalformatsymbols *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
@@ -500,7 +824,7 @@ static PyObject *t_decimalformatsymbols_setSymbol(t_decimalformatsymbols *self,
 {
     DecimalFormatSymbols::ENumberFormatSymbol symbol;
     UnicodeString *u, _u;
-    
+
     if (!parseArgs(args, "iS", &symbol, &u, &_u))
     {
         self->object->setSymbol(symbol, *u); /* copied */
@@ -974,7 +1298,7 @@ static PyObject *t_numberformat_createInstance(PyTypeObject *type,
         }
         break;
     }
-            
+
     return PyErr_SetArgsError(type, "createInstance", args);
 }
 
@@ -996,7 +1320,7 @@ static PyObject *t_numberformat_createCurrencyInstance(PyTypeObject *type,
         }
         break;
     }
-            
+
     return PyErr_SetArgsError(type, "createCurrencyInstance", args);
 }
 static PyObject *t_numberformat_createPercentInstance(PyTypeObject *type,
@@ -1017,7 +1341,7 @@ static PyObject *t_numberformat_createPercentInstance(PyTypeObject *type,
         }
         break;
     }
-            
+
     return PyErr_SetArgsError(type, "createPercentInstance", args);
 }
 
@@ -1039,7 +1363,7 @@ static PyObject *t_numberformat_createScientificInstance(PyTypeObject *type,
         }
         break;
     }
-            
+
     return PyErr_SetArgsError(type, "createScientificInstance", args);
 }
 
@@ -1510,7 +1834,7 @@ static PyObject *t_decimalformat_setScientificNotation(t_decimalformat *self,
                                                        PyObject *arg)
 {
     int b;
-    
+
     if (!parseArg(arg, "b", &b))
     {
         self->object->setScientificNotation(b);
@@ -1741,7 +2065,7 @@ static PyObject *t_decimalformat_setSignificantDigitsUsed(t_decimalformat *self,
         self->object->setSignificantDigitsUsed(b);
         Py_RETURN_NONE;
     }
-        
+
     return PyErr_SetArgsError((PyObject *) self, "setSignificantDigitsUsed", arg);
 }
 
@@ -1820,7 +2144,7 @@ static PyObject *t_compactdecimalformat_createInstance(PyTypeObject *type,
         }
         break;
     }
-            
+
     return PyErr_SetArgsError(type, "createInstance", args);
 }
 
@@ -2098,7 +2422,7 @@ static PyObject *t_rulebasednumberformat_setDefaultRuleSet(t_rulebasednumberform
 
     if (!parseArg(arg, "S", &u, &_u))
     {
-        /* transient */        
+        /* transient */
         STATUS_CALL(self->object->setDefaultRuleSet(*u, status));
         Py_RETURN_NONE;
     }
@@ -2146,7 +2470,7 @@ static int t_choiceformat_init(t_choiceformat *self,
             cf = new ChoiceFormat(limits, formats, limitCount);
             delete[] limits;
             delete[] formats;
-                
+
             self->object = cf;
             self->flags = T_OWNED;
             break;
@@ -2161,7 +2485,7 @@ static int t_choiceformat_init(t_choiceformat *self,
             delete[] limits;
             delete[] closures;
             delete[] formats;
-                
+
             self->object = cf;
             self->flags = T_OWNED;
             break;
@@ -2172,7 +2496,7 @@ static int t_choiceformat_init(t_choiceformat *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
@@ -2261,7 +2585,7 @@ static PyObject *t_choiceformat_setChoices(t_choiceformat *self,
 static PyObject *fromDoubleArray(double *array, int len, int dispose)
 {
     PyObject *list = PyList_New(len);
-    
+
     for (int i = 0; i < len; i++)
         PyList_SET_ITEM(list, i, PyFloat_FromDouble(array[i]));
 
@@ -2274,11 +2598,11 @@ static PyObject *fromDoubleArray(double *array, int len, int dispose)
 static PyObject *fromUBoolArray(UBool *array, int len, int dispose)
 {
     PyObject *list = PyList_New(len);
-    
+
     for (int i = 0; i < len; i++) {
         PyObject *obj = array[i] ? Py_True : Py_False;
-       
-        Py_INCREF(obj); 
+
+        Py_INCREF(obj);
         PyList_SET_ITEM(list, i, obj);
     }
 
@@ -2292,7 +2616,7 @@ static PyObject *fromUnicodeStringArray(UnicodeString *array,
                                         int len, int dispose)
 {
     PyObject *list = PyList_New(len);
-    
+
     for (int i = 0; i < len; i++)
         PyList_SET_ITEM(list, i, PyUnicode_FromUnicodeString(array + i));
 
@@ -2306,7 +2630,7 @@ static PyObject *t_choiceformat_getLimits(t_choiceformat *self)
 {
     int len;
     const double *array = self->object->getLimits(len);
-    
+
     return fromDoubleArray((double *) array, len, 0);
 }
 
@@ -2314,7 +2638,7 @@ static PyObject *t_choiceformat_getClosures(t_choiceformat *self)
 {
     int len;
     const UBool *closures = self->object->getClosures(len);
-    
+
     return fromUBoolArray((UBool *) closures, len, 0);
 }
 
@@ -2322,7 +2646,7 @@ static PyObject *t_choiceformat_getFormats(t_choiceformat *self)
 {
     int len;
     const UnicodeString *formats = self->object->getFormats(len);
-    
+
     return fromUnicodeStringArray((UnicodeString *) formats, len, 0);
 }
 
@@ -2378,6 +2702,628 @@ static PyObject *t_choiceformat_str(t_choiceformat *self)
 }
 
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
+
+/* NumberFormatter */
+
+static PyObject *t_numberformatter_with_(PyTypeObject *type, PyObject *args)
+{
+    return wrap_UnlocalizedNumberFormatter(NumberFormatter::with());
+}
+
+static PyObject *t_numberformatter_withLocale(PyTypeObject *type,
+                                              PyObject *arg)
+{
+    Locale *locale;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
+    {
+        return wrap_LocalizedNumberFormatter(
+            NumberFormatter::withLocale(*locale));
+    }
+
+    return PyErr_SetArgsError(type, "withLocale", arg);
+}
+
+
+/* UnlocalizedNumberFormatter */
+
+static int t_unlocalizednumberformatter_init(t_unlocalizednumberformatter *self,
+                                             PyObject *args, PyObject *kwds)
+{
+    switch (PyTuple_Size(args)) {
+      case 0:
+        self->the_object = NumberFormatter::with();
+        self->object = &self->the_object;
+        self->flags = 0;
+        break;
+      default:
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+    }
+
+    if (self->object)
+        return 0;
+
+    return -1;
+}
+
+static PyObject *t_unlocalizednumberformatter_unit(
+    t_unlocalizednumberformatter *self, PyObject *arg)
+{
+    MeasureUnit *unit;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(MeasureUnit), &unit))
+    {
+        return wrap_UnlocalizedNumberFormatter(
+            self->object->adoptUnit(
+                dynamic_cast<MeasureUnit *>(unit->clone())));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "unit", arg);
+}
+
+static PyObject *t_unlocalizednumberformatter_rounding(
+    t_unlocalizednumberformatter *self, PyObject *arg)
+{
+    PyObject *rounder;
+
+    if (!parseArg(arg, "O", &RounderType_, &rounder))
+        return wrap_UnlocalizedNumberFormatter(
+            self->object->rounding(*((t_rounder *) rounder)->object));
+
+    return PyErr_SetArgsError((PyObject *) self, "rounding", arg);
+}
+
+static PyObject *t_unlocalizednumberformatter_symbols(
+    t_unlocalizednumberformatter *self, PyObject *arg)
+{
+    DecimalFormatSymbols *symbols;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(DecimalFormatSymbols), &symbols))
+        return wrap_UnlocalizedNumberFormatter(self->object->symbols(*symbols));
+
+    return PyErr_SetArgsError((PyObject *) self, "symbols", arg);
+}
+
+static PyObject *t_unlocalizednumberformatter_notation(
+    t_unlocalizednumberformatter *self, PyObject *arg)
+{
+    PyObject *notation;
+
+    if (!parseArg(arg, "O", &NotationType_, &notation))
+        return wrap_UnlocalizedNumberFormatter(
+            self->object->notation(*((t_notation *) notation)->object));
+
+    return PyErr_SetArgsError((PyObject *) self, "notation", arg);
+}
+
+static PyObject *t_unlocalizednumberformatter_sign(
+    t_unlocalizednumberformatter *self, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+    {
+        return wrap_UnlocalizedNumberFormatter(
+            self->object->sign((UNumberSignDisplay) n));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "sign", arg);
+}
+
+static PyObject *t_unlocalizednumberformatter_decimal(
+    t_unlocalizednumberformatter *self, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+    {
+        return wrap_UnlocalizedNumberFormatter(
+            self->object->decimal((UNumberDecimalSeparatorDisplay) n));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "sign", arg);
+}
+
+static PyObject *t_unlocalizednumberformatter_unitWidth(
+    t_unlocalizednumberformatter *self, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+    {
+        return wrap_UnlocalizedNumberFormatter(
+            self->object->unitWidth((UNumberUnitWidth) n));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "unitWidth", arg);
+}
+
+static PyObject *t_unlocalizednumberformatter_integerWidth(
+    t_unlocalizednumberformatter *self, PyObject *arg)
+{
+    PyObject *iw;
+
+    if (!parseArg(arg, "O", &IntegerWidthType_, &iw))
+        return wrap_UnlocalizedNumberFormatter(self->object->integerWidth(
+            *((t_integerwidth *) iw)->object));
+
+    return PyErr_SetArgsError((PyObject *) self, "integerWidth", arg);
+}
+
+static PyObject *t_unlocalizednumberformatter_locale(
+    t_unlocalizednumberformatter *self, PyObject *arg)
+{
+    Locale *locale;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
+        return wrap_LocalizedNumberFormatter(self->object->locale(*locale));
+
+    return PyErr_SetArgsError((PyObject *) self, "locale", arg);
+}
+
+
+/* LocalizedNumberFormatter */
+
+static int t_localizednumberformatter_init(t_localizednumberformatter *self,
+                                           PyObject *args, PyObject *kwds)
+{
+    switch (PyTuple_Size(args)) {
+      case 1: {
+        Locale *locale;
+
+        if (!parseArgs(args, "P", TYPE_CLASSID(Locale), &locale))
+        {
+            self->the_object = NumberFormatter::withLocale(*locale);
+            self->object = &self->the_object;
+            self->flags = 0;
+            break;
+        }
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        break;
+      }
+      default:
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+    }
+
+    if (self->object)
+        return 0;
+
+    return -1;
+}
+
+static PyObject *t_localizednumberformatter_unit(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    MeasureUnit *unit;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(MeasureUnit), &unit))
+    {
+        return wrap_LocalizedNumberFormatter(
+            self->object->adoptUnit(
+                dynamic_cast<MeasureUnit *>(unit->clone())));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "unit", arg);
+}
+
+static PyObject *t_localizednumberformatter_rounding(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    PyObject *rounder;
+
+    if (!parseArg(arg, "O", &RounderType_, &rounder))
+        return wrap_LocalizedNumberFormatter(
+            self->object->rounding(*((t_rounder *) rounder)->object));
+
+    return PyErr_SetArgsError((PyObject *) self, "rounding", arg);
+}
+
+static PyObject *t_localizednumberformatter_symbols(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    DecimalFormatSymbols *symbols;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(DecimalFormatSymbols), &symbols))
+        return wrap_LocalizedNumberFormatter(self->object->symbols(*symbols));
+
+    return PyErr_SetArgsError((PyObject *) self, "symbols", arg);
+}
+
+static PyObject *t_localizednumberformatter_notation(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    PyObject *notation;
+
+    if (!parseArg(arg, "O", &NotationType_, &notation))
+        return wrap_LocalizedNumberFormatter(self->object->notation(
+            *((t_notation *) notation)->object));
+
+    return PyErr_SetArgsError((PyObject *) self, "notation", arg);
+}
+
+static PyObject *t_localizednumberformatter_sign(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+    {
+        return wrap_LocalizedNumberFormatter(
+            self->object->sign((UNumberSignDisplay) n));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "sign", arg);
+}
+
+static PyObject *t_localizednumberformatter_decimal(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+    {
+        return wrap_LocalizedNumberFormatter(
+            self->object->decimal((UNumberDecimalSeparatorDisplay) n));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "sign", arg);
+}
+
+static PyObject *t_localizednumberformatter_unitWidth(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+    {
+        return wrap_LocalizedNumberFormatter(
+            self->object->unitWidth((UNumberUnitWidth) n));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "unitWidth", arg);
+}
+
+static PyObject *t_localizednumberformatter_integerWidth(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    PyObject *iw;
+
+    if (!parseArg(arg, "O", &IntegerWidthType_, &iw))
+        return wrap_LocalizedNumberFormatter(self->object->integerWidth(
+            *((t_integerwidth *) iw)->object));
+
+    return PyErr_SetArgsError((PyObject *) self, "integerWidth", arg);
+}
+
+static PyObject *t_localizednumberformatter_formatInt(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    int n;
+    double d;
+    PY_LONG_LONG l;
+    UnicodeString u;
+
+    if (!parseArg(arg, "i", &n))
+    {
+        STATUS_CALL(u = self->object->formatInt(n, status).toString());
+        return PyUnicode_FromUnicodeString(&u);
+    }
+    if (!parseArg(arg, "d", &d))
+    {
+        STATUS_CALL(u = self->object->formatInt((int64_t) d, status).toString());
+        return PyUnicode_FromUnicodeString(&u);
+    }
+    if (!parseArg(arg, "L", &l))
+    {
+        STATUS_CALL(u = self->object->formatInt((int64_t) l, status).toString());
+        return PyUnicode_FromUnicodeString(&u);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "formatInt", arg);
+}
+
+static PyObject *t_localizednumberformatter_formatDouble(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    int n;
+    double d;
+    PY_LONG_LONG l;
+    UnicodeString u;
+
+    if (!parseArg(arg, "i", &n))
+    {
+        STATUS_CALL(u = self->object->formatDouble((double) n, status).toString());
+        return PyUnicode_FromUnicodeString(&u);
+    }
+    if (!parseArg(arg, "d", &d))
+    {
+        STATUS_CALL(u = self->object->formatDouble(d, status).toString());
+        return PyUnicode_FromUnicodeString(&u);
+    }
+    if (!parseArg(arg, "L", &l))
+    {
+        STATUS_CALL(u = self->object->formatDouble((double) l, status).toString());
+        return PyUnicode_FromUnicodeString(&u);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "formatDouble", arg);
+}
+
+static PyObject *t_localizednumberformatter_formatDecimal(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    char *s;
+    UnicodeString u;
+
+    if (!parseArg(arg, "c", &s))
+    {
+        STATUS_CALL(u = self->object->formatDecimal(StringPiece(s), status).toString());
+        return PyUnicode_FromUnicodeString(&u);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "formatDecimal", arg);
+}
+
+
+/* Notation */
+
+static PyObject *t_notation_scientific(PyTypeObject *type, PyObject *args)
+{
+    return wrap_ScientificNotation(Notation::scientific());
+}
+
+static PyObject *t_notation_engineering(PyTypeObject *type, PyObject *args)
+{
+    return wrap_ScientificNotation(Notation::engineering());
+}
+
+static PyObject *t_notation_compactShort(PyTypeObject *type, PyObject *args)
+{
+    return wrap_Notation(Notation::compactShort());
+}
+
+static PyObject *t_notation_compactLong(PyTypeObject *type, PyObject *args)
+{
+    return wrap_Notation(Notation::compactLong());
+}
+
+static PyObject *t_notation_simple(PyTypeObject *type, PyObject *args)
+{
+    return wrap_Notation(Notation::simple());
+}
+
+
+/* ScientificNotation */
+
+static PyObject *t_scientificnotation_withMinExponentDigits(
+    t_scientificnotation *self, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_ScientificNotation(self->object->withMinExponentDigits(n));
+
+    return PyErr_SetArgsError((PyObject *) self, "withMinExponentDigits", arg);
+}
+
+static PyObject *t_scientificnotation_withExponentSignDisplay(
+    t_scientificnotation *self, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_ScientificNotation(self->object->withExponentSignDisplay(
+            (UNumberSignDisplay) n));
+
+    return PyErr_SetArgsError((PyObject *) self, "withMinExponentDigits", arg);
+}
+
+
+/* IntegerWidth */
+
+static PyObject *t_integerwidth_zeroFillTo(PyTypeObject *type, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_IntegerWidth(IntegerWidth::zeroFillTo(n));
+
+    return PyErr_SetArgsError(type, "zeroFillTo", arg);
+}
+
+static PyObject *t_integerwidth_truncateAt(t_integerwidth *self, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_IntegerWidth(self->object->truncateAt(n));
+
+    return PyErr_SetArgsError((PyObject *) self, "truncateAt", arg);
+}
+
+
+/* Rounder */
+
+static PyObject *t_rounder_unlimited(PyTypeObject *type, PyObject *args)
+{
+    return wrap_Rounder(Rounder::unlimited());
+}
+
+static PyObject *t_rounder_integer(PyTypeObject *type, PyObject *args)
+{
+    return wrap_FractionRounder(Rounder::integer());
+}
+
+static PyObject *t_rounder_fixedFraction(PyTypeObject *type, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_FractionRounder(Rounder::fixedFraction(n));
+
+    return PyErr_SetArgsError(type, "fixedFraction", arg);
+}
+
+static PyObject *t_rounder_minFraction(PyTypeObject *type, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_FractionRounder(Rounder::minFraction(n));
+
+    return PyErr_SetArgsError(type, "minFraction", arg);
+}
+
+static PyObject *t_rounder_maxFraction(PyTypeObject *type, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_FractionRounder(Rounder::maxFraction(n));
+
+    return PyErr_SetArgsError(type, "maxFraction", arg);
+}
+
+static PyObject *t_rounder_minMaxFraction(PyTypeObject *type, PyObject *args)
+{
+    int n0, n1;
+
+    if (!parseArgs(args, "ii", &n0, &n1))
+        return wrap_FractionRounder(Rounder::minMaxFraction(n0, n1));
+
+    return PyErr_SetArgsError(type, "minMaxFraction", args);
+}
+
+static PyObject *t_rounder_fixedDigits(PyTypeObject *type, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_Rounder(Rounder::fixedDigits(n));
+
+    return PyErr_SetArgsError(type, "fixedDigits", arg);
+}
+
+static PyObject *t_rounder_minDigits(PyTypeObject *type, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_Rounder(Rounder::minDigits(n));
+
+    return PyErr_SetArgsError(type, "minDigits", arg);
+}
+
+static PyObject *t_rounder_maxDigits(PyTypeObject *type, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_Rounder(Rounder::maxDigits(n));
+
+    return PyErr_SetArgsError(type, "maxDigits", arg);
+}
+
+static PyObject *t_rounder_minMaxDigits(PyTypeObject *type, PyObject *args)
+{
+    int n0, n1;
+
+    if (!parseArgs(args, "ii", &n0, &n1))
+        return wrap_Rounder(Rounder::minMaxDigits(n0, n1));
+
+    return PyErr_SetArgsError(type, "minMaxDigits", args);
+}
+
+static PyObject *t_rounder_increment(PyTypeObject *type, PyObject *arg)
+{
+    double d;
+
+    if (!parseArg(arg, "d", &d))
+        return wrap_IncrementRounder(Rounder::increment(d));
+
+    return PyErr_SetArgsError(type, "increment", arg);
+}
+
+static PyObject *t_rounder_currency(PyTypeObject *type, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_CurrencyRounder(Rounder::currency((UCurrencyUsage) n));
+
+    return PyErr_SetArgsError(type, "currency", arg);
+}
+
+static PyObject *t_rounder_withMode(t_rounder *self, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_Rounder(self->object->withMode(
+            (UNumberFormatRoundingMode) n));
+
+    return PyErr_SetArgsError((PyObject *) self, "withMode", arg);
+}
+
+
+/* FractionRounder */
+
+static PyObject *t_fractionrounder_withMinDigits(
+    t_fractionrounder *self, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_Rounder(self->object->withMinDigits(n));
+
+    return PyErr_SetArgsError((PyObject *) self, "withMinDigits", arg);
+}
+
+static PyObject *t_fractionrounder_withMaxDigits(
+    t_fractionrounder *self, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_Rounder(self->object->withMaxDigits(n));
+
+    return PyErr_SetArgsError((PyObject *) self, "withMaxDigits", arg);
+}
+
+
+/* IncrementRounder */
+
+static PyObject *t_incrementrounder_withMinFraction(
+    t_incrementrounder *self, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_Rounder(self->object->withMinFraction(n));
+
+    return PyErr_SetArgsError((PyObject *) self, "withMinFraction", arg);
+}
+
+
+/* CurrencyRounder */
+
+static PyObject *t_currencyrounder_withCurrency(
+    t_currencyrounder *self, PyObject *arg)
+{
+    CurrencyUnit *unit;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(CurrencyUnit), &unit))
+        return wrap_Rounder(self->object->withCurrency(*unit));
+
+    return PyErr_SetArgsError((PyObject *) self, "withCurrency", arg);
+}
+
+#endif
+
+
 void _init_numberformat(PyObject *m)
 {
     DecimalFormatSymbolsType_.tp_richcompare =
@@ -2401,6 +3347,18 @@ void _init_numberformat(PyObject *m)
 #endif
     REGISTER_TYPE(RuleBasedNumberFormat, m);
     REGISTER_TYPE(ChoiceFormat, m);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
+    INSTALL_TYPE(NumberFormatter, m);
+    INSTALL_TYPE(UnlocalizedNumberFormatter, m);
+    INSTALL_TYPE(LocalizedNumberFormatter, m);
+    INSTALL_TYPE(Notation, m);
+    INSTALL_TYPE(ScientificNotation, m);
+    INSTALL_TYPE(IntegerWidth, m);
+    INSTALL_TYPE(Rounder, m);
+    INSTALL_TYPE(FractionRounder, m);
+    INSTALL_TYPE(IncrementRounder, m);
+    INSTALL_TYPE(CurrencyRounder, m);
+#endif
 
     INSTALL_STATIC_INT(DecimalFormatSymbols, kDecimalSeparatorSymbol);
     INSTALL_STATIC_INT(DecimalFormatSymbols, kGroupingSeparatorSymbol);
@@ -2435,6 +3393,42 @@ void _init_numberformat(PyObject *m)
     INSTALL_ENUM(URBNFRuleSetTag, "NUMBERING_SYSTEM", URBNF_NUMBERING_SYSTEM);
 #endif
 
+    INSTALL_CONSTANTS_TYPE(UNumberFormatRoundingMode, m);
+    INSTALL_ENUM(UNumberFormatRoundingMode, "HALFEVEN", UNUM_ROUND_HALFEVEN);
+#if U_ICU_VERSION_HEX >= 0x04080000
+    INSTALL_ENUM(UNumberFormatRoundingMode, "UNNECESSARY", UNUM_ROUND_UNNECESSARY);
+#endif
+
+    INSTALL_CONSTANTS_TYPE(UNumberFormatStyle, m);
+    INSTALL_ENUM(UNumberFormatStyle, "PATTERN_DECIMAL", UNUM_PATTERN_DECIMAL);
+    INSTALL_ENUM(UNumberFormatStyle, "DECIMAL", UNUM_DECIMAL);
+    INSTALL_ENUM(UNumberFormatStyle, "CURRENCY", UNUM_CURRENCY);
+    INSTALL_ENUM(UNumberFormatStyle, "PERCENT", UNUM_PERCENT);
+    INSTALL_ENUM(UNumberFormatStyle, "SCIENTIFIC", UNUM_SCIENTIFIC);
+    INSTALL_ENUM(UNumberFormatStyle, "SPELLOUT", UNUM_SPELLOUT);
+    INSTALL_ENUM(UNumberFormatStyle, "ORDINAL", UNUM_ORDINAL);
+    INSTALL_ENUM(UNumberFormatStyle, "DURATION", UNUM_DURATION);
+    INSTALL_ENUM(UNumberFormatStyle, "PATTERN_RULEBASED", UNUM_PATTERN_RULEBASED);
+    INSTALL_ENUM(UNumberFormatStyle, "DEFAULT", UNUM_DEFAULT);
+    INSTALL_ENUM(UNumberFormatStyle, "IGNORE", UNUM_IGNORE);
+#if U_ICU_VERSION_HEX >= 0x04020000
+    INSTALL_ENUM(UNumberFormatStyle, "NUMBERING_SYSTEM", UNUM_NUMBERING_SYSTEM);
+#endif
+#if U_ICU_VERSION_HEX >= 0x04080000
+    INSTALL_ENUM(UNumberFormatStyle, "CURRENCY_ISO", UNUM_CURRENCY_ISO);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
+    INSTALL_ENUM(UNumberFormatStyle, "CURRENCY_ACCOUNTING", UNUM_CURRENCY_ACCOUNTING);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
+    INSTALL_ENUM(UNumberFormatStyle, "CASH_CURRENCY", UNUM_CASH_CURRENCY);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(56, 0, 0)
+    INSTALL_ENUM(UNumberFormatStyle, "DECIMAL_COMPACT_SHORT", UNUM_DECIMAL_COMPACT_SHORT);
+    INSTALL_ENUM(UNumberFormatStyle, "DECIMAL_COMPACT_LONG", UNUM_DECIMAL_COMPACT_LONG);
+    INSTALL_ENUM(UNumberFormatStyle, "CURRENCY_STANDARD", UNUM_CURRENCY_STANDARD);
+#endif
+
 #if U_ICU_VERSION_HEX >= 0x04080000
     INSTALL_CONSTANTS_TYPE(UCurrencySpacing, m);
     INSTALL_ENUM(UCurrencySpacing, "MATCH", UNUM_CURRENCY_MATCH);
@@ -2442,10 +3436,36 @@ void _init_numberformat(PyObject *m)
     INSTALL_ENUM(UCurrencySpacing, "INSERT", UNUM_CURRENCY_INSERT);
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
+    INSTALL_CONSTANTS_TYPE(UCurrencyUsage, m);
+    INSTALL_ENUM(UCurrencyUsage, "STANDARD", UCURR_USAGE_STANDARD);
+    INSTALL_ENUM(UCurrencyUsage, "CASH", UCURR_USAGE_CASH);
+#endif
+
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
     INSTALL_CONSTANTS_TYPE(UNumberCompactStyle, m);
     INSTALL_ENUM(UNumberCompactStyle, "SHORT", UNUM_SHORT);
     INSTALL_ENUM(UNumberCompactStyle, "LONG", UNUM_LONG);
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
+    INSTALL_CONSTANTS_TYPE(UNumberSignDisplay, m);
+    INSTALL_ENUM(UNumberSignDisplay, "AUTO", UNUM_SIGN_AUTO);
+    INSTALL_ENUM(UNumberSignDisplay, "ALWAYS", UNUM_SIGN_ALWAYS);
+    INSTALL_ENUM(UNumberSignDisplay, "NEVER", UNUM_SIGN_NEVER);
+    INSTALL_ENUM(UNumberSignDisplay, "ACCOUNTING", UNUM_SIGN_ACCOUNTING);
+    INSTALL_ENUM(UNumberSignDisplay, "ACCOUNTING_ALWAYS", UNUM_SIGN_ACCOUNTING_ALWAYS);
+
+    INSTALL_CONSTANTS_TYPE(UNumberDecimalSeparatorDisplay, m);
+    INSTALL_ENUM(UNumberDecimalSeparatorDisplay, "AUTO", UNUM_DECIMAL_SEPARATOR_AUTO);
+    INSTALL_ENUM(UNumberDecimalSeparatorDisplay, "ALWAYS", UNUM_DECIMAL_SEPARATOR_ALWAYS);
+
+    INSTALL_CONSTANTS_TYPE(UNumberUnitWidth, m);
+    INSTALL_ENUM(UNumberUnitWidth, "NARROW", UNUM_UNIT_WIDTH_NARROW);
+    INSTALL_ENUM(UNumberUnitWidth, "SHORT", UNUM_UNIT_WIDTH_SHORT);
+    INSTALL_ENUM(UNumberUnitWidth, "FULL_NAME", UNUM_UNIT_WIDTH_FULL_NAME);
+    INSTALL_ENUM(UNumberUnitWidth, "ISO_CODE", UNUM_UNIT_WIDTH_ISO_CODE);
+    INSTALL_ENUM(UNumberUnitWidth, "HIDDEN", UNUM_UNIT_WIDTH_HIDDEN);
 #endif
 
     INSTALL_STATIC_INT(NumberFormat, kIntegerField);

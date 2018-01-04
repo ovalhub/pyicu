@@ -201,8 +201,13 @@ static PyNumberMethods t_messageformat_as_number = {
     0,                                 /* nb_add */
     0,                                 /* nb_subtract */
     0,                                 /* nb_multiply */
+#if PY_MAJOR_VERSION >= 3
+    (binaryfunc) t_messageformat_mod,  /* nb_remainder */
+    0,                                 /* nb_divmod */
+#else
     0,                                 /* nb_divide */
     (binaryfunc) t_messageformat_mod,  /* nb_remainder */
+#endif
 };
 
 static PyMethodDef t_messageformat_methods[] = {
@@ -354,6 +359,65 @@ DECLARE_TYPE(ListFormatter, t_listformatter, UObject, ListFormatter,
 
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(57, 0, 0)
+
+class t_simpleformatter : public _wrapper {
+public:
+    SimpleFormatter *object;
+    PyObject *pattern;
+};
+
+static int t_simpleformatter_init(t_simpleformatter *self,
+                                  PyObject *args, PyObject *kwds);
+
+static PyObject *t_simpleformatter_applyPattern(
+    t_simpleformatter *self, PyObject *arg);
+static PyObject *t_simpleformatter_applyPatternMinMaxArguments(
+    t_simpleformatter *self, PyObject *args);
+static PyObject *t_simpleformatter_getArgumentLimit(
+    t_simpleformatter *self, PyObject *args);
+static PyObject *t_simpleformatter_format(
+    t_simpleformatter *self, PyObject *args);
+static PyObject *t_simpleformatter_formatStrings(
+    t_simpleformatter *self, PyObject *arg);
+
+static PyNumberMethods t_simpleformatter_as_number = {
+    0,                                             /* nb_add */
+    0,                                             /* nb_subtract */
+    0,                                             /* nb_multiply */
+#if PY_MAJOR_VERSION >= 3
+    (binaryfunc) t_simpleformatter_formatStrings,  /* nb_remainder */
+    0,                                             /* nb_divmod */
+#else
+    0,                                             /* nb_divide */
+    (binaryfunc) t_simpleformatter_formatStrings,  /* nb_remainder */
+#endif
+};
+
+static PyMethodDef t_simpleformatter_methods[] = {
+    DECLARE_METHOD(t_simpleformatter, applyPattern, METH_O),
+    DECLARE_METHOD(t_simpleformatter, applyPatternMinMaxArguments, METH_VARARGS),
+    DECLARE_METHOD(t_simpleformatter, getArgumentLimit, METH_NOARGS),
+    DECLARE_METHOD(t_simpleformatter, format, METH_VARARGS),
+    DECLARE_METHOD(t_simpleformatter, formatStrings, METH_O),
+    { NULL, NULL, 0, NULL }
+};
+
+static void t_simpleformatter_dealloc(t_simpleformatter *self)
+{
+    if (self->flags & T_OWNED)
+        delete self->object;
+    self->object = NULL;
+
+    Py_CLEAR(self->pattern);
+    Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
+DECLARE_TYPE(SimpleFormatter, t_simpleformatter, UObject, SimpleFormatter,
+             t_simpleformatter_init, t_simpleformatter_dealloc);
+
+#endif
+
 /* FieldPosition */
 
 static int t_fieldposition_init(t_fieldposition *self,
@@ -379,7 +443,7 @@ static int t_fieldposition_init(t_fieldposition *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
@@ -493,7 +557,7 @@ static int t_parseposition_init(t_parseposition *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
@@ -568,8 +632,7 @@ static PyObject *t_parseposition_richcmp(t_parseposition *self, PyObject *arg, i
 
 PyObject *t_format_format(t_format *self, PyObject *args)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
     Formattable *obj;
     FieldPosition *fp;
 
@@ -794,7 +857,7 @@ static int t_timeunitformat_init(t_timeunitformat *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
@@ -1212,7 +1275,7 @@ static PyObject *t_messageformat_mod(t_messageformat *self, PyObject *args)
         PyErr_SetObject(PyExc_TypeError, args);
         return NULL;
     }
-    
+
     STATUS_CALL(
         {
             self->object->format(f, len, _u, _fp, status);
@@ -1744,6 +1807,171 @@ static PyObject *t_listformatter_createInstance(PyTypeObject *type,
 
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(57, 0, 0)
+
+static int t_simpleformatter_init(t_simpleformatter *self,
+                                  PyObject *args, PyObject *kwds)
+{
+    UnicodeString *u, _u;
+    int n0, n1;
+
+    switch (PyTuple_Size(args)) {
+      case 0:
+        self->object = new SimpleFormatter();
+        self->pattern = Py_None;
+        Py_INCREF(self->pattern);
+        self->flags = T_OWNED;
+        return 0;
+
+      case 1:
+        if (!parseArgs(args, "S", &u, &_u))
+        {
+            SimpleFormatter *formatter;
+
+            INT_STATUS_CALL(formatter = new SimpleFormatter(*u, status));
+            self->object = formatter;
+            self->pattern = PyUnicode_FromUnicodeString(u);
+            self->flags = T_OWNED;
+
+            return 0;
+        }
+        break;
+
+      case 3:
+        if (!parseArgs(args, "Sii", &u, &_u, &n0, &n1))
+        {
+            SimpleFormatter *formatter;
+
+            INT_STATUS_CALL(
+                formatter = new SimpleFormatter(*u, n0, n1, status));
+            self->object = formatter;
+            self->pattern = PyUnicode_FromUnicodeString(u);
+            self->flags = T_OWNED;
+
+            return 0;
+        }
+        break;
+    }
+
+    PyErr_SetArgsError((PyObject *) self, "__init__", args);
+    return -1;
+}
+
+static PyObject *t_simpleformatter_str(t_simpleformatter *self)
+{
+    Py_INCREF(self->pattern);
+    return self->pattern;
+}
+
+static PyObject *t_simpleformatter_applyPattern(
+    t_simpleformatter *self, PyObject *arg)
+{
+    UnicodeString *u, _u;
+
+    if (!parseArg(arg, "S", &u, &_u))
+    {
+        UBool result;
+
+        STATUS_CALL(result = self->object->applyPattern(*u, status));
+        Py_DECREF(self->pattern);
+        self->pattern = PyUnicode_FromUnicodeString(u);
+
+        Py_RETURN_BOOL(result);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "applyPattern", arg);
+}
+
+static PyObject *t_simpleformatter_applyPatternMinMaxArguments(
+    t_simpleformatter *self, PyObject *args)
+{
+    UnicodeString *u, _u;
+    int n0, n1;
+
+    switch (PyTuple_Size(args)) {
+      case 3:
+        if (!parseArgs(args, "Sii", &u, &_u, &n0, &n1))
+        {
+            UBool result;
+
+            STATUS_CALL(result = self->object->applyPatternMinMaxArguments(
+                *u, n0, n1, status));
+            Py_DECREF(self->pattern);
+            self->pattern = PyUnicode_FromUnicodeString(u);
+
+            Py_RETURN_BOOL(result);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "applyPatternMinMaxArguments", args);
+}
+
+static PyObject *t_simpleformatter_getArgumentLimit(
+    t_simpleformatter *self, PyObject *args)
+{
+    return PyInt_FromLong(self->object->getArgumentLimit());
+}
+
+static PyObject *t_simpleformatter_format(
+    t_simpleformatter *self, PyObject *args)
+{
+    UnicodeString *u0, *u1, *u2, _u0, _u1, _u2;
+    UnicodeString u;
+
+    switch (PyTuple_Size(args)) {
+      case 1:
+        if (!parseArgs(args, "S", &u0, &_u0))
+        {
+            STATUS_CALL(u = self->object->format(*u0, u, status));
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        break;
+      case 2:
+        if (!parseArgs(args, "SS", &u0, &_u0, &u1, &_u1))
+        {
+            STATUS_CALL(u = self->object->format(*u0, *u1, u, status));
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        break;
+      case 3:
+        if (!parseArgs(args, "SSS", &u0, &_u0, &u1, &_u1, &u2, &_u2))
+        {
+            STATUS_CALL(u = self->object->format(*u0, *u1, *u2, u, status));
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "format", args);
+}
+
+static PyObject *t_simpleformatter_formatStrings(
+    t_simpleformatter *self, PyObject *arg)
+{
+    UnicodeString *strings, u;
+    int count;
+
+    if (!parseArg(arg, "T", &strings, &count))
+    {
+        UnicodeString **args = new UnicodeString *[count];
+
+        for (int i = 0; i < count; ++i)
+            args[i] = &strings[i];
+
+        STATUS_CALL(
+            u = self->object->formatAndAppend(args, count, u, NULL, 0, status);
+            delete[] args;
+            delete[] strings);
+
+        return PyUnicode_FromUnicodeString(&u);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "formatStrings", arg);
+}
+
+#endif
+
 void _init_format(PyObject *m)
 {
     FieldPositionType_.tp_richcompare = (richcmpfunc) t_fieldposition_richcmp;
@@ -1758,6 +1986,11 @@ void _init_format(PyObject *m)
 #endif
 #if U_ICU_VERSION_HEX >= 0x04040000
     SelectFormatType_.tp_str = (reprfunc) t_selectformat_str;
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(57, 0, 0)
+    SimpleFormatterType_.tp_str = (reprfunc) t_simpleformatter_str;
+    SimpleFormatterType_.tp_as_number = &t_simpleformatter_as_number;
+    SimpleFormatterType_.tp_flags |= Py_TPFLAGS_CHECKTYPES;
 #endif
 
     REGISTER_TYPE(FieldPosition, m);
@@ -1777,6 +2010,9 @@ void _init_format(PyObject *m)
 #endif
 #if U_ICU_VERSION_HEX >= VERSION_HEX(50, 0, 0)
     INSTALL_TYPE(ListFormatter, m);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(57, 0, 0)
+    INSTALL_TYPE(SimpleFormatter, m);
 #endif
 
     INSTALL_STATIC_INT(FieldPosition, DONT_CARE);

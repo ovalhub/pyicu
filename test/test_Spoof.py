@@ -143,15 +143,15 @@ class TestSpoofChecker(TestCase):
     def testInvisible(self):
 
         checks = self.checker.check(u"abcd\u0301ef")
-        self.assertEquals(checks, 0)
+        self.assertEqual(checks, 0)
 
         checks = self.checker.check(u"abcd\u0301\u0302\u0301ef")
-        self.assertEquals(checks, USpoofChecks.INVISIBLE)
+        self.assertEqual(checks, USpoofChecks.INVISIBLE)
 
         # Two acute accents, one from the composed a with acute accent, \u00e1,
         # and one separate.
         checks = self.checker.check(u"abcd\u00e1\u0301xyz")
-        self.assertEquals(checks, USpoofChecks.INVISIBLE)
+        self.assertEqual(checks, USpoofChecks.INVISIBLE)
 
 
 if __name__ == "__main__":

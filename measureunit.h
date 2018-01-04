@@ -24,6 +24,9 @@
 #ifndef _measureunit_h
 #define _measureunit_h
 
+extern PyTypeObject MeasureUnitType_;
+extern PyTypeObject CurrencyUnitType_;
+
 void _init_measureunit(PyObject *m);
 
 #endif /* _measureunit_h */

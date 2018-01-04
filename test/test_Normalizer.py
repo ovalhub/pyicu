@@ -31,10 +31,10 @@ from icu import *
 class TestNormalizer2(TestCase):
 
     def assertNorm(self, normalizer2, expected, source):
-        self.assertEquals(expected, normalizer2.normalize(source))
+        self.assertEqual(expected, normalizer2.normalize(source))
         a = UnicodeString()
         normalizer2.normalize(source, a)
-        self.assertEquals(UnicodeString(expected), a)
+        self.assertEqual(UnicodeString(expected), a)
 
     def testNormalize(self):
 

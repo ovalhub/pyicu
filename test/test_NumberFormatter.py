@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 # ====================================================================
-# Copyright (c) 2014 Open Source Applications Foundation.
+# Copyright (c) 2018 Open Source Applications Foundation.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -26,23 +27,39 @@ import sys, os
 from unittest import TestCase, main
 from icu import *
 
-class TestListFormatter(TestCase):
+class TestNumberFormatter(TestCase):
 
-    def testDefault(self):
+    def testBasic(self):
+        text = NumberFormatter.withLocale(Locale.getUS()).formatInt(1234)
+        self.assertEqual(text, u'1,234')
 
-        Locale.setDefault(Locale.getUS())
-        formatter = ListFormatter.createInstance()
-        text = formatter.format(('a', 'b', 'c'))
+        text = LocalizedNumberFormatter(Locale.getUS()).formatInt(1234)
+        self.assertEqual(text, u'1,234')
 
-        self.assertTrue(text == u'a, b, and c')
+    def testFancy(self):
 
-    def testLocale(self):
+        text = NumberFormatter.with_() \
+            .notation(Notation.compactShort()) \
+            .unit(CurrencyUnit('EUR')) \
+            .rounding(Rounder.maxDigits(2)) \
+            .locale(Locale.getFrance()) \
+            .formatInt(1234)
+        self.assertEqual(text, u'1,2\xa0k\xa0€')
 
-        formatter = ListFormatter.createInstance(Locale.getFrance())
-        text = formatter.format(('a', 'b', 'c'))
+    def testUnit(self):
 
-        self.assertTrue(text == u'a, b et c')
+        formatter = UnlocalizedNumberFormatter() \
+            .sign(UNumberSignDisplay.ALWAYS) \
+            .unit(MeasureUnit.createMeter()) \
+            .unitWidth(UNumberUnitWidth.FULL_NAME)
+
+        text = formatter.locale(Locale.getUS()).formatInt(1234)
+        self.assertEqual(text, u'+1,234 meters')
+
+        text = formatter.locale(Locale.getFrance()).formatInt(1234)
+        self.assertEqual(text, u'+1\xa0234 mètres')
 
 
 if __name__ == "__main__":
-    main()
+    if ICU_VERSION >= '60.0':
+        main()
