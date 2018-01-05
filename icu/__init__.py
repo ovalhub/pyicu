@@ -1,5 +1,5 @@
  # ====================================================================
- # Copyright (c) 2004-2010 Open Source Applications Foundation.
+ # Copyright (c) 2004-2018 Open Source Applications Foundation.
  #
  # Permission is hereby granted, free of charge, to any person obtaining a
  # copy of this software and associated documentation files (the "Software"),
@@ -20,8 +20,6 @@
  # DEALINGS IN THE SOFTWARE.
  # ====================================================================
 
-import sys
-
 class ICUError(Exception):
     messages = {}
 
@@ -36,7 +34,4 @@ class InvalidArgsError(Exception):
     pass
 
 
-if sys.version_info >= (3,):
-    from .docs import *
-else:
-    from docs import *
+from _icu import *

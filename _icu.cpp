@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2015 Open Source Applications Foundation.
+ * Copyright (c) 2004-2018 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -192,54 +192,7 @@ static PyObject *t_descriptor___get__(t_descriptor *self,
 }
 
 
-static PyTypeObject *_method_type;
-static PyObject *_install__doc__(PyObject *self, PyObject *args)
-{
-#ifndef PYPY_VERSION
-    PyObject *object;
-    char *doc;
-
-    if (!PyArg_ParseTuple(args, "Os", &object, &doc))
-        return NULL;
-
-    /* constructors */
-    if (PyObject_TypeCheck(object, &PyWrapperDescr_Type))
-    {
-        ((PyWrapperDescrObject *) object)->d_base->doc = strdup(doc);
-        Py_RETURN_NONE;
-    }
-
-    /* methods */
-    if (PyObject_TypeCheck(object, _method_type))
-    {
-        ((PyMethodDescrObject *) object)->d_method->ml_doc = strdup(doc);
-        Py_RETURN_NONE;
-    }
-
-    /* class methods */
-    if (PyObject_TypeCheck(object, &PyCFunction_Type))
-    {
-        ((PyCFunctionObject *) object)->m_ml->ml_doc = strdup(doc);
-        Py_RETURN_NONE;
-    }
-
-    /* classes */
-    if (PyType_Check(object))
-    {
-        ((PyTypeObject *) object)->tp_doc = strdup(doc);
-        Py_RETURN_NONE;
-    }
-
-    PyErr_SetObject(PyExc_TypeError, object);
-    return NULL;
-#else
-    Py_RETURN_NONE;
-#endif
-}
-
 static PyMethodDef _icu_funcs[] = {
-    { "_install__doc__", (PyCFunction) _install__doc__, METH_VARARGS,
-      "install immutable doc strings from python" },
     { NULL, NULL, 0, NULL }
 };
 
@@ -298,14 +251,6 @@ static PyObject *PyInit_icu(PyObject *m)
     _init_char(m);
     _init_shape(m);
     _init_measureunit(m);
-
-    PyObject *method = PyObject_GetAttrString((PyObject *) &UObjectType_,
-                                              "getDynamicClassID");
-
-    _method_type = method->ob_type;
-    Py_DECREF(method);
-    if (PyErr_Occurred())
-        return NULL;
 
     return m;
 }
