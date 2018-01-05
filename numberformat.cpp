@@ -3039,7 +3039,7 @@ static PyObject *t_localizednumberformatter_formatDecimal(
 
     if (!parseArg(arg, "c", &s))
     {
-        STATUS_CALL(u = self->object->formatDecimal(StringPiece(s), status).toString());
+        STATUS_CALL(u = self->object->formatDecimal(s, status).toString());
         return PyUnicode_FromUnicodeString(&u);
     }
 

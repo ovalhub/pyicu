@@ -210,13 +210,7 @@ void t_name##_dealloc(t_name *self)                                   \
 DECLARE_TYPE(name, t_name, base, icuClass, init, t_name##_dealloc)    \
 PyObject *wrap_##name(const icuClass &object)                         \
 {                                                                     \
-    t_name *self = (t_name *) name##Type_.tp_alloc(&name##Type_, 0);  \
-    if (self)                                                         \
-    {                                                                 \
-        self->object = new icuClass(object);                          \
-        self->flags = T_OWNED;                                        \
-    }                                                                 \
-    return (PyObject *) self;                                         \
+    return wrap_##name(new icuClass(object), T_OWNED);                \
 }
 
 
