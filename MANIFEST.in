@@ -13,6 +13,7 @@ include iterators.h
 include layoutengine.h
 include locale.h
 include macros.h
+include measureunit.h
 include normalizer.h
 include numberformat.h
 include regex.h

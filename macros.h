@@ -200,15 +200,21 @@ PyObject *wrap_##name(icuClass *object, int flags)                        \
 }
 
 #define DECLARE_BY_VALUE_TYPE(name, t_name, base, icuClass, init)     \
-DECLARE_TYPE(name, t_name, base, icuClass, init, NULL)                \
-PyObject *wrap_##name(icuClass object)                                \
+void t_name##_dealloc(t_name *self)                                   \
+{                                                                     \
+    if (self->flags & T_OWNED)                                        \
+        delete self->object;                                          \
+    self->object = NULL;                                              \
+    Py_TYPE(self)->tp_free((PyObject *) self);                        \
+}                                                                     \
+DECLARE_TYPE(name, t_name, base, icuClass, init, t_name##_dealloc)    \
+PyObject *wrap_##name(const icuClass &object)                         \
 {                                                                     \
     t_name *self = (t_name *) name##Type_.tp_alloc(&name##Type_, 0);  \
     if (self)                                                         \
     {                                                                 \
-        self->the_object = object;                                    \
-        self->object = &self->the_object;                             \
-        self->flags = 0;                                              \
+        self->object = new icuClass(object);                          \
+        self->flags = T_OWNED;                                        \
     }                                                                 \
     return (PyObject *) self;                                         \
 }

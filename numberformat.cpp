@@ -486,7 +486,6 @@ DECLARE_TYPE(NumberFormatter, t_numberformatter, UMemory, NumberFormatter,
 class t_unlocalizednumberformatter : public _wrapper {
 public:
     UnlocalizedNumberFormatter *object;
-    UnlocalizedNumberFormatter the_object;
 };
 
 static PyObject *t_unlocalizednumberformatter_unit(
@@ -535,7 +534,6 @@ DECLARE_BY_VALUE_TYPE(UnlocalizedNumberFormatter, t_unlocalizednumberformatter,
 class t_localizednumberformatter : public _wrapper {
 public:
     LocalizedNumberFormatter *object;
-    LocalizedNumberFormatter the_object;
 };
 
 static PyObject *t_localizednumberformatter_unit(
@@ -590,7 +588,6 @@ DECLARE_BY_VALUE_TYPE(LocalizedNumberFormatter, t_localizednumberformatter,
 class t_notation : public _wrapper {
 public:
     Notation *object;
-    Notation the_object;
 };
 
 static PyObject *t_notation_scientific(PyTypeObject *type, PyObject *args);
@@ -616,7 +613,6 @@ DECLARE_BY_VALUE_TYPE(Notation, t_notation, UMemory, Notation, abstract_init);
 class t_scientificnotation : public _wrapper {
 public:
     ScientificNotation *object;
-    ScientificNotation the_object;
 };
 
 static PyObject *t_scientificnotation_withMinExponentDigits(
@@ -639,7 +635,6 @@ DECLARE_BY_VALUE_TYPE(ScientificNotation, t_scientificnotation, Notation,
 class t_integerwidth : public _wrapper {
 public:
     IntegerWidth *object;
-    IntegerWidth the_object;
 };
 
 static PyObject *t_integerwidth_zeroFillTo(PyTypeObject *type, PyObject *arg);
@@ -660,7 +655,6 @@ DECLARE_BY_VALUE_TYPE(IntegerWidth, t_integerwidth, UMemory, IntegerWidth,
 class t_rounder : public _wrapper {
 public:
     Rounder *object;
-    Rounder the_object;
 };
 
 static PyObject *t_rounder_unlimited(PyTypeObject *type, PyObject *args);
@@ -702,7 +696,6 @@ DECLARE_BY_VALUE_TYPE(Rounder, t_rounder, UMemory, Rounder, abstract_init);
 class t_fractionrounder : public _wrapper {
 public:
     FractionRounder *object;
-    FractionRounder the_object;
 };
 
 static PyObject *t_fractionrounder_withMinDigits(t_fractionrounder *self, PyObject *arg);
@@ -723,7 +716,6 @@ DECLARE_BY_VALUE_TYPE(FractionRounder, t_fractionrounder, Rounder,
 class t_incrementrounder : public _wrapper {
 public:
     IncrementRounder *object;
-    IncrementRounder the_object;
 };
 
 static PyObject *t_incrementrounder_withMinFraction(t_incrementrounder *self, PyObject *arg);
@@ -742,7 +734,6 @@ DECLARE_BY_VALUE_TYPE(IncrementRounder, t_incrementrounder, Rounder,
 class t_currencyrounder : public _wrapper {
 public:
     CurrencyRounder *object;
-    CurrencyRounder the_object;
 };
 
 static PyObject *t_currencyrounder_withCurrency(t_currencyrounder *self, PyObject *arg);
@@ -2709,15 +2700,13 @@ static PyObject *t_numberformatter_with_(PyTypeObject *type, PyObject *args)
 {
     return wrap_UnlocalizedNumberFormatter(NumberFormatter::with());
 }
-
 static PyObject *t_numberformatter_withLocale(PyTypeObject *type,
                                               PyObject *arg)
 {
     Locale *locale;
 
     if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
-        return wrap_LocalizedNumberFormatter(
-            NumberFormatter::withLocale(*locale));
+        return wrap_LocalizedNumberFormatter(NumberFormatter::withLocale(*locale));
 
     return PyErr_SetArgsError(type, "withLocale", arg);
 }
@@ -2730,9 +2719,8 @@ static int t_unlocalizednumberformatter_init(t_unlocalizednumberformatter *self,
 {
     switch (PyTuple_Size(args)) {
       case 0:
-        self->the_object = NumberFormatter::with();
-        self->object = &self->the_object;
-        self->flags = 0;
+        self->object = new UnlocalizedNumberFormatter(NumberFormatter::with());
+        self->flags = T_OWNED;
         break;
     }
 
@@ -2869,9 +2857,9 @@ static int t_localizednumberformatter_init(t_localizednumberformatter *self,
 
         if (!parseArgs(args, "P", TYPE_CLASSID(Locale), &locale))
         {
-            self->the_object = NumberFormatter::withLocale(*locale);
-            self->object = &self->the_object;
-            self->flags = 0;
+            self->object = new LocalizedNumberFormatter(
+                NumberFormatter::withLocale(*locale));
+            self->flags = T_OWNED;
             break;
         }
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
