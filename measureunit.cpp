@@ -353,7 +353,9 @@ public:
     Measure *object;
 };
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 1, 0)
 static int t_measure_init(t_measure *self, PyObject *args, PyObject *kwds);
+#endif
 static PyObject *t_measure_getNumber(t_measure *self);
 static PyObject *t_measure_getUnit(t_measure *self);
 
@@ -363,8 +365,11 @@ static PyMethodDef t_measure_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 1, 0)
 DECLARE_TYPE(Measure, t_measure, UObject, Measure, t_measure_init, NULL);
-
+#else
+DECLARE_TYPE(Measure, t_measure, UObject, Measure, abstract_init, NULL);
+#endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
 
@@ -1672,6 +1677,8 @@ static PyObject *t_measureunit_createPoint(PyTypeObject *type)
 
 /* Measure */
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 1, 0)
+
 static int t_measure_init(t_measure *self, PyObject *args, PyObject *kwds)
 {
     Formattable *number;
@@ -1708,6 +1715,8 @@ static int t_measure_init(t_measure *self, PyObject *args, PyObject *kwds)
 
     return -1;
 }
+
+#endif
 
 static PyObject *t_measure_getNumber(t_measure *self)
 {
