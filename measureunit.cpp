@@ -1732,6 +1732,18 @@ static PyObject *t_measure_getUnit(t_measure *self)
 
 static PyObject *t_measure_str(t_measure *self)
 {
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
+    UnicodeString u;
+
+    STATUS_CALL(u = icu::number::NumberFormatter::withLocale(
+        Locale::getDefault())
+                .unit(self->object->getUnit())
+                .unitWidth(UNumberUnitWidth::UNUM_UNIT_WIDTH_FULL_NAME)
+                .formatDouble(self->object->getNumber().getDouble(), status)
+                .toString());
+
+    return PyUnicode_FromUnicodeString(&u);
+#else
     PyObject *value = wrap_Formattable(const_cast<Formattable *>(&self->object->getNumber()), 0);
     PyObject *unit = wrap_MeasureUnit(const_cast<MeasureUnit *>(&self->object->getUnit()), 0);
     PyObject *v_str = PyObject_Str(value);
@@ -1748,6 +1760,7 @@ static PyObject *t_measure_str(t_measure *self)
     Py_DECREF(value);
 
     return str;
+#endif
 }
 
 static PyObject *t_measure_richcmp(t_measure *self, PyObject *arg, int op)

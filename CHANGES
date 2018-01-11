@@ -1,6 +1,7 @@
 Version 2.0 -> 2.0.1
 --------------------
   - made Measure wrapper abstract when building with ICU < 53.1
+  - str(Measure) uses NumberFormatter when available
   - 
   
 Version 1.9.8 -> 2.0
