@@ -69,7 +69,7 @@ accept Python str or unicode type arguments. In the case of ``str``
 objects, the ``utf-8`` encoding is assumed when converting them to
 ``UnicodeString`` objects.
 
-To convert a Python ``str`` encoded in a encoding other than ``utf-8`` to
+To convert a Python ``str`` encoded in an encoding other than ``utf-8`` to
 an ICU ``UnicodeString`` use the ``UnicodeString(str, encodingName)``
 constructor.
 
