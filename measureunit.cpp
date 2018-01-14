@@ -2014,7 +2014,9 @@ static PyObject *t_timeunitamount_getTimeUnitField(t_timeunitamount *self)
 
 void _init_measureunit(PyObject *m)
 {
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
     MeasureUnitType_.tp_str = (reprfunc) t_measureunit_str;
+#endif
     MeasureUnitType_.tp_richcompare = (richcmpfunc) t_measureunit_richcmp;
     MeasureType_.tp_richcompare = (richcmpfunc) t_measure_richcmp;
     CurrencyUnitType_.tp_str = (reprfunc) t_currencyunit_str;
