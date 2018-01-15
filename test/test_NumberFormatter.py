@@ -31,34 +31,37 @@ class TestNumberFormatter(TestCase):
 
     def testBasic(self):
 
-        text = NumberFormatter.withLocale(Locale.getUS()).formatInt(1234)
-        self.assertEqual(text, u'1,234')
+        if ICU_VERSION >= '60.0':
+            text = NumberFormatter.withLocale(Locale.getUS()).formatInt(1234)
+            self.assertEqual(text, u'1,234')
 
-        text = LocalizedNumberFormatter(Locale.getUS()).formatInt(1234)
-        self.assertEqual(text, u'1,234')
+            text = LocalizedNumberFormatter(Locale.getUS()).formatInt(1234)
+            self.assertEqual(text, u'1,234')
 
     def testFancy(self):
 
-        text = NumberFormatter.with_() \
-            .notation(Notation.compactShort()) \
-            .unit(CurrencyUnit('EUR')) \
-            .rounding(Rounder.maxDigits(2)) \
-            .locale(Locale.getFrance()) \
-            .formatInt(1234)
-        self.assertEqual(text, u'1,2\xa0k\xa0€')
+        if ICU_VERSION >= '60.0':
+            text = NumberFormatter.with_() \
+                .notation(Notation.compactShort()) \
+                .unit(CurrencyUnit('EUR')) \
+                .rounding(Rounder.maxDigits(2)) \
+                .locale(Locale.getFrance()) \
+                .formatInt(1234)
+            self.assertEqual(text, u'1,2\xa0k\xa0€')
 
     def testUnit(self):
 
-        formatter = UnlocalizedNumberFormatter() \
-            .sign(UNumberSignDisplay.ALWAYS) \
-            .unit(MeasureUnit.createMeter()) \
-            .unitWidth(UNumberUnitWidth.FULL_NAME)
+        if ICU_VERSION >= '60.0':
+            formatter = UnlocalizedNumberFormatter() \
+                .sign(UNumberSignDisplay.ALWAYS) \
+                .unit(MeasureUnit.createMeter()) \
+                .unitWidth(UNumberUnitWidth.FULL_NAME)
 
-        text = formatter.locale(Locale.getUS()).formatInt(1234)
-        self.assertEqual(text, u'+1,234 meters')
+            text = formatter.locale(Locale.getUS()).formatInt(1234)
+            self.assertEqual(text, u'+1,234 meters')
 
-        text = formatter.locale(Locale.getFrance()).formatInt(1234)
-        self.assertEqual(text, u'+1\xa0234 mètres')
+            text = formatter.locale(Locale.getFrance()).formatInt(1234)
+            self.assertEqual(text, u'+1\xa0234 mètres')
 
 
 if __name__ == "__main__":
