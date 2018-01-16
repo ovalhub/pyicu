@@ -201,6 +201,7 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/compactdecimalformat.h>
 #include <unicode/unum.h>
 #include <unicode/udisplaycontext.h>
+#include <unicode/region.h>
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)

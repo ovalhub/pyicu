@@ -1,3 +1,8 @@
+Version 2.0.2 ->
+----------------------
+  - added wrappers for Region class and URegionType enum
+  - 
+
 Version 2.0.1 -> 2.0.2
 ----------------------
   - fixed build error with ICU < 53

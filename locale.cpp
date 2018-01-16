@@ -46,6 +46,11 @@ DECLARE_CONSTANTS_TYPE(ULocaleDataDelimiterType);
 DECLARE_CONSTANTS_TYPE(ULocaleDataExemplarSetType);
 DECLARE_CONSTANTS_TYPE(UMeasurementSystem);
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+DECLARE_CONSTANTS_TYPE(URegionType);
+#endif
+
+
 /* Locale */
 
 class t_locale : public _wrapper {
@@ -301,6 +306,47 @@ static void t_localedata_dealloc(t_localedata *self)
 
 DECLARE_STRUCT(LocaleData, t_localedata, ULocaleData, t_localedata_init,
                t_localedata_dealloc);
+
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+
+/* Region */
+
+class t_region : public _wrapper {
+public:
+    const Region *object;
+};
+
+static PyObject *t_region_getInstance(PyTypeObject *type, PyObject *arg);
+static PyObject *t_region_getRegionCode(t_region *self);
+static PyObject *t_region_getNumericCode(t_region *self);
+static PyObject *t_region_getType(t_region *self);
+static PyObject *t_region_getContainingRegion(t_region *self, PyObject *args);
+static PyObject *t_region_contains(t_region *self, PyObject *arg);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(55, 0, 0)
+static PyObject *t_region_getAvailable(PyTypeObject *type, PyObject *arg);
+static PyObject *t_region_getContainedRegions(t_region *self, PyObject *args);
+static PyObject *t_region_getPreferredValues(t_region *self);
+#endif
+
+static PyMethodDef t_region_methods[] = {
+    DECLARE_METHOD(t_region, getInstance, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_region, getRegionCode, METH_NOARGS),
+    DECLARE_METHOD(t_region, getNumericCode, METH_NOARGS),
+    DECLARE_METHOD(t_region, getType, METH_NOARGS),
+    DECLARE_METHOD(t_region, getContainingRegion, METH_VARARGS),
+    DECLARE_METHOD(t_region, contains, METH_O),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(55, 0, 0)
+    DECLARE_METHOD(t_region, getAvailable, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_region, getPreferredValues, METH_NOARGS),
+    DECLARE_METHOD(t_region, getContainedRegions, METH_VARARGS),
+#endif
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(Region, t_region, UObject, const Region, abstract_init, NULL);
+
+#endif
 
 
 /* Locale */
@@ -1509,6 +1555,145 @@ static PyObject *t_localedata_getExemplarSet(t_localedata *self, PyObject *args)
 }
 
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+
+/* Region */
+
+static PyObject *t_region_getInstance(PyTypeObject *type, PyObject *arg)
+{
+    charsArg region_code;
+    int32_t code;
+
+    if (!parseArg(arg, "n", &region_code))
+    {
+        const Region *region;
+
+        STATUS_CALL(region = Region::getInstance(region_code, status));
+        return wrap_Region(region, 0);
+    }
+    if (!parseArg(arg, "i", &code))
+    {
+        const Region *region;
+
+        STATUS_CALL(region = Region::getInstance(code, status));
+        return wrap_Region(region, 0);
+    }
+
+    return PyErr_SetArgsError(type, "getInstance", arg);
+}
+
+static PyObject *t_region_getRegionCode(t_region *self)
+{
+    return PyString_FromString(self->object->getRegionCode());
+}
+
+static PyObject *t_region_getNumericCode(t_region *self)
+{
+    return PyInt_FromLong(self->object->getNumericCode());
+}
+
+static PyObject *t_region_getType(t_region *self)
+{
+    return PyInt_FromLong(self->object->getType());
+}
+
+static PyObject *t_region_getContainingRegion(t_region *self, PyObject *args)
+{
+    URegionType region_type;
+    const Region *region;
+
+    switch (PyTuple_Size(args)) {
+      case 0:
+        region = self->object->getContainingRegion();
+        if (region == NULL)
+            Py_RETURN_NONE;
+        else
+            return wrap_Region(region, 0);
+
+      case 1:
+        if (!parseArgs(args, "i", &region_type))
+        {
+            region = self->object->getContainingRegion(region_type);
+            if (region == NULL)
+                Py_RETURN_NONE;
+            else
+                return wrap_Region(region, 0);
+        }
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getContainingRegion", args);
+}
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(55, 0, 0)
+
+static PyObject *t_region_getAvailable(PyTypeObject *type, PyObject *arg)
+{
+    URegionType region_type;
+    StringEnumeration *se;
+
+    if (!parseArg(arg, "i", &region_type))
+    {
+        STATUS_CALL(se = Region::getAvailable(region_type, status));
+        return wrap_StringEnumeration(se, T_OWNED);
+    }
+
+    return PyErr_SetArgsError(type, "getAvailable", arg);
+}
+
+static PyObject *t_region_getContainedRegions(t_region *self, PyObject *args)
+{
+    StringEnumeration *se;
+    URegionType region_type;
+
+    switch (PyTuple_Size(args)) {
+      case 0:
+        STATUS_CALL(se = self->object->getContainedRegions(status));
+        return wrap_StringEnumeration(se, T_OWNED);
+      case 1:
+        if (!parseArgs(args, "i", &region_type))
+        {
+            STATUS_CALL(se = self->object->getContainedRegions(
+                            region_type, status));
+            return wrap_StringEnumeration(se, T_OWNED);
+        }
+        break;
+    }
+        
+    return PyErr_SetArgsError((PyObject *) self, "getContainedRegions", args);
+}
+
+static PyObject *t_region_getPreferredValues(t_region *self)
+{
+    StringEnumeration *se;
+
+    STATUS_CALL(se = self->object->getPreferredValues(status));
+
+    if (se == NULL)
+        Py_RETURN_NONE;
+
+    return wrap_StringEnumeration(se, T_OWNED);
+}
+
+#endif
+
+static PyObject *t_region_contains(t_region *self, PyObject *arg)
+{
+    const Region *region;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(Region), &region))
+        Py_RETURN_BOOL(self->object->contains(*region));
+
+    return PyErr_SetArgsError((PyObject *) self, "contains", arg);
+}
+
+static PyObject *t_region_str(t_region *self)
+{
+    return PyString_FromString(self->object->getRegionCode());
+}
+
+#endif
+
+
 void _init_locale(PyObject *m)
 {
     LocaleType_.tp_str = (reprfunc) t_locale_str;
@@ -1516,6 +1701,9 @@ void _init_locale(PyObject *m)
     ResourceBundleType_.tp_iter = (getiterfunc) t_resourcebundle_iter;
     ResourceBundleType_.tp_iternext = (iternextfunc) t_resourcebundle_next;
     ResourceBundleType_.tp_str = (reprfunc) t_resourcebundle_str;
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+    RegionType_.tp_str = (reprfunc) t_region_str;
+#endif
 
     INSTALL_CONSTANTS_TYPE(ULocDataLocaleType, m);
     INSTALL_CONSTANTS_TYPE(UResType, m);
@@ -1525,6 +1713,10 @@ void _init_locale(PyObject *m)
     REGISTER_TYPE(Locale, m);
     REGISTER_TYPE(ResourceBundle, m);
     INSTALL_STRUCT(LocaleData, m);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+    REGISTER_TYPE(Region, m);
+    INSTALL_CONSTANTS_TYPE(URegionType, m);
+#endif
 
     INSTALL_ENUM(ULocDataLocaleType, "ACTUAL_LOCALE", ULOC_ACTUAL_LOCALE);
     INSTALL_ENUM(ULocDataLocaleType, "VALID_LOCALE", ULOC_VALID_LOCALE);
@@ -1564,4 +1756,14 @@ void _init_locale(PyObject *m)
     INSTALL_MODULE_INT(m, USET_IGNORE_SPACE);
     INSTALL_MODULE_INT(m, USET_CASE_INSENSITIVE);
     INSTALL_MODULE_INT(m, USET_ADD_CASE_MAPPINGS);
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+    INSTALL_ENUM(URegionType, "UNKNOWN", URGN_UNKNOWN);
+    INSTALL_ENUM(URegionType, "TERRITORY", URGN_TERRITORY);
+    INSTALL_ENUM(URegionType, "WORLD", URGN_WORLD);
+    INSTALL_ENUM(URegionType, "CONTINENT", URGN_CONTINENT);
+    INSTALL_ENUM(URegionType, "SUBCONTINENT", URGN_SUBCONTINENT);
+    INSTALL_ENUM(URegionType, "GROUPING", URGN_GROUPING);
+    INSTALL_ENUM(URegionType, "DEPRECATED", URGN_DEPRECATED);
+#endif
 }
