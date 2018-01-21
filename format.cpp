@@ -123,6 +123,8 @@ static PyObject *t_measureformat_createCurrencyFormat(PyTypeObject *type,
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
 static PyObject *t_measureformat_formatMeasure(t_measureformat *self,
                                                PyObject *args);
+static PyObject *t_measureformat_formatMeasures(t_measureformat *self,
+                                                PyObject *args);
 #endif
 #if U_ICU_VERSION_HEX >= VERSION_HEX(55, 0, 0)
 static PyObject *t_measureformat_formatMeasurePerUnit(t_measureformat *self,
@@ -133,6 +135,7 @@ static PyMethodDef t_measureformat_methods[] = {
     DECLARE_METHOD(t_measureformat, createCurrencyFormat, METH_VARARGS | METH_CLASS),
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
     DECLARE_METHOD(t_measureformat, formatMeasure, METH_VARARGS),
+    DECLARE_METHOD(t_measureformat, formatMeasures, METH_VARARGS),
 #endif
 #if U_ICU_VERSION_HEX >= VERSION_HEX(55, 0, 0)
     DECLARE_METHOD(t_measureformat, formatMeasurePerUnit, METH_VARARGS),
@@ -861,6 +864,63 @@ static PyObject *t_measureformat_formatMeasure(t_measureformat *self,
     }
 
     return PyErr_SetArgsError((PyObject *) self, "formatMeasure", args);
+}
+
+static PyObject *t_measureformat_formatMeasures(t_measureformat *self,
+                                                PyObject *args)
+{
+    Measure **measures = nullptr;
+    int len;
+    FieldPosition dont_care(FieldPosition::DONT_CARE);
+    FieldPosition *fp;
+    UnicodeString u;
+
+    switch (PyTuple_Size(args)) {
+      case 1:
+        if (!parseArgs(args, "Q", TYPE_CLASSID(Measure), &measures, &len,
+                       TYPE_CLASSID(Measure)))
+        {
+            if (len != 1)
+            {
+                free(measures);
+                break;
+            }
+              
+            STATUS_CALL(
+                {
+                    self->object->formatMeasures(
+                        measures[0], 1, u, dont_care, status);
+                    free(measures);
+                });
+                  
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        break;
+
+      case 2:
+        if (!parseArgs(args, "QP",
+                       TYPE_CLASSID(Measure), TYPE_CLASSID(FieldPosition),
+                       &measures, &len, TYPE_CLASSID(Measure), &fp))
+        {
+            if (len != 1)
+            {
+                free(measures);
+                break;
+            }
+              
+            STATUS_CALL(
+                {
+                    self->object->formatMeasures(
+                        measures[0], 1, u, *fp, status);
+                    free(measures);
+                });
+                  
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "formatMeasures", args);
 }
 
 #endif
