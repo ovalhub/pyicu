@@ -26,6 +26,7 @@
 
 extern PyTypeObject MeasureUnitType_;
 extern PyTypeObject CurrencyUnitType_;
+extern PyTypeObject MeasureType_;
 
 void _init_measureunit(PyObject *m);
 

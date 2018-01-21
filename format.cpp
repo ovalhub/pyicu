@@ -29,6 +29,7 @@
 #include "format.h"
 #include "macros.h"
 #include "dateformat.h"
+#include "measureunit.h"
 #include "numberformat.h"
 
 #if U_ICU_VERSION_HEX >= 0x04080000
@@ -119,9 +120,23 @@ public:
 
 static PyObject *t_measureformat_createCurrencyFormat(PyTypeObject *type,
                                                       PyObject *args);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
+static PyObject *t_measureformat_formatMeasure(t_measureformat *self,
+                                               PyObject *args);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(55, 0, 0)
+static PyObject *t_measureformat_formatMeasurePerUnit(t_measureformat *self,
+                                                      PyObject *args);
+#endif
 
 static PyMethodDef t_measureformat_methods[] = {
     DECLARE_METHOD(t_measureformat, createCurrencyFormat, METH_VARARGS | METH_CLASS),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
+    DECLARE_METHOD(t_measureformat, formatMeasure, METH_VARARGS),
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(55, 0, 0)
+    DECLARE_METHOD(t_measureformat, formatMeasurePerUnit, METH_VARARGS),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -814,6 +829,77 @@ static PyObject *t_measureformat_createCurrencyFormat(PyTypeObject *type,
 
     return PyErr_SetArgsError(type, "createCurrencyFormat", args);
 }
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
+static PyObject *t_measureformat_formatMeasure(t_measureformat *self,
+                                               PyObject *args)
+{
+    Measure *measure;
+    FieldPosition dont_care(FieldPosition::DONT_CARE);
+    FieldPosition *fp;
+    UnicodeString u;
+
+    switch (PyTuple_Size(args)) {
+      case 1:
+        if (!parseArgs(args, "P", TYPE_CLASSID(Measure), &measure))
+        {
+            STATUS_CALL(self->object->formatMeasures(
+                measure, 1, u, dont_care, status));
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        break;
+
+      case 2:
+        if (!parseArgs(args, "PP", TYPE_CLASSID(Measure),
+                       TYPE_CLASSID(FieldPosition), &measure, &fp))
+        {
+            STATUS_CALL(self->object->formatMeasures(
+                measure, 1, u, *fp, status));
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "formatMeasure", args);
+}
+
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(55, 0, 0)
+static PyObject *t_measureformat_formatMeasurePerUnit(t_measureformat *self,
+                                                      PyObject *args)
+{
+    Measure *measure;
+    MeasureUnit *unit;
+    FieldPosition *fp;
+    UnicodeString u;
+    FieldPosition dont_care(FieldPosition::DONT_CARE);
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "PP", TYPE_CLASSID(Measure),
+                       TYPE_CLASSID(MeasureUnit), &measure, &unit))
+        {
+            STATUS_CALL(self->object->formatMeasurePerUnit(
+                *measure, *unit, u, dont_care, status));
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        break;
+      case 3:
+        if (!parseArgs(args, "PPP", TYPE_CLASSID(Measure),
+                       TYPE_CLASSID(MeasureUnit), TYPE_CLASSID(FieldPosition),
+                       &measure, &unit, &fp))
+        {
+            STATUS_CALL(self->object->formatMeasurePerUnit(
+                *measure, *unit, u, *fp, status));
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "formatMeasurePerUnit", args);
+}
+#endif
 
 
 #if U_ICU_VERSION_HEX >= 0x04020000
