@@ -159,6 +159,7 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/uchar.h>
 #include <unicode/uversion.h>
 #include <unicode/ushape.h>
+#include <unicode/casemap.h>
 
 #define VERSION_HEX(major, minor, patch) \
   (((major) << 24) | ((minor) << 16) | ((patch) << 8))
@@ -215,6 +216,7 @@ typedef intintobjargproc ssizessizeobjargproc;
 #if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
 #include <unicode/nounit.h>
 #include <unicode/numberformatter.h>
+#include <unicode/stringoptions.h>
 #endif
 
 #if U_ICU_VERSION_HEX < 0x04060000

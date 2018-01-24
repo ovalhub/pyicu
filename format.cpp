@@ -866,6 +866,8 @@ static PyObject *t_measureformat_formatMeasure(t_measureformat *self,
     return PyErr_SetArgsError((PyObject *) self, "formatMeasure", args);
 }
 
+// Limited to one measure since 'new Measure[len]' is forbidden because
+// Measure() is protected.
 static PyObject *t_measureformat_formatMeasures(t_measureformat *self,
                                                 PyObject *args)
 {
