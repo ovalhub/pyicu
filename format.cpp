@@ -871,7 +871,7 @@ static PyObject *t_measureformat_formatMeasure(t_measureformat *self,
 static PyObject *t_measureformat_formatMeasures(t_measureformat *self,
                                                 PyObject *args)
 {
-    Measure **measures = nullptr;
+    Measure **measures = NULL;
     int len;
     FieldPosition dont_care(FieldPosition::DONT_CARE);
     FieldPosition *fp;

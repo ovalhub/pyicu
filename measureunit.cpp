@@ -535,7 +535,7 @@ static PyObject *t_measureunit_getAvailable(PyTypeObject *type, PyObject *arg)
     if (!parseArg(arg, "n", &type_name))
     {
         UErrorCode status = U_ZERO_ERROR;
-        int32_t size = MeasureUnit::getAvailable(type_name, nullptr, 0, status);
+        int32_t size = MeasureUnit::getAvailable(type_name, NULL, 0, status);
 
         if (U_FAILURE(status))
         {
