@@ -6,10 +6,10 @@
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions: 
+ * Software is furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software. 
+ * in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -559,6 +559,15 @@ void _init_script(PyObject *m)
     INSTALL_ENUM(UScriptCode, "MASARAM_GONDI", USCRIPT_MASARAM_GONDI);
     INSTALL_ENUM(UScriptCode, "SOYOMBO", USCRIPT_SOYOMBO);
     INSTALL_ENUM(UScriptCode, "ZANABAZAR_SQUARE", USCRIPT_ZANABAZAR_SQUARE);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+    INSTALL_ENUM(UScriptCode, "DOGRA", USCRIPT_DOGRA);
+    INSTALL_ENUM(UScriptCode, "GUNJALA_GONDI", USCRIPT_GUNJALA_GONDI);
+    INSTALL_ENUM(UScriptCode, "MAKASAR", USCRIPT_MAKASAR);
+    INSTALL_ENUM(UScriptCode, "MEDEFAIDRIN", USCRIPT_MEDEFAIDRIN);
+    INSTALL_ENUM(UScriptCode, "HANIFI_ROHINGYA", USCRIPT_HANIFI_ROHINGYA);
+    INSTALL_ENUM(UScriptCode, "SOGDIAN", USCRIPT_SOGDIAN);
+    INSTALL_ENUM(UScriptCode, "OLD_SOGDIAN", USCRIPT_OLD_SOGDIAN);
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
