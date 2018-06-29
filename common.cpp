@@ -172,8 +172,7 @@ EXPORT PyObject *PyUnicode_FromUnicodeString(const UChar *utf16, int len16)
         Py_INCREF(Py_None);
         return Py_None;
     }
-
-#if PY_VERSION_HEX < 0x03030000
+#if PY_VERSION_HEX < 0x03030000 || defined(PYPY_VERSION)
     else if (sizeof(Py_UNICODE) == sizeof(UChar))
         return PyUnicode_FromUnicode((const Py_UNICODE *) utf16, len16);
     else
