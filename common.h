@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2005-2015 Open Source Applications Foundation.
+ * Copyright (c) 2005-2018 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -213,6 +213,10 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/simpleformatter.h>
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(59, 0, 0)
+#include <unicode/casemap.h>
+#endif
+
 #if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
 #include <unicode/nounit.h>
 #include <unicode/numberformatter.h>
@@ -240,6 +244,7 @@ enum {
     UnicodeMatcher_ID,
     SearchIterator_ID,
     ListFormatter_ID,
+    CaseMap_ID,
 };
 
 #else

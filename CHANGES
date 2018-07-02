@@ -1,6 +1,7 @@
 Version 2.0.3 -> 2.0.4
 ----------------------
   - added support for ICU 62.1
+  - added support for CaseMap (without Edits)
   - 
 
 Version 2.0.2 -> 2.0.3

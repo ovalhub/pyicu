@@ -50,6 +50,7 @@
 #include "char.h"
 #include "shape.h"
 #include "measureunit.h"
+#include "casemap.h"
 
 
 /* const variable descriptor */
@@ -251,6 +252,7 @@ static PyObject *PyInit_icu(PyObject *m)
     _init_char(m);
     _init_shape(m);
     _init_measureunit(m);
+    _init_casemap(m);
 
     return m;
 }

@@ -33,9 +33,6 @@
 
 /* Shape */
 
-struct UNone;
-typedef struct UNone UNone;
-
 class t_shape : public _wrapper {
 public:
     UNone *object;

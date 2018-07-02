@@ -46,9 +46,6 @@ DECLARE_CONSTANTS_TYPE(UBidiPairedBracketType);
 
 /* Char */
 
-struct UNone;
-typedef struct UNone UNone;
-
 class t_char : public _wrapper {
 public:
     UNone *object;

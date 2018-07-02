@@ -38,9 +38,6 @@ DECLARE_CONSTANTS_TYPE(UScriptUsage);
 
 /* Script */
 
-struct UNone;
-typedef struct UNone UNone;
-
 class t_script : public _wrapper {
 public:
     UNone *object;

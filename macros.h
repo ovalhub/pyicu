@@ -231,7 +231,7 @@ PyTypeObject name##Type_ = {                                                \
     /* tp_name            */   "icu."#name,                                 \
     /* tp_basicsize       */   sizeof(t_name),                              \
     /* tp_itemsize        */   0,                                           \
-    /* tp_dealloc         */   (destructor)t_name##_dealloc,                \
+    /* tp_dealloc         */   (destructor) dealloc,                        \
     /* tp_print           */   0,                                           \
     /* tp_getattr         */   0,                                           \
     /* tp_setattr         */   0,                                           \
