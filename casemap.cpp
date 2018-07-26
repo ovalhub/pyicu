@@ -79,7 +79,7 @@ static PyObject *t_casemap_toLower(PyTypeObject *type, PyObject *args)
                 NULL, 0, u->getBuffer(), u->length(),
                 buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
         break;
@@ -98,7 +98,7 @@ static PyObject *t_casemap_toLower(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), 0, u->getBuffer(), u->length(),
                 buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
         if (!parseArgs(args, "iS", &options, &u, &_u))
@@ -114,7 +114,7 @@ static PyObject *t_casemap_toLower(PyTypeObject *type, PyObject *args)
                 NULL, options, u->getBuffer(), u->length(),
                 buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
         break;
@@ -134,7 +134,7 @@ static PyObject *t_casemap_toLower(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), options, u->getBuffer(), u->length(),
                 buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
         break;
@@ -164,7 +164,7 @@ static PyObject *t_casemap_toUpper(PyTypeObject *type, PyObject *args)
                 NULL, 0, u->getBuffer(), u->length(),
                 buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
         break;
@@ -183,7 +183,7 @@ static PyObject *t_casemap_toUpper(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), 0, u->getBuffer(), u->length(),
                 buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
         if (!parseArgs(args, "iS", &options, &u, &_u))
@@ -199,7 +199,7 @@ static PyObject *t_casemap_toUpper(PyTypeObject *type, PyObject *args)
                 NULL, options, u->getBuffer(), u->length(),
                 buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
         break;
@@ -219,7 +219,7 @@ static PyObject *t_casemap_toUpper(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), options, u->getBuffer(), u->length(),
                 buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
         break;
@@ -250,7 +250,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 NULL, 0, NULL, u->getBuffer(), u->length(),
                 buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
         break;
@@ -269,7 +269,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), 0, NULL, u->getBuffer(), u->length(),
                 buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
         if (!parseArgs(args, "PS", TYPE_CLASSID(BreakIterator), &iter, &u, &_u))
@@ -285,7 +285,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 NULL, 0, iter, u->getBuffer(), u->length(),
                 buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
         if (!parseArgs(args, "iS", &options, &u, &_u))
@@ -301,7 +301,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 NULL, options, NULL, u->getBuffer(), u->length(),
                 buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
         break;
@@ -322,7 +322,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), 0, iter, u->getBuffer(), u->length(),
                 buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
         if (!parseArgs(args, "PiS",
@@ -340,7 +340,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), options, NULL,
                 u->getBuffer(), u->length(), buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
         if (!parseArgs(args, "iPS",
@@ -358,7 +358,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 NULL, options, iter,
                 u->getBuffer(), u->length(), buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
 
@@ -380,7 +380,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), options, iter,
                 u->getBuffer(), u->length(), buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
         break;
@@ -407,7 +407,7 @@ static PyObject *t_casemap_fold(PyTypeObject *type, PyObject *args)
             STATUS_CALL(CaseMap::fold(
                 0, u->getBuffer(), u->length(), buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
         break;
@@ -426,7 +426,7 @@ static PyObject *t_casemap_fold(PyTypeObject *type, PyObject *args)
                 options, u->getBuffer(), u->length(),
                 buffer, size, NULL, status);
                         result.releaseBuffer(size));
-            
+
             return PyUnicode_FromUnicodeString(&result);
         }
         break;

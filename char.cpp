@@ -6,10 +6,10 @@
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions: 
+ * Software is furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software. 
+ * in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -683,7 +683,7 @@ static PyObject *t_char_fn(uchar32_char_fn fn, const char *name,
     {
         UnicodeString result;
         result += (*fn)(u->char32At(0));
-        
+
         return PyUnicode_FromUnicodeString(&result);
     }
 
@@ -731,7 +731,7 @@ static PyObject *t_char_foldCase(PyTypeObject *type, PyObject *args)
         {
             UnicodeString result;
             result += u_foldCase(u->char32At(0), U_FOLD_CASE_DEFAULT);
-        
+
             return PyUnicode_FromUnicodeString(&result);
         }
         break;
@@ -742,7 +742,7 @@ static PyObject *t_char_foldCase(PyTypeObject *type, PyObject *args)
         {
             UnicodeString result;
             result += u_foldCase(u->char32At(0), options);
-        
+
             return PyUnicode_FromUnicodeString(&result);
         }
         break;
@@ -1391,6 +1391,7 @@ void _init_char(PyObject *m)
     INSTALL_ENUM(UWordBreakValues, "E_BASE_GAZ", U_WB_E_BASE_GAZ);
     INSTALL_ENUM(UWordBreakValues, "E_MODIFIER", U_WB_E_MODIFIER);
     INSTALL_ENUM(UWordBreakValues, "ZWJ", U_WB_ZWJ);
+    INSTALL_ENUM(UWordBreakValues, "WSEGSPACE", U_WB_WSEGSPACE);
 #endif
 
 #if U_ICU_VERSION_HEX >= 0x04060000
@@ -1456,5 +1457,7 @@ void _init_char(PyObject *m)
     INSTALL_ENUM(UJoiningGroup, "MALAYALAM_RA", U_JG_MALAYALAM_RA);
     INSTALL_ENUM(UJoiningGroup, "MALAYALAM_SSA", U_JG_MALAYALAM_SSA);
     INSTALL_ENUM(UJoiningGroup, "MALAYALAM_TTA", U_JG_MALAYALAM_TTA);
+    INSTALL_ENUM(UJoiningGroup, "HANIFI_ROHINGYA_KINNA_YA", U_JG_HANIFI_ROHINGYA_KINNA_YA);
+    INSTALL_ENUM(UJoiningGroup, "HANIFI_ROHINGYA_PA", U_JG_HANIFI_ROHINGYA_PA);
 #endif
 }
