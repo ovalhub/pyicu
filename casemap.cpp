@@ -68,54 +68,75 @@ static PyObject *t_casemap_toLower(PyTypeObject *type, PyObject *args)
       case 1:
         if (!parseArgs(args, "S", &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::toLower(
                 NULL, 0, u->getBuffer(), u->length(),
-                NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::toLower(
-                NULL, 0, u->getBuffer(), u->length(),
-                buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::toLower(
+                    NULL, 0, u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
         break;
 
       case 2:
         if (!parseArgs(args, "PS", TYPE_CLASSID(Locale), &locale, &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::toLower(
                 locale->getBaseName(), 0, u->getBuffer(), u->length(),
-                NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::toLower(
-                locale->getBaseName(), 0, u->getBuffer(), u->length(),
-                buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::toLower(
+                    locale->getBaseName(), 0, u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
         if (!parseArgs(args, "iS", &options, &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::toLower(
                 NULL, options, u->getBuffer(), u->length(),
-                NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::toLower(
-                NULL, options, u->getBuffer(), u->length(),
-                buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::toLower(
+                    NULL, options, u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
         break;
 
@@ -123,19 +144,26 @@ static PyObject *t_casemap_toLower(PyTypeObject *type, PyObject *args)
         if (!parseArgs(args, "PiS", TYPE_CLASSID(Locale),
                        &locale, &options, &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::toLower(
                 locale->getBaseName(), options, u->getBuffer(), u->length(),
-                NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::toLower(
-                locale->getBaseName(), options, u->getBuffer(), u->length(),
-                buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::toLower(
+                    locale->getBaseName(), options, u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
         break;
     }
@@ -153,54 +181,75 @@ static PyObject *t_casemap_toUpper(PyTypeObject *type, PyObject *args)
       case 1:
         if (!parseArgs(args, "S", &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::toUpper(
                 NULL, 0, u->getBuffer(), u->length(),
-                NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::toUpper(
-                NULL, 0, u->getBuffer(), u->length(),
-                buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::toUpper(
+                    NULL, 0, u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
         break;
 
       case 2:
         if (!parseArgs(args, "PS", TYPE_CLASSID(Locale), &locale, &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::toUpper(
                 locale->getBaseName(), 0, u->getBuffer(), u->length(),
-                NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::toUpper(
-                locale->getBaseName(), 0, u->getBuffer(), u->length(),
-                buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::toUpper(
+                    locale->getBaseName(), 0, u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
         if (!parseArgs(args, "iS", &options, &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::toUpper(
                 NULL, options, u->getBuffer(), u->length(),
-                NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::toUpper(
-                NULL, options, u->getBuffer(), u->length(),
-                buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::toUpper(
+                    NULL, options, u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
         break;
 
@@ -208,19 +257,26 @@ static PyObject *t_casemap_toUpper(PyTypeObject *type, PyObject *args)
         if (!parseArgs(args, "PiS", TYPE_CLASSID(Locale),
                        &locale, &options, &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::toUpper(
                 locale->getBaseName(), options, u->getBuffer(), u->length(),
-                NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::toUpper(
-                locale->getBaseName(), options, u->getBuffer(), u->length(),
-                buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::toUpper(
+                    locale->getBaseName(), options, u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
         break;
     }
@@ -239,70 +295,98 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
       case 1:
         if (!parseArgs(args, "S", &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::toTitle(
                 NULL, 0, NULL, u->getBuffer(), u->length(),
-                NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::toTitle(
-                NULL, 0, NULL, u->getBuffer(), u->length(),
-                buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::toTitle(
+                    NULL, 0, NULL, u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
         break;
 
       case 2:
         if (!parseArgs(args, "PS", TYPE_CLASSID(Locale), &locale, &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::toTitle(
                 locale->getBaseName(), 0, NULL, u->getBuffer(), u->length(),
-                NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::toTitle(
-                locale->getBaseName(), 0, NULL, u->getBuffer(), u->length(),
-                buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::toTitle(
+                    locale->getBaseName(), 0, NULL, u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
         if (!parseArgs(args, "PS", TYPE_CLASSID(BreakIterator), &iter, &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::toTitle(
                 NULL, 0, iter, u->getBuffer(), u->length(),
-                NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::toTitle(
-                NULL, 0, iter, u->getBuffer(), u->length(),
-                buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::toTitle(
+                    NULL, 0, iter, u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
         if (!parseArgs(args, "iS", &options, &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::toTitle(
                 NULL, options, NULL, u->getBuffer(), u->length(),
-                NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::toTitle(
-                NULL, options, NULL, u->getBuffer(), u->length(),
-                buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::toTitle(
+                    NULL, options, NULL, u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
         break;
 
@@ -311,55 +395,78 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                        TYPE_CLASSID(Locale), TYPE_CLASSID(BreakIterator),
                        &locale, &iter, &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::toTitle(
                 locale->getBaseName(), 0, iter, u->getBuffer(), u->length(),
-                NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::toTitle(
-                locale->getBaseName(), 0, iter, u->getBuffer(), u->length(),
-                buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::toTitle(
+                    locale->getBaseName(), 0, iter, u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
         if (!parseArgs(args, "PiS",
                        TYPE_CLASSID(Locale),
                        &locale, &options, &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::toTitle(
                 locale->getBaseName(), options, NULL,
-                u->getBuffer(), u->length(), NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                u->getBuffer(), u->length(),
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::toTitle(
-                locale->getBaseName(), options, NULL,
-                u->getBuffer(), u->length(), buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::toTitle(
+                    locale->getBaseName(), options, NULL,
+                    u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
         if (!parseArgs(args, "iPS",
                        TYPE_CLASSID(BreakIterator),
                        &options, &iter, &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::toTitle(
-                NULL, options, iter,
-                u->getBuffer(), u->length(), NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                NULL, options, iter, u->getBuffer(), u->length(),
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::toTitle(
-                NULL, options, iter,
-                u->getBuffer(), u->length(), buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::toTitle(
+                    NULL, options, iter, u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
 
         break;
@@ -369,19 +476,28 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                        TYPE_CLASSID(Locale), TYPE_CLASSID(BreakIterator),
                        &locale, &options, &iter, &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::toTitle(
                 locale->getBaseName(), options, iter,
-                u->getBuffer(), u->length(), NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                u->getBuffer(), u->length(),
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::toTitle(
-                locale->getBaseName(), options, iter,
-                u->getBuffer(), u->length(), buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::toTitle(
+                    locale->getBaseName(), options, iter,
+                    u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
         break;
     }
@@ -398,36 +514,52 @@ static PyObject *t_casemap_fold(PyTypeObject *type, PyObject *args)
       case 1:
         if (!parseArgs(args, "S", &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::fold(
-                0, u->getBuffer(), u->length(), NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                0, u->getBuffer(), u->length(),
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::fold(
-                0, u->getBuffer(), u->length(), buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::fold(
+                    0, u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
         break;
 
       case 2:
         if (!parseArgs(args, "iS", &options, &u, &_u))
         {
+            Buffer dest(u->length() + 8);
             UErrorCode status = U_ZERO_ERROR;
             int32_t size = CaseMap::fold(
                 options, u->getBuffer(), u->length(),
-                NULL, 0, NULL, status);
-            UnicodeString result;
-            char16_t *buffer = result.getBuffer(size);
+                dest.buffer, dest.size, NULL, status);
 
-            STATUS_CALL(CaseMap::fold(
-                options, u->getBuffer(), u->length(),
-                buffer, size, NULL, status);
-                        result.releaseBuffer(size));
+            if (!U_FAILURE(status))
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-            return PyUnicode_FromUnicodeString(&result);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
+
+                STATUS_CALL(CaseMap::fold(
+                    options, u->getBuffer(), u->length(),
+                    dest.buffer, size, NULL, status));
+
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
+            }
+
+            return ICUException(status).reportError();
         }
         break;
     }

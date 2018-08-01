@@ -277,6 +277,18 @@ extern PyObject *PyExc_InvalidArgsError;
 
 void _init_common(PyObject *m);
 
+class Buffer {
+public:
+    explicit Buffer(int32_t len) :
+    size(len), buffer(u.getBuffer(len)) {}
+    ~Buffer() {
+        u.releaseBuffer(0);
+    }
+    UnicodeString u;
+    int32_t size;
+    UChar *buffer;
+};
+
 class ICUException {
 private:
     PyObject *code;

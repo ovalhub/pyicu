@@ -240,18 +240,6 @@ static PyObject *t_spoofchecker_getSkeleton(t_spoofchecker *self,
       case 2:
         if (!parseArgs(args, "iS", &type, &u, &_u))
         {
-            class Buffer {
-            public:
-                explicit Buffer(int32_t len) :
-                    size(len), buffer(u.getBuffer(len)) {}
-                ~Buffer() {
-                    u.releaseBuffer(0);
-                }
-                UnicodeString u;
-                int32_t size;
-                UChar *buffer;
-            };
-
             const int32_t len = u->length();
             Buffer dest(len + 32);
 
@@ -260,23 +248,20 @@ static PyObject *t_spoofchecker_getSkeleton(t_spoofchecker *self,
                 uspoof_getSkeleton(self->object, type, u->getBuffer(), len,
                                    dest.buffer, dest.size, &status);
             
-            switch (status) {
-              case 0:
+            if (!U_FAILURE(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
-              case U_BUFFER_OVERFLOW_ERROR: {
-                  Buffer dest(size);
+            if (status == U_BUFFER_OVERFLOW_ERROR) {
+                Buffer dest(size);
 
-                  STATUS_CALL(size = uspoof_getSkeleton(
-                                  self->object, type, u->getBuffer(), len,
-                                  dest.buffer, dest.size, &status));
+                STATUS_CALL(size = uspoof_getSkeleton(
+                                self->object, type, u->getBuffer(), len,
+                                dest.buffer, dest.size, &status));
 
-                  return PyUnicode_FromUnicodeString(dest.buffer, size);
-              }
-
-              default:
-                return ICUException(status).reportError();
+                return PyUnicode_FromUnicodeString(dest.buffer, size);
             }
+
+            return ICUException(status).reportError();
         }
     }
 
