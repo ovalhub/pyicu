@@ -1,6 +1,7 @@
 include README.md
 include bases.h
 include calendar.h
+include casemap.h
 include char.h
 include charset.h
 include collator.h
