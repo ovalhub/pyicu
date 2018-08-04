@@ -1391,6 +1391,8 @@ void _init_char(PyObject *m)
     INSTALL_ENUM(UWordBreakValues, "E_BASE_GAZ", U_WB_E_BASE_GAZ);
     INSTALL_ENUM(UWordBreakValues, "E_MODIFIER", U_WB_E_MODIFIER);
     INSTALL_ENUM(UWordBreakValues, "ZWJ", U_WB_ZWJ);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
     INSTALL_ENUM(UWordBreakValues, "WSEGSPACE", U_WB_WSEGSPACE);
 #endif
 

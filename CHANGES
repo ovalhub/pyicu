@@ -1,3 +1,8 @@
+Version 2.0.4 -> 2.0.5
+----------------------
+  - fixed build error with ICU < 62
+  - added casemap.h to MANIFEST.in
+
 Version 2.0.3 -> 2.0.4
 ----------------------
   - added support for ICU 62.1
