@@ -129,7 +129,7 @@ PyTypeObject TZInfoType_ = {
     0,                                  /* tp_as_buffer */
     (Py_TPFLAGS_DEFAULT |
      Py_TPFLAGS_BASETYPE),              /* tp_flags */
-    "",                                 /* tp_doc */
+    "ICUtzinfo objects",                /* tp_doc */
     0,                                  /* tp_traverse */
     0,                                  /* tp_clear */
     (richcmpfunc) t_tzinfo_richcmp,     /* tp_richcompare */
@@ -212,7 +212,7 @@ PyTypeObject FloatingTZType_ = {
     0,                                  /* tp_as_buffer */
     (Py_TPFLAGS_DEFAULT |
      Py_TPFLAGS_BASETYPE),              /* tp_flags */
-    "",                                 /* tp_doc */
+    "FloatingTZ objects",               /* tp_doc */
     0,                                  /* tp_traverse */
     0,                                  /* tp_clear */
     (richcmpfunc) t_floatingtz_richcmp, /* tp_richcompare */
@@ -676,7 +676,8 @@ static PyObject *t_floatingtz__getTZID(t_floatingtz *self, void *data)
 
 void _init_tzinfo(PyObject *m)
 {
-#if PY_VERSION_HEX > 0x02040000 && !defined(PYPY_VERSION)
+#if (PY_VERSION_HEX > 0x02040000 && !defined(PYPY_VERSION) || \
+     defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM >= 0x06000000)
     PyDateTime_IMPORT;
 
     datetime_tzinfoType = PyDateTimeAPI->TZInfoType;
