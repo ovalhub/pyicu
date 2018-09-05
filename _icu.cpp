@@ -213,6 +213,14 @@ static PyObject *PyInit_icu(PyObject *m)
     ver = PyString_FromString(U_UNICODE_VERSION);
     PyObject_SetAttrString(m, "UNICODE_VERSION", ver); Py_DECREF(ver);
 
+    ver = PyString_FromString(PY_VERSION);
+    PyObject_SetAttrString(m, "PY_VERSION", ver); Py_DECREF(ver);
+
+#ifdef PYPY_VERSION
+    ver = PyString_FromString(PYPY_VERSION);
+    PyObject_SetAttrString(m, "PYPY_VERSION", ver); Py_DECREF(ver);
+#endif
+
     PyObject *module = PyImport_ImportModule("icu");
 
     if (!module)
