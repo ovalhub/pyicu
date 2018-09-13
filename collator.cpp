@@ -993,10 +993,10 @@ static PyObject *t_alphabeticindex_nextBucket(t_alphabeticindex *self)
 
 static PyObject *t_alphabeticindex_nextRecord(t_alphabeticindex *self)
 {
-    bool done;
-    STATUS_CALL(done = self->object->nextRecord(status));
+    UBool more;
+    STATUS_CALL(more = self->object->nextRecord(status));
 
-    Py_RETURN_BOOL(done);
+    Py_RETURN_BOOL(more);
 }
 
 static PyObject *t_alphabeticindex_resetBucketIterator(t_alphabeticindex *self)
@@ -1329,8 +1329,8 @@ static int t_immutableindex_contains(t_immutableindex *self, PyObject *arg)
     return -1;
 }
 
-
 #endif
+
 
 void _init_collator(PyObject *m)
 {
