@@ -1,15 +1,15 @@
 /* ====================================================================
- * Copyright (c) 2004-2011 Open Source Applications Foundation.
+ * Copyright (c) 2004-2018 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions: 
+ * Software is furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software. 
+ * in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -34,6 +34,9 @@
 DECLARE_CONSTANTS_TYPE(UCollationResult);
 DECLARE_CONSTANTS_TYPE(UCollAttribute);
 DECLARE_CONSTANTS_TYPE(UCollAttributeValue);
+#if U_ICU_VERSION_HEX >= 0x04080000
+DECLARE_CONSTANTS_TYPE(UAlphabeticIndexLabelType);
+#endif
 
 /* CollationKey */
 
@@ -151,6 +154,219 @@ DECLARE_TYPE(RuleBasedCollator, t_rulebasedcollator, Collator,
              t_rulebasedcollator_dealloc);
 
 
+#if U_ICU_VERSION_HEX >= 0x04080000
+
+/* AlphabeticIndex */
+
+class t_alphabeticindex : public _wrapper {
+public:
+    AlphabeticIndex *object;
+    PyObject *records;
+};
+
+static PyObject *t_alphabeticindex_addLabels(t_alphabeticindex *self,
+                                             PyObject *arg);
+static PyObject *t_alphabeticindex_addRecord(t_alphabeticindex *self,
+                                             PyObject *args);
+static PyObject *t_alphabeticindex_clearRecords(t_alphabeticindex *self);
+static PyObject *t_alphabeticindex_getBucketIndex(t_alphabeticindex *self,
+                                                  PyObject *arg);
+static PyObject *t_alphabeticindex_nextBucket(t_alphabeticindex *self);
+static PyObject *t_alphabeticindex_nextRecord(t_alphabeticindex *self);
+static PyObject *t_alphabeticindex_resetBucketIterator(t_alphabeticindex *self);
+static PyObject *t_alphabeticindex_resetRecordIterator(t_alphabeticindex *self);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+static PyObject *t_alphabeticindex_buildImmutableIndex(t_alphabeticindex *self);
+#endif
+
+static PyObject *t_alphabeticindex__getCollator(
+    t_alphabeticindex *self, void *closure);
+static PyObject *t_alphabeticindex__getInflowLabel(
+    t_alphabeticindex *self, void *closure);
+static int t_alphabeticindex__setInflowLabel(
+    t_alphabeticindex *self, PyObject *value, void *closure);
+static PyObject *t_alphabeticindex__getOverflowLabel(
+    t_alphabeticindex *self, void *closure);
+static int t_alphabeticindex__setOverflowLabel(
+    t_alphabeticindex *self, PyObject *value, void *closure);
+static PyObject *t_alphabeticindex__getUnderflowLabel(
+    t_alphabeticindex *self, void *closure);
+static int t_alphabeticindex__setUnderflowLabel(
+    t_alphabeticindex *self, PyObject *value, void *closure);
+
+static PyObject *t_alphabeticindex__getMaxLabelCount(
+    t_alphabeticindex *self, void *closure);
+static int t_alphabeticindex__setMaxLabelCount(
+    t_alphabeticindex *self, PyObject *value, void *closure);
+static PyObject *t_alphabeticindex__getBucketIndex(
+    t_alphabeticindex *self, void *closure);
+static PyObject *t_alphabeticindex__getBucketLabel(
+    t_alphabeticindex *self, void *closure);
+static PyObject *t_alphabeticindex__getBucketLabelType(
+    t_alphabeticindex *self, void *closure);
+static PyObject *t_alphabeticindex__getBucketCount(
+    t_alphabeticindex *self, void *closure);
+static PyObject *t_alphabeticindex__getBucketRecordCount(
+    t_alphabeticindex *self, void *closure);
+static PyObject *t_alphabeticindex__getRecordCount(
+    t_alphabeticindex *self, void *closure);
+static PyObject *t_alphabeticindex__getRecordName(
+    t_alphabeticindex *self, void *closure);
+static PyObject *t_alphabeticindex__getRecordData(
+    t_alphabeticindex *self, void *closure);
+
+static int t_alphabeticindex_init(t_alphabeticindex *self,
+                                  PyObject *args, PyObject *kwds);
+
+static PyGetSetDef t_alphabeticindex_properties[] = {
+    { (char *) "collator",
+      (getter) t_alphabeticindex__getCollator,
+      NULL,
+      (char *) "collator property", NULL },
+    { (char *) "inflowLabel",
+      (getter) t_alphabeticindex__getInflowLabel,
+      (setter) t_alphabeticindex__setInflowLabel,
+      (char *) "inflowLabel property", NULL },
+    { (char *) "overflowLabel",
+      (getter) t_alphabeticindex__getOverflowLabel,
+      (setter) t_alphabeticindex__setOverflowLabel,
+      (char *) "overflowLabel property", NULL },
+    { (char *) "underflowLabel",
+      (getter) t_alphabeticindex__getUnderflowLabel,
+      (setter) t_alphabeticindex__setUnderflowLabel,
+      (char *) "underflowLabel property", NULL },
+    { (char *) "maxLabelCount",
+      (getter) t_alphabeticindex__getMaxLabelCount,
+      (setter) t_alphabeticindex__setMaxLabelCount,
+      (char *) "maxLabelCount property", NULL },
+    { (char *) "bucketIndex",
+      (getter) t_alphabeticindex__getBucketIndex,
+      (setter) NULL,
+      (char *) "bucketIndex property", NULL },
+    { (char *) "bucketLabel",
+      (getter) t_alphabeticindex__getBucketLabel,
+      (setter) NULL,
+      (char *) "bucketLabel property", NULL },
+    { (char *) "bucketLabelType",
+      (getter) t_alphabeticindex__getBucketLabelType,
+      (setter) NULL,
+      (char *) "bucketLabelType property", NULL },
+    { (char *) "bucketCount",
+      (getter) t_alphabeticindex__getBucketCount,
+      (setter) NULL,
+      (char *) "bucketCount property", NULL },
+    { (char *) "bucketRecordCount",
+      (getter) t_alphabeticindex__getBucketRecordCount,
+      (setter) NULL,
+      (char *) "bucketRecordCount property", NULL },
+    { (char *) "recordCount",
+      (getter) t_alphabeticindex__getRecordCount,
+      (setter) NULL,
+      (char *) "recordCount property", NULL },
+    { (char *) "recordName",
+      (getter) t_alphabeticindex__getRecordName,
+      (setter) NULL,
+      (char *) "recordName property", NULL },
+    { (char *) "recordData",
+      (getter) t_alphabeticindex__getRecordData,
+      (setter) NULL,
+      (char *) "recordData property", NULL },
+    { NULL, NULL, NULL, NULL, NULL }
+};
+
+static PyMethodDef t_alphabeticindex_methods[] = {
+    DECLARE_METHOD(t_alphabeticindex, addLabels, METH_O),
+    DECLARE_METHOD(t_alphabeticindex, addRecord, METH_VARARGS),
+    DECLARE_METHOD(t_alphabeticindex, clearRecords, METH_NOARGS),
+    DECLARE_METHOD(t_alphabeticindex, getBucketIndex, METH_O),
+    DECLARE_METHOD(t_alphabeticindex, nextBucket, METH_NOARGS),
+    DECLARE_METHOD(t_alphabeticindex, nextRecord, METH_NOARGS),
+    DECLARE_METHOD(t_alphabeticindex, resetBucketIterator, METH_NOARGS),
+    DECLARE_METHOD(t_alphabeticindex, resetRecordIterator, METH_NOARGS),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+    DECLARE_METHOD(t_alphabeticindex, buildImmutableIndex, METH_NOARGS),
+#endif
+    { NULL, NULL, 0, NULL }
+};
+
+static void t_alphabeticindex_dealloc(t_alphabeticindex *self)
+{
+    if (self->flags & T_OWNED)
+        delete self->object;
+    self->object = NULL;
+
+    Py_CLEAR(self->records);
+
+    Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
+DECLARE_TYPE(AlphabeticIndex, t_alphabeticindex, UObject, AlphabeticIndex,
+             t_alphabeticindex_init, t_alphabeticindex_dealloc);
+
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+
+/* ImmutableIndex */
+
+using ImmutableIndex = AlphabeticIndex::ImmutableIndex;
+
+class t_immutableindex : public _wrapper {
+public:
+    ImmutableIndex *object;
+};
+
+static PyObject *t_immutableindex_getBucketIndex(t_immutableindex *self,
+                                                 PyObject *arg);
+static PyObject *t_immutableindex_getBucket(t_immutableindex *self,
+                                            PyObject *arg);
+
+static Py_ssize_t t_immutableindex_length(t_immutableindex *self);
+static PyObject *t_immutableindex_item(t_immutableindex *self, int n);
+static int t_immutableindex_contains(t_immutableindex *self, PyObject *arg);
+
+static PyObject *t_immutableindex__getBucketCount(t_immutableindex *self,
+                                                  void *closure);
+
+static PySequenceMethods t_immutableindex_as_sequence = {
+    (lenfunc) t_immutableindex_length,                  /* sq_length */
+    (binaryfunc) NULL,                                  /* sq_concat */
+    (ssizeargfunc) NULL,                                /* sq_repeat */
+    (ssizeargfunc) t_immutableindex_item,               /* sq_item */
+#if PY_MAJOR_VERSION >= 3
+    NULL,
+    NULL,                                               /* sq_ass_item */
+    NULL,
+#else
+    (ssizessizeargfunc) NULL,                           /* sq_slice */
+    (ssizeobjargproc) NULL,                             /* sq_ass_item */
+    (ssizessizeobjargproc) NULL,                        /* sq_ass_slice */
+#endif
+    (objobjproc) t_immutableindex_contains,             /* sq_contains */
+    (binaryfunc) NULL,                                  /* sq_inplace_concat */
+    (ssizeargfunc) NULL,                                /* sq_inplace_repeat */
+};
+
+static PyGetSetDef t_immutableindex_properties[] = {
+    { (char *) "bucketCount",
+      (getter) t_immutableindex__getBucketCount,
+      NULL,
+      (char *) "bucketCount property", NULL },
+    { NULL, NULL, NULL, NULL, NULL }
+};
+
+static PyMethodDef t_immutableindex_methods[] = {
+    DECLARE_METHOD(t_immutableindex, getBucketIndex, METH_O),
+    DECLARE_METHOD(t_immutableindex, getBucket, METH_O),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(ImmutableIndex, t_immutableindex, UObject,
+             ImmutableIndex, abstract_init, NULL);
+
+#endif
+
+
 /* CollationKey */
 
 static int t_collationkey_init(t_collationkey *self,
@@ -165,7 +381,7 @@ static int t_collationkey_init(t_collationkey *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
@@ -228,7 +444,7 @@ static PyObject *t_collator_compare(t_collator *self, PyObject *args)
         }
         break;
     }
-        
+
     return PyErr_SetArgsError((PyObject *) self, "compare", args);
 }
 
@@ -243,7 +459,7 @@ static PyObject *t_collator_greater(t_collator *self, PyObject *args)
         b = self->object->greater(*u, *v);
         Py_RETURN_BOOL(b);
     }
-        
+
     return PyErr_SetArgsError((PyObject *) self, "greater", args);
 }
 
@@ -258,7 +474,7 @@ static PyObject *t_collator_greaterOrEqual(t_collator *self, PyObject *args)
         b = self->object->greaterOrEqual(*u, *v);
         Py_RETURN_BOOL(b);
     }
-        
+
     return PyErr_SetArgsError((PyObject *) self, "greaterOrEqual", args);
 }
 
@@ -273,7 +489,7 @@ static PyObject *t_collator_equals(t_collator *self, PyObject *args)
         b = self->object->equals(*u, *v);
         Py_RETURN_BOOL(b);
     }
-        
+
     return PyErr_SetArgsError((PyObject *) self, "equals", args);
 }
 
@@ -443,7 +659,7 @@ static PyObject *t_collator_getKeywordValues(PyTypeObject *type, PyObject *arg)
         STATUS_CALL(e = Collator::getKeywordValues(keyword, status));
         return wrap_StringEnumeration(e, T_OWNED);
     }
-            
+
     return PyErr_SetArgsError(type, "getKeywordValues", arg);
 }
 
@@ -457,7 +673,7 @@ static PyObject *t_collator_getAvailableLocales(PyTypeObject *type)
         Locale *locale = (Locale *) locales + i;
         PyObject *obj = wrap_Locale(locale, 0);
         PyDict_SetItemString(dict, locale->getName(), obj);
-	Py_DECREF(obj);
+        Py_DECREF(obj);
     }
 
     return dict;
@@ -469,7 +685,7 @@ static PyObject *t_collator_getFunctionalEquivalent(PyTypeObject *type,
     UBool isAvailable;
     Locale *locale;
     charsArg keyword;
-    
+
     if (!parseArgs(args, "nP", TYPE_CLASSID(Locale),
                    &keyword, &locale))
     {
@@ -603,7 +819,7 @@ static int t_rulebasedcollator_init(t_rulebasedcollator *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
@@ -662,6 +878,460 @@ static PyObject *t_rulebasedcollator_str(t_rulebasedcollator *self)
 DEFINE_RICHCMP(RuleBasedCollator, t_rulebasedcollator);
 
 
+#if U_ICU_VERSION_HEX >= 0x04080000
+
+static int t_alphabeticindex_init(t_alphabeticindex *self,
+                                  PyObject *args, PyObject *kwds)
+{
+    Locale *locale;
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+    RuleBasedCollator *collator;
+#endif
+
+    switch (PyTuple_Size(args)) {
+      case 1:
+        if (!parseArgs(args, "P", TYPE_CLASSID(Locale), &locale))
+        {
+            INT_STATUS_CALL(self->object = new AlphabeticIndex(
+                *locale, status));
+            self->flags = T_OWNED;
+            break;
+        }
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+        if (!parseArgs(args, "P", TYPE_CLASSID(RuleBasedCollator), &collator))
+        {
+            INT_STATUS_CALL(self->object = new AlphabeticIndex(
+                new RuleBasedCollator(*collator), status));
+            self->flags = T_OWNED;
+            break;
+        }
+#endif
+
+      default:
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+    }
+
+    if (self->object)
+    {
+        self->records = PyList_New(0);
+        return 0;
+    }
+
+    return -1;
+}
+
+static PyObject *t_alphabeticindex_addLabels(t_alphabeticindex *self,
+                                             PyObject *arg)
+{
+    UnicodeSet *set;
+    Locale *locale;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(UnicodeSet), &set))
+    {
+        STATUS_CALL(self->object->addLabels(*set, status));
+        Py_RETURN_SELF();
+    }
+    if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
+    {
+        STATUS_CALL(self->object->addLabels(*locale, status));
+        Py_RETURN_SELF();
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "addLabels", arg);
+}
+
+static PyObject *t_alphabeticindex_addRecord(t_alphabeticindex *self,
+                                             PyObject *args)
+{
+    UnicodeString *u, _u;
+    PyObject *record;
+
+    if (!parseArgs(args, "SK", &u, &_u, &record))
+    {
+        STATUS_CALL(self->object->addRecord(*u, record, status));
+        PyList_Append(self->records, record);
+
+        Py_RETURN_SELF();
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "addRecord", args);
+}
+
+static PyObject *t_alphabeticindex_clearRecords(t_alphabeticindex *self)
+{
+    STATUS_CALL(self->object->clearRecords(status));
+    PyList_SetSlice(self->records, 0, PyList_GET_SIZE(self->records), NULL);
+
+    Py_RETURN_SELF();
+}
+
+static PyObject *t_alphabeticindex_getBucketIndex(t_alphabeticindex *self,
+                                                  PyObject *arg)
+{
+    UnicodeString *u, _u;
+
+    if (!parseArg(arg, "S", &u, &_u))
+    {
+        int index;
+
+        STATUS_CALL(index = self->object->getBucketIndex(*u, status));
+
+        return PyInt_FromLong(index);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getBucketIndex", arg);
+}
+
+static PyObject *t_alphabeticindex_nextBucket(t_alphabeticindex *self)
+{
+    UBool more;
+    STATUS_CALL(more = self->object->nextBucket(status));
+
+    Py_RETURN_BOOL(more);
+}
+
+static PyObject *t_alphabeticindex_nextRecord(t_alphabeticindex *self)
+{
+    bool done;
+    STATUS_CALL(done = self->object->nextRecord(status));
+
+    Py_RETURN_BOOL(done);
+}
+
+static PyObject *t_alphabeticindex_resetBucketIterator(t_alphabeticindex *self)
+{
+    STATUS_CALL(self->object->resetBucketIterator(status));
+    Py_RETURN_SELF();
+}
+
+static PyObject *t_alphabeticindex_resetRecordIterator(t_alphabeticindex *self)
+{
+    self->object->resetRecordIterator();
+    Py_RETURN_SELF();
+}
+
+
+static PyObject *t_alphabeticindex__getCollator(t_alphabeticindex *self,
+                                                void *closure)
+{
+    const RuleBasedCollator &collator = self->object->getCollator();
+
+    return wrap_RuleBasedCollator(
+        const_cast<RuleBasedCollator *>(&collator), 0);  // not owned by wrapper
+}
+
+static PyObject *t_alphabeticindex__getInflowLabel(
+    t_alphabeticindex *self, void *closure)
+{
+    return PyUnicode_FromUnicodeString(&self->object->getInflowLabel());
+}
+
+static int t_alphabeticindex__setInflowLabel(
+    t_alphabeticindex *self, PyObject *value, void *closure)
+{
+    if (value == NULL)
+    {
+        PyErr_SetString(PyExc_TypeError, "cannot delete property");
+        return -1;
+    }
+
+    UnicodeString *u, _u;
+
+    if (!parseArg(value, "S", &u, &_u))
+    {
+        INT_STATUS_CALL(self->object->setInflowLabel(*u, status));
+        return 0;
+    }
+
+    PyErr_SetArgsError((PyObject *) self, "inflowLabel", value);
+    return -1;
+}
+
+static PyObject *t_alphabeticindex__getOverflowLabel(
+    t_alphabeticindex *self, void *closure)
+{
+    return PyUnicode_FromUnicodeString(&self->object->getOverflowLabel());
+}
+
+static int t_alphabeticindex__setOverflowLabel(
+    t_alphabeticindex *self, PyObject *value, void *closure)
+{
+    if (value == NULL)
+    {
+        PyErr_SetString(PyExc_TypeError, "cannot delete property");
+        return -1;
+    }
+
+    UnicodeString *u, _u;
+
+    if (!parseArg(value, "S", &u, &_u))
+    {
+        INT_STATUS_CALL(self->object->setOverflowLabel(*u, status));
+        return 0;
+    }
+
+    PyErr_SetArgsError((PyObject *) self, "overflowLabel", value);
+    return -1;
+}
+
+static PyObject *t_alphabeticindex__getUnderflowLabel(
+    t_alphabeticindex *self, void *closure)
+{
+    return PyUnicode_FromUnicodeString(&self->object->getUnderflowLabel());
+}
+
+static int t_alphabeticindex__setUnderflowLabel(
+    t_alphabeticindex *self, PyObject *value, void *closure)
+{
+    if (value == NULL)
+    {
+        PyErr_SetString(PyExc_TypeError, "cannot delete property");
+        return -1;
+    }
+
+    UnicodeString *u, _u;
+
+    if (!parseArg(value, "S", &u, &_u))
+    {
+        INT_STATUS_CALL(self->object->setUnderflowLabel(*u, status));
+        return 0;
+    }
+
+    PyErr_SetArgsError((PyObject *) self, "underflowLabel", value);
+    return -1;
+}
+
+static PyObject *t_alphabeticindex__getMaxLabelCount(
+    t_alphabeticindex *self, void *closure)
+{
+    return PyInt_FromLong(self->object->getMaxLabelCount());
+}
+
+static int t_alphabeticindex__setMaxLabelCount(
+    t_alphabeticindex *self, PyObject *value, void *closure)
+{
+    if (value == NULL)
+    {
+        PyErr_SetString(PyExc_TypeError, "cannot delete property");
+        return -1;
+    }
+
+    int count;
+
+    if (!parseArg(value, "i", &count))
+    {
+        INT_STATUS_CALL(self->object->setMaxLabelCount(count, status));
+        return 0;
+    }
+
+    PyErr_SetArgsError((PyObject *) self, "maxLabelCount", value);
+    return -1;
+}
+
+static PyObject *t_alphabeticindex__getBucketIndex(
+    t_alphabeticindex *self, void *closure)
+{
+    return PyInt_FromLong(self->object->getBucketIndex());
+}
+
+static PyObject *t_alphabeticindex__getBucketLabel(
+    t_alphabeticindex *self, void *closure)
+{
+    return PyUnicode_FromUnicodeString(&self->object->getBucketLabel());
+}
+
+static PyObject *t_alphabeticindex__getBucketLabelType(
+    t_alphabeticindex *self, void *closure)
+{
+    return PyInt_FromLong(self->object->getBucketLabelType());
+}
+
+static PyObject *t_alphabeticindex__getBucketCount(
+    t_alphabeticindex *self, void *closure)
+{
+    int count;
+
+    STATUS_CALL(count = self->object->getBucketCount(status));
+    return PyInt_FromLong(count);
+}
+
+static PyObject *t_alphabeticindex__getBucketRecordCount(
+    t_alphabeticindex *self, void *closure)
+{
+    return PyInt_FromLong(self->object->getBucketRecordCount());
+}
+
+static PyObject *t_alphabeticindex__getRecordCount(
+    t_alphabeticindex *self, void *closure)
+{
+    int count;
+
+    STATUS_CALL(count = self->object->getRecordCount(status));
+    return PyInt_FromLong(count);
+}
+
+static PyObject *t_alphabeticindex__getRecordName(
+    t_alphabeticindex *self, void *closure)
+{
+    return PyUnicode_FromUnicodeString(&self->object->getRecordName());
+}
+
+static PyObject *t_alphabeticindex__getRecordData(
+    t_alphabeticindex *self, void *closure)
+{
+    PyObject *data = (PyObject *) self->object->getRecordData();
+
+    if (data == NULL)
+        Py_RETURN_NONE;
+
+    Py_INCREF(data);
+    return data;
+}
+
+
+static PyObject *t_alphabeticindex_iter(t_alphabeticindex *self)
+{
+    STATUS_CALL(self->object->resetBucketIterator(status));
+    Py_RETURN_SELF();
+}
+
+static PyObject *t_alphabeticindex_iter_next(t_alphabeticindex *self)
+{
+    UBool more;
+
+    STATUS_CALL(more = self->object->nextBucket(status));
+
+    if (!more)
+    {
+        PyErr_SetNone(PyExc_StopIteration);
+        return NULL;
+    }
+
+    PyObject *result = PyTuple_New(2);
+
+    PyTuple_SET_ITEM(result, 0, PyUnicode_FromUnicodeString(
+        &self->object->getBucketLabel()));
+    PyTuple_SET_ITEM(result, 1, PyInt_FromLong(
+        self->object->getBucketLabelType()));
+
+    return result;
+}
+
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+
+static PyObject *t_alphabeticindex_buildImmutableIndex(t_alphabeticindex *self)
+{
+    ImmutableIndex *index;
+
+    STATUS_CALL(index = self->object->buildImmutableIndex(status));
+
+    return wrap_ImmutableIndex(index, T_OWNED);
+}
+
+
+/* ImmutableIndex */
+
+static PyObject *t_immutableindex_getBucketIndex(t_immutableindex *self,
+                                                 PyObject *arg)
+{
+    UnicodeString *u, _u;
+
+    if (!parseArg(arg, "S", &u, &_u))
+    {
+        int index;
+
+        STATUS_CALL(index = self->object->getBucketIndex(*u, status));
+
+        return PyInt_FromLong(index);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getBucketIndex", arg);
+}
+
+static PyObject *t_immutableindex_getBucket(t_immutableindex *self,
+                                            PyObject *arg)
+{
+    int index;
+
+    if (!parseArg(arg, "i", &index))
+    {
+        const AlphabeticIndex::Bucket *bucket = self->object->getBucket(index);
+
+        if (bucket == NULL)
+            Py_RETURN_NONE;
+
+        PyObject *result = PyTuple_New(2);
+
+        PyTuple_SET_ITEM(result, 0, PyUnicode_FromUnicodeString(
+            &bucket->getLabel()));
+        PyTuple_SET_ITEM(result, 1, PyInt_FromLong(bucket->getLabelType()));
+
+        return result;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getBucket", arg);
+}
+
+static PyObject *t_immutableindex__getBucketCount(t_immutableindex *self,
+                                                  void *closure)
+{
+    return PyInt_FromLong(self->object->getBucketCount());
+}
+
+static Py_ssize_t t_immutableindex_length(t_immutableindex *self)
+{
+    return self->object->getBucketCount();
+}
+
+static PyObject *t_immutableindex_item(t_immutableindex *self, int n)
+{
+    int len = self->object->getBucketCount();
+
+    if (n < 0)
+        n += len;
+
+    if (n >= 0 && n < len)
+    {
+        const AlphabeticIndex::Bucket *bucket = self->object->getBucket(n);
+
+        if (bucket == NULL)
+            Py_RETURN_NONE;
+
+        PyObject *result = PyTuple_New(2);
+
+        PyTuple_SET_ITEM(result, 0, PyUnicode_FromUnicodeString(
+            &bucket->getLabel()));
+        PyTuple_SET_ITEM(result, 1, PyInt_FromLong(bucket->getLabelType()));
+
+        return result;
+    }
+
+    PyErr_SetNone(PyExc_IndexError);
+    return NULL;
+}
+
+static int t_immutableindex_contains(t_immutableindex *self, PyObject *arg)
+{
+    UnicodeString *u, _u;
+
+    if (!parseArg(arg, "S", &u, &_u))
+    {
+        UErrorCode status = U_ZERO_ERROR;
+        self->object->getBucketIndex(*u, status);
+
+        return !U_FAILURE(status);
+    }
+
+    PyErr_SetObject(PyExc_TypeError, arg);
+    return -1;
+}
+
+
+#endif
+
 void _init_collator(PyObject *m)
 {
     CollationKeyType_.tp_richcompare = (richcmpfunc) t_collationkey_richcmp;
@@ -669,13 +1339,28 @@ void _init_collator(PyObject *m)
     RuleBasedCollatorType_.tp_str = (reprfunc) t_rulebasedcollator_str;
     RuleBasedCollatorType_.tp_richcompare =
         (richcmpfunc) t_rulebasedcollator_richcmp;
-
+#if U_ICU_VERSION_HEX >= 0x04080000
+    AlphabeticIndexType_.tp_getset = t_alphabeticindex_properties;
+    AlphabeticIndexType_.tp_iter = (getiterfunc) t_alphabeticindex_iter;
+    AlphabeticIndexType_.tp_iternext = (iternextfunc) t_alphabeticindex_iter_next;
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+    ImmutableIndexType_.tp_getset = t_immutableindex_properties;
+    ImmutableIndexType_.tp_as_sequence = &t_immutableindex_as_sequence;
+#endif
     INSTALL_CONSTANTS_TYPE(UCollationResult, m);
     INSTALL_CONSTANTS_TYPE(UCollAttribute, m);
     INSTALL_CONSTANTS_TYPE(UCollAttributeValue, m);
     REGISTER_TYPE(CollationKey, m);
     INSTALL_TYPE(Collator, m);
     REGISTER_TYPE(RuleBasedCollator, m);
+#if U_ICU_VERSION_HEX >= 0x04080000
+    INSTALL_CONSTANTS_TYPE(UAlphabeticIndexLabelType, m);
+    INSTALL_TYPE(AlphabeticIndex, m);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+    INSTALL_TYPE(ImmutableIndex, m);
+#endif
 
     INSTALL_ENUM(UCollationResult, "LESS", UCOL_LESS);
     INSTALL_ENUM(UCollationResult, "EQUAL", UCOL_EQUAL);
@@ -708,6 +1393,13 @@ void _init_collator(PyObject *m)
     INSTALL_ENUM(UCollationResult, "LESS", UCOL_LESS);
     INSTALL_ENUM(UCollationResult, "EQUAL", UCOL_EQUAL);
     INSTALL_ENUM(UCollationResult, "GREATER", UCOL_GREATER);
+
+#if U_ICU_VERSION_HEX >= 0x04080000
+    INSTALL_ENUM(UAlphabeticIndexLabelType, "NORMAL", U_ALPHAINDEX_NORMAL);
+    INSTALL_ENUM(UAlphabeticIndexLabelType, "UNDERFLOW", U_ALPHAINDEX_UNDERFLOW);
+    INSTALL_ENUM(UAlphabeticIndexLabelType, "INFLOW", U_ALPHAINDEX_INFLOW);
+    INSTALL_ENUM(UAlphabeticIndexLabelType, "OVERFLOW", U_ALPHAINDEX_OVERFLOW);
+#endif
 
     INSTALL_STATIC_INT(Collator, PRIMARY);
     INSTALL_STATIC_INT(Collator, SECONDARY);

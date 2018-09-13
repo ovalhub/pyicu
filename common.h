@@ -194,6 +194,10 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <typeinfo>
 #endif
 
+#if U_ICU_VERSION_HEX >= 0x04080000
+#include <unicode/alphaindex.h>
+#endif
+
 #if U_ICU_VERSION_HEX >= VERSION_HEX(50, 0, 0)
 #include <unicode/listformatter.h>
 #endif

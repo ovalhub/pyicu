@@ -1,5 +1,5 @@
 # ====================================================================
-# Copyright (c) 2005-2011 Open Source Applications Foundation.
+# Copyright (c) 2005-2018 Open Source Applications Foundation.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -136,6 +136,25 @@ class TestCollator(TestCase):
             key1 = collator.getSortKey(s)
 
             self.assertTrue(key0 == key1)
+
+    def testAlphabeticIndex(self):
+
+        if ICU_VERSION >= '4.8':
+            index = AlphabeticIndex(Locale.getItaly())
+
+            index.addRecord("foo", "bar")
+            index.addRecord("topo", "lino")
+
+            def allData(index):
+                for ((label, type)) in index:
+                    while index.nextRecord():
+                        yield (label, type, index.recordData)
+
+            self.assertTrue(list(allData(index)) == [
+                ('F', 0, 'bar'), ('T', 0, 'lino')])
+
+            if ICU_VERSION >= '5.1':
+                self.assertTrue(len(index.buildImmutableIndex()) == 28)
 
 
 if __name__ == "__main__":
