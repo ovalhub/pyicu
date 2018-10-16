@@ -61,7 +61,10 @@ class TestNumberFormatter(TestCase):
             self.assertEqual(text, u'+1,234 meters')
 
             text = formatter.locale(Locale.getFrance()).formatInt(1234)
-            self.assertEqual(text, u'+1\xa0234 mètres')
+            if ICU_VERSION >= '63.0':
+                self.assertEqual(text, u'+1\u202f234\xa0mètres')
+            else:
+                self.assertEqual(text, u'+1\xa0234 mètres')
 
 
 if __name__ == "__main__":
