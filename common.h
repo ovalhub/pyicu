@@ -183,6 +183,7 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/tmunit.h>
 #include <unicode/tmutamt.h>
 #include <unicode/stringpiece.h>
+#include <unicode/numsys.h>
 #endif
 
 #if U_ICU_VERSION_HEX >= 0x04040000

@@ -197,6 +197,38 @@ static PyMethodDef t_currencypluralinfo_methods[] = {
 DECLARE_TYPE(CurrencyPluralInfo, t_currencypluralinfo, UObject,
              CurrencyPluralInfo, t_currencypluralinfo_init, NULL);
 
+/* NumberingSystem */
+
+class t_numberingsystem : public _wrapper {
+public:
+    NumberingSystem *object;
+};
+
+static int t_numberingsystem_init(t_numberingsystem *self,
+                                  PyObject *args, PyObject *kwds);
+
+static PyObject *t_numberingsystem_getRadix(t_numberingsystem *self);
+static PyObject *t_numberingsystem_getName(t_numberingsystem *self);
+static PyObject *t_numberingsystem_getDescription(t_numberingsystem *self);
+static PyObject *t_numberingsystem_isAlgorithmic(t_numberingsystem *self);
+static PyObject *t_numberingsystem_createInstance(PyTypeObject *type, PyObject *args);
+static PyObject *t_numberingsystem_createInstanceByName(PyTypeObject *type, PyObject *arg);
+static PyObject *t_numberingsystem_getAvailableNames(PyTypeObject *type);
+
+static PyMethodDef t_numberingsystem_methods[] = {
+    DECLARE_METHOD(t_numberingsystem, getRadix, METH_NOARGS),
+    DECLARE_METHOD(t_numberingsystem, getName, METH_NOARGS),
+    DECLARE_METHOD(t_numberingsystem, getDescription, METH_NOARGS),
+    DECLARE_METHOD(t_numberingsystem, isAlgorithmic, METH_NOARGS),
+    DECLARE_METHOD(t_numberingsystem, createInstance, METH_VARARGS | METH_CLASS),
+    DECLARE_METHOD(t_numberingsystem, createInstanceByName, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_numberingsystem, getAvailableNames, METH_NOARGS | METH_CLASS),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(NumberingSystem, t_numberingsystem, UObject,
+             NumberingSystem, t_numberingsystem_init, NULL);
+
 #endif
 
 /* DecimalFormat */
@@ -756,6 +788,9 @@ static int t_decimalformatsymbols_init(t_decimalformatsymbols *self,
 {
     Locale *locale;
     DecimalFormatSymbols *dfs;
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+    NumberingSystem *system;
+#endif
 
     switch (PyTuple_Size(args)) {
       case 0:
@@ -773,6 +808,20 @@ static int t_decimalformatsymbols_init(t_decimalformatsymbols *self,
         }
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
+      case 2:
+        if (!parseArgs(args, "PP", TYPE_CLASSID(Locale),
+                       TYPE_CLASSID(NumberingSystem), &locale, &system))
+        {
+            INT_STATUS_CALL(dfs = new DecimalFormatSymbols(
+                *locale, *system, status));
+            self->object = dfs;
+            self->flags = T_OWNED;
+            break;
+        }
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+#endif
       default:
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
@@ -1489,6 +1538,110 @@ static PyObject *t_currencypluralinfo_setLocale(t_currencypluralinfo *self,
 }
 
 DEFINE_RICHCMP(CurrencyPluralInfo, t_currencypluralinfo);
+
+
+/* NumberingSystem */
+
+static int t_numberingsystem_init(t_numberingsystem *self,
+                                  PyObject *args, PyObject *kwds)
+{
+    switch (PyTuple_Size(args)) {
+      case 0:
+        self->object = new NumberingSystem();
+        self->flags = T_OWNED;
+        break;
+      default:
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+    }
+        
+    if (self->object)
+        return 0;
+
+    return -1;
+}
+
+static PyObject *t_numberingsystem_getRadix(t_numberingsystem *self)
+{
+    return PyInt_FromLong(self->object->getRadix());
+}
+
+static PyObject *t_numberingsystem_getName(t_numberingsystem *self)
+{
+    return PyString_FromString(self->object->getName());
+}
+
+static PyObject *t_numberingsystem_getDescription(t_numberingsystem *self)
+{
+    UnicodeString u = self->object->getDescription();
+    return PyUnicode_FromUnicodeString(&u);
+}
+
+static PyObject *t_numberingsystem_isAlgorithmic(t_numberingsystem *self)
+{
+    Py_RETURN_BOOL(self->object->isAlgorithmic());
+}
+
+static PyObject *t_numberingsystem_str(t_numberingsystem *self)
+{
+    return PyString_FromString(self->object->getName());
+}
+
+static PyObject *t_numberingsystem_createInstance(PyTypeObject *type,
+                                                  PyObject *args)
+{
+    NumberingSystem *system;
+    Locale *locale;
+    UnicodeString *u, _u;
+    int radix, algorithmic;
+
+    switch (PyTuple_Size(args)) {
+      case 0:
+        STATUS_CALL(system = NumberingSystem::createInstance(status));
+        return wrap_NumberingSystem(system, T_OWNED);
+      case 1:
+        if (!parseArgs(args, "P", TYPE_CLASSID(Locale), &locale))
+        {
+            STATUS_CALL(system = NumberingSystem::createInstance(*locale, status));
+            return wrap_NumberingSystem(system, T_OWNED);
+        }
+        break;
+      case 3:
+        if (!parseArgs(args, "ibS", &radix, &algorithmic, &u, &_u))
+        {
+            STATUS_CALL(system = NumberingSystem::createInstance(
+                radix, algorithmic, *u, status));
+            return wrap_NumberingSystem(system, T_OWNED);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError(type, "createInstance", args);
+}
+
+static PyObject *t_numberingsystem_createInstanceByName(PyTypeObject *type,
+                                                        PyObject *arg)
+{
+    charsArg name;
+
+    if (!parseArg(arg, "n", &name))
+    {
+        NumberingSystem *system;
+
+        STATUS_CALL(system = NumberingSystem::createInstanceByName(name, status));
+        return wrap_NumberingSystem(system, T_OWNED);
+    }
+
+    return PyErr_SetArgsError(type, "createInstanceByName", arg);
+}
+
+static PyObject *t_numberingsystem_getAvailableNames(PyTypeObject *type)
+{
+    StringEnumeration *names;
+    STATUS_CALL(names = NumberingSystem::getAvailableNames(status));
+
+    return wrap_StringEnumeration(names, T_OWNED);
+}
 
 #endif
 
@@ -3310,6 +3463,7 @@ void _init_numberformat(PyObject *m)
 #if U_ICU_VERSION_HEX >= 0x04020000
     CurrencyPluralInfoType_.tp_richcompare =
         (richcmpfunc) t_currencypluralinfo_richcmp;
+    NumberingSystemType_.tp_str = (reprfunc) t_numberingsystem_str;
 #endif
     DecimalFormatType_.tp_str = (reprfunc) t_decimalformat_str;
     RuleBasedNumberFormatType_.tp_str = (reprfunc) t_rulebasednumberformat_str;
@@ -3319,6 +3473,7 @@ void _init_numberformat(PyObject *m)
     REGISTER_TYPE(NumberFormat, m);
 #if U_ICU_VERSION_HEX >= 0x04020000
     REGISTER_TYPE(CurrencyPluralInfo, m);
+    REGISTER_TYPE(NumberingSystem, m);
 #endif
     REGISTER_TYPE(DecimalFormat, m);
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
