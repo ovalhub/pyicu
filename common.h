@@ -220,6 +220,7 @@ typedef intintobjargproc ssizessizeobjargproc;
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(59, 0, 0)
 #include <unicode/casemap.h>
+#include <unicode/edits.h>
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
