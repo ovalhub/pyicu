@@ -788,7 +788,7 @@ static int t_decimalformatsymbols_init(t_decimalformatsymbols *self,
 {
     Locale *locale;
     DecimalFormatSymbols *dfs;
-#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
     NumberingSystem *system;
 #endif
 

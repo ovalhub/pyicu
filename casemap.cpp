@@ -1403,12 +1403,12 @@ static PyObject *t_editsiterator_iter_next(t_editsiterator *self)
 void _init_casemap(PyObject *m)
 {
 #if U_ICU_VERSION_HEX >= VERSION_HEX(59, 0, 0)
-    INSTALL_STRUCT(CaseMap, m);
-    INSTALL_STRUCT(Edits, m);
-    INSTALL_STRUCT(EditsIterator, m);
-
     EditsIteratorType_.tp_getset = t_editsiterator_properties;
     EditsIteratorType_.tp_iter = (getiterfunc) PyObject_SelfIter;
     EditsIteratorType_.tp_iternext = (iternextfunc) t_editsiterator_iter_next;
+
+    INSTALL_STRUCT(CaseMap, m);
+    INSTALL_STRUCT(Edits, m);
+    INSTALL_STRUCT(EditsIterator, m);
 #endif
 }
