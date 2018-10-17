@@ -1388,8 +1388,8 @@ static PyObject *t_editsiterator_iter_next(t_editsiterator *self)
         (int) self->object->oldLength(),
         (int) self->object->newLength(),
         (int) self->object->sourceIndex(),
-        (int) self->object->replacementIndex(),
-        (int) self->object->destinationIndex());
+        (int) self->object->destinationIndex(),
+        (int) self->object->replacementIndex());
 }
 
 #endif
