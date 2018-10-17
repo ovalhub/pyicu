@@ -112,6 +112,10 @@ static PyObject *t_locale_getCanadaFrench(PyTypeObject *type);
 static PyObject *t_locale_getDefault(PyTypeObject *type);
 static PyObject *t_locale_setDefault(PyTypeObject *type, PyObject *args);
 static PyObject *t_locale_createFromName(PyTypeObject *type, PyObject *args);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+static PyObject *t_locale_forLanguageTag(PyTypeObject *type, PyObject *arg);
+static PyObject *t_locale_toLanguageTag(t_locale *self);
+#endif
 static PyObject *t_locale_createCanonical(PyTypeObject *type, PyObject *arg);
 static PyObject *t_locale_getAvailableLocales(PyTypeObject *type);
 static PyObject *t_locale_getISOCountries(PyTypeObject *type);
@@ -172,6 +176,10 @@ static PyMethodDef t_locale_methods[] = {
     DECLARE_METHOD(t_locale, setDefault, METH_VARARGS | METH_CLASS),
     DECLARE_METHOD(t_locale, createFromName, METH_VARARGS | METH_CLASS),
     DECLARE_METHOD(t_locale, createCanonical, METH_O | METH_CLASS),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+    DECLARE_METHOD(t_locale, forLanguageTag, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_locale, toLanguageTag, METH_NOARGS),
+#endif
     DECLARE_METHOD(t_locale, getAvailableLocales, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_locale, getISOCountries, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_locale, getISOLanguages, METH_NOARGS | METH_CLASS),
@@ -898,6 +906,34 @@ static PyObject *t_locale_createCanonical(PyTypeObject *type, PyObject *arg)
 
     return PyErr_SetArgsError(type, "createCanonical", arg);
 }
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+
+static PyObject *t_locale_forLanguageTag(PyTypeObject *type, PyObject *arg)
+{
+    Locale locale;
+    charsArg name;
+
+    if (!parseArg(arg, "n", &name))
+    {
+        STATUS_CALL(locale = Locale::forLanguageTag(StringPiece(name), status));
+        return wrap_Locale(locale);
+    }
+
+    return PyErr_SetArgsError(type, "forLanguageTag", arg);
+}
+
+static PyObject *t_locale_toLanguageTag(t_locale *self)
+{
+    char buffer[128] = {};
+    CheckedArrayByteSink sink(buffer, sizeof(buffer));
+
+    STATUS_CALL(self->object->toLanguageTag(sink, status));
+
+    return PyString_FromString(buffer);
+}
+
+#endif
 
 static PyObject *t_locale_getAvailableLocales(PyTypeObject *type)
 {
