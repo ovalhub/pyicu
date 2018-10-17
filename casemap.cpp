@@ -234,7 +234,6 @@ static PyObject *t_casemap_toLower(PyTypeObject *type, PyObject *args)
 
             return ICUException(status).reportError();
         }
-        break;
 
         if (!parseArgs(args, "PS", TYPE_CLASSID(Locale), &locale, &u, &_u))
         {
@@ -448,7 +447,6 @@ static PyObject *t_casemap_toUpper(PyTypeObject *type, PyObject *args)
 
             return ICUException(status).reportError();
         }
-        break;
 
         if (!parseArgs(args, "PS", TYPE_CLASSID(Locale), &locale, &u, &_u))
         {
@@ -663,7 +661,6 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
 
             return ICUException(status).reportError();
         }
-        break;
 
         if (!parseArgs(args, "PS", TYPE_CLASSID(Locale), &locale, &u, &_u))
         {
@@ -808,7 +805,6 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
 
             return ICUException(status).reportError();
         }
-        break;
 
         if (!parseArgs(args, "PPS",
                        TYPE_CLASSID(Locale), TYPE_CLASSID(BreakIterator),
@@ -887,7 +883,6 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
 
             return ICUException(status).reportError();
         }
-
         break;
 
       case 4:
@@ -1089,7 +1084,6 @@ static PyObject *t_casemap_fold(PyTypeObject *type, PyObject *args)
 
             return ICUException(status).reportError();
         }
-        break;
 
         if (!parseArgs(args, "iS", &options, &u, &_u))
         {
