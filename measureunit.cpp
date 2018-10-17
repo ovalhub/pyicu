@@ -188,6 +188,12 @@ static PyObject *t_measureunit_createPartPerMillion(PyTypeObject *type);
 #if U_ICU_VERSION_HEX >= VERSION_HEX(59, 0, 0)
 static PyObject *t_measureunit_createPoint(PyTypeObject *type);
 #endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+static PyObject *t_measureunit_createAtmosphere(PyTypeObject *type);
+static PyObject *t_measureunit_createPercent(PyTypeObject *type);
+static PyObject *t_measureunit_createPermille(PyTypeObject *type);
+static PyObject *t_measureunit_createPetabyte(PyTypeObject *type);
+#endif
 
 static PyMethodDef t_measureunit_methods[] = {
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
@@ -338,6 +344,12 @@ static PyMethodDef t_measureunit_methods[] = {
 #endif
 #if U_ICU_VERSION_HEX >= VERSION_HEX(59, 0, 0)
     DECLARE_METHOD(t_measureunit, createPoint, METH_NOARGS | METH_CLASS),
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+    DECLARE_METHOD(t_measureunit, createAtmosphere, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createPercent, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createPermille, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createPetabyte, METH_NOARGS | METH_CLASS),
 #endif
     { NULL, NULL, 0, NULL }
 };
@@ -1668,6 +1680,41 @@ static PyObject *t_measureunit_createPoint(PyTypeObject *type)
 {
     MeasureUnit *mu;
     STATUS_CALL(mu = MeasureUnit::createPoint(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+
+static PyObject *t_measureunit_createAtmosphere(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createAtmosphere(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+static PyObject *t_measureunit_createPercent(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createPercent(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createPermille(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createPermille(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createPetabyte(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createPetabyte(status));
 
     return wrap_MeasureUnit(mu, T_OWNED);
 }

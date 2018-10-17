@@ -30,6 +30,7 @@
 #include "bases.h"
 #include "char.h"
 #include "macros.h"
+#include "unicodeset.h"
 
 DECLARE_CONSTANTS_TYPE(UProperty);
 DECLARE_CONSTANTS_TYPE(UCharDirection);
@@ -40,6 +41,8 @@ DECLARE_CONSTANTS_TYPE(UPropertyNameChoice);
 DECLARE_CONSTANTS_TYPE(UWordBreakValues);
 DECLARE_CONSTANTS_TYPE(UJoiningGroup);
 DECLARE_CONSTANTS_TYPE(ULineBreak);
+DECLARE_CONSTANTS_TYPE(UGraphemeClusterBreak);
+DECLARE_CONSTANTS_TYPE(UHangulSyllableType);
 #if U_ICU_VERSION_HEX >= VERSION_HEX(52, 0, 0)
 DECLARE_CONSTANTS_TYPE(UBidiPairedBracketType);
 #endif
@@ -62,6 +65,9 @@ typedef UChar32 (*uchar32_char_fn)(UChar32 c);
 
 static int t_char_init(t_char *self, PyObject *args, PyObject *kwds);
 static PyObject *t_char_hasBinaryProperty(PyTypeObject *type, PyObject *args);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+static PyObject *t_char_getBinaryPropertySet(PyTypeObject *type, PyObject *arg);
+#endif
 static PyObject *t_char_getIntPropertyValue(PyTypeObject *type, PyObject *args);
 static PyObject *t_char_getIntPropertyMinValue(PyTypeObject *type,
                                                PyObject *arg);
@@ -107,6 +113,7 @@ static PyObject *t_char_enumCharNames(PyTypeObject *type, PyObject *args);
 static PyObject *t_char_getPropertyName(PyTypeObject *type, PyObject *args);
 static PyObject *t_char_getPropertyEnum(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_isIDStart(PyTypeObject *type, PyObject *arg);
+static PyObject *t_char_isIDPart(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_isIDIgnorable(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_isJavaIDStart(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_isJavaIDPart(PyTypeObject *type, PyObject *arg);
@@ -122,6 +129,9 @@ static PyObject *t_char_getFC_NFKC_Closure(PyTypeObject *type, PyObject *arg);
 
 static PyMethodDef t_char_methods[] = {
     DECLARE_METHOD(t_char, hasBinaryProperty, METH_VARARGS | METH_CLASS),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+    DECLARE_METHOD(t_char, getBinaryPropertySet, METH_O | METH_CLASS),
+#endif
     DECLARE_METHOD(t_char, getIntPropertyValue, METH_VARARGS | METH_CLASS),
     DECLARE_METHOD(t_char, getIntPropertyMinValue, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, getIntPropertyMaxValue, METH_O | METH_CLASS),
@@ -165,6 +175,7 @@ static PyMethodDef t_char_methods[] = {
     DECLARE_METHOD(t_char, getPropertyName, METH_VARARGS | METH_CLASS),
     DECLARE_METHOD(t_char, getPropertyEnum, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, isIDStart, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_char, isIDPart, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, isIDIgnorable, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, isJavaIDStart, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, isJavaIDPart, METH_O | METH_CLASS),
@@ -219,6 +230,24 @@ static PyObject *t_char_hasBinaryProperty(PyTypeObject *type, PyObject *args)
 
     return PyErr_SetArgsError((PyObject *) type, "hasBinaryProperty", args);
 }
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+static PyObject *t_char_getBinaryPropertySet(PyTypeObject *type, PyObject *arg)
+{
+    UProperty prop;
+
+    if (!parseArg(arg, "i", &prop))
+    {
+        const USet *set;
+        STATUS_CALL(set = u_getBinaryPropertySet(prop, &status));
+
+        return wrap_UnicodeSet(
+            const_cast<UnicodeSet *>(UnicodeSet::fromUSet(set)), 0);
+    }
+
+    return PyErr_SetArgsError((PyObject *) type, "getBinaryPropertySet", arg);
+}
+#endif
 
 static PyObject *t_char_getIntPropertyValue(PyTypeObject *type, PyObject *args)
 {
@@ -387,6 +416,10 @@ static PyObject *t_char_isMirrored(PyTypeObject *type, PyObject *arg) {
 
 static PyObject *t_char_isIDStart(PyTypeObject *type, PyObject *arg) {
     return t_char_fn(u_isIDStart, "isIDStart", type, arg);
+}
+
+static PyObject *t_char_isIDPart(PyTypeObject *type, PyObject *arg) {
+    return t_char_fn(u_isIDPart, "isIDPart", type, arg);
 }
 
 static PyObject *t_char_isIDIgnorable(PyTypeObject *type, PyObject *arg) {
@@ -863,6 +896,8 @@ void _init_char(PyObject *m)
     INSTALL_CONSTANTS_TYPE(UWordBreakValues, m);
     INSTALL_CONSTANTS_TYPE(UJoiningGroup, m);
     INSTALL_CONSTANTS_TYPE(ULineBreak, m);
+    INSTALL_CONSTANTS_TYPE(UGraphemeClusterBreak, m);
+    INSTALL_CONSTANTS_TYPE(UHangulSyllableType, m);
 #if U_ICU_VERSION_HEX >= VERSION_HEX(52, 0, 0)
     INSTALL_CONSTANTS_TYPE(UBidiPairedBracketType, m);
 #endif
@@ -1552,6 +1587,38 @@ void _init_char(PyObject *m)
     INSTALL_ENUM(ULineBreak, "H3", U_LB_H3);
     INSTALL_ENUM(ULineBreak, "JL", U_LB_JL);
     INSTALL_ENUM(ULineBreak, "JT", U_LB_JT);
+
+    INSTALL_ENUM(UGraphemeClusterBreak, "OTHER", U_GCB_OTHER);
+    INSTALL_ENUM(UGraphemeClusterBreak, "CONTROL", U_GCB_CONTROL);
+    INSTALL_ENUM(UGraphemeClusterBreak, "CR", U_GCB_CR);
+    INSTALL_ENUM(UGraphemeClusterBreak, "EXTEND", U_GCB_EXTEND);
+    INSTALL_ENUM(UGraphemeClusterBreak, "L", U_GCB_L);
+    INSTALL_ENUM(UGraphemeClusterBreak, "LF", U_GCB_LF);
+    INSTALL_ENUM(UGraphemeClusterBreak, "LV", U_GCB_LV);
+    INSTALL_ENUM(UGraphemeClusterBreak, "LVT", U_GCB_LVT);
+    INSTALL_ENUM(UGraphemeClusterBreak, "T", U_GCB_T);
+    INSTALL_ENUM(UGraphemeClusterBreak, "V", U_GCB_V);
+#if U_ICU_VERSION_HEX >= 0x04000000
+    INSTALL_ENUM(UGraphemeClusterBreak, "SPACING_MARK", U_GCB_SPACING_MARK);
+    INSTALL_ENUM(UGraphemeClusterBreak, "PREPEND", U_GCB_PREPEND);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(50, 0, 0)
+    INSTALL_ENUM(UGraphemeClusterBreak, "REGIONAL_INDICATOR", U_GCB_REGIONAL_INDICATOR);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(58, 0, 0)
+    INSTALL_ENUM(UGraphemeClusterBreak, "E_BASE", U_GCB_E_BASE);
+    INSTALL_ENUM(UGraphemeClusterBreak, "E_BASE_GAZ", U_GCB_E_BASE_GAZ);
+    INSTALL_ENUM(UGraphemeClusterBreak, "GLUE_AFTER_ZWJ", U_GCB_GLUE_AFTER_ZWJ);
+    INSTALL_ENUM(UGraphemeClusterBreak, "ZWJ", U_GCB_ZWJ);
+#endif
+
+    INSTALL_ENUM(UHangulSyllableType, "NOT_APPLICABLE", U_HST_NOT_APPLICABLE);
+    INSTALL_ENUM(UHangulSyllableType, "LEADING_JAMO", U_HST_LEADING_JAMO);
+    INSTALL_ENUM(UHangulSyllableType, "VOWEL_JAMO", U_HST_VOWEL_JAMO);
+    INSTALL_ENUM(UHangulSyllableType, "TRAILING_JAMO", U_HST_TRAILING_JAMO);
+    INSTALL_ENUM(UHangulSyllableType, "LV_SYLLABLE", U_HST_LV_SYLLABLE);
+    INSTALL_ENUM(UHangulSyllableType, "LVT_SYLLABLE", U_HST_LVT_SYLLABLE);
+    
 #if U_ICU_VERSION_HEX >= 0x04040000
     INSTALL_ENUM(ULineBreak, "CLOSE_PARENTHESIS", U_LB_CLOSE_PARENTHESIS);
 #endif

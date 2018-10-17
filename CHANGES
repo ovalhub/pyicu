@@ -2,6 +2,8 @@ Version 2.1 -> 2.2
 ------------------
   - added wrappers for AlphabeticIndex and ImmutableIndex
   - added wrapper for NumberingSystem
+  - added wrapper for UGraphemeClusterBreak enum
+  - added wrapper for UHangulSyllableType enum
   - added support for ICU 63.1
   - added wrappers for Locale::to|fromLanguageTag
   - added wrappers for UIndicPositionalCategory, UIndicSyllabicCategory enums
