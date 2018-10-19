@@ -147,14 +147,14 @@ static PyGetSetDef t_editsiterator_properties[] = {
       (getter) t_editsiterator__sourceIndex,
       NULL,
       (char *) "sourceIndex property", NULL },
-    { (char *) "replacementIndex",
-      (getter) t_editsiterator__replacementIndex,
-      NULL,
-      (char *) "replacementIndex property", NULL },
     { (char *) "destinationIndex",
       (getter) t_editsiterator__destinationIndex,
       NULL,
       (char *) "destinationIndex property", NULL },
+    { (char *) "replacementIndex",
+      (getter) t_editsiterator__replacementIndex,
+      NULL,
+      (char *) "replacementIndex property", NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -193,7 +193,7 @@ static PyObject *t_casemap_toLower(PyTypeObject *type, PyObject *args)
                 NULL, 0, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -219,7 +219,7 @@ static PyObject *t_casemap_toLower(PyTypeObject *type, PyObject *args)
                 NULL, 0, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -243,7 +243,7 @@ static PyObject *t_casemap_toLower(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), 0, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -266,7 +266,7 @@ static PyObject *t_casemap_toLower(PyTypeObject *type, PyObject *args)
                 NULL, options, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -293,7 +293,7 @@ static PyObject *t_casemap_toLower(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), 0, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -316,7 +316,7 @@ static PyObject *t_casemap_toLower(PyTypeObject *type, PyObject *args)
                 NULL, options, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -341,7 +341,7 @@ static PyObject *t_casemap_toLower(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), options, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -368,7 +368,7 @@ static PyObject *t_casemap_toLower(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), options, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -406,7 +406,7 @@ static PyObject *t_casemap_toUpper(PyTypeObject *type, PyObject *args)
                 NULL, 0, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -432,7 +432,7 @@ static PyObject *t_casemap_toUpper(PyTypeObject *type, PyObject *args)
                 NULL, 0, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -456,7 +456,7 @@ static PyObject *t_casemap_toUpper(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), 0, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -479,7 +479,7 @@ static PyObject *t_casemap_toUpper(PyTypeObject *type, PyObject *args)
                 NULL, options, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -506,7 +506,7 @@ static PyObject *t_casemap_toUpper(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), 0, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -529,7 +529,7 @@ static PyObject *t_casemap_toUpper(PyTypeObject *type, PyObject *args)
                 NULL, options, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -554,7 +554,7 @@ static PyObject *t_casemap_toUpper(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), options, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -581,7 +581,7 @@ static PyObject *t_casemap_toUpper(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), options, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -620,7 +620,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 NULL, 0, NULL, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -646,7 +646,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 NULL, 0, NULL, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -670,7 +670,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), 0, NULL, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -693,7 +693,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 NULL, 0, iter, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -716,7 +716,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 NULL, options, NULL, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -743,7 +743,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), 0, NULL, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -767,7 +767,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 NULL, 0, iter, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -790,7 +790,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 NULL, options, NULL, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -816,7 +816,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), 0, iter, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -842,7 +842,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -868,7 +868,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 NULL, options, iter, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -896,7 +896,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 locale->getBaseName(), 0, iter, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -922,7 +922,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -948,7 +948,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 NULL, options, iter, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -975,7 +975,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -1005,7 +1005,7 @@ static PyObject *t_casemap_toTitle(PyTypeObject *type, PyObject *args)
                 u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -1043,7 +1043,7 @@ static PyObject *t_casemap_fold(PyTypeObject *type, PyObject *args)
                 0, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -1069,7 +1069,7 @@ static PyObject *t_casemap_fold(PyTypeObject *type, PyObject *args)
                 0, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -1093,7 +1093,7 @@ static PyObject *t_casemap_fold(PyTypeObject *type, PyObject *args)
                 options, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, NULL, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -1119,7 +1119,7 @@ static PyObject *t_casemap_fold(PyTypeObject *type, PyObject *args)
                 options, u->getBuffer(), u->length(),
                 dest.buffer, dest.size, ((t_edits *) edits)->object, status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {
@@ -1153,7 +1153,7 @@ static int t_edits_init(t_edits *self, PyObject *args, PyObject *kwds)
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
@@ -1261,7 +1261,7 @@ static int t_editsiterator_init(t_editsiterator *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 

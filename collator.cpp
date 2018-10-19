@@ -1322,7 +1322,7 @@ static int t_immutableindex_contains(t_immutableindex *self, PyObject *arg)
         UErrorCode status = U_ZERO_ERROR;
         self->object->getBucketIndex(*u, status);
 
-        return !U_FAILURE(status);
+        return U_SUCCESS(status);
     }
 
     PyErr_SetObject(PyExc_TypeError, arg);

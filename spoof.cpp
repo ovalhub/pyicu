@@ -248,7 +248,7 @@ static PyObject *t_spoofchecker_getSkeleton(t_spoofchecker *self,
                 uspoof_getSkeleton(self->object, type, u->getBuffer(), len,
                                    dest.buffer, dest.size, &status);
 
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
                 return PyUnicode_FromUnicodeString(dest.buffer, size);
 
             if (status == U_BUFFER_OVERFLOW_ERROR) {

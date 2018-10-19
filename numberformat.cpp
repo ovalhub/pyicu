@@ -1125,7 +1125,7 @@ static PyObject *t_numberformat_parseCurrency(t_numberformat *self,
         }
         break;
     }
-        
+
     return PyErr_SetArgsError((PyObject *) self, "parseCurrency", args);
 }
 #else
@@ -1554,7 +1554,7 @@ static int t_numberingsystem_init(t_numberingsystem *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
@@ -1687,7 +1687,7 @@ static int t_decimalformat_init(t_decimalformat *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
@@ -2359,12 +2359,12 @@ static int t_rulebasednumberformat_init(t_rulebasednumberformat *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
     return -1;
-}    
+}
 
 static PyObject *t_rulebasednumberformat_getRules(t_rulebasednumberformat *self,
                                                   PyObject *args)

@@ -6,10 +6,10 @@
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions: 
+ * Software is furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software. 
+ * in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -413,7 +413,7 @@ static int t_locale_init(t_locale *self, PyObject *args, PyObject *kwds)
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
@@ -925,12 +925,18 @@ static PyObject *t_locale_forLanguageTag(PyTypeObject *type, PyObject *arg)
 
 static PyObject *t_locale_toLanguageTag(t_locale *self)
 {
-    char buffer[128] = {};
-    CheckedArrayByteSink sink(buffer, sizeof(buffer));
+    struct sink {
+      UnicodeString u;
+      void append(const char *data, int32_t n)
+      {
+          u.append(UnicodeString(data, n, US_INV));
+      }
+    } buffer;
+    StringByteSink<struct sink> sbs(&buffer);
 
-    STATUS_CALL(self->object->toLanguageTag(sink, status));
+    STATUS_CALL(self->object->toLanguageTag(sbs, status));
 
-    return PyString_FromString(buffer);
+    return PyUnicode_FromUnicodeString(&buffer.u);
 }
 
 #endif
@@ -1031,7 +1037,7 @@ static int t_resourcebundle_init(t_resourcebundle *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
@@ -1463,7 +1469,7 @@ static int t_localedata_init(t_localedata *self, PyObject *args, PyObject *kwds)
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
@@ -1694,7 +1700,7 @@ static PyObject *t_region_getContainedRegions(t_region *self, PyObject *args)
         }
         break;
     }
-        
+
     return PyErr_SetArgsError((PyObject *) self, "getContainedRegions", args);
 }
 
