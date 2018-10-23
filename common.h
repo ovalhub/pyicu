@@ -182,8 +182,8 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/uspoof.h>
 #include <unicode/tmunit.h>
 #include <unicode/tmutamt.h>
-#include <unicode/stringpiece.h>
 #include <unicode/numsys.h>
+
 #endif
 
 #if U_ICU_VERSION_HEX >= 0x04040000
@@ -262,7 +262,7 @@ typedef const char *classid;
 
 U_NAMESPACE_USE
 
-/* lifted from ustrenum.h */
+/* lifted from common/ustrenum.h */
 
 U_NAMESPACE_BEGIN
 class U_COMMON_API UStringEnumeration : public StringEnumeration {

@@ -916,7 +916,7 @@ static PyObject *t_locale_forLanguageTag(PyTypeObject *type, PyObject *arg)
 
     if (!parseArg(arg, "n", &name))
     {
-        STATUS_CALL(locale = Locale::forLanguageTag(StringPiece(name), status));
+        STATUS_CALL(locale = Locale::forLanguageTag(name.c_str(), status));
         return wrap_Locale(locale);
     }
 
@@ -926,11 +926,11 @@ static PyObject *t_locale_forLanguageTag(PyTypeObject *type, PyObject *arg)
 static PyObject *t_locale_toLanguageTag(t_locale *self)
 {
     struct sink {
-      UnicodeString u;
-      void append(const char *data, int32_t n)
-      {
-          u.append(UnicodeString(data, n, US_INV));
-      }
+        UnicodeString u;
+        void append(const char *data, int32_t n)
+        {
+            u.append(UnicodeString(data, n, US_INV));
+        }
     } buffer;
     StringByteSink<struct sink> sbs(&buffer);
 
@@ -950,6 +950,7 @@ static PyObject *t_locale_getAvailableLocales(PyTypeObject *type)
     for (int32_t i = 0; i < count; i++) {
         Locale *locale = (Locale *) locales + i;
         PyObject *obj = wrap_Locale(locale, 0);
+
         PyDict_SetItemString(dict, locale->getName(), obj);
         Py_DECREF(obj);
     }
