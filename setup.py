@@ -165,6 +165,7 @@ setup(name="PyICU",
       url='https://github.com/ovalhub/pyicu',
       author='Andi Vajda',
       author_email='github@ovaltofu.org',
+      license='MIT',
       classifiers=[
           'Development Status :: 5 - Production/Stable',
           'Environment :: Console',
