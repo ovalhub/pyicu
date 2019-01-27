@@ -692,8 +692,14 @@ static PyObject *t_collator_getFunctionalEquivalent(PyTypeObject *type,
         Locale result(*locale);
         STATUS_CALL(Collator::getFunctionalEquivalent(keyword, result,
                                                       isAvailable, status));
-        return Py_BuildValue("(OO)", wrap_Locale(result),
-                             isAvailable ? Py_True : Py_False);
+
+        PyObject *py_locale = wrap_Locale(result);
+        PyObject *py_result = Py_BuildValue("(OO)", py_locale,
+                                            isAvailable ? Py_True : Py_False);
+
+        Py_DECREF(py_locale);
+
+        return py_result;
     }
 
     return PyErr_SetArgsError(type, "getFunctionalEquivalent", args);
