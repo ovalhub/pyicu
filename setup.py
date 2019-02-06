@@ -15,7 +15,6 @@ try:
 except ImportError:
     from subprocess import Popen, PIPE
 
-
     def check_output(*popenargs):
         process = Popen(stdout=PIPE, *popenargs)
         output, ignore = process.communicate()
@@ -36,6 +35,20 @@ def configure_with_icu_config(flags, config_args, label):
                                               find_executable('icu-config')))
     except:
         print('Could not configure %s with icu-config' %(label))
+        raise
+
+
+def configure_with_pkg_config(flags, config_args, label):
+    try:
+        output = check_output(('pkg-config',) + config_args + ('icu-i18n',)).strip()
+        if sys.version_info >= (3,):
+            output = str(output, 'ascii')
+        flags.extend(output.split())
+        if output:
+            print('Adding %s="%s" from %s' % (label, output,
+                                              find_executable('pkg-config')))
+    except:
+        print('Could not configure %s with pkg-config' %(label))
         raise
 
 
@@ -61,6 +74,15 @@ CONFIGURE_WITH_ICU_CONFIG = {
     'linux': True,
     'freebsd': False, # not tested
     'win32': False,   # no icu-config
+    'sunos5': False,  # not tested
+    'cygwin': False,  # not tested
+}
+
+CONFIGURE_WITH_PKG_CONFIG = {
+    'darwin': False,  # no pkg-config ?
+    'linux': True,
+    'freebsd': False, # not tested
+    'win32': False,   # no pkg-config
     'sunos5': False,  # not tested
     'cygwin': False,  # not tested
 }
@@ -127,8 +149,16 @@ if 'PYICU_CFLAGS' in os.environ:
 else:
     _cflags = CFLAGS[platform]
     if CONFIGURE_WITH_ICU_CONFIG[platform]:
-        configure_with_icu_config(
-            _cflags, ('--cxxflags', '--cppflags'), 'CXXFLAGS')
+        try:
+            configure_with_icu_config(
+                _cflags, ('--cxxflags', '--cppflags'), 'CXXFLAGS')
+        except:
+            if CONFIGURE_WITH_PKG_CONFIG[platform]:
+                configure_with_pkg_config(_cflags, ('--cflags',), 'CXXFLAGS')
+            else:
+                raise
+    elif CONFIGURE_WITH_PKG_CONFIG[platform]:
+        configure_with_pkg_config(_cflags, ('--cflags',), 'CXXFLAGS')
 
 if '--debug' in sys.argv:
     if 'PYICU_DEBUG_CFLAGS' in os.environ:
@@ -141,7 +171,15 @@ if 'PYICU_LFLAGS' in os.environ:
 else:
     _lflags = LFLAGS[platform]
     if CONFIGURE_WITH_ICU_CONFIG[platform]:
-        configure_with_icu_config(_lflags, ('--ldflags',), 'LDFLAGS')
+        try:
+            configure_with_icu_config(_lflags, ('--ldflags',), 'LDFLAGS')
+        except:
+            if CONFIGURE_WITH_PKG_CONFIG[platform]:
+                configure_with_pkg_config(_lflags, ('--libs',), 'LDFLAGS')
+            else:
+                raise
+    elif CONFIGURE_WITH_PKG_CONFIG[platform]:
+        configure_with_pkg_config(_lflags, ('--libs',), 'LDFLAGS')
 
 if 'PYICU_LIBRARIES' in os.environ:
     _libraries = os.environ['PYICU_LIBRARIES'].split(os.pathsep)

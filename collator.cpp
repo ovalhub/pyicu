@@ -309,7 +309,7 @@ DECLARE_TYPE(AlphabeticIndex, t_alphabeticindex, UObject, AlphabeticIndex,
 
 /* ImmutableIndex */
 
-using ImmutableIndex = AlphabeticIndex::ImmutableIndex;
+typedef AlphabeticIndex::ImmutableIndex ImmutableIndex;
 
 class t_immutableindex : public _wrapper {
 public:
