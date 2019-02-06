@@ -99,13 +99,22 @@ INCLUDES = {
     'cygwin': [],
 }
 
-CFLAGS = {
+VER_FLAGS = {
     'darwin': ['-DPYICU_VER="%s"' %(VERSION)],
     'linux': ['-DPYICU_VER="%s"' %(VERSION)],
-    'freebsd': ['-DPYICU_VER="%s"' %(VERSION), '-std=c++11'],
-    'win32': ['/Zc:wchar_t', '/EHsc', '/DPYICU_VER=\\"%s\\"' %(VERSION)],
-    'sunos5': ['-DPYICU_VER="%s"' %(VERSION), '-std=c++11'],
-    'cygwin': ['-DPYICU_VER="%s"' %(VERSION), '-D_GNU_SOURCE=1', '-std=c++11'],
+    'freebsd': ['-DPYICU_VER="%s"' %(VERSION)],
+    'win32': ['/DPYICU_VER=\\"%s\\"' %(VERSION)],
+    'sunos5': ['-DPYICU_VER="%s"' %(VERSION)],
+    'cygwin': ['-DPYICU_VER="%s"' %(VERSION)],
+}
+
+CFLAGS = {
+    'darwin': [],
+    'linux': [],
+    'freebsd': ['-std=c++11'],
+    'win32': ['/Zc:wchar_t', '/EHsc'],
+    'sunos5': ['-std=c++11'],
+    'cygwin': ['-D_GNU_SOURCE=1', '-std=c++11'],
 }
 
 # added to CFLAGS when setup is invoked with --debug
@@ -147,24 +156,24 @@ if 'PYICU_INCLUDES' in os.environ:
 else:
     _includes = INCLUDES[platform]
 
-_cflags = CFLAGS[platform]
 if 'PYICU_CFLAGS' in os.environ:
     _cflags += os.environ['PYICU_CFLAGS'].split(os.pathsep)
 else:
+    _cflags = CFLAGS[platform]
     try:
         if CONFIGURE_WITH_ICU_CONFIG[platform]:
             try:
                 configure_with_icu_config(
-                    _cflags, ('--cxxflags', '--cppflags'), 'CXXFLAGS')
+                    _cflags, ('--cxxflags', '--cppflags'), 'CFLAGS')
             except:
                 if CONFIGURE_WITH_PKG_CONFIG[platform]:
-                    configure_with_pkg_config(_cflags, ('--cflags',), 'CXXFLAGS')
+                    configure_with_pkg_config(_cflags, ('--cflags',), 'CFLAGS')
                 else:
                     raise
         elif CONFIGURE_WITH_PKG_CONFIG[platform]:
-            configure_with_pkg_config(_cflags, ('--cflags',), 'CXXFLAGS')
+            configure_with_pkg_config(_cflags, ('--cflags',), 'CFLAGS')
     except:
-        if len(_cflags) <= 1:
+        if not _cflags:
             raise RuntimeError('''
 Please set the PYICU_CFLAGS environment variable to the flags required by the
 C++ compiler to find the header files for ICU, and possibly -std=c++11 if 
@@ -177,21 +186,23 @@ if '--debug' in sys.argv:
     else:
         _cflags += DEBUG_CFLAGS[platform]
 
-_lflags = LFLAGS[platform]
+_cflags += VER_FLAGS[platform]
+
 if 'PYICU_LFLAGS' in os.environ:
     _lflags += os.environ['PYICU_LFLAGS'].split(os.pathsep)
 else:
+    _lflags = LFLAGS[platform]
     try:
         if CONFIGURE_WITH_ICU_CONFIG[platform]:
             try:
-                configure_with_icu_config(_lflags, ('--ldflags',), 'LDFLAGS')
+                configure_with_icu_config(_lflags, ('--ldflags',), 'LFLAGS')
             except:
                 if CONFIGURE_WITH_PKG_CONFIG[platform]:
-                    configure_with_pkg_config(_lflags, ('--libs',), 'LDFLAGS')
+                    configure_with_pkg_config(_lflags, ('--libs',), 'LFLAGS')
                 else:
                     raise
         elif CONFIGURE_WITH_PKG_CONFIG[platform]:
-            configure_with_pkg_config(_lflags, ('--libs',), 'LDFLAGS')
+            configure_with_pkg_config(_lflags, ('--libs',), 'LFLAGS')
     except:
         if not _lflags:
             raise RuntimeError('''
