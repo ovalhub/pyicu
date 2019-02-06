@@ -57,13 +57,16 @@ try:
 except:
     try:
         ICU_VERSION = check_output(('icu-config', '--version')).strip()
-        if sys.version_info >= (3,):
-            ICU_VERSION = str(ICU_VERSION, 'ascii')
     except:
-        raise RuntimeError('''
+        try:
+            ICU_VERSION = check_output(('pkg-config', '--modversion', 'icu-i18n')).strip()
+        except:
+            raise RuntimeError('''
 Please set the ICU_VERSION environment variable to the version of
 ICU you have installed.
         ''')
+    if sys.version_info >= (3,):
+        ICU_VERSION = str(ICU_VERSION, 'ascii')
 
 print('''
 Building PyICU %s for ICU %s
@@ -144,21 +147,29 @@ if 'PYICU_INCLUDES' in os.environ:
 else:
     _includes = INCLUDES[platform]
 
+_cflags = CFLAGS[platform]
 if 'PYICU_CFLAGS' in os.environ:
-    _cflags = os.environ['PYICU_CFLAGS'].split(os.pathsep)
+    _cflags += os.environ['PYICU_CFLAGS'].split(os.pathsep)
 else:
-    _cflags = CFLAGS[platform]
-    if CONFIGURE_WITH_ICU_CONFIG[platform]:
-        try:
-            configure_with_icu_config(
-                _cflags, ('--cxxflags', '--cppflags'), 'CXXFLAGS')
-        except:
-            if CONFIGURE_WITH_PKG_CONFIG[platform]:
-                configure_with_pkg_config(_cflags, ('--cflags',), 'CXXFLAGS')
-            else:
-                raise
-    elif CONFIGURE_WITH_PKG_CONFIG[platform]:
-        configure_with_pkg_config(_cflags, ('--cflags',), 'CXXFLAGS')
+    try:
+        if CONFIGURE_WITH_ICU_CONFIG[platform]:
+            try:
+                configure_with_icu_config(
+                    _cflags, ('--cxxflags', '--cppflags'), 'CXXFLAGS')
+            except:
+                if CONFIGURE_WITH_PKG_CONFIG[platform]:
+                    configure_with_pkg_config(_cflags, ('--cflags',), 'CXXFLAGS')
+                else:
+                    raise
+        elif CONFIGURE_WITH_PKG_CONFIG[platform]:
+            configure_with_pkg_config(_cflags, ('--cflags',), 'CXXFLAGS')
+    except:
+        if len(_cflags) <= 1:
+            raise RuntimeError('''
+Please set the PYICU_CFLAGS environment variable to the flags required by the
+C++ compiler to find the header files for ICU, and possibly -std=c++11 if 
+using ICU version >= 60
+            ''')
 
 if '--debug' in sys.argv:
     if 'PYICU_DEBUG_CFLAGS' in os.environ:
@@ -166,20 +177,28 @@ if '--debug' in sys.argv:
     else:
         _cflags += DEBUG_CFLAGS[platform]
 
+_lflags = LFLAGS[platform]
 if 'PYICU_LFLAGS' in os.environ:
-    _lflags = os.environ['PYICU_LFLAGS'].split(os.pathsep)
+    _lflags += os.environ['PYICU_LFLAGS'].split(os.pathsep)
 else:
-    _lflags = LFLAGS[platform]
-    if CONFIGURE_WITH_ICU_CONFIG[platform]:
-        try:
-            configure_with_icu_config(_lflags, ('--ldflags',), 'LDFLAGS')
-        except:
-            if CONFIGURE_WITH_PKG_CONFIG[platform]:
-                configure_with_pkg_config(_lflags, ('--libs',), 'LDFLAGS')
-            else:
-                raise
-    elif CONFIGURE_WITH_PKG_CONFIG[platform]:
-        configure_with_pkg_config(_lflags, ('--libs',), 'LDFLAGS')
+    try:
+        if CONFIGURE_WITH_ICU_CONFIG[platform]:
+            try:
+                configure_with_icu_config(_lflags, ('--ldflags',), 'LDFLAGS')
+            except:
+                if CONFIGURE_WITH_PKG_CONFIG[platform]:
+                    configure_with_pkg_config(_lflags, ('--libs',), 'LDFLAGS')
+                else:
+                    raise
+        elif CONFIGURE_WITH_PKG_CONFIG[platform]:
+            configure_with_pkg_config(_lflags, ('--libs',), 'LDFLAGS')
+    except:
+        if not _lflags:
+            raise RuntimeError('''
+Please set the PYICU_LFLAGS environment variable to the flags required by the
+linker to find the libraries for ICU
+            ''')
+      
 
 if 'PYICU_LIBRARIES' in os.environ:
     _libraries = os.environ['PYICU_LIBRARIES'].split(os.pathsep)
