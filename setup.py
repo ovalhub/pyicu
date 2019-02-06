@@ -157,7 +157,7 @@ else:
     _includes = INCLUDES[platform]
 
 if 'PYICU_CFLAGS' in os.environ:
-    _cflags += os.environ['PYICU_CFLAGS'].split(os.pathsep)
+    _cflags = os.environ['PYICU_CFLAGS'].split(os.pathsep)
 else:
     _cflags = CFLAGS[platform]
     try:
@@ -189,7 +189,7 @@ if '--debug' in sys.argv:
 _cflags += VER_FLAGS[platform]
 
 if 'PYICU_LFLAGS' in os.environ:
-    _lflags += os.environ['PYICU_LFLAGS'].split(os.pathsep)
+    _lflags = os.environ['PYICU_LFLAGS'].split(os.pathsep)
 else:
     _lflags = LFLAGS[platform]
     try:
