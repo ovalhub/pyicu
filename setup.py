@@ -11,11 +11,17 @@ from distutils.spawn import find_executable
 VERSION = '2.2'
 
 try:
-    from subprocess import check_output
+    from subprocess import check_output as subprocess_check_output
+
+    def check_output(popenargs):
+        print("(running '%s')" %(' '.join(popenargs)))
+        return subprocess_check_output(popenargs)
+
 except ImportError:
     from subprocess import Popen, PIPE
 
     def check_output(*popenargs):
+        print("(running '%s')" %(' '.join(*popenargs)))
         process = Popen(stdout=PIPE, *popenargs)
         output, ignore = process.communicate()
         retcode = process.poll()
@@ -85,7 +91,7 @@ CONFIGURE_WITH_PKG_CONFIG = {
     'darwin': False,  # no pkg-config ?
     'linux': True,
     'freebsd': False, # not tested
-    'win32': False,   # no pkg-config
+    'win32': False,   # no pkg-config ?
     'sunos5': False,  # not tested
     'cygwin': False,  # not tested
 }
@@ -175,9 +181,9 @@ else:
     except:
         if not _cflags:
             raise RuntimeError('''
-Please set the PYICU_CFLAGS environment variable to the flags required by the
-C++ compiler to find the header files for ICU, and possibly -std=c++11 if 
-using ICU version >= 60
+Please install pkg-config on your system or set the PYICU_CFLAGS environment 
+variable to the flags required by the C++ compiler to find the header files
+for ICU, and possibly -std=c++11 if using ICU version >= 60
             ''')
 
 if '--debug' in sys.argv:
@@ -206,8 +212,8 @@ else:
     except:
         if not _lflags:
             raise RuntimeError('''
-Please set the PYICU_LFLAGS environment variable to the flags required by the
-linker to find the libraries for ICU
+Please install pkg-config on your system or set the PYICU_LFLAGS environment
+variable to the flags required by the linker to find the libraries for ICU
             ''')
       
 
