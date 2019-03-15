@@ -1787,7 +1787,11 @@ static PyObject *t_measure_str(t_measure *self)
                 .unit(self->object->getUnit())
                 .unitWidth(UNumberUnitWidth::UNUM_UNIT_WIDTH_FULL_NAME)
                 .formatDouble(self->object->getNumber().getDouble(), status)
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+                .toString(status));
+#else
                 .toString());
+#endif
 
     return PyUnicode_FromUnicodeString(&u);
 #else

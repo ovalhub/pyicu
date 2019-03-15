@@ -483,10 +483,13 @@ using icu::number::LocalizedNumberFormatter;
 using icu::number::Notation;
 using icu::number::ScientificNotation;
 using icu::number::IntegerWidth;
+
+#if U_ICU_VERSION_HEX < VERSION_HEX(64, 0, 0)
 using icu::number::Rounder;
 using icu::number::FractionRounder;
 using icu::number::IncrementRounder;
 using icu::number::CurrencyRounder;
+#endif
 
 DECLARE_CONSTANTS_TYPE(UNumberSignDisplay);
 DECLARE_CONSTANTS_TYPE(UNumberDecimalSeparatorDisplay);
@@ -522,8 +525,10 @@ public:
 
 static PyObject *t_unlocalizednumberformatter_unit(
     t_unlocalizednumberformatter *self, PyObject *arg);
+#if U_ICU_VERSION_HEX < VERSION_HEX(64, 0, 0)
 static PyObject *t_unlocalizednumberformatter_rounding(
     t_unlocalizednumberformatter *self, PyObject *arg);
+#endif
 static PyObject *t_unlocalizednumberformatter_symbols(
     t_unlocalizednumberformatter *self, PyObject *arg);
 static PyObject *t_unlocalizednumberformatter_notation(
@@ -542,7 +547,9 @@ static PyObject *t_unlocalizednumberformatter_locale(
 
 static PyMethodDef t_unlocalizednumberformatter_methods[] = {
     DECLARE_METHOD(t_unlocalizednumberformatter, unit, METH_O),
+#if U_ICU_VERSION_HEX < VERSION_HEX(64, 0, 0)
     DECLARE_METHOD(t_unlocalizednumberformatter, rounding, METH_O),
+#endif
     DECLARE_METHOD(t_unlocalizednumberformatter, symbols, METH_O),
     DECLARE_METHOD(t_unlocalizednumberformatter, notation, METH_O),
     DECLARE_METHOD(t_unlocalizednumberformatter, sign, METH_O),
@@ -570,8 +577,10 @@ public:
 
 static PyObject *t_localizednumberformatter_unit(
     t_localizednumberformatter *self, PyObject *arg);
+#if U_ICU_VERSION_HEX < VERSION_HEX(64, 0, 0)
 static PyObject *t_localizednumberformatter_rounding(
     t_localizednumberformatter *self, PyObject *arg);
+#endif
 static PyObject *t_localizednumberformatter_symbols(
     t_localizednumberformatter *self, PyObject *arg);
 static PyObject *t_localizednumberformatter_notation(
@@ -594,7 +603,9 @@ static PyObject *t_localizednumberformatter_formatDecimal(
 
 static PyMethodDef t_localizednumberformatter_methods[] = {
     DECLARE_METHOD(t_localizednumberformatter, unit, METH_O),
+#if U_ICU_VERSION_HEX < VERSION_HEX(64, 0, 0)
     DECLARE_METHOD(t_localizednumberformatter, rounding, METH_O),
+#endif
     DECLARE_METHOD(t_localizednumberformatter, symbols, METH_O),
     DECLARE_METHOD(t_localizednumberformatter, notation, METH_O),
     DECLARE_METHOD(t_localizednumberformatter, sign, METH_O),
@@ -681,6 +692,8 @@ static PyMethodDef t_integerwidth_methods[] = {
 DECLARE_BY_VALUE_TYPE(IntegerWidth, t_integerwidth, UMemory, IntegerWidth,
                       abstract_init);
 
+
+#if U_ICU_VERSION_HEX < VERSION_HEX(64, 0, 0)
 
 /* Rounder */
 
@@ -778,7 +791,8 @@ static PyMethodDef t_currencyrounder_methods[] = {
 DECLARE_BY_VALUE_TYPE(CurrencyRounder, t_currencyrounder, Rounder,
                       CurrencyRounder, abstract_init);
 
-#endif
+#endif  // ICU < 64
+#endif  // ICU >= 60
 
 
 /* DecimalFormatSymbols */
@@ -2898,6 +2912,7 @@ static PyObject *t_unlocalizednumberformatter_unit(
     return PyErr_SetArgsError((PyObject *) self, "unit", arg);
 }
 
+#if U_ICU_VERSION_HEX < VERSION_HEX(64, 0, 0)
 static PyObject *t_unlocalizednumberformatter_rounding(
     t_unlocalizednumberformatter *self, PyObject *arg)
 {
@@ -2909,6 +2924,7 @@ static PyObject *t_unlocalizednumberformatter_rounding(
 
     return PyErr_SetArgsError((PyObject *) self, "rounding", arg);
 }
+#endif
 
 static PyObject *t_unlocalizednumberformatter_symbols(
     t_unlocalizednumberformatter *self, PyObject *arg)
@@ -3041,6 +3057,7 @@ static PyObject *t_localizednumberformatter_unit(
     return PyErr_SetArgsError((PyObject *) self, "unit", arg);
 }
 
+#if U_ICU_VERSION_HEX < VERSION_HEX(64, 0, 0)
 static PyObject *t_localizednumberformatter_rounding(
     t_localizednumberformatter *self, PyObject *arg)
 {
@@ -3052,6 +3069,7 @@ static PyObject *t_localizednumberformatter_rounding(
 
     return PyErr_SetArgsError((PyObject *) self, "rounding", arg);
 }
+#endif
 
 static PyObject *t_localizednumberformatter_symbols(
     t_localizednumberformatter *self, PyObject *arg)
@@ -3140,17 +3158,33 @@ static PyObject *t_localizednumberformatter_formatInt(
 
     if (!parseArg(arg, "i", &n))
     {
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+        STATUS_CALL(u = self->object->formatInt(n, status).toString(status));
+#else
         STATUS_CALL(u = self->object->formatInt(n, status).toString());
+#endif
         return PyUnicode_FromUnicodeString(&u);
     }
     if (!parseArg(arg, "d", &d))
     {
-        STATUS_CALL(u = self->object->formatInt((int64_t) d, status).toString());
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+        STATUS_CALL(u = self->object->formatInt(
+            (int64_t) d, status).toString(status));
+#else
+        STATUS_CALL(u = self->object->formatInt(
+            (int64_t) d, status).toString());
+#endif
         return PyUnicode_FromUnicodeString(&u);
     }
     if (!parseArg(arg, "L", &l))
     {
-        STATUS_CALL(u = self->object->formatInt((int64_t) l, status).toString());
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+        STATUS_CALL(u = self->object->formatInt(
+            (int64_t) l, status).toString(status));
+#else
+        STATUS_CALL(u = self->object->formatInt(
+            (int64_t) l, status).toString());
+#endif
         return PyUnicode_FromUnicodeString(&u);
     }
 
@@ -3167,17 +3201,33 @@ static PyObject *t_localizednumberformatter_formatDouble(
 
     if (!parseArg(arg, "i", &n))
     {
-        STATUS_CALL(u = self->object->formatDouble((double) n, status).toString());
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+        STATUS_CALL(u = self->object->formatDouble(
+            (double) n, status).toString(status));
+#else
+        STATUS_CALL(u = self->object->formatDouble(
+            (double) n, status).toString());
+#endif
         return PyUnicode_FromUnicodeString(&u);
     }
     if (!parseArg(arg, "d", &d))
     {
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+        STATUS_CALL(u = self->object->formatDouble(d, status).toString(status));
+#else
         STATUS_CALL(u = self->object->formatDouble(d, status).toString());
+#endif
         return PyUnicode_FromUnicodeString(&u);
     }
     if (!parseArg(arg, "L", &l))
     {
-        STATUS_CALL(u = self->object->formatDouble((double) l, status).toString());
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+        STATUS_CALL(u = self->object->formatDouble(
+            (double) l, status).toString(status));
+#else
+        STATUS_CALL(u = self->object->formatDouble(
+            (double) l, status).toString());
+#endif
         return PyUnicode_FromUnicodeString(&u);
     }
 
@@ -3192,7 +3242,13 @@ static PyObject *t_localizednumberformatter_formatDecimal(
 
     if (!parseArg(arg, "c", &s))
     {
-        STATUS_CALL(u = self->object->formatDecimal(s, status).toString());
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+        STATUS_CALL(u = self->object->formatDecimal(
+            s, status).toString(status));
+#else
+        STATUS_CALL(u = self->object->formatDecimal(
+            s, status).toString());
+#endif
         return PyUnicode_FromUnicodeString(&u);
     }
 
@@ -3278,6 +3334,8 @@ static PyObject *t_integerwidth_truncateAt(t_integerwidth *self, PyObject *arg)
 
 
 /* Rounder */
+
+#if U_ICU_VERSION_HEX < VERSION_HEX(64, 0, 0)
 
 static PyObject *t_rounder_unlimited(PyTypeObject *type, PyObject *args)
 {
@@ -3453,7 +3511,8 @@ static PyObject *t_currencyrounder_withCurrency(
     return PyErr_SetArgsError((PyObject *) self, "withCurrency", arg);
 }
 
-#endif
+#endif  // ICU < 64
+#endif  // ICU >= 60
 
 
 void _init_numberformat(PyObject *m)
@@ -3488,10 +3547,12 @@ void _init_numberformat(PyObject *m)
     INSTALL_STRUCT(Notation, m);
     INSTALL_STRUCT(ScientificNotation, m);
     INSTALL_STRUCT(IntegerWidth, m);
+#if U_ICU_VERSION_HEX < VERSION_HEX(64, 0, 0)
     INSTALL_STRUCT(Rounder, m);
     INSTALL_STRUCT(FractionRounder, m);
     INSTALL_STRUCT(IncrementRounder, m);
     INSTALL_STRUCT(CurrencyRounder, m);
+#endif
 #endif
 
     INSTALL_STATIC_INT(DecimalFormatSymbols, kDecimalSeparatorSymbol);
