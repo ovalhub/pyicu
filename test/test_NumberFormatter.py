@@ -49,6 +49,15 @@ class TestNumberFormatter(TestCase):
                 .formatInt(1234)
             self.assertEqual(text, u'1,2\xa0k\xa0€')
 
+        if ICU_VERSION >= '62.0':
+            text = NumberFormatter.with_() \
+                .notation(Notation.compactShort()) \
+                .unit(CurrencyUnit('EUR')) \
+                .precision(Precision.maxSignificantDigits(2)) \
+                .locale(Locale.getFrance()) \
+                .formatInt(1234)
+            self.assertEqual(text, u'1,2\xa0k\xa0€')
+
     def testUnit(self):
 
         if ICU_VERSION >= '60.0':

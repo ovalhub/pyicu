@@ -50,6 +50,10 @@ DECLARE_CONSTANTS_TYPE(UNumberFormatStyle);
     DECLARE_CONSTANTS_TYPE(UCurrencyUsage);
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
+    DECLARE_CONSTANTS_TYPE(UNumberGroupingStrategy);
+#endif
+
 /* DecimalFormatSymbols */
 
 class t_decimalformatsymbols : public _wrapper {
@@ -491,6 +495,15 @@ using icu::number::IncrementRounder;
 using icu::number::CurrencyRounder;
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+using icu::number::Precision;
+using icu::number::FractionPrecision;
+using icu::number::SignificantDigitsPrecision;
+using icu::number::IncrementPrecision;
+using icu::number::CurrencyPrecision;
+using icu::number::Scale;
+#endif
+
 DECLARE_CONSTANTS_TYPE(UNumberSignDisplay);
 DECLARE_CONSTANTS_TYPE(UNumberDecimalSeparatorDisplay);
 DECLARE_CONSTANTS_TYPE(UNumberUnitWidth);
@@ -502,13 +515,20 @@ public:
     NumberFormatter *object;
 };
 
-static PyObject *t_numberformatter_with_(PyTypeObject *type, PyObject *args);
+static PyObject *t_numberformatter_with_(PyTypeObject *type);
 static PyObject *t_numberformatter_withLocale(PyTypeObject *type,
                                               PyObject *arg);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+static PyObject *t_numberformatter_forSkeleton(PyTypeObject *type,
+                                               PyObject *arg);
+#endif
 
 static PyMethodDef t_numberformatter_methods[] = {
     DECLARE_METHOD(t_numberformatter, with_, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_numberformatter, withLocale, METH_O | METH_CLASS),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+    DECLARE_METHOD(t_numberformatter, forSkeleton, METH_O | METH_CLASS),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -525,9 +545,27 @@ public:
 
 static PyObject *t_unlocalizednumberformatter_unit(
     t_unlocalizednumberformatter *self, PyObject *arg);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
+static PyObject *t_unlocalizednumberformatter_perUnit(
+    t_unlocalizednumberformatter *self, PyObject *arg);
+#endif
 #if U_ICU_VERSION_HEX < VERSION_HEX(64, 0, 0)
 static PyObject *t_unlocalizednumberformatter_rounding(
     t_unlocalizednumberformatter *self, PyObject *arg);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
+static PyObject *t_unlocalizednumberformatter_grouping(
+    t_unlocalizednumberformatter *self, PyObject *arg);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+static PyObject *t_unlocalizednumberformatter_roundingMode(
+    t_unlocalizednumberformatter *self, PyObject *arg);
+static PyObject *t_unlocalizednumberformatter_precision(
+    t_unlocalizednumberformatter *self, PyObject *arg);
+static PyObject *t_unlocalizednumberformatter_scale(
+    t_unlocalizednumberformatter *self, PyObject *arg);
+static PyObject *t_unlocalizednumberformatter_toSkeleton(
+    t_unlocalizednumberformatter *self);
 #endif
 static PyObject *t_unlocalizednumberformatter_symbols(
     t_unlocalizednumberformatter *self, PyObject *arg);
@@ -547,8 +585,20 @@ static PyObject *t_unlocalizednumberformatter_locale(
 
 static PyMethodDef t_unlocalizednumberformatter_methods[] = {
     DECLARE_METHOD(t_unlocalizednumberformatter, unit, METH_O),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
+    DECLARE_METHOD(t_unlocalizednumberformatter, perUnit, METH_O),
+#endif
 #if U_ICU_VERSION_HEX < VERSION_HEX(64, 0, 0)
     DECLARE_METHOD(t_unlocalizednumberformatter, rounding, METH_O),
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
+    DECLARE_METHOD(t_unlocalizednumberformatter, grouping, METH_O),
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+    DECLARE_METHOD(t_unlocalizednumberformatter, roundingMode, METH_O),
+    DECLARE_METHOD(t_unlocalizednumberformatter, precision, METH_O),
+    DECLARE_METHOD(t_unlocalizednumberformatter, scale, METH_O),
+    DECLARE_METHOD(t_unlocalizednumberformatter, toSkeleton, METH_NOARGS),
 #endif
     DECLARE_METHOD(t_unlocalizednumberformatter, symbols, METH_O),
     DECLARE_METHOD(t_unlocalizednumberformatter, notation, METH_O),
@@ -577,9 +627,27 @@ public:
 
 static PyObject *t_localizednumberformatter_unit(
     t_localizednumberformatter *self, PyObject *arg);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
+static PyObject *t_localizednumberformatter_perUnit(
+    t_localizednumberformatter *self, PyObject *arg);
+#endif
 #if U_ICU_VERSION_HEX < VERSION_HEX(64, 0, 0)
 static PyObject *t_localizednumberformatter_rounding(
     t_localizednumberformatter *self, PyObject *arg);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
+static PyObject *t_localizednumberformatter_grouping(
+    t_localizednumberformatter *self, PyObject *arg);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+static PyObject *t_localizednumberformatter_roundingMode(
+    t_localizednumberformatter *self, PyObject *arg);
+static PyObject *t_localizednumberformatter_precision(
+    t_localizednumberformatter *self, PyObject *arg);
+static PyObject *t_localizednumberformatter_scale(
+    t_localizednumberformatter *self, PyObject *arg);
+static PyObject *t_localizednumberformatter_toSkeleton(
+    t_localizednumberformatter *self);
 #endif
 static PyObject *t_localizednumberformatter_symbols(
     t_localizednumberformatter *self, PyObject *arg);
@@ -603,8 +671,20 @@ static PyObject *t_localizednumberformatter_formatDecimal(
 
 static PyMethodDef t_localizednumberformatter_methods[] = {
     DECLARE_METHOD(t_localizednumberformatter, unit, METH_O),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
+    DECLARE_METHOD(t_localizednumberformatter, perUnit, METH_O),
+#endif
 #if U_ICU_VERSION_HEX < VERSION_HEX(64, 0, 0)
     DECLARE_METHOD(t_localizednumberformatter, rounding, METH_O),
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
+    DECLARE_METHOD(t_localizednumberformatter, grouping, METH_O),
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+    DECLARE_METHOD(t_localizednumberformatter, roundingMode, METH_O),
+    DECLARE_METHOD(t_localizednumberformatter, precision, METH_O),
+    DECLARE_METHOD(t_localizednumberformatter, scale, METH_O),
+    DECLARE_METHOD(t_localizednumberformatter, toSkeleton, METH_NOARGS),
 #endif
     DECLARE_METHOD(t_localizednumberformatter, symbols, METH_O),
     DECLARE_METHOD(t_localizednumberformatter, notation, METH_O),
@@ -792,6 +872,132 @@ DECLARE_BY_VALUE_TYPE(CurrencyRounder, t_currencyrounder, Rounder,
                       CurrencyRounder, abstract_init);
 
 #endif  // ICU < 64
+
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+
+/* Precision */
+
+class t_precision : public _wrapper {
+public:
+    Precision *object;
+};
+
+static PyObject *t_precision_unlimited(PyTypeObject *type, PyObject *args);
+static PyObject *t_precision_integer(PyTypeObject *type, PyObject *args);
+static PyObject *t_precision_fixedFraction(PyTypeObject *type, PyObject *arg);
+static PyObject *t_precision_minFraction(PyTypeObject *type, PyObject *arg);
+static PyObject *t_precision_maxFraction(PyTypeObject *type, PyObject *arg);
+static PyObject *t_precision_minMaxFraction(PyTypeObject *type, PyObject *args);
+static PyObject *t_precision_fixedSignificantDigits(PyTypeObject *type, PyObject *arg);
+static PyObject *t_precision_minSignificantDigits(PyTypeObject *type, PyObject *arg);
+static PyObject *t_precision_maxSignificantDigits(PyTypeObject *type, PyObject *arg);
+static PyObject *t_precision_minMaxSignificantDigits(PyTypeObject *type, PyObject *args);
+static PyObject *t_precision_increment(PyTypeObject *type, PyObject *arg);
+static PyObject *t_precision_currency(PyTypeObject *type, PyObject *arg);
+
+static PyMethodDef t_precision_methods[] = {
+    DECLARE_METHOD(t_precision, unlimited, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_precision, integer, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_precision, fixedFraction, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_precision, minFraction, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_precision, maxFraction, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_precision, minMaxFraction, METH_VARARGS | METH_CLASS),
+    DECLARE_METHOD(t_precision, fixedSignificantDigits, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_precision, minSignificantDigits, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_precision, maxSignificantDigits, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_precision, minMaxSignificantDigits, METH_VARARGS | METH_CLASS),
+    DECLARE_METHOD(t_precision, increment, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_precision, currency, METH_O | METH_CLASS),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_BY_VALUE_TYPE(Precision, t_precision, UMemory, Precision, abstract_init);
+
+/* FractionPrecision */
+
+class t_fractionprecision : public _wrapper {
+public:
+    FractionPrecision *object;
+};
+
+static PyObject *t_fractionprecision_minSignificantDigits(
+    t_fractionprecision *self, PyObject *arg);
+static PyObject *t_fractionprecision_maxSignificantDigits(
+    t_fractionprecision *self, PyObject *arg);
+
+static PyMethodDef t_fractionprecision_methods[] = {
+    DECLARE_METHOD(t_fractionprecision, minSignificantDigits, METH_O),
+    DECLARE_METHOD(t_fractionprecision, maxSignificantDigits, METH_O),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_BY_VALUE_TYPE(FractionPrecision, t_fractionprecision, Precision,
+                      FractionPrecision, abstract_init);
+
+
+/* IncrementPrecision */
+
+class t_incrementprecision : public _wrapper {
+public:
+    IncrementPrecision *object;
+};
+
+static PyObject *t_incrementprecision_withMinFraction(t_incrementprecision *self, PyObject *arg);
+
+static PyMethodDef t_incrementprecision_methods[] = {
+    DECLARE_METHOD(t_incrementprecision, withMinFraction, METH_O),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_BY_VALUE_TYPE(IncrementPrecision, t_incrementprecision, Precision,
+                      IncrementPrecision, abstract_init);
+
+
+/* CurrencyPrecision */
+
+class t_currencyprecision : public _wrapper {
+public:
+    CurrencyPrecision *object;
+};
+
+static PyObject *t_currencyprecision_withCurrency(t_currencyprecision *self, PyObject *arg);
+
+static PyMethodDef t_currencyprecision_methods[] = {
+    DECLARE_METHOD(t_currencyprecision, withCurrency, METH_O),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_BY_VALUE_TYPE(CurrencyPrecision, t_currencyprecision, Precision,
+                      CurrencyPrecision, abstract_init);
+
+/* Scale */
+
+class t_scale : public _wrapper {
+public:
+    Scale *object;
+};
+
+static PyObject *t_scale_none(PyTypeObject *type, PyObject *args);
+static PyObject *t_scale_powerOfTen(PyTypeObject *type, PyObject *arg);
+static PyObject *t_scale_byDecimal(PyTypeObject *type, PyObject *arg);
+static PyObject *t_scale_byDouble(PyTypeObject *type, PyObject *arg);
+static PyObject *t_scale_byDoubleAndPowerOfTen(
+    PyTypeObject *type, PyObject *args);
+
+static PyMethodDef t_scale_methods[] = {
+    DECLARE_METHOD(t_scale, none, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_scale, powerOfTen, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_scale, byDecimal, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_scale, byDouble, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_scale, byDoubleAndPowerOfTen, METH_VARARGS | METH_CLASS),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_BY_VALUE_TYPE(Scale, t_scale, UMemory, Scale, abstract_init);
+
+#endif  // ICU >= 62
+
 #endif  // ICU >= 60
 
 
@@ -2686,8 +2892,7 @@ static PyObject *t_choiceformat_toPattern(t_choiceformat *self,
 static PyObject *t_choiceformat_applyPattern(t_choiceformat *self,
                                              PyObject *arg)
 {
-    UnicodeString *u;
-    UnicodeString _u;
+    UnicodeString *u, _u;
 
     if (!parseArg(arg, "S", &u, &_u))
     {
@@ -2863,10 +3068,11 @@ static PyObject *t_choiceformat_str(t_choiceformat *self)
 
 /* NumberFormatter */
 
-static PyObject *t_numberformatter_with_(PyTypeObject *type, PyObject *args)
+static PyObject *t_numberformatter_with_(PyTypeObject *type)
 {
     return wrap_UnlocalizedNumberFormatter(NumberFormatter::with());
 }
+
 static PyObject *t_numberformatter_withLocale(PyTypeObject *type,
                                               PyObject *arg)
 {
@@ -2877,6 +3083,24 @@ static PyObject *t_numberformatter_withLocale(PyTypeObject *type,
 
     return PyErr_SetArgsError(type, "withLocale", arg);
 }
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+static PyObject *t_numberformatter_forSkeleton(PyTypeObject *type,
+                                               PyObject *arg)
+{
+    UnicodeString *u, _u;
+
+    if (!parseArg(arg, "S", &u, &_u))
+    {
+        UnlocalizedNumberFormatter result;
+        STATUS_CALL(result = NumberFormatter::forSkeleton(*u, status));
+
+        return wrap_UnlocalizedNumberFormatter(result);
+    }
+
+    return PyErr_SetArgsError(type, "forSkeleton", arg);
+}
+#endif
 
 
 /* UnlocalizedNumberFormatter */
@@ -2912,6 +3136,23 @@ static PyObject *t_unlocalizednumberformatter_unit(
     return PyErr_SetArgsError((PyObject *) self, "unit", arg);
 }
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
+static PyObject *t_unlocalizednumberformatter_perUnit(
+    t_unlocalizednumberformatter *self, PyObject *arg)
+{
+    MeasureUnit *unit;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(MeasureUnit), &unit))
+    {
+        return wrap_UnlocalizedNumberFormatter(
+            self->object->adoptPerUnit(
+                dynamic_cast<MeasureUnit *>(unit->clone())));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "perUnit", arg);
+}
+#endif
+
 #if U_ICU_VERSION_HEX < VERSION_HEX(64, 0, 0)
 static PyObject *t_unlocalizednumberformatter_rounding(
     t_unlocalizednumberformatter *self, PyObject *arg)
@@ -2923,6 +3164,68 @@ static PyObject *t_unlocalizednumberformatter_rounding(
             self->object->rounding(*((t_rounder *) rounder)->object));
 
     return PyErr_SetArgsError((PyObject *) self, "rounding", arg);
+}
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
+static PyObject *t_unlocalizednumberformatter_grouping(
+    t_unlocalizednumberformatter *self, PyObject *arg)
+{
+    int strategy;
+
+    if (!parseArg(arg, "i", &strategy))
+        return wrap_UnlocalizedNumberFormatter(
+            self->object->grouping((UNumberGroupingStrategy) strategy));
+
+    return PyErr_SetArgsError((PyObject *) self, "grouping", arg);
+}
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+static PyObject *t_unlocalizednumberformatter_roundingMode(
+    t_unlocalizednumberformatter *self, PyObject *arg)
+{
+    int mode;
+
+    if (!parseArg(arg, "i", &mode))
+        return wrap_UnlocalizedNumberFormatter(
+            self->object->roundingMode((UNumberFormatRoundingMode) mode));
+
+    return PyErr_SetArgsError((PyObject *) self, "roundingMode", arg);
+}
+
+static PyObject *t_unlocalizednumberformatter_precision(
+    t_unlocalizednumberformatter *self, PyObject *arg)
+{
+    PyObject *precision;
+
+    if (!parseArg(arg, "O", &PrecisionType_, &precision))
+        return wrap_UnlocalizedNumberFormatter(
+            self->object->precision(*((t_precision *) precision)->object));
+
+    return PyErr_SetArgsError((PyObject *) self, "precision", arg);
+}
+
+static PyObject *t_unlocalizednumberformatter_scale(
+    t_unlocalizednumberformatter *self, PyObject *arg)
+{
+    PyObject *scale;
+
+    if (!parseArg(arg, "O", &ScaleType_, &scale))
+        return wrap_UnlocalizedNumberFormatter(
+            self->object->scale(*((t_scale *) scale)->object));
+
+    return PyErr_SetArgsError((PyObject *) self, "scale", arg);
+}
+
+static PyObject *t_unlocalizednumberformatter_toSkeleton(
+    t_unlocalizednumberformatter *self)
+{
+    UnicodeString u;
+
+    STATUS_CALL(u = self->object->toSkeleton(status));
+    
+    return PyUnicode_FromUnicodeString(&u);
 }
 #endif
 
@@ -3057,6 +3360,23 @@ static PyObject *t_localizednumberformatter_unit(
     return PyErr_SetArgsError((PyObject *) self, "unit", arg);
 }
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
+static PyObject *t_localizednumberformatter_perUnit(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    MeasureUnit *unit;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(MeasureUnit), &unit))
+    {
+        return wrap_LocalizedNumberFormatter(
+            self->object->adoptPerUnit(
+                dynamic_cast<MeasureUnit *>(unit->clone())));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "perUnit", arg);
+}
+#endif
+
 #if U_ICU_VERSION_HEX < VERSION_HEX(64, 0, 0)
 static PyObject *t_localizednumberformatter_rounding(
     t_localizednumberformatter *self, PyObject *arg)
@@ -3068,6 +3388,68 @@ static PyObject *t_localizednumberformatter_rounding(
             self->object->rounding(*((t_rounder *) rounder)->object));
 
     return PyErr_SetArgsError((PyObject *) self, "rounding", arg);
+}
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
+static PyObject *t_localizednumberformatter_grouping(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    int strategy;
+
+    if (!parseArg(arg, "i", &strategy))
+        return wrap_LocalizedNumberFormatter(
+            self->object->grouping((UNumberGroupingStrategy) strategy));
+
+    return PyErr_SetArgsError((PyObject *) self, "grouping", arg);
+}
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+static PyObject *t_localizednumberformatter_roundingMode(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    int mode;
+
+    if (!parseArg(arg, "i", &mode))
+        return wrap_LocalizedNumberFormatter(
+            self->object->roundingMode((UNumberFormatRoundingMode) mode));
+
+    return PyErr_SetArgsError((PyObject *) self, "roundingMode", arg);
+}
+
+static PyObject *t_localizednumberformatter_precision(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    PyObject *precision;
+
+    if (!parseArg(arg, "O", &PrecisionType_, &precision))
+        return wrap_LocalizedNumberFormatter(
+            self->object->precision(*((t_precision *) precision)->object));
+
+    return PyErr_SetArgsError((PyObject *) self, "precision", arg);
+}
+
+static PyObject *t_localizednumberformatter_scale(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    PyObject *scale;
+
+    if (!parseArg(arg, "O", &ScaleType_, &scale))
+        return wrap_LocalizedNumberFormatter(
+            self->object->scale(*((t_scale *) scale)->object));
+
+    return PyErr_SetArgsError((PyObject *) self, "scale", arg);
+}
+
+static PyObject *t_localizednumberformatter_toSkeleton(
+    t_localizednumberformatter *self)
+{
+    UnicodeString u;
+
+    STATUS_CALL(u = self->object->toSkeleton(status));
+    
+    return PyUnicode_FromUnicodeString(&u);
 }
 #endif
 
@@ -3512,6 +3894,231 @@ static PyObject *t_currencyrounder_withCurrency(
 }
 
 #endif  // ICU < 64
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+
+/* Precision */
+
+static PyObject *t_precision_unlimited(PyTypeObject *type, PyObject *args)
+{
+    return wrap_Precision(Precision::unlimited());
+}
+
+static PyObject *t_precision_integer(PyTypeObject *type, PyObject *args)
+{
+    return wrap_FractionPrecision(Precision::integer());
+}
+
+static PyObject *t_precision_fixedFraction(PyTypeObject *type, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_FractionPrecision(Precision::fixedFraction(n));
+
+    return PyErr_SetArgsError(type, "fixedFraction", arg);
+}
+
+static PyObject *t_precision_minFraction(PyTypeObject *type, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_FractionPrecision(Precision::minFraction(n));
+
+    return PyErr_SetArgsError(type, "minFraction", arg);
+}
+
+static PyObject *t_precision_maxFraction(PyTypeObject *type, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_FractionPrecision(Precision::maxFraction(n));
+
+    return PyErr_SetArgsError(type, "maxFraction", arg);
+}
+
+static PyObject *t_precision_minMaxFraction(PyTypeObject *type, PyObject *args)
+{
+    int n0, n1;
+
+    if (!parseArgs(args, "ii", &n0, &n1))
+        return wrap_FractionPrecision(Precision::minMaxFraction(n0, n1));
+
+    return PyErr_SetArgsError(type, "minMaxFraction", args);
+}
+
+static PyObject *t_precision_fixedSignificantDigits(PyTypeObject *type,
+                                                    PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_Precision(Precision::fixedSignificantDigits(n));
+
+    return PyErr_SetArgsError(type, "fixedSignificantDigits", arg);
+}
+
+static PyObject *t_precision_minSignificantDigits(PyTypeObject *type,
+                                                  PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_Precision(Precision::minSignificantDigits(n));
+
+    return PyErr_SetArgsError(type, "minSignificantDigits", arg);
+}
+
+static PyObject *t_precision_maxSignificantDigits(PyTypeObject *type,
+                                                  PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_Precision(Precision::maxSignificantDigits(n));
+
+    return PyErr_SetArgsError(type, "maxSignificantDigits", arg);
+}
+
+static PyObject *t_precision_minMaxSignificantDigits(PyTypeObject *type,
+                                                     PyObject *args)
+{
+    int n0, n1;
+
+    if (!parseArgs(args, "ii", &n0, &n1))
+        return wrap_Precision(Precision::minMaxSignificantDigits(n0, n1));
+
+    return PyErr_SetArgsError(type, "minMaxSignificantDigits", args);
+}
+
+static PyObject *t_precision_increment(PyTypeObject *type, PyObject *arg)
+{
+    double d;
+
+    if (!parseArg(arg, "d", &d))
+        return wrap_IncrementPrecision(Precision::increment(d));
+
+    return PyErr_SetArgsError(type, "increment", arg);
+}
+
+static PyObject *t_precision_currency(PyTypeObject *type, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_CurrencyPrecision(Precision::currency((UCurrencyUsage) n));
+
+    return PyErr_SetArgsError(type, "currency", arg);
+}
+
+/* FractionPrecision */
+
+static PyObject *t_fractionprecision_minSignificantDigits(
+    t_fractionprecision *self, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_Precision(self->object->minSignificantDigits(n));
+
+    return PyErr_SetArgsError(
+        (PyObject *) self, "minSignificantDigits", arg);
+}
+
+static PyObject *t_fractionprecision_maxSignificantDigits(
+    t_fractionprecision *self, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_Precision(self->object->maxSignificantDigits(n));
+
+    return PyErr_SetArgsError(
+        (PyObject *) self, "maxSignificantDigits", arg);
+}
+
+
+/* IncrementPrecision */
+
+static PyObject *t_incrementprecision_withMinFraction(
+    t_incrementprecision *self, PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+        return wrap_Precision(self->object->withMinFraction(n));
+
+    return PyErr_SetArgsError((PyObject *) self, "withMinFraction", arg);
+}
+
+
+/* CurrencyPrecision */
+
+static PyObject *t_currencyprecision_withCurrency(
+    t_currencyprecision *self, PyObject *arg)
+{
+    CurrencyUnit *unit;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(CurrencyUnit), &unit))
+        return wrap_Precision(self->object->withCurrency(*unit));
+
+    return PyErr_SetArgsError((PyObject *) self, "withCurrency", arg);
+}
+
+
+/* Scale */
+
+static PyObject *t_scale_none(PyTypeObject *type, PyObject *args)
+{
+    return wrap_Scale(Scale::none());
+}
+
+static PyObject *t_scale_powerOfTen(PyTypeObject *type, PyObject *arg)
+{
+    int power;
+
+    if (!parseArg(arg, "i", &power))
+        return wrap_Scale(Scale::powerOfTen(power));
+
+    return PyErr_SetArgsError(type, "powerOfTen", arg);
+}
+
+static PyObject *t_scale_byDecimal(PyTypeObject *type, PyObject *arg)
+{
+    charsArg multiplicand;
+
+    if (!parseArg(arg, "n", &multiplicand))
+        return wrap_Scale(Scale::byDecimal(multiplicand.c_str()));
+
+    return PyErr_SetArgsError(type, "byDecimal", arg);
+}
+
+static PyObject *t_scale_byDouble(PyTypeObject *type, PyObject *arg)
+{
+    double multiplicand;
+
+    if (!parseArg(arg, "d", &multiplicand))
+        return wrap_Scale(Scale::byDouble(multiplicand));
+
+    return PyErr_SetArgsError(type, "byDouble", arg);
+}
+
+static PyObject *t_scale_byDoubleAndPowerOfTen(PyTypeObject *type,
+                                               PyObject *args)
+{
+    double multiplicand;
+    int power;
+
+    if (!parseArgs(args, "id", &power, &multiplicand))
+        return wrap_Scale(Scale::byDoubleAndPowerOfTen(multiplicand, power));
+
+    return PyErr_SetArgsError(type, "byDoubleAndPowerOfTen", args);
+}
+
+#endif  // ICU >= 62
+
 #endif  // ICU >= 60
 
 
@@ -3552,6 +4159,13 @@ void _init_numberformat(PyObject *m)
     INSTALL_STRUCT(FractionRounder, m);
     INSTALL_STRUCT(IncrementRounder, m);
     INSTALL_STRUCT(CurrencyRounder, m);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+    INSTALL_STRUCT(Precision, m);
+    INSTALL_STRUCT(FractionPrecision, m);
+    INSTALL_STRUCT(IncrementPrecision, m);
+    INSTALL_STRUCT(CurrencyPrecision, m);
+    INSTALL_STRUCT(Scale, m);
 #endif
 #endif
 
@@ -3661,6 +4275,15 @@ void _init_numberformat(PyObject *m)
     INSTALL_ENUM(UNumberUnitWidth, "FULL_NAME", UNUM_UNIT_WIDTH_FULL_NAME);
     INSTALL_ENUM(UNumberUnitWidth, "ISO_CODE", UNUM_UNIT_WIDTH_ISO_CODE);
     INSTALL_ENUM(UNumberUnitWidth, "HIDDEN", UNUM_UNIT_WIDTH_HIDDEN);
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(11, 0, 0)
+    INSTALL_CONSTANTS_TYPE(UNumberGroupingStrategy, m);
+    INSTALL_ENUM(UNumberGroupingStrategy, "OFF", UNUM_GROUPING_OFF);
+    INSTALL_ENUM(UNumberGroupingStrategy, "MIN2", UNUM_GROUPING_MIN2);
+    INSTALL_ENUM(UNumberGroupingStrategy, "AUTO", UNUM_GROUPING_AUTO);
+    INSTALL_ENUM(UNumberGroupingStrategy, "ON_ALIGNED", UNUM_GROUPING_ON_ALIGNED);
+    INSTALL_ENUM(UNumberGroupingStrategy, "THOUSANDS", UNUM_GROUPING_THOUSANDS);
 #endif
 
     INSTALL_STATIC_INT(NumberFormat, kIntegerField);
