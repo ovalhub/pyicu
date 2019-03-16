@@ -3224,7 +3224,7 @@ static PyObject *t_unlocalizednumberformatter_toSkeleton(
     UnicodeString u;
 
     STATUS_CALL(u = self->object->toSkeleton(status));
-    
+
     return PyUnicode_FromUnicodeString(&u);
 }
 #endif
@@ -3448,7 +3448,7 @@ static PyObject *t_localizednumberformatter_toSkeleton(
     UnicodeString u;
 
     STATUS_CALL(u = self->object->toSkeleton(status));
-    
+
     return PyUnicode_FromUnicodeString(&u);
 }
 #endif
@@ -4277,7 +4277,7 @@ void _init_numberformat(PyObject *m)
     INSTALL_ENUM(UNumberUnitWidth, "HIDDEN", UNUM_UNIT_WIDTH_HIDDEN);
 #endif
 
-#if U_ICU_VERSION_HEX >= VERSION_HEX(11, 0, 0)
+#if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
     INSTALL_CONSTANTS_TYPE(UNumberGroupingStrategy, m);
     INSTALL_ENUM(UNumberGroupingStrategy, "OFF", UNUM_GROUPING_OFF);
     INSTALL_ENUM(UNumberGroupingStrategy, "MIN2", UNUM_GROUPING_MIN2);

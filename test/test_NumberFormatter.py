@@ -7,10 +7,10 @@
 # to deal in the Software without restriction, including without limitation
 # the rights to use, copy, modify, merge, publish, distribute, sublicense,
 # and/or sell copies of the Software, and to permit persons to whom the
-# Software is furnished to do so, subject to the following conditions: 
+# Software is furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included
-# in all copies or substantial portions of the Software. 
+# in all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
 # OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -74,6 +74,16 @@ class TestNumberFormatter(TestCase):
                 self.assertEqual(text, u'+1\u202f234\xa0mètres')
             else:
                 self.assertEqual(text, u'+1\xa0234 mètres')
+
+        if ICU_VERSION >= '61.0':
+            formatter = UnlocalizedNumberFormatter() \
+                .sign(UNumberSignDisplay.ALWAYS) \
+                .unit(MeasureUnit.createMeter()) \
+                .perUnit(MeasureUnit.createSecond()) \
+                .unitWidth(UNumberUnitWidth.FULL_NAME)
+
+            text = formatter.locale(Locale.getUS()).formatInt(1234)
+            self.assertEqual(text, u'+1,234 meters per second')
 
 
 if __name__ == "__main__":
