@@ -194,6 +194,30 @@ static PyObject *t_measureunit_createPercent(PyTypeObject *type);
 static PyObject *t_measureunit_createPermille(PyTypeObject *type);
 static PyObject *t_measureunit_createPetabyte(PyTypeObject *type);
 #endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+static PyObject *t_measureunit_createBarrel(PyTypeObject *type);
+static PyObject *t_measureunit_createBritishThermalUnit(PyTypeObject *type);
+static PyObject *t_measureunit_createDalton(PyTypeObject *type);
+static PyObject *t_measureunit_createDayPerson(PyTypeObject *type);
+static PyObject *t_measureunit_createDunam(PyTypeObject *type);
+static PyObject *t_measureunit_createEarthMass(PyTypeObject *type);
+static PyObject *t_measureunit_createElectronvolt(PyTypeObject *type);
+static PyObject *t_measureunit_createFluidOunceImperial(PyTypeObject *type);
+static PyObject *t_measureunit_createKilopascal(PyTypeObject *type);
+static PyObject *t_measureunit_createMegapascal(PyTypeObject *type);
+static PyObject *t_measureunit_createMole(PyTypeObject *type);
+static PyObject *t_measureunit_createMonthPerson(PyTypeObject *type);
+static PyObject *t_measureunit_createNewton(PyTypeObject *type);
+static PyObject *t_measureunit_createNewtonMeter(PyTypeObject *type);
+static PyObject *t_measureunit_createPermyriad(PyTypeObject *type);
+static PyObject *t_measureunit_createPoundFoot(PyTypeObject *type);
+static PyObject *t_measureunit_createPoundForce(PyTypeObject *type);
+static PyObject *t_measureunit_createSolarLuminosity(PyTypeObject *type);
+static PyObject *t_measureunit_createSolarMass(PyTypeObject *type);
+static PyObject *t_measureunit_createSolarRadius(PyTypeObject *type);
+static PyObject *t_measureunit_createWeekPerson(PyTypeObject *type);
+static PyObject *t_measureunit_createYearPerson(PyTypeObject *type);
+#endif
 
 static PyMethodDef t_measureunit_methods[] = {
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
@@ -350,6 +374,30 @@ static PyMethodDef t_measureunit_methods[] = {
     DECLARE_METHOD(t_measureunit, createPercent, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_measureunit, createPermille, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_measureunit, createPetabyte, METH_NOARGS | METH_CLASS),
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+    DECLARE_METHOD(t_measureunit, createBarrel, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createBritishThermalUnit, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createDalton, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createDayPerson, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createDunam, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createEarthMass, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createElectronvolt, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createFluidOunceImperial, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createKilopascal, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createMegapascal, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createMole, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createMonthPerson, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createNewton, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createNewtonMeter, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createPermyriad, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createPoundFoot, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createPoundForce, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createSolarLuminosity, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createSolarMass, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createSolarRadius, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createWeekPerson, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createYearPerson, METH_NOARGS | METH_CLASS),
 #endif
     { NULL, NULL, 0, NULL }
 };
@@ -1715,6 +1763,186 @@ static PyObject *t_measureunit_createPetabyte(PyTypeObject *type)
 {
     MeasureUnit *mu;
     STATUS_CALL(mu = MeasureUnit::createPetabyte(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+
+static PyObject *t_measureunit_createBarrel(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createBarrel(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createBritishThermalUnit(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createBritishThermalUnit(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createDalton(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createDalton(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createDayPerson(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createDayPerson(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createDunam(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createDunam(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createEarthMass(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createEarthMass(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createElectronvolt(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createElectronvolt(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createFluidOunceImperial(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createFluidOunceImperial(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createKilopascal(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createKilopascal(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createMegapascal(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createMegapascal(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createMole(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createMole(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createMonthPerson(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createMonthPerson(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createNewton(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createNewton(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createNewtonMeter(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createNewtonMeter(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createPermyriad(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createPermyriad(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createPoundFoot(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createPoundFoot(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createPoundForce(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createPoundForce(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createSolarLuminosity(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createSolarLuminosity(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createSolarMass(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createSolarMass(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createSolarRadius(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createSolarRadius(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createWeekPerson(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createWeekPerson(status));
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_createYearPerson(PyTypeObject *type)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = MeasureUnit::createYearPerson(status));
 
     return wrap_MeasureUnit(mu, T_OWNED);
 }

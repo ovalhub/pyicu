@@ -47,7 +47,6 @@ static void registerErrors(PyObject *messages)
     _setMsg(messages, U_SORT_KEY_TOO_SHORT_WARNING, "Number of levels requested in getBound is higher than the number of levels in the sort key");
     _setMsg(messages, U_AMBIGUOUS_ALIAS_WARNING, "This converter alias can go to different converter implementations");
     _setMsg(messages, U_DIFFERENT_UCA_VERSION, "ucol_open encountered a mismatch between UCA version and collator image version, so the collator was constructed from rules. No impact to further function");
-    _setMsg(messages, U_ERROR_WARNING_LIMIT, "This must always be the last warning value to indicate the limit for UErrorCode warnings (last warning code +1)");
     _setMsg(messages, U_ZERO_ERROR, "No error, no warning.");
     _setMsg(messages, U_ILLEGAL_ARGUMENT_ERROR, "Illegal argument");
     _setMsg(messages, U_MISSING_RESOURCE_ERROR, "The requested resource cannot be found");
@@ -78,7 +77,6 @@ static void registerErrors(PyObject *messages)
     _setMsg(messages, U_INVALID_STATE_ERROR, "Requested operation can not be completed with ICU in its current state");
     _setMsg(messages, U_COLLATOR_VERSION_MISMATCH, "Collator version is not compatible with the base version");
     _setMsg(messages, U_USELESS_COLLATOR_ERROR, "Collator is options only and no base is specified");
-    _setMsg(messages, U_STANDARD_ERROR_LIMIT, "This must always be the last value to indicate the limit for standard errors");
     _setMsg(messages, U_BAD_VARIABLE_DEFINITION, "Missing '$' or duplicate variable name");
     _setMsg(messages, U_PARSE_ERROR_START, "Start of Transliterator errors");
     _setMsg(messages, U_MALFORMED_RULE, "Elements of a rule are misplaced");
@@ -115,7 +113,6 @@ static void registerErrors(PyObject *messages)
     _setMsg(messages, U_INTERNAL_TRANSLITERATOR_ERROR, "Internal transliterator system error");
     _setMsg(messages, U_INVALID_ID, "A '::id' rule specifies an unknown transliterator");
     _setMsg(messages, U_INVALID_FUNCTION, "A '&fn()' rule specifies an unknown transliterator");
-    _setMsg(messages, U_PARSE_ERROR_LIMIT, "The limit for Transliterator errors");
     _setMsg(messages, U_UNEXPECTED_TOKEN, "Syntax error in format pattern");
     _setMsg(messages, U_FMT_PARSE_ERROR_START, "Start of format library errors");
     _setMsg(messages, U_MULTIPLE_DECIMAL_SEPARATORS, "More than one decimal separator in number pattern");
@@ -129,7 +126,6 @@ static void registerErrors(PyObject *messages)
     _setMsg(messages, U_UNMATCHED_BRACES, "Braces do not match in message pattern");
     _setMsg(messages, U_UNSUPPORTED_PROPERTY, "UNUSED as of ICU 2.4");
     _setMsg(messages, U_UNSUPPORTED_ATTRIBUTE, "UNUSED as of ICU 2.4");
-    _setMsg(messages, U_FMT_PARSE_ERROR_LIMIT, "The limit for format library errors");
     _setMsg(messages, U_BRK_ERROR_START, "Start of codes indicating Break Iterator failures");
     _setMsg(messages, U_BRK_INTERNAL_ERROR, "An internal error (bug) was detected.");
     _setMsg(messages, U_BRK_HEX_DIGITS_EXPECTED, "Hex digits expected as part of a escaped char in a rule.");
@@ -145,7 +141,6 @@ static void registerErrors(PyObject *messages)
     _setMsg(messages, U_BRK_RULE_EMPTY_SET, "Rule contains an empty Unicode Set.");
     _setMsg(messages, U_BRK_UNRECOGNIZED_OPTION, "!!option in RBBI rules not recognized.");
     _setMsg(messages, U_BRK_MALFORMED_RULE_TAG, "The {nnn} tag on a rule is mal formed");
-    _setMsg(messages, U_BRK_ERROR_LIMIT, "This must always be the last value to indicate the limit for Break Iterator failures");
     _setMsg(messages, U_REGEX_ERROR_START, "Start of codes indicating Regexp failures");
     _setMsg(messages, U_REGEX_INTERNAL_ERROR, "An internal error (bug) was detected.");
     _setMsg(messages, U_REGEX_RULE_SYNTAX, "Syntax error in regexp pattern.");
@@ -161,8 +156,15 @@ static void registerErrors(PyObject *messages)
     _setMsg(messages, U_REGEX_INVALID_FLAG, "Invalid value for match mode flags.");
     _setMsg(messages, U_REGEX_LOOK_BEHIND_LIMIT, "Look-Behind pattern matches must have a bounded maximum length.");
     _setMsg(messages, U_REGEX_SET_CONTAINS_STRING, "Regexps cannot have UnicodeSets containing strings.");
-    _setMsg(messages, U_REGEX_ERROR_LIMIT, "This must always be the last value to indicate the limit for regexp errors");
-    _setMsg(messages, U_ERROR_LIMIT, "This must always be the last value to indicate the limit for UErrorCode (last error code +1)");
+#if U_ICU_VERSION_HEX >= 0x04080000
+    _setMsg(messages, U_FORMAT_INEXACT_ERROR, "Cannot format a number exactly and rounding mode is ROUND_UNNECESSARY");
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
+    _setMsg(messages, U_NUMBER_ARG_OUTOFBOUNDS_ERROR, "The argument to a NumberFormatter helper method was out of bounds; the bounds are usually 0 to 999");
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+    _setMsg(messages, U_NUMBER_SKELETON_SYNTAX_ERROR, "The number skeleton passed to C++ NumberFormatter or C UNumberFormatter was invalid or contained a syntax error");
+#endif
 }
 
 void _init_errors(PyObject *m)

@@ -1,7 +1,9 @@
-Version 2.2 ->
+Version 2.2 -> 2.3
 ------------------
   - added support for also trying pkg-config for build configuration (Linux)
   - fixed compilation issue in collator.cpp when not using c++11 (and icu < 60)
+  - added support for ICU 64.1
+  - filled out wrappers for missing NumberFormatter methods and classes
   - 
 
 Version 2.1 -> 2.2

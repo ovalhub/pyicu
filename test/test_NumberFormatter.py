@@ -40,7 +40,7 @@ class TestNumberFormatter(TestCase):
 
     def testFancy(self):
 
-        if ICU_VERSION >= '60.0' and ICU_VERSION < '64.1':
+        if ICU_VERSION >= '60.0' and ICU_VERSION < '64.0':
             text = NumberFormatter.with_() \
                 .notation(Notation.compactShort()) \
                 .unit(CurrencyUnit('EUR')) \
