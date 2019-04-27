@@ -51,6 +51,9 @@ DECLARE_CONSTANTS_TYPE(UNumberFormatStyle);
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
+#if U_ICU_VERSION_HEX < VERSION_HEX(63, 0, 0)
+    using UNumberGroupingStrategy = UGroupingStrategy;
+#endif
     DECLARE_CONSTANTS_TYPE(UNumberGroupingStrategy);
 #endif
 
