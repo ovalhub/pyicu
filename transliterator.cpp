@@ -649,7 +649,7 @@ static PyObject *t_transliterator_registerInstance(PyTypeObject *type,
 
     if (!parseArgs(args, "P", TYPE_CLASSID(Transliterator), &transliterator))
     {
-        Transliterator::registerInstance(transliterator);
+        Transliterator::registerInstance(transliterator->clone());
         Py_RETURN_NONE;
     }
 
