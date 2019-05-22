@@ -1,21 +1,20 @@
 language: python
 sudo: false
-dist: trusty
+dist: xenial
 
 notifications:
   email: false
 
 python:
-  - "2.6"
   - "2.7"
-  - "3.3"
   - "3.4"
   - "3.5"
   - "3.6"
+  - "3.7"
 
 env:
   global:
-    - ICU_VERSION="59.1"
+    - ICU_VERSION="64.2"
     - PYICU_LIBRARIES="icui18n:icuuc:icudata"
     - PYICU_INCLUDES="/tmp/icu4c/include"
     - PYICU_LFLAGS="-L/tmp/icu4c/lib"
@@ -30,7 +29,7 @@ cache:
 before_install:
   # install ICU4C from source
   - mkdir -p /tmp/icu4c
-  - export ICU_URL="https://downloads.sourceforge.net/project/icu/ICU4C/$ICU_VERSION/icu4c-${ICU_VERSION/./_}-src.tgz"
+  - export ICU_URL="https://github.com/unicode-org/icu/releases/download/release-${ICU_VERSION/./-}/icu4c-${ICU_VERSION/./_}-src.tgz"
   - wget -nv -O /tmp/icu4c/icu4c.tgz "$ICU_URL"
   - tar -xzf /tmp/icu4c/icu4c.tgz -C /tmp/icu4c
   - pushd /tmp/icu4c/icu/source && ./configure --prefix=/tmp/icu4c && make && make install && popd
