@@ -1093,6 +1093,8 @@ static int t_rulebasedbreakiterator_init(t_rulebasedbreakiterator *self,
                 self->binaryRules = buffer;
                 Py_INCREF(buffer);
                 break;
+            } else {
+              delete iterator;
             }
         }
 #endif
