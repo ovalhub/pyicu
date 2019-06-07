@@ -259,22 +259,35 @@ class t_rulebasedbreakiterator : public _wrapper {
 public:
     RuleBasedBreakIterator *object;
     PyObject *text;  /* used by inherited BreakIterator.setText() */
+    PyObject *binaryRules;
 };
 
 static int t_rulebasedbreakiterator_init(t_rulebasedbreakiterator *self,
                                          PyObject *args, PyObject *kwds);
 static PyObject *t_rulebasedbreakiterator_getRules(t_rulebasedbreakiterator *self, PyObject *args);
 static PyObject *t_rulebasedbreakiterator_getRuleStatus(t_rulebasedbreakiterator *self);
+#if U_ICU_VERSION_HEX >= 0x04080000
+static PyObject *t_rulebasedbreakiterator_getBinaryRules(t_rulebasedbreakiterator *self);
+#endif
 
 static PyMethodDef t_rulebasedbreakiterator_methods[] = {
     DECLARE_METHOD(t_rulebasedbreakiterator, getRules, METH_VARARGS),
     DECLARE_METHOD(t_rulebasedbreakiterator, getRuleStatus, METH_NOARGS),
+#if U_ICU_VERSION_HEX >= 0x04080000
+    DECLARE_METHOD(t_rulebasedbreakiterator, getBinaryRules, METH_NOARGS),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
+static void t_rulebasedbreakiterator_dealloc(t_rulebasedbreakiterator *self)
+{
+    Py_CLEAR(self->binaryRules);
+    t_breakiterator_dealloc((t_breakiterator *) self);
+}
+
 DECLARE_TYPE(RuleBasedBreakIterator, t_rulebasedbreakiterator,
              BreakIterator, RuleBasedBreakIterator,
-             t_rulebasedbreakiterator_init, NULL);
+             t_rulebasedbreakiterator_init, t_rulebasedbreakiterator_dealloc);
 
 /* DictionaryBasedBreakIterator */
 
@@ -1055,6 +1068,7 @@ static int t_rulebasedbreakiterator_init(t_rulebasedbreakiterator *self,
 {
     UnicodeString *u, _u;
     charsArg path, name;
+    PyObject *buffer;
 
     switch (PyTuple_Size(args)) {
       case 0:
@@ -1062,6 +1076,26 @@ static int t_rulebasedbreakiterator_init(t_rulebasedbreakiterator *self,
         self->flags = T_OWNED;
         break;
       case 1:
+#if U_ICU_VERSION_HEX >= 0x04080000
+        if (!parseArgs(args, "C", &buffer))
+        {
+            UErrorCode status = U_ZERO_ERROR;
+            RuleBasedBreakIterator *iterator = new RuleBasedBreakIterator(
+                (const uint8_t *) PyBytes_AS_STRING(buffer),
+                (uint32_t) PyBytes_GET_SIZE(buffer), status);
+
+            // since "C" and "S" overlap fall through to "S" case if failure
+            if (!U_FAILURE(status))
+            {
+                self->object = iterator;
+                self->flags = T_OWNED;
+                // keep buffer for lifetime of object
+                self->binaryRules = buffer;
+                Py_INCREF(buffer);
+                break;
+            }
+        }
+#endif
         if (!parseArgs(args, "S", &u, &_u))
         {
             RuleBasedBreakIterator *iterator;
@@ -1142,7 +1176,15 @@ static PyObject *t_rulebasedbreakiterator_getRuleStatus(t_rulebasedbreakiterator
     return PyInt_FromLong(self->object->getRuleStatus());
 }
 
+#if U_ICU_VERSION_HEX >= 0x04080000
+static PyObject *t_rulebasedbreakiterator_getBinaryRules(t_rulebasedbreakiterator *self)
+{
+    uint32_t length = 0;
+    const uint8_t *data = self->object->getBinaryRules(length);
 
+    return PyBytes_FromStringAndSize((char *) data, (int) length);
+}
+#endif
 
 /* DictionaryBasedBreakIterator */
 

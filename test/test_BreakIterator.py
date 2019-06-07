@@ -49,6 +49,16 @@ class TestBreakIterator(TestCase):
         bi = BreakIterator.createTitleInstance(Locale.getEnglish())
         self.assertIsInstance(bi, RuleBasedBreakIterator)
 
+    def testCreateInstanceFromBinaryRules(self):
+
+        if ICU_VERSION >= '4.8':
+            bi = BreakIterator.createWordInstance(Locale.getEnglish())
+            self.assertIsInstance(bi, RuleBasedBreakIterator)
+
+            data = bi.getBinaryRules()
+            rbi = RuleBasedBreakIterator(data)
+            self.assertEquals(data, rbi.getBinaryRules())
+
 
 if __name__ == "__main__":
     main()
