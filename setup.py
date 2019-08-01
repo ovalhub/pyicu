@@ -68,8 +68,8 @@ except:
             ICU_VERSION = check_output(('pkg-config', '--modversion', 'icu-i18n')).strip()
         except:
             raise RuntimeError('''
-Please set the ICU_VERSION environment variable to the version of
-ICU you have installed.
+Please install pkg-config on your system or set the ICU_VERSION environment
+variable to the version of ICU you have installed.
         ''')
     if sys.version_info >= (3,):
         ICU_VERSION = str(ICU_VERSION, 'ascii')
