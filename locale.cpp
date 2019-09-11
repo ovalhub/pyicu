@@ -356,6 +356,52 @@ DECLARE_TYPE(Region, t_region, UObject, const Region, abstract_init, NULL);
 
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+
+/* LocaleBuilder */
+
+class t_localebuilder : public _wrapper {
+public:
+    LocaleBuilder *object;
+};
+
+static int t_localebuilder_init(t_localebuilder *self, PyObject *args, PyObject *kwds);
+static PyObject *t_localebuilder_setLocale(t_localebuilder *self, PyObject *arg);
+static PyObject *t_localebuilder_setLanguageTag(t_localebuilder *self, PyObject *arg);
+static PyObject *t_localebuilder_setLanguage(t_localebuilder *self, PyObject *arg);
+static PyObject *t_localebuilder_setScript(t_localebuilder *self, PyObject *arg);
+static PyObject *t_localebuilder_setRegion(t_localebuilder *self, PyObject *arg);
+static PyObject *t_localebuilder_setVariant(t_localebuilder *self, PyObject *arg);
+static PyObject *t_localebuilder_addUnicodeLocaleAttribute(t_localebuilder *self, PyObject *arg);
+static PyObject *t_localebuilder_removeUnicodeLocaleAttribute(t_localebuilder *self, PyObject *arg);
+static PyObject *t_localebuilder_setExtension(t_localebuilder *self, PyObject *args);
+static PyObject *t_localebuilder_setUnicodeLocaleKeyword(t_localebuilder *self, PyObject *args);
+static PyObject *t_localebuilder_clear(t_localebuilder *self);
+static PyObject *t_localebuilder_clearExtensions(t_localebuilder *self);
+static PyObject *t_localebuilder_build(t_localebuilder *self);
+
+static PyMethodDef t_localebuilder_methods[] = {
+    DECLARE_METHOD(t_localebuilder, setLocale, METH_O),
+    DECLARE_METHOD(t_localebuilder, setLanguageTag, METH_O),
+    DECLARE_METHOD(t_localebuilder, setLanguage, METH_O),
+    DECLARE_METHOD(t_localebuilder, setScript, METH_O),
+    DECLARE_METHOD(t_localebuilder, setRegion, METH_O),
+    DECLARE_METHOD(t_localebuilder, setVariant, METH_O),
+    DECLARE_METHOD(t_localebuilder, addUnicodeLocaleAttribute, METH_O),
+    DECLARE_METHOD(t_localebuilder, removeUnicodeLocaleAttribute, METH_O),
+    DECLARE_METHOD(t_localebuilder, setExtension, METH_VARARGS),
+    DECLARE_METHOD(t_localebuilder, setUnicodeLocaleKeyword, METH_VARARGS),
+    DECLARE_METHOD(t_localebuilder, clear, METH_NOARGS),
+    DECLARE_METHOD(t_localebuilder, clearExtensions, METH_NOARGS),
+    DECLARE_METHOD(t_localebuilder, build, METH_NOARGS),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(LocaleBuilder, t_localebuilder, UObject, LocaleBuilder,
+             t_localebuilder_init, NULL);
+
+#endif
+
 
 /* Locale */
 
@@ -1737,6 +1783,122 @@ static PyObject *t_region_str(t_region *self)
 #endif
 
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+
+/* LocaleBuilder */
+
+static int t_localebuilder_init(t_localebuilder *self,
+                                PyObject *args, PyObject *kwds)
+{
+    switch (PyTuple_Size(args)) {
+      case 0:
+        self->object = new LocaleBuilder();
+        self->flags = T_OWNED;
+        break;
+      default:
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+    }
+
+    if (self->object)
+        return 0;
+
+    return -1;
+}
+
+static PyObject *t_localebuilder_setLocale(t_localebuilder *self, PyObject *arg)
+{
+    const Locale *locale;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
+    {
+        self->object->setLocale(*locale);
+        Py_RETURN_SELF();
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setLocale", arg);
+}
+
+#define applyLBStringPiece(setter) \
+    static PyObject *t_localebuilder_ ## setter(t_localebuilder *self, \
+                                                PyObject *arg)         \
+    {                                                                  \
+        charsArg carg;                                                 \
+        if (!parseArg(arg, "n", &carg))                                \
+        {                                                              \
+            self->object->setter(carg.c_str());                        \
+            Py_RETURN_SELF();                                          \
+        }                                                              \
+        return PyErr_SetArgsError((PyObject *) self, #setter, arg);    \
+    }
+        
+applyLBStringPiece(setLanguageTag);
+applyLBStringPiece(setLanguage);
+applyLBStringPiece(setScript);
+applyLBStringPiece(setRegion);
+applyLBStringPiece(setVariant);
+applyLBStringPiece(addUnicodeLocaleAttribute);
+applyLBStringPiece(removeUnicodeLocaleAttribute);
+
+static PyObject *t_localebuilder_setExtension(t_localebuilder *self,
+                                              PyObject *args)
+{
+    charsArg key, value;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "nn", &key, &value) && strlen(key.c_str()) == 1)
+        {
+            self->object->setExtension(key.c_str()[0], value.c_str());
+            Py_RETURN_SELF();
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setExtension", args);
+}
+
+static PyObject *t_localebuilder_setUnicodeLocaleKeyword(t_localebuilder *self,
+                                                         PyObject *args)
+{
+    charsArg key, type;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "nn", &key, &type))
+        {
+            self->object->setUnicodeLocaleKeyword(key.c_str(), type.c_str());
+            Py_RETURN_SELF();
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setUnicodeLocaleKeyword", args);
+}
+
+static PyObject *t_localebuilder_clear(t_localebuilder *self)
+{
+    self->object->clear();
+    Py_RETURN_SELF();
+}
+
+static PyObject *t_localebuilder_clearExtensions(t_localebuilder *self)
+{
+    self->object->clearExtensions();
+    Py_RETURN_SELF();
+}
+
+static PyObject *t_localebuilder_build(t_localebuilder *self)
+{
+    Locale locale;
+    STATUS_CALL(locale = self->object->build(status));
+
+    return wrap_Locale(locale);
+}
+
+#endif
+
+
 void _init_locale(PyObject *m)
 {
     LocaleType_.tp_str = (reprfunc) t_locale_str;
@@ -1759,6 +1921,9 @@ void _init_locale(PyObject *m)
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
     REGISTER_TYPE(Region, m);
     INSTALL_CONSTANTS_TYPE(URegionType, m);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+    REGISTER_TYPE(LocaleBuilder, m);
 #endif
 
     INSTALL_ENUM(ULocDataLocaleType, "ACTUAL_LOCALE", ULOC_ACTUAL_LOCALE);

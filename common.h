@@ -230,6 +230,10 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/stringoptions.h>
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+#include <unicode/localebuilder.h>
+#endif
+
 #if U_ICU_VERSION_HEX < 0x04060000
 
 typedef UClassID classid;

@@ -3,6 +3,7 @@ Version 2.3.1 ->
   - workedaround mystery variations in test_Script.testSurrogatePairs
   - added support for RuleBasedBreakIterator.getBinaryRules()
   - added support for RuleBasedBreakIterator(binaryRules)
+  - added support for LocaleBuilder
   - 
 
 Version 2.3 -> 2.3.1
