@@ -266,6 +266,11 @@ static PyObject *t_decimalformat_setNegativeSuffix(t_decimalformat *self,
 static PyObject *t_decimalformat_getMultiplier(t_decimalformat *self);
 static PyObject *t_decimalformat_setMultiplier(t_decimalformat *self,
                                                PyObject *arg);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+static PyObject *t_decimalformat_getMultiplierScale(t_decimalformat *self);
+static PyObject *t_decimalformat_setMultiplierScale(t_decimalformat *self,
+                                                    PyObject *arg);
+#endif
 static PyObject *t_decimalformat_getRoundingIncrement(t_decimalformat *self);
 static PyObject *t_decimalformat_setRoundingIncrement(t_decimalformat *self,
                                                       PyObject *arg);
@@ -335,6 +340,10 @@ static PyMethodDef t_decimalformat_methods[] = {
     DECLARE_METHOD(t_decimalformat, setNegativeSuffix, METH_O),
     DECLARE_METHOD(t_decimalformat, getMultiplier, METH_NOARGS),
     DECLARE_METHOD(t_decimalformat, setMultiplier, METH_O),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+    DECLARE_METHOD(t_decimalformat, getMultiplierScale, METH_NOARGS),
+    DECLARE_METHOD(t_decimalformat, setMultiplierScale, METH_O),
+#endif    
     DECLARE_METHOD(t_decimalformat, getRoundingIncrement, METH_NOARGS),
     DECLARE_METHOD(t_decimalformat, setRoundingIncrement, METH_O),
     DECLARE_METHOD(t_decimalformat, getRoundingMode, METH_NOARGS),
@@ -2075,6 +2084,29 @@ static PyObject *t_decimalformat_setMultiplier(t_decimalformat *self,
 
     return PyErr_SetArgsError((PyObject *) self, "setMultiplier", arg);
 }
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
+
+static PyObject *t_decimalformat_getMultiplierScale(t_decimalformat *self)
+{
+    return PyInt_FromLong(self->object->getMultiplierScale());
+}
+
+static PyObject *t_decimalformat_setMultiplierScale(t_decimalformat *self,
+                                                    PyObject *arg)
+{
+    int n;
+
+    if (!parseArg(arg, "i", &n))
+    {
+        self->object->setMultiplierScale(n);
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setMultiplierScale", arg);
+}
+
+#endif
 
 static PyObject *t_decimalformat_getRoundingIncrement(t_decimalformat *self)
 {

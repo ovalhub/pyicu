@@ -74,6 +74,9 @@ static PyObject *t_locale_getDisplayCountry(t_locale *self, PyObject *args);
 static PyObject *t_locale_getDisplayVariant(t_locale *self, PyObject *args);
 static PyObject *t_locale_getDisplayName(t_locale *self, PyObject *args);
 static PyObject *t_locale_createKeywords(t_locale *self);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+static PyObject *t_locale_createUnicodeKeywords(t_locale *self);
+#endif
 static PyObject *t_locale_getKeywordValue(t_locale *self, PyObject *arg);
 #if U_ICU_VERSION_HEX >= VERSION_HEX(49, 0, 0)
 static PyObject *t_locale_setKeywordValue(t_locale *self, PyObject *args);
@@ -137,6 +140,9 @@ static PyMethodDef t_locale_methods[] = {
     DECLARE_METHOD(t_locale, getDisplayVariant, METH_VARARGS),
     DECLARE_METHOD(t_locale, getDisplayName, METH_VARARGS),
     DECLARE_METHOD(t_locale, createKeywords, METH_NOARGS),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+    DECLARE_METHOD(t_locale, createUnicodeKeywords, METH_NOARGS),
+#endif
     DECLARE_METHOD(t_locale, getKeywordValue, METH_O),
 #if U_ICU_VERSION_HEX >= VERSION_HEX(49, 0, 0)
     DECLARE_METHOD(t_locale, setKeywordValue, METH_VARARGS),
@@ -692,6 +698,17 @@ static PyObject *t_locale_createKeywords(t_locale *self)
 
     return wrap_StringEnumeration(se, T_OWNED);
 }
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+static PyObject *t_locale_createUnicodeKeywords(t_locale *self)
+{
+    StringEnumeration *se;
+    STATUS_CALL(se = self->object->createUnicodeKeywords(status));
+
+    return wrap_StringEnumeration(se, T_OWNED);
+}
+
+#endif
 
 static PyObject *t_locale_getKeywordValue(t_locale *self, PyObject *arg)
 {
@@ -1832,13 +1849,13 @@ static PyObject *t_localebuilder_setLocale(t_localebuilder *self, PyObject *arg)
         return PyErr_SetArgsError((PyObject *) self, #setter, arg);    \
     }
         
-applyLBStringPiece(setLanguageTag);
-applyLBStringPiece(setLanguage);
-applyLBStringPiece(setScript);
-applyLBStringPiece(setRegion);
-applyLBStringPiece(setVariant);
-applyLBStringPiece(addUnicodeLocaleAttribute);
-applyLBStringPiece(removeUnicodeLocaleAttribute);
+applyLBStringPiece(setLanguageTag)
+applyLBStringPiece(setLanguage)
+applyLBStringPiece(setScript)
+applyLBStringPiece(setRegion)
+applyLBStringPiece(setVariant)
+applyLBStringPiece(addUnicodeLocaleAttribute)
+applyLBStringPiece(removeUnicodeLocaleAttribute)
 
 static PyObject *t_localebuilder_setExtension(t_localebuilder *self,
                                               PyObject *args)

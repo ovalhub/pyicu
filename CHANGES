@@ -3,7 +3,12 @@ Version 2.3.1 ->
   - workedaround mystery variations in test_Script.testSurrogatePairs
   - added support for RuleBasedBreakIterator.getBinaryRules()
   - added support for RuleBasedBreakIterator(binaryRules)
-  - added support for LocaleBuilder
+  - added wrappers for LocaleBuilder
+  - added workaround for MSVC++ compiler issue (kochelmonster)
+  - added support for ICU 65.1
+  - added wrappers for DecimalFormat.get|setMultiplierScale()
+  - added wrapper for Locale.createUnicodeKeywords()
+  - added wrappers for new MeasureUnit static factory methods
   - 
 
 Version 2.3 -> 2.3.1

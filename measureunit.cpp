@@ -218,6 +218,19 @@ static PyObject *t_measureunit_createSolarRadius(PyTypeObject *type);
 static PyObject *t_measureunit_createWeekPerson(PyTypeObject *type);
 static PyObject *t_measureunit_createYearPerson(PyTypeObject *type);
 #endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(65, 0, 0)
+static PyObject *t_measureunit_createBar(PyTypeObject *type);
+static PyObject *t_measureunit_createDecade(PyTypeObject *type);
+static PyObject *t_measureunit_createDotPerCentimeter(PyTypeObject *type);
+static PyObject *t_measureunit_createDotPerInch(PyTypeObject *type);
+static PyObject *t_measureunit_createEm(PyTypeObject *type);
+static PyObject *t_measureunit_createMegapixel(PyTypeObject *type);
+static PyObject *t_measureunit_createPascal(PyTypeObject *type);
+static PyObject *t_measureunit_createPixel(PyTypeObject *type);
+static PyObject *t_measureunit_createPixelPerCentimeter(PyTypeObject *type);
+static PyObject *t_measureunit_createPixelPerInch(PyTypeObject *type);
+static PyObject *t_measureunit_createThermUs(PyTypeObject *type);
+#endif
 
 static PyMethodDef t_measureunit_methods[] = {
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
@@ -398,6 +411,19 @@ static PyMethodDef t_measureunit_methods[] = {
     DECLARE_METHOD(t_measureunit, createSolarRadius, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_measureunit, createWeekPerson, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_measureunit, createYearPerson, METH_NOARGS | METH_CLASS),
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(65, 0, 0)
+    DECLARE_METHOD(t_measureunit, createBar, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createDecade, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createDotPerCentimeter, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createDotPerInch, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createEm, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createMegapixel, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createPascal, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createPixel, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createPixelPerCentimeter, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createPixelPerInch, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createThermUs, METH_NOARGS | METH_CLASS),
 #endif
     { NULL, NULL, 0, NULL }
 };
@@ -636,1319 +662,208 @@ static PyObject *t_measureunit_getAvailableTypes(PyTypeObject *type)
     return wrap_StringEnumeration(e, T_OWNED);
 }
 
-static PyObject *t_measureunit_createAcre(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createAcre(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createArcMinute(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createArcMinute(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createArcSecond(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createArcSecond(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createCelsius(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createCelsius(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createCentimeter(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createCentimeter(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createCubicKilometer(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createCubicKilometer(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createCubicMile(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createCubicMile(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createDay(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createDay(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createDegree(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createDegree(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createFahrenheit(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createFahrenheit(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createFoot(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createFoot(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createGForce(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createGForce(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createGram(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createGram(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createHectare(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createHectare(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createHectopascal(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createHectopascal(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createHorsepower(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createHorsepower(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createHour(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createHour(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createInch(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createInch(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createInchHg(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createInchHg(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createKilogram(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createKilogram(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createKilometer(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createKilometer(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createKilometerPerHour(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createKilometerPerHour(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createKilowatt(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createKilowatt(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createLightYear(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createLightYear(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createLiter(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createLiter(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMeter(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMeter(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMeterPerSecond(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMeterPerSecond(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMile(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMile(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMilePerHour(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMilePerHour(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMillibar(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMillibar(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMillimeter(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMillimeter(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMillisecond(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMillisecond(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMinute(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMinute(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMonth(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMonth(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createOunce(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createOunce(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createPicometer(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createPicometer(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createPound(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createPound(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createSecond(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createSecond(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createSquareFoot(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createSquareFoot(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createSquareKilometer(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createSquareKilometer(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createSquareMeter(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createSquareMeter(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createSquareMile(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createSquareMile(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createWatt(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createWatt(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createWeek(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createWeek(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createYard(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createYard(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createYear(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createYear(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
+#define createMU(unit) \
+    static PyObject *t_measureunit_create ## unit(PyTypeObject *type) \
+    {                                                                 \
+        MeasureUnit *mu;                                              \
+        STATUS_CALL(mu = MeasureUnit::create ## unit(status));        \
+        return wrap_MeasureUnit(mu, T_OWNED);                         \
+    }
+
+createMU(Acre)
+createMU(ArcMinute)
+createMU(ArcSecond)
+createMU(Celsius)
+createMU(Centimeter)
+createMU(CubicKilometer)
+createMU(CubicMile)
+createMU(Day)
+createMU(Degree)
+createMU(Fahrenheit)
+createMU(Foot)
+createMU(GForce)
+createMU(Gram)
+createMU(Hectare)
+createMU(Hectopascal)
+createMU(Horsepower)
+createMU(Hour)
+createMU(Inch)
+createMU(InchHg)
+createMU(Kilogram)
+createMU(Kilometer)
+createMU(KilometerPerHour)
+createMU(Kilowatt)
+createMU(LightYear)
+createMU(Liter)
+createMU(Meter)
+createMU(MeterPerSecond)
+createMU(Mile)
+createMU(MilePerHour)
+createMU(Millibar)
+createMU(Millimeter)
+createMU(Millisecond)
+createMU(Minute)
+createMU(Month)
+createMU(Ounce)
+createMU(Picometer)
+createMU(Pound)
+createMU(Second)
+createMU(SquareFoot)
+createMU(SquareKilometer)
+createMU(SquareMeter)
+createMU(SquareMile)
+createMU(Watt)
+createMU(Week)
+createMU(Yard)
+createMU(Year)
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
-
-static PyObject *t_measureunit_createAcreFoot(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createAcreFoot(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createAmpere(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createAmpere(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createAstronomicalUnit(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createAstronomicalUnit(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createBit(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createBit(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createBushel(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createBushel(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createByte(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createByte(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createCalorie(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createCalorie(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createCarat(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createCarat(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createCentiliter(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createCentiliter(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createCubicCentimeter(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createCubicCentimeter(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createCubicFoot(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createCubicFoot(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createCubicInch(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createCubicInch(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createCubicMeter(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createCubicMeter(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createCubicYard(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createCubicYard(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createCup(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createCup(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createDeciliter(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createDeciliter(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createDecimeter(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createDecimeter(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createFathom(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createFathom(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createFluidOunce(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createFluidOunce(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createFoodcalorie(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createFoodcalorie(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createFurlong(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createFurlong(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createGallon(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createGallon(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createGigabit(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createGigabit(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createGigabyte(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createGigabyte(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createGigahertz(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createGigahertz(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createGigawatt(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createGigawatt(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createHectoliter(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createHectoliter(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createHertz(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createHertz(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createJoule(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createJoule(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createKarat(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createKarat(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createKelvin(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createKelvin(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createKilobit(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createKilobit(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createKilobyte(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createKilobyte(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createKilocalorie(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createKilocalorie(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createKilohertz(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createKilohertz(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createKilojoule(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createKilojoule(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createKilowattHour(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createKilowattHour(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createLiterPerKilometer(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createLiterPerKilometer(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createLux(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createLux(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMegabit(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMegabit(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMegabyte(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMegabyte(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMegahertz(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMegahertz(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMegaliter(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMegaliter(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMegawatt(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMegawatt(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMeterPerSecondSquared(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMeterPerSecondSquared(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMetricTon(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMetricTon(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMicrogram(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMicrogram(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMicrometer(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMicrometer(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMicrosecond(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMicrosecond(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMilePerGallon(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMilePerGallon(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMilliampere(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMilliampere(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMilligram(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMilligram(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMilliliter(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMilliliter(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMillimeterOfMercury(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMillimeterOfMercury(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMilliwatt(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMilliwatt(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createNanometer(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createNanometer(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createNanosecond(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createNanosecond(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createNauticalMile(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createNauticalMile(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createOhm(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createOhm(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createOunceTroy(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createOunceTroy(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createParsec(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createParsec(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createPint(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createPint(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createPoundPerSquareInch(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createPoundPerSquareInch(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createQuart(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createQuart(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createRadian(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createRadian(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createSquareCentimeter(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createSquareCentimeter(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createSquareInch(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createSquareInch(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createSquareYard(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createSquareYard(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createStone(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createStone(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createTablespoon(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createTablespoon(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createTeaspoon(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createTeaspoon(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createTerabit(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createTerabit(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createTerabyte(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createTerabyte(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createTon(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createTon(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createVolt(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createVolt(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
+createMU(AcreFoot)
+createMU(Ampere)
+createMU(AstronomicalUnit)
+createMU(Bit)
+createMU(Bushel)
+createMU(Byte)
+createMU(Calorie)
+createMU(Carat)
+createMU(Centiliter)
+createMU(CubicCentimeter)
+createMU(CubicFoot)
+createMU(CubicInch)
+createMU(CubicMeter)
+createMU(CubicYard)
+createMU(Cup)
+createMU(Deciliter)
+createMU(Decimeter)
+createMU(Fathom)
+createMU(FluidOunce)
+createMU(Foodcalorie)
+createMU(Furlong)
+createMU(Gallon)
+createMU(Gigabit)
+createMU(Gigabyte)
+createMU(Gigahertz)
+createMU(Gigawatt)
+createMU(Hectoliter)
+createMU(Hertz)
+createMU(Joule)
+createMU(Karat)
+createMU(Kelvin)
+createMU(Kilobit)
+createMU(Kilobyte)
+createMU(Kilocalorie)
+createMU(Kilohertz)
+createMU(Kilojoule)
+createMU(KilowattHour)
+createMU(LiterPerKilometer)
+createMU(Lux)
+createMU(Megabit)
+createMU(Megabyte)
+createMU(Megahertz)
+createMU(Megaliter)
+createMU(Megawatt)
+createMU(MeterPerSecondSquared)
+createMU(MetricTon)
+createMU(Microgram)
+createMU(Micrometer)
+createMU(Microsecond)
+createMU(MilePerGallon)
+createMU(Milliampere)
+createMU(Milligram)
+createMU(Milliliter)
+createMU(MillimeterOfMercury)
+createMU(Milliwatt)
+createMU(Nanometer)
+createMU(Nanosecond)
+createMU(NauticalMile)
+createMU(Ohm)
+createMU(OunceTroy)
+createMU(Parsec)
+createMU(Pint)
+createMU(PoundPerSquareInch)
+createMU(Quart)
+createMU(Radian)
+createMU(SquareCentimeter)
+createMU(SquareInch)
+createMU(SquareYard)
+createMU(Stone)
+createMU(Tablespoon)
+createMU(Teaspoon)
+createMU(Terabit)
+createMU(Terabyte)
+createMU(Ton)
+createMU(Volt)
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(56, 0, 0)
-
-static PyObject *t_measureunit_createCentury(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createCentury(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createCupMetric(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createCupMetric(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createGenericTemperature(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createGenericTemperature(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createKnot(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createKnot(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createLiterPer100Kilometers(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createLiterPer100Kilometers(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMileScandinavian(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMileScandinavian(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createPintMetric(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createPintMetric(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createRevolutionAngle(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createRevolutionAngle(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
+createMU(Century)
+createMU(CupMetric)
+createMU(GenericTemperature)
+createMU(Knot)
+createMU(LiterPer100Kilometers)
+createMU(MileScandinavian)
+createMU(PintMetric)
+createMU(RevolutionAngle)
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(57, 0, 0)
-
-static PyObject *t_measureunit_createGallonImperial(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createGallonImperial(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMilePerGallonImperial(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMilePerGallonImperial(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMilligramPerDeciliter(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMilligramPerDeciliter(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMillimolePerLiter(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMillimolePerLiter(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createPartPerMillion(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createPartPerMillion(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
+createMU(GallonImperial)
+createMU(MilePerGallonImperial)
+createMU(MilligramPerDeciliter)
+createMU(MillimolePerLiter)
+createMU(PartPerMillion)
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(59, 0, 0)
-
-static PyObject *t_measureunit_createPoint(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createPoint(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
+createMU(Point)
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
-
-static PyObject *t_measureunit_createAtmosphere(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createAtmosphere(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-static PyObject *t_measureunit_createPercent(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createPercent(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createPermille(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createPermille(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createPetabyte(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createPetabyte(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
+createMU(Atmosphere)
+createMU(Percent)
+createMU(Permille)
+createMU(Petabyte)
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
-
-static PyObject *t_measureunit_createBarrel(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createBarrel(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createBritishThermalUnit(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createBritishThermalUnit(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createDalton(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createDalton(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createDayPerson(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createDayPerson(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createDunam(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createDunam(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createEarthMass(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createEarthMass(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createElectronvolt(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createElectronvolt(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createFluidOunceImperial(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createFluidOunceImperial(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createKilopascal(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createKilopascal(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMegapascal(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMegapascal(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMole(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMole(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createMonthPerson(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createMonthPerson(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createNewton(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createNewton(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createNewtonMeter(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createNewtonMeter(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createPermyriad(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createPermyriad(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createPoundFoot(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createPoundFoot(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createPoundForce(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createPoundForce(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createSolarLuminosity(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createSolarLuminosity(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createSolarMass(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createSolarMass(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createSolarRadius(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createSolarRadius(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createWeekPerson(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createWeekPerson(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
-static PyObject *t_measureunit_createYearPerson(PyTypeObject *type)
-{
-    MeasureUnit *mu;
-    STATUS_CALL(mu = MeasureUnit::createYearPerson(status));
-
-    return wrap_MeasureUnit(mu, T_OWNED);
-}
-
+createMU(Barrel)
+createMU(BritishThermalUnit)
+createMU(Dalton)
+createMU(DayPerson)
+createMU(Dunam)
+createMU(EarthMass)
+createMU(Electronvolt)
+createMU(FluidOunceImperial)
+createMU(Kilopascal)
+createMU(Megapascal)
+createMU(Mole)
+createMU(MonthPerson)
+createMU(Newton)
+createMU(NewtonMeter)
+createMU(Permyriad)
+createMU(PoundFoot)
+createMU(PoundForce)
+createMU(SolarLuminosity)
+createMU(SolarMass)
+createMU(SolarRadius)
+createMU(WeekPerson)
+createMU(YearPerson)
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(65, 0, 0)
+createMU(Bar)
+createMU(Decade)
+createMU(DotPerCentimeter)
+createMU(DotPerInch)
+createMU(Em)
+createMU(Megapixel)
+createMU(Pascal)
+createMU(Pixel)
+createMU(PixelPerCentimeter)
+createMU(PixelPerInch)
+createMU(ThermUs)
+#endif
 
 /* Measure */
 
