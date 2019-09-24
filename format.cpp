@@ -524,31 +524,8 @@ static PyObject *t_fieldposition_setEndIndex(t_fieldposition *self,
     return PyErr_SetArgsError((PyObject *) self, "setEndIndex", arg);
 }
 
-static PyObject *t_fieldposition_richcmp(t_fieldposition *self, PyObject *arg, int op)
-{
-    int b = 0;
-    FieldPosition *i;
+DEFINE_RICHCMP(FieldPosition, t_fieldposition);
 
-    if (!parseArg(arg, "P", TYPE_CLASSID(FieldPosition), &i))
-    {
-        switch (op) {
-          case Py_EQ:
-          case Py_NE:
-            b = *self->object == *i;
-            if (op == Py_EQ)
-                Py_RETURN_BOOL(b);
-            Py_RETURN_BOOL(!b);
-          case Py_LT:
-          case Py_LE:
-          case Py_GT:
-          case Py_GE:
-            PyErr_SetNone(PyExc_NotImplementedError);
-            return NULL;
-        }
-    }
-
-    return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg);
-}
 
 /* ParsePosition */
 
@@ -619,31 +596,7 @@ static PyObject *t_parseposition_setErrorIndex(t_parseposition *self,
     return PyErr_SetArgsError((PyObject *) self, "setErrorIndex", arg);
 }
 
-static PyObject *t_parseposition_richcmp(t_parseposition *self, PyObject *arg, int op)
-{
-    int b = 0;
-    ParsePosition *i;
-
-    if (!parseArg(arg, "P", TYPE_CLASSID(ParsePosition), &i))
-    {
-        switch (op) {
-          case Py_EQ:
-          case Py_NE:
-            b = *self->object == *i;
-            if (op == Py_EQ)
-                Py_RETURN_BOOL(b);
-            Py_RETURN_BOOL(!b);
-          case Py_LT:
-          case Py_LE:
-          case Py_GT:
-          case Py_GE:
-            PyErr_SetNone(PyExc_NotImplementedError);
-            return NULL;
-        }
-    }
-
-    return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg);
-}
+DEFINE_RICHCMP(ParsePosition, t_parseposition);
 
 
 /* Format */
@@ -767,31 +720,7 @@ static PyObject *t_format_getLocaleID(t_format *self, PyObject *args)
     return PyErr_SetArgsError((PyObject *) self, "getLocaleID", args);
 }
 
-static PyObject *t_format_richcmp(t_format *self, PyObject *arg, int op)
-{
-    int b = 0;
-    Format *i;
-
-    if (!parseArg(arg, "P", TYPE_ID(Format), &i))
-    {
-        switch (op) {
-          case Py_EQ:
-          case Py_NE:
-            b = *self->object == *i;
-            if (op == Py_EQ)
-                Py_RETURN_BOOL(b);
-            Py_RETURN_BOOL(!b);
-          case Py_LT:
-          case Py_LE:
-          case Py_GT:
-          case Py_GE:
-            PyErr_SetNone(PyExc_NotImplementedError);
-            return NULL;
-        }
-    }
-
-    return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg);
-}
+DEFINE_RICHCMP(Format, t_format);
 
 
 /* MeasureFormat */
@@ -1533,32 +1462,7 @@ static PyObject *t_pluralrules_forLocale(PyTypeObject *type, PyObject *arg)
     return PyErr_SetArgsError(type, "forLocale", arg);
 }
 
-static PyObject *t_pluralrules_richcmp(t_pluralrules *self,
-                                       PyObject *arg, int op)
-{
-    int b = 0;
-    PluralRules *rules;
-
-    if (!parseArg(arg, "P", TYPE_CLASSID(PluralRules), &rules))
-    {
-        switch (op) {
-          case Py_EQ:
-          case Py_NE:
-            b = *self->object == *rules;
-            if (op == Py_EQ)
-                Py_RETURN_BOOL(b);
-            Py_RETURN_BOOL(!b);
-          case Py_LT:
-          case Py_LE:
-          case Py_GT:
-          case Py_GE:
-            PyErr_SetNone(PyExc_NotImplementedError);
-            return NULL;
-        }
-    }
-
-    return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg);
-}
+DEFINE_RICHCMP(PluralRules, t_pluralrules);
 
 
 /* PluralFormat */

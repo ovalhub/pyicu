@@ -424,15 +424,20 @@ PyTypeObject name##Type_ = {                                            \
                 if (op == Py_EQ)                                          \
                     Py_RETURN_BOOL(b);                                    \
                 Py_RETURN_BOOL(!b);                                       \
-              case Py_LT:                                                 \
-              case Py_LE:                                                 \
-              case Py_GT:                                                 \
-              case Py_GE:                                                 \
+              default:                                                    \
                 PyErr_SetNone(PyExc_NotImplementedError);                 \
                 return NULL;                                              \
             }                                                             \
         }                                                                 \
-        return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg); \
+        switch (op) {                                                     \
+          case Py_EQ:                                                     \
+            Py_RETURN_FALSE;                                              \
+          case Py_NE:                                                     \
+            Py_RETURN_TRUE;                                               \
+          default:                                                        \
+            PyErr_SetNone(PyExc_NotImplementedError);                     \
+            return NULL;                                                  \
+        }                                                                 \
     }
 
 

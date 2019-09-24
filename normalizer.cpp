@@ -476,32 +476,7 @@ static PyObject *t_normalizer_compare(PyTypeObject *type, PyObject *args)
     return PyErr_SetArgsError(type, "compare", args);
 }
 
-
-static PyObject *t_normalizer_richcmp(t_normalizer *self, PyObject *arg, int op)
-{
-    Normalizer *normalizer;
-    int b = 0;
-
-    if (!parseArg(arg, "P", TYPE_CLASSID(Normalizer), &normalizer))
-    {
-        switch (op) {
-          case Py_EQ:
-          case Py_NE:
-            b = *self->object == *normalizer;
-            if (op == Py_EQ)
-                Py_RETURN_BOOL(b);
-            Py_RETURN_BOOL(!b);
-          case Py_LT:
-          case Py_LE:
-          case Py_GT:
-          case Py_GE:
-            PyErr_SetNone(PyExc_NotImplementedError);
-            return NULL;
-        }
-    }
-
-    return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg);
-}
+DEFINE_RICHCMP(Normalizer, t_normalizer);
 
 static long t_normalizer_hash(t_normalizer *self)
 {

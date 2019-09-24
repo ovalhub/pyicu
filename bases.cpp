@@ -2148,32 +2148,7 @@ static PyObject *t_formattable_setString(t_formattable *self, PyObject *arg)
     return PyErr_SetArgsError((PyObject *) self, "setString", arg);
 }
 
-static PyObject *t_formattable_richcmp(t_formattable *self,
-                                       PyObject *arg, int op)
-{
-    Formattable *f;
-
-    if (!parseArg(arg, "P", TYPE_CLASSID(Formattable), &f))
-    {
-        int b = 0;
-
-        switch (op) {
-          case Py_EQ:
-            b = *self->object == *f;
-            break;
-          case Py_NE:
-            b = *self->object != *f;
-            break;
-          default:
-            PyErr_SetNone(PyExc_NotImplementedError);
-            return NULL;
-        }
-
-        Py_RETURN_BOOL(b);
-    }
-
-    return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg);
-}
+DEFINE_RICHCMP(Formattable, t_formattable);
 
 static PyObject *t_formattable_str(t_formattable *self)
 {

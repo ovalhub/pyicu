@@ -573,29 +573,8 @@ DECLARE_TYPE(TimeUnitAmount, t_timeunitamount, Measure, TimeUnitAmount,
 
 /* MeasureUnit */
 
-static PyObject *t_measureunit_richcmp(t_measureunit *self,
-                                       PyObject *arg, int op)
-{
-    int b = 0;
+DEFINE_RICHCMP(MeasureUnit, t_measureunit);
 
-    switch (op) {
-      case Py_EQ:
-      case Py_NE:
-        if (PyObject_TypeCheck(arg, &UObjectType_))
-            b = *self->object == *((t_uobject *) arg)->object;
-        if (op == Py_EQ)
-            Py_RETURN_BOOL(b);
-        Py_RETURN_BOOL(!b);
-      case Py_LT:
-      case Py_LE:
-      case Py_GT:
-      case Py_GE:
-        PyErr_SetNone(PyExc_NotImplementedError);
-        return NULL;
-    }
-
-    return NULL;
-}
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
 
@@ -963,28 +942,7 @@ static PyObject *t_measure_str(t_measure *self)
 #endif
 }
 
-static PyObject *t_measure_richcmp(t_measure *self, PyObject *arg, int op)
-{
-    int b = 0;
-
-    switch (op) {
-      case Py_EQ:
-      case Py_NE:
-        if (PyObject_TypeCheck(arg, &UObjectType_))
-            b = *self->object == *((t_uobject *) arg)->object;
-        if (op == Py_EQ)
-            Py_RETURN_BOOL(b);
-        Py_RETURN_BOOL(!b);
-      case Py_LT:
-      case Py_LE:
-      case Py_GT:
-      case Py_GE:
-        PyErr_SetNone(PyExc_NotImplementedError);
-        return NULL;
-    }
-
-    return NULL;
-}
+DEFINE_RICHCMP(Measure, t_measure);
 
 
 /* NoUnit */

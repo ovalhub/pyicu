@@ -1157,31 +1157,7 @@ static PyObject *t_unicodeset_str(t_unicodeset *self)
     return PyUnicode_FromUnicodeString(&u);
 }
 
-static PyObject *t_unicodeset_richcmp(t_unicodeset *self, PyObject *arg, int op)
-{
-    UnicodeSet *set;
-    int b = 0;
-
-    if (!parseArg(arg, "P", TYPE_CLASSID(UnicodeSet), &set))
-    {
-        switch (op) {
-          case Py_EQ:
-          case Py_NE:
-            b = *self->object == *set;
-            if (op == Py_EQ)
-                Py_RETURN_BOOL(b);
-            Py_RETURN_BOOL(!b);
-          case Py_LT:
-          case Py_LE:
-          case Py_GT:
-          case Py_GE:
-            PyErr_SetNone(PyExc_NotImplementedError);
-            return NULL;
-        }
-    }
-
-    return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg);
-}
+DEFINE_RICHCMP(UnicodeSet, t_unicodeset);
 
 static PyObject *t_unicodeset_iter(t_unicodeset *self)
 {

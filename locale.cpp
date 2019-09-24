@@ -1126,31 +1126,7 @@ static long t_locale_hash(t_locale *self)
     return (long) self->object->hashCode();
 }
 
-static PyObject *t_locale_richcmp(t_locale *self, PyObject *arg, int op)
-{
-    Locale *locale;
-    int b = 0;
-
-    if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
-    {
-        switch (op) {
-          case Py_EQ:
-          case Py_NE:
-            b = *self->object == *locale;
-            if (op == Py_EQ)
-                Py_RETURN_BOOL(b);
-            Py_RETURN_BOOL(!b);
-          case Py_LT:
-          case Py_LE:
-          case Py_GT:
-          case Py_GE:
-            PyErr_SetNone(PyExc_NotImplementedError);
-            return NULL;
-        }
-    }
-
-    Py_RETURN_FALSE;
-}
+DEFINE_RICHCMP(Locale, t_locale);
 
 
 /* ResourceBundle */

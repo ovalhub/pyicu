@@ -621,31 +621,7 @@ static PyObject *t_timezone_str(t_timezone *self)
     return PyUnicode_FromUnicodeString(&u);
 }
 
-static PyObject *t_timezone_richcmp(t_timezone *self, PyObject *arg, int op)
-{
-    int b = 0;
-    TimeZone *tz;
-
-    if (!parseArg(arg, "P", TYPE_CLASSID(TimeZone), &tz))
-    {
-        switch (op) {
-          case Py_EQ:
-          case Py_NE:
-            b = *self->object == *tz;
-            if (op == Py_EQ)
-                Py_RETURN_BOOL(b);
-            Py_RETURN_BOOL(!b);
-          case Py_LT:
-          case Py_LE:
-          case Py_GT:
-          case Py_GE:
-            PyErr_SetNone(PyExc_NotImplementedError);
-            return NULL;
-        }
-    }
-
-    return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg);
-}
+DEFINE_RICHCMP(TimeZone, t_timezone);
 
 
 /* SimpleTimeZone */
@@ -1397,31 +1373,7 @@ static PyObject *t_calendar_str(t_calendar *self)
     return PyUnicode_FromUnicodeString(&u);
 }
 
-static PyObject *t_calendar_richcmp(t_calendar *self, PyObject *arg, int op)
-{
-    int b = 0;
-    Calendar *calendar;
-
-    if (!parseArg(arg, "P", TYPE_ID(Calendar), &calendar))
-    {
-        switch (op) {
-          case Py_EQ:
-          case Py_NE:
-            b = *self->object == *calendar;
-            if (op == Py_EQ)
-                Py_RETURN_BOOL(b);
-            Py_RETURN_BOOL(!b);
-          case Py_LT:
-          case Py_LE:
-          case Py_GT:
-          case Py_GE:
-            PyErr_SetNone(PyExc_NotImplementedError);
-            return NULL;
-        }
-    }
-
-    return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg);
-}
+DEFINE_RICHCMP(Calendar, t_calendar);
 
 
 /* GregorianCalendar */

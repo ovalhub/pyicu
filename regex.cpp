@@ -393,32 +393,7 @@ static PyObject *t_regexpattern_str(t_regexpattern *self)
     return PyUnicode_FromUnicodeString(&u);
 }
 
-static PyObject *t_regexpattern_richcmp(t_regexpattern *self,
-                                        PyObject *arg, int op)
-{
-    RegexPattern *pattern;
-    int b = 0;
-
-    if (!parseArg(arg, "P", TYPE_CLASSID(RegexPattern), &pattern))
-    {
-        switch (op) {
-          case Py_EQ:
-          case Py_NE:
-            b = *self->object == *pattern;
-            if (op == Py_EQ)
-                Py_RETURN_BOOL(b);
-            Py_RETURN_BOOL(!b);
-          case Py_LT:
-          case Py_LE:
-          case Py_GT:
-          case Py_GE:
-            PyErr_SetNone(PyExc_NotImplementedError);
-            return NULL;
-        }
-    }
-
-    Py_RETURN_FALSE;
-}
+DEFINE_RICHCMP(RegexPattern, t_regexpattern);
 
 
 /* RegexMatcher */

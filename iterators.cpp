@@ -413,31 +413,7 @@ static PyObject *t_forwardcharacteriterator_iter(t_forwardcharacteriterator *sel
     Py_RETURN_SELF();
 }
 
-static PyObject *t_forwardcharacteriterator_richcmp(t_forwardcharacteriterator *self, PyObject *arg, int op)
-{
-    int b = 0;
-    ForwardCharacterIterator *i;
-
-    if (!parseArg(arg, "P", TYPE_ID(ForwardCharacterIterator), &i))
-    {
-        switch (op) {
-          case Py_EQ:
-          case Py_NE:
-            b = *self->object == *i;
-            if (op == Py_EQ)
-                Py_RETURN_BOOL(b);
-            Py_RETURN_BOOL(!b);
-          case Py_LT:
-          case Py_LE:
-          case Py_GT:
-          case Py_GE:
-            PyErr_SetNone(PyExc_NotImplementedError);
-            return NULL;
-        }
-    }
-
-    return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg);
-}
+DEFINE_RICHCMP(ForwardCharacterIterator, t_forwardcharacteriterator);
 
 
 /* CharacterIterator */
@@ -1031,34 +1007,7 @@ static PyObject *t_breakiterator_iter_next(t_breakiterator *self)
     return PyInt_FromLong(n);
 }
 
-
-
-static PyObject *t_breakiterator_richcmp(t_breakiterator *self,
-                                         PyObject *arg, int op)
-{
-    int b = 0;
-    BreakIterator *i;
-
-    if (!parseArg(arg, "P", TYPE_ID(BreakIterator), &i))
-    {
-        switch (op) {
-          case Py_EQ:
-          case Py_NE:
-            b = *self->object == *i;
-            if (op == Py_EQ)
-                Py_RETURN_BOOL(b);
-            Py_RETURN_BOOL(!b);
-          case Py_LT:
-          case Py_LE:
-          case Py_GT:
-          case Py_GE:
-            PyErr_SetNone(PyExc_NotImplementedError);
-            return NULL;
-        }
-    }
-
-    return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg);
-}
+DEFINE_RICHCMP(BreakIterator, t_breakiterator);
 
 
 /* RuleBasedBreakIterator */
