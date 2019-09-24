@@ -417,7 +417,7 @@ static PyObject *t_regexpattern_richcmp(t_regexpattern *self,
         }
     }
 
-    return PyErr_SetArgsError((PyObject *) self, "__richcmp__", arg);
+    Py_RETURN_FALSE;
 }
 
 

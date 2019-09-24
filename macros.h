@@ -51,6 +51,15 @@ PyObject *make_descriptor(PyObject *(*get)(PyObject *));
             return ICUException(status).reportError();                  \
     }
 
+#define STATUS_RESULT_CALL(action, result)                              \
+    {                                                                   \
+        UErrorCode status = U_ZERO_ERROR;                               \
+        action;                                                         \
+        if (U_FAILURE(status))                                          \
+            return ICUException(status).reportError();                  \
+        result;                                                         \
+    }
+
 #define API_STATUS_CALL(var, api, args)                                 \
     {                                                                   \
         UErrorCode status = U_ZERO_ERROR;                               \
@@ -208,9 +217,9 @@ void t_name##_dealloc(t_name *self)                                   \
     Py_TYPE(self)->tp_free((PyObject *) self);                        \
 }                                                                     \
 DECLARE_TYPE(name, t_name, base, icuClass, init, t_name##_dealloc)    \
-PyObject *wrap_##name(const icuClass &object)                         \
+PyObject *wrap_##name(icuClass object)                                \
 {                                                                     \
-    return wrap_##name(new icuClass(object), T_OWNED);                \
+    return wrap_##name(new icuClass(std::move(object)), T_OWNED);     \
 }
 
 

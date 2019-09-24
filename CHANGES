@@ -9,6 +9,8 @@ Version 2.3.1 ->
   - added wrappers for DecimalFormat.get|setMultiplierScale()
   - added wrapper for Locale.createUnicodeKeywords()
   - added wrappers for new MeasureUnit static factory methods
+  - added wrappers for LocaleMatcher
+  - added wrappers for LocaleMatcher::Builder as LocaleMatcherBuilder
   - 
 
 Version 2.3 -> 2.3.1
