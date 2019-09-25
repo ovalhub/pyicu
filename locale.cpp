@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2014 Open Source Applications Foundation.
+ * Copyright (c) 2004-2019 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -2210,6 +2210,9 @@ void _init_locale(PyObject *m)
     INSTALL_STRUCT(LocaleMatcher, m);
     INSTALL_CONSTANTS_TYPE(ULocMatchFavorSubtag, m);
     INSTALL_CONSTANTS_TYPE(ULocMatchDemotion, m);
+
+    PyDict_SetItemString(LocaleMatcherType_.tp_dict, "Builder",
+                         (PyObject *) &LocaleMatcherBuilderType_);
 #endif
 
     INSTALL_ENUM(ULocDataLocaleType, "ACTUAL_LOCALE", ULOC_ACTUAL_LOCALE);

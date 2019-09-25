@@ -29,7 +29,7 @@ from icu import *
 class TestLocaleMatcher(TestCase):
     def testSetSupportedLocales(self):
         locales = (Locale.getFrance(), Locale.getGermany())
-        matcher = LocaleMatcherBuilder().setSupportedLocales(locales).build()
+        matcher = LocaleMatcher.Builder().setSupportedLocales(locales).build()
 
         self.assertEqual(Locale.getFrance(),
                          matcher.getBestMatch(Locale.getItaly()))
@@ -38,7 +38,7 @@ class TestLocaleMatcher(TestCase):
 
     def testGetBestMatch(self):
         locales = (Locale.getFrance(), Locale.getGermany())
-        matcher = LocaleMatcherBuilder().setSupportedLocales(locales).build()
+        matcher = LocaleMatcher.Builder().setSupportedLocales(locales).build()
 
         self.assertEqual(Locale.getGermany(),
                          matcher.getBestMatch((Locale('de-AT'), Locale('fr'))))
