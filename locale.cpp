@@ -417,6 +417,7 @@ DECLARE_TYPE(LocaleBuilder, t_localebuilder, UObject, LocaleBuilder,
 #if U_ICU_VERSION_HEX >= VERSION_HEX(65, 0, 0)
 
 using LocaleMatcherBuilder = LocaleMatcher::Builder;
+using LocaleMatcherResult = LocaleMatcher::Result;
 
 /* LocaleMatcherBuilder */
 
@@ -448,6 +449,31 @@ static PyMethodDef t_localematcherbuilder_methods[] = {
 DECLARE_TYPE(LocaleMatcherBuilder, t_localematcherbuilder, UMemory,
              LocaleMatcherBuilder, t_localematcherbuilder_init, NULL);
 
+/* LocaleMatcherResult */
+
+class t_localematcherresult : public _wrapper {
+public:
+  LocaleMatcherResult *object;
+};
+
+static PyObject *t_localematcherresult_getDesiredLocale(t_localematcherresult *self);
+static PyObject *t_localematcherresult_getSupportedLocale(t_localematcherresult *self);
+static PyObject *t_localematcherresult_getDesiredIndex(t_localematcherresult *self);
+static PyObject *t_localematcherresult_getSupportedIndex(t_localematcherresult *self);
+static PyObject *t_localematcherresult_makeResolvedLocale(t_localematcherresult *self);
+
+static PyMethodDef t_localematcherresult_methods[] = {
+    DECLARE_METHOD(t_localematcherresult, getDesiredLocale, METH_NOARGS),
+    DECLARE_METHOD(t_localematcherresult, getSupportedLocale, METH_NOARGS),
+    DECLARE_METHOD(t_localematcherresult, getDesiredIndex, METH_NOARGS),
+    DECLARE_METHOD(t_localematcherresult, getSupportedIndex, METH_NOARGS),
+    DECLARE_METHOD(t_localematcherresult, makeResolvedLocale, METH_NOARGS),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_BY_VALUE_TYPE(LocaleMatcherResult, t_localematcherresult, UMemory,
+                      LocaleMatcherResult, abstract_init);
+
 /* LocaleMatcher */
 
 class t_localematcher : public _wrapper {
@@ -457,10 +483,12 @@ public:
 
 static PyObject *t_localematcher_getBestMatch(t_localematcher *self, PyObject *arg);
 static PyObject *t_localematcher_getBestMatchForListString(t_localematcher *self, PyObject *arg);
+static PyObject *t_localematcher_getBestMatchResult(t_localematcher *self, PyObject *arg);
 
 static PyMethodDef t_localematcher_methods[] = {
     DECLARE_METHOD(t_localematcher, getBestMatch, METH_O),
     DECLARE_METHOD(t_localematcher, getBestMatchForListString, METH_O),
+    DECLARE_METHOD(t_localematcher, getBestMatchResult, METH_O),
     { NULL, NULL, 0, NULL }
 };
 
@@ -2068,12 +2096,18 @@ static PyObject *t_localebuilder_build(t_localebuilder *self)
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(65, 0, 0)
 
+// takes ownership of locales pointer array
 class LocaleIterator : public Locale::Iterator {
   public:
     LocaleIterator(Locale **locales, int len) :
         locales_(locales), len_(len),
         current_(0)
     {}
+
+    ~LocaleIterator()
+    {
+        free(locales_);  // allocated with calloc in pl2cpa in common.cpp
+    }
 
     UBool hasNext() const override
     {
@@ -2139,8 +2173,6 @@ static PyObject *t_localematcherbuilder_setSupportedLocales(
         LocaleIterator it(locales, len);
 
         self->object->setSupportedLocales(it);
-        free(locales);
-
         Py_RETURN_SELF();
     }
 
@@ -2211,6 +2243,50 @@ static PyObject *t_localematcherbuilder_build(t_localematcherbuilder *self)
 }
 
 
+/* LocaleMatcherResult */
+
+static PyObject *t_localematcherresult_getDesiredLocale(
+    t_localematcherresult *self)
+{
+    const Locale *locale = self->object->getDesiredLocale();
+
+    if (locale != nullptr)
+        return wrap_Locale(*locale);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *t_localematcherresult_getSupportedLocale(
+    t_localematcherresult *self)
+{
+    const Locale *locale = self->object->getSupportedLocale();
+
+    if (locale != nullptr)
+        return wrap_Locale(*locale);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *t_localematcherresult_getDesiredIndex(
+    t_localematcherresult *self)
+{
+    return PyInt_FromLong(self->object->getDesiredIndex());
+}
+
+static PyObject *t_localematcherresult_getSupportedIndex(
+    t_localematcherresult *self)
+{
+    return PyInt_FromLong(self->object->getSupportedIndex());
+}
+
+static PyObject *t_localematcherresult_makeResolvedLocale(
+    t_localematcherresult *self)
+{
+    STATUS_RESULT_CALL(Locale locale = self->object->makeResolvedLocale(status),
+                       return wrap_Locale(locale));
+}
+
+
 /* LocaleMatcher */
 
 static PyObject *t_localematcher_getBestMatch(t_localematcher *self,
@@ -2233,11 +2309,7 @@ static PyObject *t_localematcher_getBestMatch(t_localematcher *self,
         LocaleIterator it(locales, len);
         const Locale *result;
 
-        STATUS_CALL(
-            {
-                result = self->object->getBestMatch(it, status);
-                free(locales);
-            });
+        STATUS_CALL(result = self->object->getBestMatch(it, status));
 
         return wrap_Locale(*result);
     }
@@ -2262,6 +2334,35 @@ static PyObject *t_localematcher_getBestMatchForListString(
 
     return PyErr_SetArgsError((PyObject *) self,
                               "getBestMatchForListString", arg);
+}
+
+static PyObject *t_localematcher_getBestMatchResult(
+    t_localematcher *self, PyObject *arg)
+{
+    Locale *locale;
+    Locale **locales;
+    int len;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
+    {
+        STATUS_RESULT_CALL(
+            LocaleMatcherResult result = self->object->getBestMatchResult(
+                *locale, status),
+            return wrap_LocaleMatcherResult(std::move(result)));
+    }
+
+    if (!parseArg(arg, "Q", TYPE_CLASSID(Locale), &locales, &len,
+                  TYPE_CLASSID(Locale)))
+    {
+        LocaleIterator it(locales, len);
+
+        STATUS_RESULT_CALL(
+            LocaleMatcherResult result = self->object->getBestMatchResult(
+                it, status),
+            return wrap_LocaleMatcherResult(std::move(result)));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getBestMatchResult", arg);
 }
 
 #endif
@@ -2295,12 +2396,15 @@ void _init_locale(PyObject *m)
 #endif
 #if U_ICU_VERSION_HEX >= VERSION_HEX(65, 0, 0)
     INSTALL_STRUCT(LocaleMatcherBuilder, m);
+    INSTALL_STRUCT(LocaleMatcherResult, m);
     INSTALL_STRUCT(LocaleMatcher, m);
     INSTALL_CONSTANTS_TYPE(ULocMatchFavorSubtag, m);
     INSTALL_CONSTANTS_TYPE(ULocMatchDemotion, m);
 
     PyDict_SetItemString(LocaleMatcherType_.tp_dict, "Builder",
                          (PyObject *) &LocaleMatcherBuilderType_);
+    PyDict_SetItemString(LocaleMatcherType_.tp_dict, "Result",
+                         (PyObject *) &LocaleMatcherResultType_);
 #endif
 
     INSTALL_ENUM(ULocDataLocaleType, "ACTUAL_LOCALE", ULOC_ACTUAL_LOCALE);
