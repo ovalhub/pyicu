@@ -12,6 +12,7 @@ Version 2.3.1 ->
   - added wrappers for LocaleMatcher
   - added wrappers for LocaleMatcher::Builder as LocaleMatcher.Builder
   - added support for constructing Locale objects from keywords
+  - locale.addLikelySubtags() and minimizeSubtags() now modify locale in place
   - 
 
 Version 2.3 -> 2.3.1

@@ -904,7 +904,8 @@ static PyObject *t_locale_setToBogus(t_locale *self)
     Py_RETURN_NONE;
 }
 
-#if U_ICU_VERSION_HEX >= 0x04000000
+#if U_ICU_VERSION_HEX >= 0x04000000 && U_ICU_VERSION_HEX < VERSION_HEX(63, 0, 0)
+
 static PyObject *t_locale_addLikelySubtags(t_locale *self)
 {
     char maximized[128];
@@ -928,6 +929,21 @@ static PyObject *t_locale_minimizeSubtags(t_locale *self)
 
     return PyString_FromStringAndSize(minimized, size);
 }
+
+#elif U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+
+static PyObject *t_locale_addLikelySubtags(t_locale *self)
+{
+    STATUS_CALL(self->object->addLikelySubtags(status));
+    Py_RETURN_SELF();
+}
+
+static PyObject *t_locale_minimizeSubtags(t_locale *self)
+{
+    STATUS_CALL(self->object->minimizeSubtags(status));
+    Py_RETURN_SELF();
+}
+
 #endif
 
 
