@@ -26,25 +26,17 @@ import sys, os, six
 from unittest import TestCase, main
 from icu import *
 
-class TestLocaleMatcher(TestCase):
+class TestLocale(TestCase):
 
-    def testSetSupportedLocales(self):
-        locales = (Locale.getFrance(), Locale.getGermany())
-        matcher = LocaleMatcher.Builder().setSupportedLocales(locales).build()
+    def testConstructWithKeywords(self):
 
-        self.assertEqual(Locale.getFrance(),
-                         matcher.getBestMatch(Locale.getItaly()))
-        self.assertEqual(Locale.getGermany(),
-                         matcher.getBestMatch(Locale('de-AT')))
+        l0 = Locale('fr', 'be', collation='phonebook', currency='euro')
+        l1 = Locale('fr', 'be', '', 'collation=phonebook;currency=euro')
 
-    def testGetBestMatch(self):
-        locales = (Locale.getFrance(), Locale.getGermany())
-        matcher = LocaleMatcher.Builder().setSupportedLocales(locales).build()
-
-        self.assertEqual(Locale.getGermany(),
-                         matcher.getBestMatch((Locale('de-AT'), Locale('fr'))))
+        self.assertEqual('fr_BE@collation=phonebook;currency=euro', str(l0))
+        self.assertEqual('fr_BE@collation=phonebook;currency=euro', str(l1))
+        self.assertEqual(l0, l1)
 
 
 if __name__ == "__main__":
-    if ICU_VERSION >= '65.0':
-        main()
+    main()

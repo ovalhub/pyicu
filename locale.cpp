@@ -474,18 +474,78 @@ DECLARE_BY_VALUE_TYPE(LocaleMatcher, t_localematcher, UMemory,
 
 static int t_locale_init(t_locale *self, PyObject *args, PyObject *kwds)
 {
-    charsArg language, country, variant;
+    charsArg language, country, variant, keywords;
     int lcid, len;
+
+    if (PyTuple_Size(args) < 4 && kwds != NULL)
+    {
+        PyObject *items = PyDict_Items(kwds);
+        int len = PySequence_Fast_GET_SIZE(items);
+
+        if (len > 0)
+        {
+            PyObject *eq = PyUnicode_FromString("=");
+            PyObject *all = NULL;
+
+            if (len > 1)
+            {
+                PyObject *pairs = PyTuple_New(len);
+
+                for (int i = 0; i < len; ++i)
+                {
+                    PyObject *pair = PyUnicode_Join(
+                        eq, PySequence_Fast_GET_ITEM(items, i));
+
+                    if (pair == NULL)
+                    {
+                        Py_DECREF(pairs);
+                        Py_DECREF(eq);
+                        Py_DECREF(items);
+
+                        return -1;
+                    }
+
+                    PyTuple_SET_ITEM(pairs, i, pair);
+                }
+
+                PyObject *sm = PyUnicode_FromString(";");
+                all = PyUnicode_Join(sm, pairs);
+
+                Py_DECREF(sm);
+                Py_DECREF(pairs);
+            }
+            else
+                all = PyUnicode_Join(eq, PySequence_Fast_GET_ITEM(items, 0));
+
+            Py_DECREF(eq);
+            Py_DECREF(items);
+
+            if (all == NULL)
+                return -1;
+
+            PyObject *bytes = PyUnicode_AsASCIIString(all);
+
+            Py_DECREF(all);
+            if (bytes == NULL)
+                return -1;
+
+            keywords.own(bytes);
+        }
+        else
+            Py_DECREF(items);
+    }
 
     switch (PyTuple_Size(args)) {
       case 0:
-        self->object = new Locale();
+        self->object = new Locale(NULL, NULL, NULL,
+                                  kwds != NULL ? keywords : NULL);
         self->flags = T_OWNED;
         break;
       case 1:
         if (!parseArgs(args, "n", &language))
         {
-            self->object = new Locale(language);
+            self->object = new Locale(language, NULL, NULL,
+                                      kwds != NULL ? keywords : NULL);
             self->flags = T_OWNED;
             break;
         }
@@ -497,7 +557,8 @@ static int t_locale_init(t_locale *self, PyObject *args, PyObject *kwds)
                 lcid, code, sizeof(code), &status));
             if ((size_t) len < sizeof(code))
             {
-                self->object = new Locale(code);
+                self->object = new Locale(code, NULL, NULL,
+                                          kwds != NULL ? keywords : NULL);
                 self->flags = T_OWNED;
             }
             break;
@@ -507,7 +568,8 @@ static int t_locale_init(t_locale *self, PyObject *args, PyObject *kwds)
       case 2:
         if (!parseArgs(args, "nn", &language, &country))
         {
-            self->object = new Locale(language, country);
+            self->object = new Locale(language, country, NULL,
+                                      kwds != NULL ? keywords : NULL);
             self->flags = T_OWNED;
             break;
         }
@@ -516,7 +578,17 @@ static int t_locale_init(t_locale *self, PyObject *args, PyObject *kwds)
       case 3:
         if (!parseArgs(args, "nnn", &language, &country, &variant))
         {
-            self->object = new Locale(language, country, variant);
+            self->object = new Locale(language, country, variant,
+                                      kwds != NULL ? keywords : NULL);
+            self->flags = T_OWNED;
+            break;
+        }
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+      case 4:
+        if (!parseArgs(args, "nnnn", &language, &country, &variant, &keywords))
+        {
+            self->object = new Locale(language, country, variant, keywords);
             self->flags = T_OWNED;
             break;
         }

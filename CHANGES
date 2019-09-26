@@ -11,6 +11,7 @@ Version 2.3.1 ->
   - added wrappers for new MeasureUnit static factory methods
   - added wrappers for LocaleMatcher
   - added wrappers for LocaleMatcher::Builder as LocaleMatcher.Builder
+  - added support for constructing Locale objects from keywords
   - 
 
 Version 2.3 -> 2.3.1
