@@ -57,7 +57,7 @@ class TestBreakIterator(TestCase):
 
             data = bi.getBinaryRules()
             rbi = RuleBasedBreakIterator(data)
-            self.assertEquals(data, rbi.getBinaryRules())
+            self.assertEqual(data, rbi.getBinaryRules())
 
 
 if __name__ == "__main__":

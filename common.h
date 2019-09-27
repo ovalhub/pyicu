@@ -198,6 +198,9 @@ typedef intintobjargproc ssizessizeobjargproc;
 
 #if U_ICU_VERSION_HEX >= 0x04080000
 #include <unicode/alphaindex.h>
+#include <unicode/stringtriebuilder.h>
+#include <unicode/bytestriebuilder.h>
+#include <unicode/bytestrie.h>
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(50, 0, 0)
