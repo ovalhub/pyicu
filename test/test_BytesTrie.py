@@ -41,6 +41,30 @@ class TestBytesTrie(TestCase):
         for key, value in trie:
             self.assertEqual(mappings[key], value)
 
+    def testAccess(self):
+
+        mappings = { 'ab': 3, 'abc': 6, 'abcd': 2, 'abcef': 11,
+                     'abcp': 88, 'abcqr': 20 }
+
+        builder = BytesTrie.Builder()
+        for key, value in mappings.items():
+            builder.add(key, value)
+        trie = builder.build(UStringTrieBuildOption.FAST)
+
+        self.assertEqual((3, 6), (trie.next('abc'), trie.getValue()))
+        state = trie.saveState()
+
+        self.assertEqual(b'depq', trie.getNextBytes())
+
+        self.assertEqual((2, 2), (trie.next('d'), trie.getValue()))
+        self.assertEqual((0, None), (trie.next('e'), trie.getValue()))
+
+        trie.resetToState(state)
+        self.assertEqual((2, 11), (trie.next('ef'), trie.getValue()))
+
+        trie.resetToState(state)
+        self.assertEqual((2, 88), (trie.next('p'), trie.getValue()))
+
 
 if __name__ == "__main__":
     if ICU_VERSION >= '48.0':

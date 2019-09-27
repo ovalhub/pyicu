@@ -131,6 +131,7 @@ static PyObject *t_bytestrie_first(t_bytestrie *self, PyObject *arg);
 static PyObject *t_bytestrie_next(t_bytestrie *self, PyObject *arg);
 static PyObject *t_bytestrie_hasUniqueValue(t_bytestrie *self);
 static PyObject *t_bytestrie_getNextBytes(t_bytestrie *self);
+static PyObject *t_bytestrie_getValue(t_bytestrie *self);
 
 static PyMethodDef t_bytestrie_methods[] = {
     DECLARE_METHOD(t_bytestrie, reset, METH_NOARGS),
@@ -141,6 +142,7 @@ static PyMethodDef t_bytestrie_methods[] = {
     DECLARE_METHOD(t_bytestrie, next, METH_O),
     DECLARE_METHOD(t_bytestrie, hasUniqueValue, METH_NOARGS),
     DECLARE_METHOD(t_bytestrie, getNextBytes, METH_NOARGS),
+    DECLARE_METHOD(t_bytestrie, getValue, METH_NOARGS),
     { NULL, NULL, 0, NULL }
 };
 
@@ -305,6 +307,14 @@ static PyObject *t_bytestrie_getNextBytes(t_bytestrie *self)
     self->object->getNextBytes(sbs);
 
     return buffer.bytes;
+}
+
+static PyObject *t_bytestrie_getValue(t_bytestrie *self)
+{
+    if (USTRINGTRIE_HAS_VALUE(self->object->current()))
+        return PyInt_FromLong(self->object->getValue());
+
+    Py_RETURN_NONE;
 }
 
 
