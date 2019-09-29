@@ -32,6 +32,8 @@
 
 using BytesTrieIterator = BytesTrie::Iterator;
 using BytesTrieState = BytesTrie::State;
+using UCharsTrieIterator = UCharsTrie::Iterator;
+using UCharsTrieState = UCharsTrie::State;
 
 DECLARE_CONSTANTS_TYPE(UStringTrieBuildOption);
 DECLARE_CONSTANTS_TYPE(UStringTrieResult);
@@ -148,6 +150,109 @@ static PyMethodDef t_bytestrie_methods[] = {
 
 DECLARE_TYPE(BytesTrie, t_bytestrie, UMemory, BytesTrie, abstract_init, NULL);
 
+/* UCharsTrieBuilder */
+
+class t_ucharstriebuilder : public _wrapper {
+public:
+    UCharsTrieBuilder *object;
+};
+
+static int t_ucharstriebuilder_init(
+    t_ucharstriebuilder *self, PyObject *args, PyObject *kwds);
+static PyObject *t_ucharstriebuilder_add(
+    t_ucharstriebuilder *self, PyObject *args);
+static PyObject *t_ucharstriebuilder_clear(t_ucharstriebuilder *self);
+static PyObject *t_ucharstriebuilder_build(
+    t_ucharstriebuilder *self, PyObject *arg);
+
+static PyMethodDef t_ucharstriebuilder_methods[] = {
+    DECLARE_METHOD(t_ucharstriebuilder, add, METH_VARARGS),
+    DECLARE_METHOD(t_ucharstriebuilder, clear, METH_NOARGS),
+    DECLARE_METHOD(t_ucharstriebuilder, build, METH_O),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(UCharsTrieBuilder, t_ucharstriebuilder, StringTrieBuilder,
+             UCharsTrieBuilder, t_ucharstriebuilder_init, NULL);
+
+/* UCharsTrieIterator */
+
+class t_ucharstrieiterator : public _wrapper {
+public:
+    UCharsTrieIterator *object;
+};
+
+int t_ucharstrieiterator_init(
+    t_ucharstrieiterator *self, PyObject *args, PyObject *kwds);
+static PyObject *t_ucharstrieiterator_reset(t_ucharstrieiterator *self);
+static PyObject *t_ucharstrieiterator_hasNext(t_ucharstrieiterator *self);
+static PyObject *t_ucharstrieiterator_next(t_ucharstrieiterator *self);
+static PyObject *t_ucharstrieiterator_getString(t_ucharstrieiterator *self);
+static PyObject *t_ucharstrieiterator_getValue(t_ucharstrieiterator *self);
+
+static PyMethodDef t_ucharstrieiterator_methods[] = {
+    DECLARE_METHOD(t_ucharstrieiterator, reset, METH_NOARGS),
+    DECLARE_METHOD(t_ucharstrieiterator, hasNext, METH_NOARGS),
+    DECLARE_METHOD(t_ucharstrieiterator, next, METH_NOARGS),
+    DECLARE_METHOD(t_ucharstrieiterator, getString, METH_NOARGS),
+    DECLARE_METHOD(t_ucharstrieiterator, getValue, METH_NOARGS),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(UCharsTrieIterator, t_ucharstrieiterator, UMemory,
+             UCharsTrieIterator, t_ucharstrieiterator_init, NULL);
+
+/* UCharsTrieState */
+
+class t_ucharstriestate : public _wrapper {
+public:
+    UCharsTrieState *object;
+};
+
+static PyMethodDef t_ucharstriestate_methods[] = {
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(UCharsTrieState, t_ucharstriestate, UMemory,
+             UCharsTrieState, abstract_init, NULL);
+
+/* UCharsTrie */
+
+class t_ucharstrie : public _wrapper {
+public:
+    UCharsTrie *object;
+};
+
+static PyObject *t_ucharstrie_reset(t_ucharstrie *self);
+static PyObject *t_ucharstrie_saveState(t_ucharstrie *self);
+static PyObject *t_ucharstrie_resetToState(t_ucharstrie *self, PyObject *arg);
+static PyObject *t_ucharstrie_current(t_ucharstrie *self);
+static PyObject *t_ucharstrie_first(t_ucharstrie *self, PyObject *arg);
+static PyObject *t_ucharstrie_firstForCodePoint(t_ucharstrie *self, PyObject *arg);
+static PyObject *t_ucharstrie_next(t_ucharstrie *self, PyObject *arg);
+static PyObject *t_ucharstrie_nextForCodePoint(t_ucharstrie *self, PyObject *arg);
+static PyObject *t_ucharstrie_hasUniqueValue(t_ucharstrie *self);
+static PyObject *t_ucharstrie_getNextUChars(t_ucharstrie *self);
+static PyObject *t_ucharstrie_getValue(t_ucharstrie *self);
+
+static PyMethodDef t_ucharstrie_methods[] = {
+    DECLARE_METHOD(t_ucharstrie, reset, METH_NOARGS),
+    DECLARE_METHOD(t_ucharstrie, saveState, METH_NOARGS),
+    DECLARE_METHOD(t_ucharstrie, resetToState, METH_O),
+    DECLARE_METHOD(t_ucharstrie, current, METH_NOARGS),
+    DECLARE_METHOD(t_ucharstrie, first, METH_O),
+    DECLARE_METHOD(t_ucharstrie, firstForCodePoint, METH_O),
+    DECLARE_METHOD(t_ucharstrie, next, METH_O),
+    DECLARE_METHOD(t_ucharstrie, nextForCodePoint, METH_O),
+    DECLARE_METHOD(t_ucharstrie, hasUniqueValue, METH_NOARGS),
+    DECLARE_METHOD(t_ucharstrie, getNextUChars, METH_NOARGS),
+    DECLARE_METHOD(t_ucharstrie, getValue, METH_NOARGS),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(UCharsTrie, t_ucharstrie, UMemory,
+             UCharsTrie, abstract_init, NULL);
+
 /* BytesTrieBuilder */
 
 static int t_bytestriebuilder_init(t_bytestriebuilder *self, PyObject *args,
@@ -173,7 +278,8 @@ static int t_bytestriebuilder_init(t_bytestriebuilder *self, PyObject *args,
     return -1;
 }
 
-static PyObject *t_bytestriebuilder_add(t_bytestriebuilder *self, PyObject *args)
+static PyObject *t_bytestriebuilder_add(
+    t_bytestriebuilder *self, PyObject *args)
 {
     charsArg key;
     int value;
@@ -423,6 +529,305 @@ static PyObject *t_bytestrieiterator_iter_next(t_bytestrieiterator *self)
     return result;
 }
 
+
+/* UCharsTrieBuilder */
+
+static int t_ucharstriebuilder_init(t_ucharstriebuilder *self, PyObject *args,
+                                    PyObject *kwds)
+{
+    UCharsTrieBuilder *builder;
+
+    switch (PyTuple_Size(args)) {
+      case 0:
+        INT_STATUS_CALL(builder = new UCharsTrieBuilder(status));
+        self->object = builder;
+        self->flags = T_OWNED;
+        break;
+
+      default:
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+    }
+
+    if (self->object)
+        return 0;
+
+    return -1;
+}
+
+static PyObject *t_ucharstriebuilder_add(
+    t_ucharstriebuilder *self, PyObject *args)
+{
+    UnicodeString *u, _u;
+    int value;
+
+    if (!parseArgs(args, "Si", &u, &_u, &value))
+    {
+        STATUS_CALL(self->object->add(*u, value, status));
+        Py_RETURN_SELF();
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "add", args);
+}
+
+static PyObject *t_ucharstriebuilder_clear(t_ucharstriebuilder *self)
+{
+    self->object->clear();
+    Py_RETURN_SELF();
+}
+
+static PyObject *t_ucharstriebuilder_build(
+    t_ucharstriebuilder *self, PyObject *arg)
+{
+    int option;
+
+    if (!parseArg(arg, "i", &option))
+    {
+        UCharsTrie *trie;
+
+        STATUS_CALL(trie = self->object->build(
+            (UStringTrieBuildOption) option, status));
+        self->object->clear();  // builder data is now owned by trie
+
+        return wrap_UCharsTrie(trie, T_OWNED);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "build", arg);
+}
+
+/* UCharsTrie */
+
+static PyObject *t_ucharstrie_reset(t_ucharstrie *self)
+{
+    self->object->reset();
+    Py_RETURN_SELF();
+}
+
+static PyObject *t_ucharstrie_saveState(t_ucharstrie *self)
+{
+    UCharsTrieState state;
+    self->object->saveState(state);
+
+    return wrap_UCharsTrieState(new UCharsTrieState(state), T_OWNED);
+}
+
+static PyObject *t_ucharstrie_resetToState(t_ucharstrie *self, PyObject *arg)
+{
+    PyObject *state;
+
+    if (!parseArg(arg, "O", &UCharsTrieStateType_, &state))
+    {
+        self->object->resetToState(*((t_ucharstriestate *) state)->object);
+        Py_RETURN_SELF();
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "resetToState", arg);
+}
+
+static PyObject *t_ucharstrie_iter(t_ucharstrie *self)
+{
+    UCharsTrieIterator *iter;
+    STATUS_CALL(iter = new UCharsTrieIterator(*self->object, 0, status));
+
+    return wrap_UCharsTrieIterator(iter, T_OWNED);
+}
+
+static PyObject *t_ucharstrie_current(t_ucharstrie *self)
+{
+    return PyInt_FromLong(self->object->current());
+}
+
+static PyObject *t_ucharstrie_first(t_ucharstrie *self, PyObject *arg)
+{
+    int b;
+    UnicodeString *u, _u;
+
+    if (!parseArg(arg, "i", &b))
+        return PyInt_FromLong(self->object->first(b));
+
+    if (!parseArg(arg, "S", &u, &_u) && u->length() == 1)
+        return PyInt_FromLong(self->object->first(u->charAt(0)));
+
+    return PyErr_SetArgsError((PyObject *) self, "first", arg);
+}
+
+static PyObject *t_ucharstrie_firstForCodePoint(
+    t_ucharstrie *self, PyObject *arg)
+{
+    int b;
+    UnicodeString *u, _u;
+
+    if (!parseArg(arg, "i", &b))
+        return PyInt_FromLong(self->object->first(b));
+
+    if (!parseArg(arg, "S", &u, &_u) && u->countChar32() == 1)
+        return PyInt_FromLong(self->object->firstForCodePoint(u->char32At(0)));
+
+    return PyErr_SetArgsError((PyObject *) self, "firstForCodePoint", arg);
+}
+
+static PyObject *t_ucharstrie_next(t_ucharstrie *self, PyObject *arg)
+{
+    int b;
+    UnicodeString *u, _u;
+
+    if (!parseArg(arg, "i", &b))
+        return PyInt_FromLong(self->object->next(b));
+
+    if (!parseArg(arg, "S", &u, &_u))
+        return PyInt_FromLong(self->object->next(u->getBuffer(), u->length()));
+
+    return PyErr_SetArgsError((PyObject *) self, "next", arg);
+}
+
+static PyObject *t_ucharstrie_nextForCodePoint(
+    t_ucharstrie *self, PyObject *arg)
+{
+    int b;
+    UnicodeString *u, _u;
+
+    if (!parseArg(arg, "i", &b))
+        return PyInt_FromLong(self->object->next(b));
+
+    if (!parseArg(arg, "S", &u, &_u) && u->countChar32() == 1)
+        return PyInt_FromLong(self->object->next(u->char32At(0)));
+
+    return PyErr_SetArgsError((PyObject *) self, "next", arg);
+}
+
+static PyObject *t_ucharstrie_hasUniqueValue(t_ucharstrie *self)
+{
+    int result;
+
+    if (self->object->hasUniqueValue(result))
+        return PyInt_FromLong(result);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *t_ucharstrie_getNextUChars(t_ucharstrie *self)
+{
+    UnicodeString u;
+    UnicodeStringAppendable a(u);
+
+    self->object->getNextUChars(a);
+
+    return PyUnicode_FromUnicodeString(&u);
+}
+
+static PyObject *t_ucharstrie_getValue(t_ucharstrie *self)
+{
+    if (USTRINGTRIE_HAS_VALUE(self->object->current()))
+        return PyInt_FromLong(self->object->getValue());
+
+    Py_RETURN_NONE;
+}
+
+/* UCharsTrieIterator */
+
+int t_ucharstrieiterator_init(t_ucharstrieiterator *self,
+                              PyObject *args, PyObject *kwds)
+{
+    UCharsTrieIterator *iterator;
+    PyObject *trie;
+    int len;
+
+    switch (PyTuple_Size(args)) {
+      case 1:
+        if (!parseArgs(args, "O", &UCharsTrieType_, &trie))
+        {
+            INT_STATUS_CALL(iterator = new UCharsTrieIterator(
+                *((t_ucharstrie *) trie)->object, 0, status));
+            self->object = iterator;
+            self->flags = T_OWNED;
+        }
+        else
+            PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        break;
+
+      case 2:
+        if (!parseArgs(args, "Oi", &UCharsTrieType_, &trie, &len))
+        {
+            INT_STATUS_CALL(iterator = new UCharsTrieIterator(
+                *((t_ucharstrie *) trie)->object, len, status));
+            self->object = iterator;
+            self->flags = T_OWNED;
+        }
+        else
+            PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        break;
+
+      default:
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+    }
+
+    if (self->object)
+        return 0;
+
+    return -1;
+}
+
+static PyObject *t_ucharstrieiterator_reset(t_ucharstrieiterator *self)
+{
+    self->object->reset();
+    Py_RETURN_SELF();
+}
+
+static PyObject *t_ucharstrieiterator_hasNext(t_ucharstrieiterator *self)
+{
+    if (self->object->hasNext())
+        Py_RETURN_TRUE;
+
+    Py_RETURN_FALSE;
+}
+
+static PyObject *t_ucharstrieiterator_next(t_ucharstrieiterator *self)
+{
+    UBool result;
+    STATUS_CALL(result = self->object->next(status));
+
+    Py_RETURN_BOOL(result);
+}
+
+static PyObject *t_ucharstrieiterator_getString(t_ucharstrieiterator *self)
+{
+    const UnicodeString &u = self->object->getString();
+
+    return PyUnicode_FromUnicodeString(&u);
+}
+
+static PyObject *t_ucharstrieiterator_getValue(t_ucharstrieiterator *self)
+{
+    return PyInt_FromLong(self->object->getValue());
+}
+
+static PyObject *t_ucharstrieiterator_iter(t_ucharstrieiterator *self)
+{
+    Py_RETURN_SELF();
+}
+
+static PyObject *t_ucharstrieiterator_iter_next(t_ucharstrieiterator *self)
+{
+    UBool found;
+
+    STATUS_CALL(found = self->object->next(status));
+
+    if (!found)
+    {
+        PyErr_SetNone(PyExc_StopIteration);
+        return NULL;
+    }
+
+    PyObject *result = PyTuple_New(2);
+    const UnicodeString &u = self->object->getString();
+
+    PyTuple_SET_ITEM(result, 0, PyUnicode_FromUnicodeString(&u));
+    PyTuple_SET_ITEM(result, 1, PyInt_FromLong(self->object->getValue()));
+
+    return result;
+}
+
 #endif
 
 void _init_tries(PyObject *m)
@@ -432,6 +837,10 @@ void _init_tries(PyObject *m)
     BytesTrieIteratorType_.tp_iter = (getiterfunc) t_bytestrieiterator_iter;
     BytesTrieIteratorType_.tp_iternext =
         (iternextfunc) t_bytestrieiterator_iter_next;
+    UCharsTrieType_.tp_iter = (getiterfunc) t_ucharstrie_iter;
+    UCharsTrieIteratorType_.tp_iter = (getiterfunc) t_ucharstrieiterator_iter;
+    UCharsTrieIteratorType_.tp_iternext =
+        (iternextfunc) t_ucharstrieiterator_iter_next;
 
     INSTALL_CONSTANTS_TYPE(UStringTrieBuildOption, m);
     INSTALL_CONSTANTS_TYPE(UStringTrieResult, m);
@@ -440,6 +849,10 @@ void _init_tries(PyObject *m)
     INSTALL_STRUCT(BytesTrieIterator, m);
     INSTALL_STRUCT(BytesTrieState, m);
     INSTALL_STRUCT(BytesTrie, m);
+    REGISTER_TYPE(UCharsTrieBuilder, m);
+    INSTALL_STRUCT(UCharsTrieIterator, m);
+    INSTALL_STRUCT(UCharsTrieState, m);
+    INSTALL_STRUCT(UCharsTrie, m);
 
     PyDict_SetItemString(BytesTrieType_.tp_dict, "Builder",
                          (PyObject *) &BytesTrieBuilderType_);
@@ -447,6 +860,12 @@ void _init_tries(PyObject *m)
                          (PyObject *) &BytesTrieIteratorType_);
     PyDict_SetItemString(BytesTrieType_.tp_dict, "State",
                          (PyObject *) &BytesTrieStateType_);
+    PyDict_SetItemString(UCharsTrieType_.tp_dict, "Builder",
+                         (PyObject *) &UCharsTrieBuilderType_);
+    PyDict_SetItemString(UCharsTrieType_.tp_dict, "Iterator",
+                         (PyObject *) &UCharsTrieIteratorType_);
+    PyDict_SetItemString(UCharsTrieType_.tp_dict, "State",
+                         (PyObject *) &UCharsTrieStateType_);
 
     INSTALL_ENUM(UStringTrieBuildOption, "FAST", USTRINGTRIE_BUILD_FAST);
     INSTALL_ENUM(UStringTrieBuildOption, "SMALL", USTRINGTRIE_BUILD_SMALL);

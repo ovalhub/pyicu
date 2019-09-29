@@ -15,6 +15,7 @@ Version 2.3.1 ->
   - added support for constructing Locale objects from keywords
   - locale.addLikelySubtags() and minimizeSubtags() now modify locale in place
   - added wrappers for BytesTrie, BytesTrie.Builder|Iterator|State
+  - added wrappers for UCharsTrie, UCharsTrie.Builder|Iterator|State
   - 
 
 Version 2.3 -> 2.3.1
