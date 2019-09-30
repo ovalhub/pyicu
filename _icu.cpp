@@ -52,6 +52,7 @@
 #include "measureunit.h"
 #include "casemap.h"
 #include "tries.h"
+#include "gender.h"
 
 
 /* const variable descriptor */
@@ -263,6 +264,7 @@ static PyObject *PyInit_icu(PyObject *m)
     _init_measureunit(m);
     _init_casemap(m);
     _init_tries(m);
+    _init_gender(m);
 
     return m;
 }

@@ -16,6 +16,7 @@ Version 2.3.1 ->
   - locale.addLikelySubtags() and minimizeSubtags() now modify locale in place
   - added wrappers for BytesTrie, BytesTrie.Builder|Iterator|State
   - added wrappers for UCharsTrie, UCharsTrie.Builder|Iterator|State
+  - added wrappers for GenderInfo
   - 
 
 Version 2.3 -> 2.3.1

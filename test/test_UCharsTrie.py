@@ -67,5 +67,5 @@ class TestUCharsTrie(TestCase):
 
 
 if __name__ == "__main__":
-    if ICU_VERSION >= '48.0':
+    if ICU_VERSION >= '4.8':
         main()

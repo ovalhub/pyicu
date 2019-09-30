@@ -758,6 +758,56 @@ static UnicodeString *toUnicodeStringArray(PyObject *arg, int *len)
     return NULL;
 }
 
+static int *toIntArray(PyObject *arg, int *len)
+{
+    if (PySequence_Check(arg))
+    {
+        *len = (int) PySequence_Size(arg);
+        int *array = new int[*len + 1];
+
+        for (int i = 0; i < *len; i++) {
+            PyObject *obj = PySequence_GetItem(arg, i);
+
+#if PY_MAJOR_VERSION < 3
+            if (PyInt_Check(obj))
+            {
+                array[i] = PyInt_AsLong(obj);
+                Py_DECREF(obj);
+
+                if (!PyErr_Occurred())
+                    continue;
+            }
+            else if (PyLong_Check(obj))
+            {
+                array[i] = PyLong_AsLong(obj);
+                Py_DECREF(obj);
+
+                if (!PyErr_Occurred())
+                    continue;
+            }
+#else
+            if (PyLong_Check(obj))
+            {
+                array[i] = PyLong_AsLong(obj);
+                Py_DECREF(obj);
+
+                if (!PyErr_Occurred())
+                    continue;
+            }
+#endif
+
+            Py_DECREF(obj);
+            delete[] array;
+
+            return NULL;
+        }
+
+        return array;
+    }
+
+    return NULL;
+}
+
 static double *toDoubleArray(PyObject *arg, int *len)
 {
     if (PySequence_Check(arg))
@@ -1044,6 +1094,23 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
           case 'G':           /* array of bool */
             if (PySequence_Check(arg))
                 break;
+            return -1;
+
+          case 'H':           /* array of int */
+            if (PySequence_Check(arg))
+            {
+                if (PySequence_Length(arg) > 0)
+                {
+                    PyObject *obj = PySequence_GetItem(arg, 0);
+                    int ok = (PyInt_Check(obj) ||
+                              PyLong_Check(obj));
+                    Py_DECREF(obj);
+                    if (ok)
+                        break;
+                }
+                else
+                    break;
+            }
             return -1;
 
           case 'L':           /* PY_LONG_LONG */
@@ -1349,6 +1416,16 @@ int _parseArgs(PyObject **args, int count, const char *types, ...)
               UBool **array = va_arg(list, UBool **);
               int *len = va_arg(list, int *);
               *array = toUBoolArray(arg, len);
+              if (!*array)
+                  return -1;
+              break;
+          }
+
+          case 'H':           /* array of int */
+          {
+              int **array = va_arg(list, int **);
+              int *len = va_arg(list, int *);
+              *array = toIntArray(arg, len);
               if (!*array)
                   return -1;
               break;
