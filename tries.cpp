@@ -658,7 +658,7 @@ static PyObject *t_ucharstrie_firstForCodePoint(
     UnicodeString *u, _u;
 
     if (!parseArg(arg, "i", &b))
-        return PyInt_FromLong(self->object->first(b));
+        return PyInt_FromLong(self->object->firstForCodePoint(b));
 
     if (!parseArg(arg, "S", &u, &_u) && u->countChar32() == 1)
         return PyInt_FromLong(self->object->firstForCodePoint(u->char32At(0)));
@@ -687,12 +687,12 @@ static PyObject *t_ucharstrie_nextForCodePoint(
     UnicodeString *u, _u;
 
     if (!parseArg(arg, "i", &b))
-        return PyInt_FromLong(self->object->next(b));
+        return PyInt_FromLong(self->object->nextForCodePoint(b));
 
     if (!parseArg(arg, "S", &u, &_u) && u->countChar32() == 1)
         return PyInt_FromLong(self->object->next(u->char32At(0)));
 
-    return PyErr_SetArgsError((PyObject *) self, "next", arg);
+    return PyErr_SetArgsError((PyObject *) self, "nextForCodePoint", arg);
 }
 
 static PyObject *t_ucharstrie_hasUniqueValue(t_ucharstrie *self)
