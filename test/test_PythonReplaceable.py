@@ -45,7 +45,11 @@ class _Replaceable(object):
         return self.buffer[start:limit]
 
     def handleReplaceBetween(self, start, limit, text):
-        self.buffer = "".join((self.buffer[:start], text, self.buffer[limit:]))
+        self.buffer = ''.join((self.buffer[:start], text, self.buffer[limit:]))
+
+    def copy(self, start, limit, dest):
+        self.buffer = ''.join((self.buffer[:dest], self.buffer[start:limit],
+                               self.buffer[dest:]))
 
     def hasMetaData(self):
         return False
@@ -55,7 +59,7 @@ class TestPythonReplaceable(TestCase):
 
     def testAccess(self):
 
-        _rep = _Replaceable("abcd")    # the python implementation
+        _rep = _Replaceable('abcd')    # the python implementation
         rep = PythonReplaceable(_rep)  # the wrapper to pass to ICU
 
         self.assertEqual(4, rep.length())
