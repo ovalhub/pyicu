@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2005-2018 Open Source Applications Foundation.
+ * Copyright (c) 2005-2019 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -341,6 +341,7 @@ EXPORT UnicodeString *PyObject_AsUnicodeString(PyObject *object);
 EXPORT UDate PyObject_AsUDate(PyObject *object);
 
 int abstract_init(PyObject *self, PyObject *args, PyObject *kwds);
+PyObject *abstract_method(PyObject *self, PyObject *args);
 
 // helper class, to allow argument parsing with proper cleanup
 class charsArg {

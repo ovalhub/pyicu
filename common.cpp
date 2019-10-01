@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2005-2014 Open Source Applications Foundation.
+ * Copyright (c) 2005-2019 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -550,6 +550,17 @@ int abstract_init(PyObject *self, PyObject *args, PyObject *kwds)
     Py_DECREF(err);
 
     return -1;
+}
+
+PyObject *abstract_method(PyObject *self, PyObject *args)
+{
+    PyObject *err = Py_BuildValue("(sO)", "calling abstract method on",
+                                  self->ob_type);
+
+    PyErr_SetObject(PyExc_NotImplementedError, err);
+    Py_DECREF(err);
+
+    return NULL;
 }
 
 static PyObject *types;

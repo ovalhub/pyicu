@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2018 Open Source Applications Foundation.
+ * Copyright (c) 2004-2019 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -151,6 +151,9 @@ PyObject *make_descriptor(PyObject *(*get)(PyObject *));
 
 #define DECLARE_METHOD(type, name, flags)                               \
     { #name, (PyCFunction) type##_##name, flags, "" }
+
+#define DECLARE_ABSTRACT_METHOD(type, name, flags)                      \
+    { #name, (PyCFunction) abstract_method, flags, "" }
 
 #define DECLARE_TYPE(name, t_name, base, icuClass, init, dealloc)           \
 PyTypeObject name##Type_ = {                                                \

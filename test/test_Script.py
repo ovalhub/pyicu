@@ -1,5 +1,5 @@
 # ====================================================================
-# Copyright (c) 2016-2016 Open Source Applications Foundation.
+# Copyright (c) 2016-2019 Open Source Applications Foundation.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),

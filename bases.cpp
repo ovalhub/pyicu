@@ -1,5 +1,5 @@
 /* ====================================================================
- * Copyright (c) 2004-2015 Open Source Applications Foundation.
+ * Copyright (c) 2004-2019 Open Source Applications Foundation.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -133,6 +133,213 @@ static PyMethodDef t_replaceable_methods[] = {
 DECLARE_TYPE(Replaceable, t_replaceable, UObject, Replaceable,
              abstract_init, NULL);
 
+
+/* PythonReplaceable */
+
+class t_python_replaceable : public _wrapper {
+public:
+    PythonReplaceable *object;
+};
+
+static int t_python_replaceable_init(t_python_replaceable *self, PyObject *args, PyObject *kwds);
+static PyObject *t_python_replaceable_extractBetween(t_python_replaceable *self, PyObject *args);
+static PyObject *t_python_replaceable_handleReplaceBetween(t_python_replaceable *self, PyObject *args);
+static PyObject *t_python_replaceable_copy(t_python_replaceable *self, PyObject *args);
+static PyObject *t_python_replaceable_hasMetaData(t_python_replaceable *self);
+
+static PyMethodDef t_python_replaceable_methods[] = {
+    DECLARE_METHOD(t_python_replaceable, hasMetaData, METH_NOARGS),
+    DECLARE_METHOD(t_python_replaceable, extractBetween, METH_VARARGS),
+    DECLARE_METHOD(t_python_replaceable, handleReplaceBetween, METH_VARARGS),
+    DECLARE_METHOD(t_python_replaceable, copy, METH_VARARGS),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(PythonReplaceable, t_python_replaceable, Replaceable,
+             PythonReplaceable, t_python_replaceable_init, NULL);
+
+
+PythonReplaceable::PythonReplaceable(PyObject *self) : self_(self)
+{
+    Py_INCREF(self_);
+}
+
+PythonReplaceable::~PythonReplaceable()
+{
+    Py_DECREF(self_);
+}
+
+int32_t PythonReplaceable::getLength() const
+{
+    PyObject *result = PyObject_CallMethod(self_, (char *) "getLength", NULL);
+
+    if (result == NULL)
+        return -1;
+
+#if PY_MAJOR_VERSION < 3
+    if (PyInt_Check(result))
+    {
+        int n = PyInt_AsLong(result);
+        Py_DECREF(result);
+
+        if (!PyErr_Occurred())
+            return n;
+
+        return -1;
+    }
+#endif
+
+    if (PyLong_Check(result))
+    {
+        int n = PyLong_AsLong(result);
+        Py_DECREF(result);
+
+        if (!PyErr_Occurred())
+            return n;
+
+        return -1;
+    }
+
+    PyErr_SetObject(PyExc_TypeError, result);
+    Py_DECREF(result);
+
+    return -1;
+}
+
+char16_t PythonReplaceable::getCharAt(int32_t offset) const
+{
+    PyObject *result = PyObject_CallMethod(
+        self_, (char *) "getCharAt", (char *) "i", offset);
+
+    if (result == NULL)
+        return -1;
+
+#if PY_MAJOR_VERSION < 3
+    if (PyInt_Check(result))
+    {
+        int n = PyInt_AsLong(result);
+        Py_DECREF(result);
+
+        if (PyErr_Occurred())
+            return -1;
+
+        return (char16_t) n;
+    }
+#endif
+
+    if (PyLong_Check(result))
+    {
+        int n = PyLong_AsLong(result);
+
+        Py_DECREF(result);
+        if (PyErr_Occurred())
+            return -1;
+
+        return (char16_t) n;
+    }
+
+    UnicodeString *u, _u;
+
+    if (!parseArg(result, "S", &u, &_u) && u->length() == 1)
+    {
+        Py_DECREF(result);
+        return u->charAt(0);
+    }
+
+    PyErr_SetObject(PyExc_TypeError, result);
+    Py_DECREF(result);
+
+    return -1;
+}
+
+UChar32 PythonReplaceable::getChar32At(int32_t offset) const
+{
+    PyObject *result = PyObject_CallMethod(
+        self_, (char *) "getChar32At", (char *) "i", offset);
+
+    if (result == NULL)
+        return -1;
+
+#if PY_MAJOR_VERSION < 3
+    if (PyInt_Check(result))
+    {
+        int n = PyInt_AsLong(result);
+        Py_DECREF(result);
+
+        if (PyErr_Occurred())
+            return -1;
+
+        return (UChar32) n;
+    }
+#endif
+
+    if (PyLong_Check(result))
+    {
+        int n = PyLong_AsLong(result);
+
+        Py_DECREF(result);
+        if (PyErr_Occurred())
+            return -1;
+
+        return (UChar32) n;
+    }
+
+    UnicodeString *u, _u;
+
+    if (!parseArg(result, "S", &u, &_u) && u->countChar32() == 1)
+    {
+        Py_DECREF(result);
+        return u->char32At(0);
+    }
+
+    PyErr_SetObject(PyExc_TypeError, result);
+    Py_DECREF(result);
+
+    return -1;
+}
+
+void PythonReplaceable::extractBetween(
+    int32_t start, int32_t limit, UnicodeString &target) const
+{
+    PyObject *result = PyObject_CallMethod(
+        self_, (char *) "extractBetween", (char *) "ii", start, limit);
+
+    UnicodeString *u, _u;
+
+    if (result != NULL && !parseArg(result, "S", &u, &_u))
+    {
+        target.setTo(*u);
+        Py_DECREF(result);
+    }
+}
+
+void PythonReplaceable::handleReplaceBetween(
+    int32_t start, int32_t limit, const UnicodeString &text)
+{
+    PyObject *obj = PyUnicode_FromUnicodeString(&text);
+    PyObject *result = PyObject_CallMethod(
+        self_, (char *) "handleReplaceBetween", (char *) "iiO",
+        start, limit, obj);
+
+    Py_DECREF(obj);
+    Py_XDECREF(result);
+}
+
+void PythonReplaceable::copy(int32_t start, int32_t limit, int32_t dest)
+{
+    PyObject *result = PyObject_CallMethod(
+        self_, (char *) "copy", (char *) "iii", start, limit, dest);
+    Py_XDECREF(result);
+}
+
+UBool PythonReplaceable::hasMetaData() const
+{
+    PyObject *result = PyObject_CallMethod(self_, (char *) "hasMetaData", NULL);
+    UBool b = PyObject_IsTrue(result);
+    Py_XDECREF(result);
+
+    return b;
+}
 
 /* UnicodeString */
 
@@ -486,6 +693,97 @@ static PyObject *t_replaceable_hasMetaData(t_replaceable *self)
     Py_RETURN_BOOL(b);
 }
 
+/* PythonReplaceable */
+
+static int t_python_replaceable_init(
+    t_python_replaceable *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *object;
+
+    switch (PyTuple_Size(args)) {
+      case 1:
+        if (!parseArgs(args, "K", &object))
+        {
+            self->object = new PythonReplaceable(object);
+            self->flags = T_OWNED;
+        }
+        else
+            PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        break;
+
+      default:
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+    }
+
+    if (self->object)
+        return 0;
+
+    return -1;
+}
+
+static PyObject *t_python_replaceable_extractBetween(
+    t_python_replaceable *self, PyObject *args)
+{
+    int start, limit;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "ii", &start, &limit))
+        {
+            UnicodeString result;
+            self->object->extractBetween(start, limit, result);
+
+            return PyUnicode_FromUnicodeString(&result);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "extractBetween", args);
+}
+
+static PyObject *t_python_replaceable_handleReplaceBetween(
+    t_python_replaceable *self, PyObject *args)
+{
+    int start, limit;
+    UnicodeString *u, _u;
+
+    switch (PyTuple_Size(args)) {
+      case 3:
+        if (!parseArgs(args, "iiS", &start, &limit, &u, &_u))
+        {
+            self->object->handleReplaceBetween(start, limit, *u);
+            Py_RETURN_NONE;
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "handleReplaceBetween", args);
+}
+
+static PyObject *t_python_replaceable_copy(
+    t_python_replaceable *self, PyObject *args)
+{
+    int start, limit, dest;
+
+    switch (PyTuple_Size(args)) {
+      case 3:
+        if (!parseArgs(args, "iii", &start, &limit, &dest))
+        {
+            self->object->copy(start, limit, dest);
+            Py_RETURN_NONE;
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "copy", args);
+}
+
+static PyObject *t_python_replaceable_hasMetaData(t_python_replaceable *self)
+{
+    int b = self->object->hasMetaData();
+    Py_RETURN_BOOL(b);
+}
 
 /* UnicodeString */
 
@@ -2332,6 +2630,7 @@ void _init_bases(PyObject *m)
     INSTALL_STRUCT(UMemory, m);  // no typeid()
     INSTALL_TYPE(UObject, m);
     INSTALL_TYPE(Replaceable, m);
+    INSTALL_TYPE(PythonReplaceable, m);
     REGISTER_TYPE(UnicodeString, m);
     REGISTER_TYPE(Formattable, m);
     INSTALL_TYPE(StringEnumeration, m);
