@@ -303,7 +303,6 @@ void PythonReplaceable::extractBetween(
 {
     PyObject *result = PyObject_CallMethod(
         self_, (char *) "extractBetween", (char *) "ii", start, limit);
-
     UnicodeString *u, _u;
 
     if (result != NULL && !parseArg(result, "S", &u, &_u))

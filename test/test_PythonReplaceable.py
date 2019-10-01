@@ -27,7 +27,7 @@ from unittest import TestCase, main
 from icu import *
 
 
-class _Replaceable:
+class _Replaceable(object):
 
     def __init__(self, buffer):
         self.buffer = buffer
@@ -46,6 +46,9 @@ class _Replaceable:
 
     def handleReplaceBetween(self, start, limit, text):
         self.buffer = "".join((self.buffer[:start], text, self.buffer[limit:]))
+
+    def hasMetaData(self):
+        return False
 
 
 class TestPythonReplaceable(TestCase):
