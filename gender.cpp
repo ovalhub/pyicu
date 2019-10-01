@@ -78,8 +78,11 @@ static PyObject *t_genderinfo_getListGender(t_genderinfo *self, PyObject *arg)
     if (!parseArg(arg, "H", &genders, &len))
     {
         UGender result;
-        STATUS_CALL(result = self->object->getListGender(genders, len, status));
-        delete[] genders;
+        STATUS_CALL(
+            {
+                result = self->object->getListGender(genders, len, status);
+                delete[] genders;
+            });
 
         return PyInt_FromLong(result);
     }
