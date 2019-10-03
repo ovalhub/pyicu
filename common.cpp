@@ -1490,7 +1490,7 @@ int isUnicodeString(PyObject *arg)
             ISINSTANCE(((t_uobject *) arg)->object, UnicodeString));
 }
 
-int32_t toUChar32(UnicodeString& u, UChar32 *c, UErrorCode& status)
+int32_t toUChar32(UnicodeString &u, UChar32 *c, UErrorCode &status)
 {
 #if U_ICU_VERSION_HEX >= 0x04020000
     return u.toUTF32(c, 1, status);

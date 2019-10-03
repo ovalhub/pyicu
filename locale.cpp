@@ -566,14 +566,14 @@ static int t_locale_init(t_locale *self, PyObject *args, PyObject *kwds)
     switch (PyTuple_Size(args)) {
       case 0:
         self->object = new Locale(NULL, NULL, NULL,
-                                  kwds != NULL ? keywords : NULL);
+                                  kwds != NULL ? keywords.c_str() : NULL);
         self->flags = T_OWNED;
         break;
       case 1:
         if (!parseArgs(args, "n", &language))
         {
             self->object = new Locale(language, NULL, NULL,
-                                      kwds != NULL ? keywords : NULL);
+                                      kwds != NULL ? keywords.c_str() : NULL);
             self->flags = T_OWNED;
             break;
         }
@@ -585,8 +585,8 @@ static int t_locale_init(t_locale *self, PyObject *args, PyObject *kwds)
                 lcid, code, sizeof(code), &status));
             if ((size_t) len < sizeof(code))
             {
-                self->object = new Locale(code, NULL, NULL,
-                                          kwds != NULL ? keywords : NULL);
+                self->object = new Locale(
+                    code, NULL, NULL, kwds != NULL ? keywords.c_str() : NULL);
                 self->flags = T_OWNED;
             }
             break;
@@ -597,7 +597,7 @@ static int t_locale_init(t_locale *self, PyObject *args, PyObject *kwds)
         if (!parseArgs(args, "nn", &language, &country))
         {
             self->object = new Locale(language, country, NULL,
-                                      kwds != NULL ? keywords : NULL);
+                                      kwds != NULL ? keywords.c_str() : NULL);
             self->flags = T_OWNED;
             break;
         }
@@ -607,7 +607,7 @@ static int t_locale_init(t_locale *self, PyObject *args, PyObject *kwds)
         if (!parseArgs(args, "nnn", &language, &country, &variant))
         {
             self->object = new Locale(language, country, variant,
-                                      kwds != NULL ? keywords : NULL);
+                                      kwds != NULL ? keywords.c_str() : NULL);
             self->flags = T_OWNED;
             break;
         }

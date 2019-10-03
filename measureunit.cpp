@@ -904,7 +904,9 @@ static PyObject *t_measure_str(t_measure *self)
 #if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
     UnicodeString u;
 
-// this conditional is wider than necessary to placate the msvc++ compiler
+// this conditional is wider than necessary because of
+// www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4296.pdf#section.16.3
+// and to placate the msvc++ compiler
 #if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
     STATUS_CALL(u = icu::number::NumberFormatter::withLocale(
         Locale::getDefault())
