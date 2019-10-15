@@ -143,7 +143,7 @@ LFLAGS = {
 }
 
 LIBRARIES = {
-    'darwin': [],
+    'darwin': ['icui18n', 'icuuc', 'icudata'],
     'linux': [],
     'freebsd': ['icui18n', 'icuuc', 'icudata'],
     'win32': ['icuin', 'icuuc', 'icudt'],
