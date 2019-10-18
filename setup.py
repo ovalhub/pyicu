@@ -254,7 +254,7 @@ setup(name="PyICU",
           'Programming Language :: Python :: Implementation :: PyPy',
           'Topic :: Software Development :: Localization',
           'Topic :: Software Development :: Internationalization'],
-      ext_modules=[Extension('_icu',
+      ext_modules=[Extension('icu._icu',
                              [filename for filename in sorted(os.listdir(os.curdir))
                               if filename.endswith('.cpp')],
                              include_dirs=_includes,

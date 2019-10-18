@@ -270,7 +270,7 @@ static PyObject *PyInit_icu(PyObject *m)
 /* TODO: Properly implement http://www.python.org/dev/peps/pep-3121/ */
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
-    /* m_name    */ "_icu",
+    /* m_name    */ "icu._icu",
     /* m_doc     */ "PyICU extension module",
     /* m_size    */ -1,
     /* m_methods */ _icu_funcs,
@@ -289,7 +289,7 @@ extern "C" {
 extern "C" {
     void init_icu(void)
     {
-        PyObject *m = Py_InitModule3("_icu", _icu_funcs, "_icu");
+        PyObject *m = Py_InitModule3("icu._icu", _icu_funcs, "icu._icu");
         PyInit_icu(m);
     }
 }
