@@ -1034,7 +1034,7 @@ static int t_rulebasedbreakiterator_init(t_rulebasedbreakiterator *self,
                 (uint32_t) PyBytes_GET_SIZE(buffer), status);
 
             // since "C" and "S" overlap fall through to "S" case if failure
-            if (!U_FAILURE(status))
+            if (U_SUCCESS(status))
             {
                 self->object = iterator;
                 self->flags = T_OWNED;

@@ -1,4 +1,4 @@
-Version 2.3.1 ->
+Version 2.3.1 -> 2.4
 --------------------
   - workedaround mystery variations in test_Script.testSurrogatePairs
   - added support for RuleBasedBreakIterator.getBinaryRules()
@@ -19,7 +19,6 @@ Version 2.3.1 ->
   - added wrappers for GenderInfo
   - added support for implementing a subclass of Replaceable in Python
   - added support for using PythonReplaceable with Transliterator methods
-  - 
 
 Version 2.3 -> 2.3.1
 --------------------
