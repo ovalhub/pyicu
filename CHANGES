@@ -1,3 +1,7 @@
+Version 2.4 -> 2.4.1
+--------------------
+  - added missing header files to MANIFEST.in
+
 Version 2.3.1 -> 2.4
 --------------------
   - workedaround mystery variations in test_Script.testSurrogatePairs

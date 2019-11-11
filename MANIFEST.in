@@ -9,6 +9,7 @@ include common.h
 include dateformat.h
 include errors.h
 include format.h
+include gender.h
 include idna.h
 include iterators.h
 include layoutengine.h
@@ -23,5 +24,6 @@ include search.h
 include shape.h
 include spoof.h
 include transliterator.h
+include tries.h
 include tzinfo.h
 include unicodeset.h
