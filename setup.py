@@ -234,6 +234,7 @@ if sys.version_info < (2, 4):
 setup(name="PyICU",
       description='Python extension wrapping the ICU C++ API',
       long_description=open('README.md').read(),
+      long_description_content_type="text/markdown",
       version=VERSION,
       test_suite="test",
       url='https://github.com/ovalhub/pyicu',
