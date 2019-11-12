@@ -48,7 +48,11 @@ class PythonReplaceable : public Replaceable {
   ~PythonReplaceable();
 
   int32_t getLength() const override;
+#if U_ICU_VERSION_HEX < VERSION_HEX(59, 1, 0)
+  UChar getCharAt(int32_t offset) const override;
+#else
   char16_t getCharAt(int32_t offset) const override;
+#endif
   UChar32 getChar32At(int32_t offset) const override;
 
   void extractBetween(

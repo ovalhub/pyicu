@@ -206,7 +206,11 @@ int32_t PythonReplaceable::getLength() const
     return -1;
 }
 
-char16_t PythonReplaceable::getCharAt(int32_t offset) const
+#if U_ICU_VERSION_HEX < VERSION_HEX(59, 1, 0)
+  UChar PythonReplaceable::getCharAt(int32_t offset) const
+#else
+  char16_t PythonReplaceable::getCharAt(int32_t offset) const
+#endif
 {
     PyObject *result = PyObject_CallMethod(
         self_, (char *) "getCharAt", (char *) "i", offset);
@@ -223,7 +227,11 @@ char16_t PythonReplaceable::getCharAt(int32_t offset) const
         if (PyErr_Occurred())
             return -1;
 
+#if U_ICU_VERSION_HEX < VERSION_HEX(59, 1, 0)
+        return (UChar) n;
+#else
         return (char16_t) n;
+#endif
     }
 #endif
 
@@ -235,7 +243,11 @@ char16_t PythonReplaceable::getCharAt(int32_t offset) const
         if (PyErr_Occurred())
             return -1;
 
+#if U_ICU_VERSION_HEX < VERSION_HEX(59, 1, 0)
+        return (UChar) n;
+#else
         return (char16_t) n;
+#endif
     }
 
     UnicodeString *u, _u;
