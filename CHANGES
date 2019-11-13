@@ -1,3 +1,7 @@
+Version 2.4.1 -> 2.4.2
+----------------------
+  - fixed build issues with ICU < 59
+
 Version 2.4 -> 2.4.1
 --------------------
   - added missing header files to MANIFEST.in
