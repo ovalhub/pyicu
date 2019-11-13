@@ -7,14 +7,12 @@ notifications:
 
 python:
   - "2.7"
-  - "3.4"
-  - "3.5"
-  - "3.6"
   - "3.7"
+  - "3.8"
 
 env:
   global:
-    - ICU_VERSION="64.2"
+    - ICU_VERSION="65.1"
     - PYICU_LIBRARIES="icui18n:icuuc:icudata"
     - PYICU_INCLUDES="/tmp/icu4c/include"
     - PYICU_LFLAGS="-L/tmp/icu4c/lib"
