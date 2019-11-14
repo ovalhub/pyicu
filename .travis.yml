@@ -4,36 +4,53 @@ dist: xenial
 notifications:
   email: false
 
+# For explicitly included jobs, if the python version is
+# not specified then it takes the first value in the array.
+# Let's run those jobs against the latest Python version
+# unless otherwise specified.
 python:
-  - "2.7"
-  - "3.5"
-  - "3.6"
-  - "3.7"
   - "3.8"
+  - "3.7"
+  - "3.6"
+  - "3.5"
+  - "2.7"
 
 env:
+  # Run against the latest ICU version, as well as version 55
+  # since that seems to be what is set up by default in Travis-CI.
+  # These will run against all specified defined Python versions.
   jobs:
     - ICU_VERSION="65.1"
-    - ICU_VERSION="64.2"
-    - ICU_VERSION="63.2"
-    - ICU_VERSION="62.2"
-    - ICU_VERSION="61.2"
-    - ICU_VERSION="60.3"
-    - ICU_VERSION="59.2"
-    - ICU_VERSION="58.3"
-    - ICU_VERSION="57.2"
-    - ICU_VERSION="56.2"
     - ICU_VERSION="55.2"
-    - ICU_VERSION="54.2"
-    - ICU_VERSION="53.2"
-    - ICU_VERSION="52.2"
-    - ICU_VERSION="51.3"
-    - ICU_VERSION="50.2"
   # The "global" environment variables are defined for each job.
   global:
     - PYICU_LIBRARIES="icui18n:icuuc:icudata"
     - PYICU_INCLUDES="/tmp/icu4c/include"
     - PYICU_LFLAGS="-L/tmp/icu4c/lib"
+
+# Explicitly include jobs not defined by the above matrix
+jobs:
+  # The include matrix is used to specify specific jobs to run
+  # that would not otherwise be defined from the above settings.
+  # If a Python version is not specified, is uses the first
+  # version specified.
+  include:
+    # - env: ICU_VERSION="65.1"
+    - env: ICU_VERSION="64.2"
+    - env: ICU_VERSION="63.2"
+    - env: ICU_VERSION="62.2"
+    - env: ICU_VERSION="61.2"
+    - env: ICU_VERSION="60.3"
+    - env: ICU_VERSION="59.2"
+    - env: ICU_VERSION="58.3"
+    - env: ICU_VERSION="57.2"
+    - env: ICU_VERSION="56.2"
+    # - env: ICU_VERSION="55.2"
+    - env: ICU_VERSION="54.2"
+    - env: ICU_VERSION="53.2"
+    - env: ICU_VERSION="52.2"
+    - env: ICU_VERSION="51.3"
+    - env: ICU_VERSION="50.2"
 
 cache:
   ccache: true
