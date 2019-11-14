@@ -30,11 +30,35 @@ env:
 
 # Explicitly include jobs not defined by the above matrix
 jobs:
-  # The include matrix is used to specify specific jobs to run
-  # that would not otherwise be defined from the above settings.
-  # If a Python version is not specified, is uses the first
-  # version specified.
   include:
+    # We will limit the number of jobs that will be run for macos because
+    # these machines take a while to boot up and there are fewer of them.
+    - python: "3.8"
+      language: sh
+      os: osx
+      env:
+        - PYENV_VERSION="3.8.0"
+        - ICU_VERSION="65.1"
+      before_install:
+        - export PYENV_VERSION_STRING="Python ${PYENV_VERSION}"
+        - wget https://github.com/praekeltfoundation/travis-pyenv/releases/download/0.4.0/setup-pyenv.sh
+        - source setup-pyenv.sh
+        - bash ci-install-icu4c.bash MacOSX
+    - python: "3.8"
+      language: sh
+      os: osx
+      env:
+        - PYENV_VERSION="3.8.0"
+        - ICU_VERSION="55.2"
+      before_install:
+        - export PYENV_VERSION_STRING="Python ${PYENV_VERSION}"
+        - wget https://github.com/praekeltfoundation/travis-pyenv/releases/download/0.4.0/setup-pyenv.sh
+        - source setup-pyenv.sh
+        - bash ci-install-icu4c.bash MacOSX
+
+  # This include matrix is used to specify specific jobs to run on linux
+  # that would not otherwise be defined from the above settings.
+  # If a Python version is not specified, is uses the first version specified.
     # - env: ICU_VERSION="65.1"
     - env: ICU_VERSION="64.2"
     - env: ICU_VERSION="63.2"
@@ -63,7 +87,7 @@ before_install:
   - bash ci-install-icu4c.bash Linux
 
 install:
-  - pip install . pytest
+  - PATH="/tmp/icu4c/bin:${PATH}" pip install . pytest
 
 script:
-  - LD_LIBRARY_PATH="/tmp/icu4c/lib" py.test
+  - LD_LIBRARY_PATH="/tmp/icu4c/lib" DYLD_LIBRARY_PATH="/tmp/icu4c/lib" py.test
