@@ -32,7 +32,7 @@ before_install:
   - pushd /tmp/icu4c/icu/source && ./configure --prefix=/tmp/icu4c && make && make install && popd
 
 install:
-  - pip install . pytest six
+  - pip install . pytest
 
 script:
   - LD_LIBRARY_PATH="/tmp/icu4c/lib" py.test
