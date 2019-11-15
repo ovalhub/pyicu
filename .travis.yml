@@ -25,8 +25,8 @@ env:
   # The "global" environment variables are defined for each job.
   global:
     - PYICU_LIBRARIES="icui18n:icuuc:icudata"
-    - PYICU_INCLUDES="/tmp/icu4c/include"
-    - PYICU_LFLAGS="-L/tmp/icu4c/lib"
+    - PYICU_INCLUDES="$HOME/icu4c/include"
+    - PYICU_LFLAGS="-L$HOME/icu4c/lib"
 
 # Explicitly include jobs not defined by the above matrix
 jobs:
@@ -81,13 +81,14 @@ cache:
   pip: true
   timeout: 1000
   directories:
-    - /tmp/icu4c
+   - ~/.pyenv_cache  # for macos
+   - ~/icu4c
 
 before_install:
   - bash ci-install-icu4c.bash Linux
 
 install:
-  - PATH="/tmp/icu4c/bin:${PATH}" pip install . pytest
+  - PATH="$HOME/icu4c/bin:${PATH}" pip install . pytest
 
 script:
-  - LD_LIBRARY_PATH="/tmp/icu4c/lib" DYLD_LIBRARY_PATH="/tmp/icu4c/lib" py.test
+  - LD_LIBRARY_PATH="$HOME/icu4c/lib" DYLD_LIBRARY_PATH="$HOME/icu4c/lib" py.test
