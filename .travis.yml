@@ -90,7 +90,17 @@ before_install:
 install:
   # For ICU < 58, include icule as a library
   - if [ ${ICU_VERSION%.*} -lt 58 ]; then export PYICU_LIBRARIES="${PYICU_LIBRARIES}:icule"; fi
-  - PATH="$HOME/icu4c/bin:${PATH}" pip install . pytest
+  # Before compilation, describe the environment
+  - export PATH="$HOME/icu4c/bin:${PATH}"
+  - echo "${PYICU_LIBRARIES}"
+  - which icuinfo
+  - LD_LIBRARY_PATH="$HOME/icu4c/lib" DYLD_LIBRARY_PATH="$HOME/icu4c/lib" icuinfo -v
+  - which icu-config
+  - LD_LIBRARY_PATH="$HOME/icu4c/lib" DYLD_LIBRARY_PATH="$HOME/icu4c/lib" icu-config --version
+  - LD_LIBRARY_PATH="$HOME/icu4c/lib" DYLD_LIBRARY_PATH="$HOME/icu4c/lib" icu-config --cxxflags
+  - LD_LIBRARY_PATH="$HOME/icu4c/lib" DYLD_LIBRARY_PATH="$HOME/icu4c/lib" icu-config --cppflags
+  # Now compile
+  - pip install . pytest
 
 script:
   - LD_LIBRARY_PATH="$HOME/icu4c/lib" DYLD_LIBRARY_PATH="$HOME/icu4c/lib" py.test
