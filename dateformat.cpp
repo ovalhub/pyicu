@@ -398,17 +398,21 @@ static PyObject *t_relativedatetimeformatter_combineDateAndTime(
     t_relativedatetimeformatter *self, PyObject *args);
 static PyObject *t_relativedatetimeformatter_getNumberFormat(
     t_relativedatetimeformatter *self);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
 static PyObject *t_relativedatetimeformatter_getCapitalizationContext(
     t_relativedatetimeformatter *self);
 static PyObject *t_relativedatetimeformatter_getFormatStyle(
     t_relativedatetimeformatter *self);
+#endif
 
 static PyMethodDef t_relativedatetimeformatter_methods[] = {
     DECLARE_METHOD(t_relativedatetimeformatter, format, METH_VARARGS),
     DECLARE_METHOD(t_relativedatetimeformatter, combineDateAndTime, METH_VARARGS),
     DECLARE_METHOD(t_relativedatetimeformatter, getNumberFormat, METH_NOARGS),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
     DECLARE_METHOD(t_relativedatetimeformatter, getCapitalizationContext, METH_NOARGS),
     DECLARE_METHOD(t_relativedatetimeformatter, getFormatStyle, METH_NOARGS),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -1885,8 +1889,8 @@ static int t_relativedatetimeformatter_init(t_relativedatetimeformatter *self,
     NumberFormat *number_format;
 #if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
     UDateRelativeDateTimeFormatterStyle style;
-#endif
     UDisplayContext context;
+#endif
 
     switch (PyTuple_Size(args)) {
       case 0:
@@ -2045,6 +2049,8 @@ static PyObject *t_relativedatetimeformatter_getNumberFormat(
     return wrap_NumberFormat(const_cast<NumberFormat *>(&format), 0);
 }
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
+
 static PyObject *t_relativedatetimeformatter_getCapitalizationContext(
     t_relativedatetimeformatter *self)
 {
@@ -2056,6 +2062,7 @@ static PyObject *t_relativedatetimeformatter_getFormatStyle(
 {
     return PyInt_FromLong(self->object->getFormatStyle());
 }
+#endif
 
 #endif
 
