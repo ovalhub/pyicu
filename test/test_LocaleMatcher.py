@@ -23,10 +23,14 @@
 
 import sys, os, six
 
-from unittest import TestCase, main
+from unittest import TestCase, main, SkipTest
 from icu import *
 
 class TestLocaleMatcher(TestCase):
+
+    def setUp(self):
+        if ICU_VERSION < '65.0':
+            self.skipTest(ICU_VERSION)
 
     def testSetSupportedLocales(self):
 
@@ -54,7 +58,6 @@ class TestLocaleMatcher(TestCase):
 
         self.assertEqual(Locale('de-AT'), result.getDesiredLocale())
         self.assertEqual(Locale.getGermany(), result.getSupportedLocale())
-
 
 
 if __name__ == "__main__":

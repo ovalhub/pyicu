@@ -28,6 +28,10 @@ from icu import *
 
 class TestSimpleFormatter(TestCase):
 
+    def setUp(self):
+        if ICU_VERSION < '57.0':
+            self.skipTest(ICU_VERSION)
+
     def testDefault(self):
 
         formatter = SimpleFormatter("{1} '{born}' in {0}")
