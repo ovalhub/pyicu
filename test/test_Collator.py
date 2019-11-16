@@ -153,7 +153,7 @@ class TestCollator(TestCase):
             self.assertTrue(list(allData(index)) == [
                 ('F', 0, 'bar'), ('T', 0, 'lino')])
 
-            if ICU_VERSION >= '5.1':
+            if ICU_VERSION >= '51.0':
                 self.assertTrue(len(index.buildImmutableIndex()) == 28)
 
 

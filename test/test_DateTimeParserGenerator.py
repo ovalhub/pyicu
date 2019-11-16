@@ -31,6 +31,9 @@ from icu import *
 class TestDateTimePatternGenerator(TestCase):
 
     def setUp(self):
+        if ICU_VERSION < '56.0':
+            self.skipTest(ICU_VERSION)
+
         cal = Calendar.createInstance()
         cal.setTimeZone(TimeZone.getGMT())
         cal.set(2016, 4, 10, 0, 30, 0)  # month value is 0-based
@@ -44,22 +47,14 @@ class TestDateTimePatternGenerator(TestCase):
 
         sdf = SimpleDateFormat(dtpg.getBestPattern('MMMMddHmm'), locale)
         sdf.setTimeZone(self.tz)
-        if ICU_VERSION < '56.0':
-            self.assertEqual(sdf.format(self.date), u'09 mai 17:30')
-            self.assertEqual(sdf.toPattern(), u"dd MMMM HH:mm")
-        else:
-            self.assertEqual(sdf.format(self.date), u'09 mai à 17:30')
-            self.assertEqual(sdf.toPattern(), u"dd MMMM 'à' HH:mm")
+        self.assertEqual(sdf.format(self.date), u'09 mai à 17:30')
+        self.assertEqual(sdf.toPattern(), u"dd MMMM 'à' HH:mm")
 
         dtpg.addPattern("dd'. von' MMMM", True)
         sdf.applyPattern(dtpg.getBestPattern('MMMMddHmm'))
         sdf.setTimeZone(self.tz)
-        if ICU_VERSION < '56.0':
-            self.assertEqual(sdf.format(self.date), u'09. von mai 17:30')
-            self.assertEqual(sdf.toPattern(), u"dd'. von' MMMM HH:mm")
-        else:
-            self.assertEqual(sdf.format(self.date), u'09. von mai à 17:30')
-            self.assertEqual(sdf.toPattern(), u"dd'. von' MMMM 'à' HH:mm")
+        self.assertEqual(sdf.format(self.date), u'09. von mai à 17:30')
+        self.assertEqual(sdf.toPattern(), u"dd'. von' MMMM 'à' HH:mm")
 
     def testGetBestPattern(self):
         """Test a few different languages and common patterns."""

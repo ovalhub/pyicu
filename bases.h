@@ -42,6 +42,9 @@ public:
     UObject *object;
 };
 
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(55, 0, 0)
+
 class PythonReplaceable : public Replaceable {
  public:
   explicit PythonReplaceable(PyObject *self);
@@ -65,6 +68,8 @@ class PythonReplaceable : public Replaceable {
  private:
   PyObject *self_;
 };
+
+#endif
 
 struct UNone;
 typedef struct UNone UNone;

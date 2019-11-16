@@ -57,6 +57,10 @@ class _Replaceable(object):
 
 class TestPythonReplaceable(TestCase):
 
+    def setUp(self):
+        if ICU_VERSION < '55.0':
+            self.skipTest(ICU_VERSION)
+
     def testAccess(self):
 
         _rep = _Replaceable('abcd')    # the python implementation

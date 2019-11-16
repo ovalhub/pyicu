@@ -134,6 +134,8 @@ DECLARE_TYPE(Replaceable, t_replaceable, UObject, Replaceable,
              abstract_init, NULL);
 
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(55, 0, 0)
+
 /* PythonReplaceable */
 
 class t_python_replaceable : public _wrapper {
@@ -351,6 +353,8 @@ UBool PythonReplaceable::hasMetaData() const
 
     return b;
 }
+
+#endif
 
 /* UnicodeString */
 
@@ -704,6 +708,9 @@ static PyObject *t_replaceable_hasMetaData(t_replaceable *self)
     Py_RETURN_BOOL(b);
 }
 
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(55, 0, 0)
+
 /* PythonReplaceable */
 
 static int t_python_replaceable_init(
@@ -795,6 +802,8 @@ static PyObject *t_python_replaceable_hasMetaData(t_python_replaceable *self)
     int b = self->object->hasMetaData();
     Py_RETURN_BOOL(b);
 }
+
+#endif
 
 /* UnicodeString */
 
@@ -2641,7 +2650,9 @@ void _init_bases(PyObject *m)
     INSTALL_STRUCT(UMemory, m);  // no typeid()
     INSTALL_TYPE(UObject, m);
     INSTALL_TYPE(Replaceable, m);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(55, 0, 0)
     INSTALL_TYPE(PythonReplaceable, m);
+#endif
     REGISTER_TYPE(UnicodeString, m);
     REGISTER_TYPE(Formattable, m);
     INSTALL_TYPE(StringEnumeration, m);
