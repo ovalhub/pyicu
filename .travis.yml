@@ -88,6 +88,8 @@ before_install:
   - bash ci-install-icu4c.bash Linux
 
 install:
+  # For ICU < 58, include icule as a library
+  - if [ ${ICU_VERSION%.*} -lt 58 ]; then export PYICU_LIBRARIES="${PYICU_LIBRARIES}:icule"; fi
   - PATH="$HOME/icu4c/bin:${PATH}" pip install . pytest
 
 script:
