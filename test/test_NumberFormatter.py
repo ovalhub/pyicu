@@ -29,18 +29,21 @@ from icu import *
 
 class TestNumberFormatter(TestCase):
 
+    def setUp(self):
+        if ICU_VERSION < '60.0':
+            self.skipTest(ICU_VERSION)
+
     def testBasic(self):
 
-        if ICU_VERSION >= '60.0':
-            text = NumberFormatter.withLocale(Locale.getUS()).formatInt(1234)
-            self.assertEqual(text, u'1,234')
+        text = NumberFormatter.withLocale(Locale.getUS()).formatInt(1234)
+        self.assertEqual(text, u'1,234')
 
-            text = LocalizedNumberFormatter(Locale.getUS()).formatInt(1234)
-            self.assertEqual(text, u'1,234')
+        text = LocalizedNumberFormatter(Locale.getUS()).formatInt(1234)
+        self.assertEqual(text, u'1,234')
 
     def testFancy(self):
 
-        if ICU_VERSION >= '60.0' and ICU_VERSION < '64.0':
+        if ICU_VERSION < '64.0':
             text = NumberFormatter.with_() \
                 .notation(Notation.compactShort()) \
                 .unit(CurrencyUnit('EUR')) \
@@ -60,20 +63,19 @@ class TestNumberFormatter(TestCase):
 
     def testUnit(self):
 
-        if ICU_VERSION >= '60.0':
-            formatter = UnlocalizedNumberFormatter() \
-                .sign(UNumberSignDisplay.ALWAYS) \
-                .unit(MeasureUnit.createMeter()) \
-                .unitWidth(UNumberUnitWidth.FULL_NAME)
+        formatter = UnlocalizedNumberFormatter() \
+            .sign(UNumberSignDisplay.ALWAYS) \
+            .unit(MeasureUnit.createMeter()) \
+            .unitWidth(UNumberUnitWidth.FULL_NAME)
 
-            text = formatter.locale(Locale.getUS()).formatInt(1234)
-            self.assertEqual(text, u'+1,234 meters')
+        text = formatter.locale(Locale.getUS()).formatInt(1234)
+        self.assertEqual(text, u'+1,234 meters')
 
-            text = formatter.locale(Locale.getFrance()).formatInt(1234)
-            if ICU_VERSION >= '63.0':
-                self.assertEqual(text, u'+1\u202f234\xa0mètres')
-            else:
-                self.assertEqual(text, u'+1\xa0234 mètres')
+        text = formatter.locale(Locale.getFrance()).formatInt(1234)
+        if ICU_VERSION >= '63.0':
+            self.assertEqual(text, u'+1\u202f234\xa0mètres')
+        else:
+            self.assertEqual(text, u'+1\xa0234 mètres')
 
         if ICU_VERSION >= '61.0':
             formatter = UnlocalizedNumberFormatter() \

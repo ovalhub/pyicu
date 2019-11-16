@@ -28,6 +28,10 @@ from icu import *
 
 class TestBytesTrie(TestCase):
 
+    def setUp(self):
+        if ICU_VERSION < '4.8':
+            self.skipTest(ICU_VERSION)
+
     def testBuildAndIterate(self):
 
         mappings = { 'ab': 3, 'abc': 6, 'abcd': 2, 'abcef': 11,
