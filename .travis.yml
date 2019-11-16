@@ -72,7 +72,7 @@ jobs:
     # - env: ICU_VERSION="55.2"
     - env: ICU_VERSION="54.2"
     - env: ICU_VERSION="53.2"
-    - env: ICU_VERSION="52.2"
+    # - env: ICU_VERSION="52.2"
     - env: ICU_VERSION="51.3"
     - env: ICU_VERSION="50.2"
 
