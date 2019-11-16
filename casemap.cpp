@@ -71,13 +71,13 @@ static PyObject *t_edits_addUnchanged(t_edits *self, PyObject *arg);
 static PyObject *t_edits_addReplace(t_edits *self, PyObject *args);
 static PyObject *t_edits_lengthDelta(t_edits *self);
 static PyObject *t_edits_hasChanges(t_edits *self);
-static PyObject *t_edits_numberOfChanges(t_edits *self);
 static PyObject *t_edits_getCoarseChangesIterator(t_edits *self);
 static PyObject *t_edits_getCoarseIterator(t_edits *self);
 static PyObject *t_edits_getFineChangesIterator(t_edits *self);
 static PyObject *t_edits_getFineIterator(t_edits *self);
 #if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
 static PyObject *t_edits_mergeAndAppend(t_edits *self, PyObject *args);
+static PyObject *t_edits_numberOfChanges(t_edits *self);
 #endif
 
 static PyMethodDef t_edits_methods[] = {
@@ -86,13 +86,13 @@ static PyMethodDef t_edits_methods[] = {
     DECLARE_METHOD(t_edits, addReplace, METH_VARARGS),
     DECLARE_METHOD(t_edits, lengthDelta, METH_NOARGS),
     DECLARE_METHOD(t_edits, hasChanges, METH_NOARGS),
-    DECLARE_METHOD(t_edits, numberOfChanges, METH_NOARGS),
     DECLARE_METHOD(t_edits, getCoarseChangesIterator, METH_NOARGS),
     DECLARE_METHOD(t_edits, getCoarseIterator, METH_NOARGS),
     DECLARE_METHOD(t_edits, getFineChangesIterator, METH_NOARGS),
     DECLARE_METHOD(t_edits, getFineIterator, METH_NOARGS),
 #if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
     DECLARE_METHOD(t_edits, mergeAndAppend, METH_VARARGS),
+    DECLARE_METHOD(t_edits, numberOfChanges, METH_NOARGS),
 #endif
     { NULL, NULL, 0, NULL }
 };
@@ -106,16 +106,22 @@ public:
     EditsIterator *object;
 };
 
-static int t_editsiterator_init(t_editsiterator *self, PyObject *args, PyObject *kwds);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
+static int t_editsiterator_init(t_editsiterator *self, PyObject *args,
+                                PyObject *kwds);
+#endif
 
 static PyObject *t_editsiterator_findSourceIndex(
     t_editsiterator *self, PyObject *arg);
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
 static PyObject *t_editsiterator_findDestinationIndex(
     t_editsiterator *self, PyObject *arg);
 static PyObject *t_editsiterator_destinationIndexFromSourceIndex(
     t_editsiterator *self, PyObject *arg);
 static PyObject *t_editsiterator_sourceIndexFromdestinationIndex(
     t_editsiterator *self, PyObject *arg);
+#endif
 
 static PyObject *t_editsiterator__hasChange(
     t_editsiterator *self, void *closure);
@@ -160,14 +166,21 @@ static PyGetSetDef t_editsiterator_properties[] = {
 
 static PyMethodDef t_editsiterator_methods[] = {
     DECLARE_METHOD(t_editsiterator, findSourceIndex, METH_O),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
     DECLARE_METHOD(t_editsiterator, findDestinationIndex, METH_O),
     DECLARE_METHOD(t_editsiterator, destinationIndexFromSourceIndex, METH_O),
     DECLARE_METHOD(t_editsiterator, sourceIndexFromdestinationIndex, METH_O),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
 DECLARE_STRUCT(EditsIterator, t_editsiterator, EditsIterator,
                t_editsiterator_init, NULL);
+#else
+DECLARE_STRUCT(EditsIterator, t_editsiterator, EditsIterator,
+               abstract_init, NULL);
+#endif
 
 PyObject *wrap_EditsIterator(const EditsIterator &iterator)
 {
@@ -1202,11 +1215,6 @@ static PyObject *t_edits_hasChanges(t_edits *self)
     Py_RETURN_BOOL(self->object->hasChanges());
 }
 
-static PyObject *t_edits_numberOfChanges(t_edits *self)
-{
-    return PyInt_FromLong(self->object->numberOfChanges());
-}
-
 static PyObject *t_edits_getCoarseChangesIterator(t_edits *self)
 {
     return wrap_EditsIterator(self->object->getCoarseChangesIterator());
@@ -1228,6 +1236,7 @@ static PyObject *t_edits_getFineIterator(t_edits *self)
 }
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
+
 static PyObject *t_edits_mergeAndAppend(t_edits *self, PyObject *args)
 {
     PyObject *ab, *bc;
@@ -1244,10 +1253,18 @@ static PyObject *t_edits_mergeAndAppend(t_edits *self, PyObject *args)
 
     return PyErr_SetArgsError((PyObject *) self, "mergeAndAppend", args);
 }
+
+static PyObject *t_edits_numberOfChanges(t_edits *self)
+{
+    return PyInt_FromLong(self->object->numberOfChanges());
+}
+
 #endif
 
 
 /* EditsIterator */
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
 
 static int t_editsiterator_init(t_editsiterator *self,
                                 PyObject *args, PyObject *kwds)
@@ -1268,6 +1285,8 @@ static int t_editsiterator_init(t_editsiterator *self,
     return -1;
 }
 
+#endif
+
 static PyObject *t_editsiterator_findSourceIndex(
     t_editsiterator *self, PyObject *arg)
 {
@@ -1283,6 +1302,8 @@ static PyObject *t_editsiterator_findSourceIndex(
 
     return PyErr_SetArgsError((PyObject *) self, "findSourceIndex", arg);
 }
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
 
 static PyObject *t_editsiterator_findDestinationIndex(
     t_editsiterator *self, PyObject *arg)
@@ -1333,6 +1354,8 @@ static PyObject *t_editsiterator_sourceIndexFromdestinationIndex(
     return PyErr_SetArgsError(
         (PyObject *) self, "sourceIndexFromDestinationIndex", arg);
 }
+
+#endif
 
 static PyObject *t_editsiterator__hasChange(
     t_editsiterator *self, void *closure)
