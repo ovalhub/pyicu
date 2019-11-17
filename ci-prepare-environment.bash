@@ -2,6 +2,7 @@
 
 # Fail on first non-successful command
 set -e
+# set -x  # turn on for debugging
 
 #######
 # Tools
@@ -14,13 +15,24 @@ function fetch_icu {
     echo "Downloading and extracting ICU source..."
     local version="${1?}"
     local location="${2?}"
+
+    # Download the source as zip on Windows and tgz otherwise
     local icu_url="https://github.com/unicode-org/icu/releases/download/release-${version/./-}/icu4c-${version/./_}-src.tgz"
+    if [ "${TRAVIS_OS_NAME}" = windows ]; then icu_url="${icu_url%.tgz}.zip"; fi
+    local src="${location}/${icu_url##*/}"
+
+    # Download, then use different extraction tools on Windows vs. otherwise
     mkdir -p "${location}"
-    wget -nv -O "${location}/icu4c.tgz" "${icu_url}"
-    tar -xzf "${location}/icu4c.tgz" -C "${location}"
+    wget -nv -O "${src}" "${icu_url}"
+    if [ "${TRAVIS_OS_NAME?}" = windows ]
+    then
+        7z x "${src}" -o"${location}"
+    else
+        tar -xzf "${src}" -C "${location}"
+    fi
 }
 
-# Grab Python from the web then install
+# Grab Python from the web then install on OSX
 # Handles using a cached version if available
 # Parameters:
 #  version: Python version to install
@@ -45,7 +57,7 @@ cache_tag="${install_dir}/icu4c-${TRAVIS_OS_NAME?}-${ICU_VERSION}.done"
 # The platform is used by runConfigureICU to determine what flags to set.
 case "${TRAVIS_OS_NAME}" in
     osx) platform=MacOSX;;
-    windows) platform=MSYS/MSVC ;;
+    windows) platform=Cygwin/MSVC ;;
     *) platform=Linux ;;
 esac
 
@@ -79,24 +91,40 @@ echo "ICU VERSION: ${ICU_VERSION}"
 #######
 # Logic
 
-# Need to install Python macos (annoyingly).
-if [ "${TRAVIS_OS_NAME}" = osx ]
-then
-    install_python_osx "${pyver}"
-fi
+# Need to install Python on macos and windows (annoyingly).
+case "${TRAVIS_OS_NAME}" in
+    osx)
+        install_python_osx "${pyver}";;
+    windows)
+        choco install python --version "${pyver}";;
+esac
 
 # If the install_dir already exists, then it was cached and we do not need to rebuild.
 if [ -f "${cache_tag}" ]
 then
     echo "Found cached icu4c in ${install_dir}, skipping build!"
 else
-    # Grab the source, build, then install.
-    fetch_icu "${ICU_VERSION}" "${build_dir}"
-    cd "${build_dir}/icu/source"
     echo "Build and install ICU from source..."
-    ./runConfigureICU "${platform}" --prefix="${install_dir}"
-    make
-    make install
+    fetch_icu "${ICU_VERSION}" "${build_dir}"
+
+    if [ "${TRAVIS_OS_NAME}" = windows ]
+    then
+        # XXX: As-is, this seems to be broken and does not work.
+        # It is unknown to me how to solve this at this time.
+        # Good luck future maintainer.
+        cd "${build_dir}/icu"
+        PATH="/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin:$PATH"
+        MSBuild.exe source/allinone/allinone.sln -p:Configuration=Release -p:Platform=x64 -p:SkipUWP=true
+        mkdir "${install_dir}"
+        mv bin64 "${install_dir}/bin"
+        mv lib64 "${install_dir}/lib"
+        mv include "${install_dir}/include"
+    else
+        cd "${build_dir}/icu/source"
+        ./runConfigureICU "${platform}" --prefix="${install_dir}"
+        make
+        make install
+    fi
 
     # Add a tag to the installation directory to validate the cache
     touch "${cache_tag}"

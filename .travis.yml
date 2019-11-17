@@ -15,6 +15,10 @@ jobs:
     - {os: osx, env: ICU_VERSION=65.1, language: sh, python: 3.8}
     - {os: osx, env: ICU_VERSION=55.2, language: sh, python: 3.8}
 
+    # # Same story for Windows (currently not working).
+    # - {os: windows, env: ICU_VERSION=65.1, language: sh, python: 3.8}
+    # - {os: windows, env: ICU_VERSION=55.2, language: sh, python: 3.8}
+
     # Run ICU 65 on every Python version.
     - {env: ICU_VERSION=65.1, python: 2.7}
     - {env: ICU_VERSION=65.1, python: 3.5}
@@ -63,5 +67,5 @@ cache:
   pip: true
   timeout: 1000
   directories:
-   - ~/.pyenv_cache  # for macos
-   - ~/icu4c
+   - $HOME/.pyenv_cache  # for macos
+   - $HOME/icu4c
