@@ -4,77 +4,59 @@ dist: xenial
 notifications:
   email: false
 
-# For explicitly included jobs, if the python version is
-# not specified then it takes the first value in the array.
-# Let's run those jobs against the latest Python version
-# unless otherwise specified.
-python:
-  - "3.8"
-  - "3.7"
-  - "3.6"
-  - "3.5"
-  - "2.7"
-
-env:
-  # Run against the latest ICU version, as well as version 55
-  # since that seems to be what is set up by default in Travis-CI.
-  # These will run against all specified defined Python versions.
-  jobs:
-    - ICU_VERSION="65.1"
-    - ICU_VERSION="55.2"
-  # The "global" environment variables are defined for each job.
-  global:
-    - PYICU_LIBRARIES="icui18n:icuuc:icudata"
-    - PYICU_INCLUDES="$HOME/icu4c/include"
-    - PYICU_LFLAGS="-L$HOME/icu4c/lib"
-
-# Explicitly include jobs not defined by the above matrix
+# Instead of using a build matrix, each job we want to run is explicitly
+# defined below. Why not use the matrix? So many specific jobs are being
+# included that it actually is easier to follow making all jobs explicit.
 jobs:
   include:
-    # We will limit the number of jobs that will be run for macos because
-    # these machines take a while to boot up and there are fewer of them.
-    - python: "3.8"
-      language: sh
-      os: osx
-      env:
-        - PYENV_VERSION="3.8.0"
-        - ICU_VERSION="65.1"
-      before_install:
-        - export PYENV_VERSION_STRING="Python ${PYENV_VERSION}"
-        - wget https://github.com/praekeltfoundation/travis-pyenv/releases/download/0.4.0/setup-pyenv.sh
-        - source setup-pyenv.sh
-        - bash ci-install-icu4c.bash MacOSX
-    - python: "3.8"
-      language: sh
-      os: osx
-      env:
-        - PYENV_VERSION="3.8.0"
-        - ICU_VERSION="55.2"
-      before_install:
-        - export PYENV_VERSION_STRING="Python ${PYENV_VERSION}"
-        - wget https://github.com/praekeltfoundation/travis-pyenv/releases/download/0.4.0/setup-pyenv.sh
-        - source setup-pyenv.sh
-        - bash ci-install-icu4c.bash MacOSX
+    # For MacOS, unfortunately there is no native Python support from Travis.
+    # That complexity is handled internally to the ci-prepare-environment.bash
+    # script that is called in the before_install.
+    - {os: osx, env: ICU_VERSION=65.1, language: sh, python: 3.8}
+    - {os: osx, env: ICU_VERSION=55.2, language: sh, python: 3.8}
 
-  # This include matrix is used to specify specific jobs to run on linux
-  # that would not otherwise be defined from the above settings.
-  # If a Python version is not specified, is uses the first version specified.
-    # - env: ICU_VERSION="65.1"
-    - env: ICU_VERSION="64.2"
-    - env: ICU_VERSION="63.2"
-    - env: ICU_VERSION="62.2"
-    - env: ICU_VERSION="61.2"
-    - env: ICU_VERSION="60.3"
-    - env: ICU_VERSION="59.2"
-    - env: ICU_VERSION="58.3"
-    - env: ICU_VERSION="57.2"
-    - env: ICU_VERSION="56.2"
-    # - env: ICU_VERSION="55.2"
-    - env: ICU_VERSION="54.2"
-    - env: ICU_VERSION="53.2"
-    # - env: ICU_VERSION="52.2"
-    - env: ICU_VERSION="51.3"
-    - env: ICU_VERSION="50.2"
+    # Run ICU 65 on every Python version.
+    - {env: ICU_VERSION=65.1, python: 2.7}
+    - {env: ICU_VERSION=65.1, python: 3.5}
+    - {env: ICU_VERSION=65.1, python: 3.6}
+    - {env: ICU_VERSION=65.1, python: 3.7}
+    - {env: ICU_VERSION=65.1, python: 3.8}
+
+    # Run ICU 55 on every Python version.
+    - {env: ICU_VERSION=55.2, python: 2.7}
+    - {env: ICU_VERSION=55.2, python: 3.5}
+    - {env: ICU_VERSION=55.2, python: 3.6}
+    - {env: ICU_VERSION=55.2, python: 3.7}
+    - {env: ICU_VERSION=55.2, python: 3.8}
+
+    # Run all other ICU versions only on Python 3.8
+    - {env: ICU_VERSION=64.2, python: 3.8}
+    - {env: ICU_VERSION=63.2, python: 3.8}
+    - {env: ICU_VERSION=62.2, python: 3.8}
+    - {env: ICU_VERSION=61.2, python: 3.8}
+    - {env: ICU_VERSION=60.3, python: 3.8}
+    - {env: ICU_VERSION=59.2, python: 3.8}
+    - {env: ICU_VERSION=58.3, python: 3.8}
+    - {env: ICU_VERSION=57.2, python: 3.8}
+    - {env: ICU_VERSION=56.2, python: 3.8}
+    - {env: ICU_VERSION=54.2, python: 3.8}
+    - {env: ICU_VERSION=53.2, python: 3.8}
+    # - {env: ICU_VERSION=52.2, python: 3.8}
+    - {env: ICU_VERSION=51.3, python: 3.8}
+    - {env: ICU_VERSION=50.2, python: 3.8}
+
+before_install:
+  - bash ci-prepare-environment.bash
+
+install:
+  - export PYICU_LIBRARIES="icui18n:icuuc:icudata"
+  - export PYICU_INCLUDES="$HOME/icu4c/include"
+  - export PYICU_LFLAGS="-L$HOME/icu4c/lib"
+  - if [ ${ICU_VERSION%.*} -lt 58 ]; then export PYICU_LIBRARIES="${PYICU_LIBRARIES}:icule"; fi
+  - PATH="$HOME/icu4c/bin:${PATH}" pip install . pytest
+
+script:
+  - LD_LIBRARY_PATH="$HOME/icu4c/lib" DYLD_LIBRARY_PATH="$HOME/icu4c/lib" py.test
 
 cache:
   ccache: true
@@ -83,24 +65,3 @@ cache:
   directories:
    - ~/.pyenv_cache  # for macos
    - ~/icu4c
-
-before_install:
-  - bash ci-install-icu4c.bash Linux
-
-install:
-  # For ICU < 58, include icule as a library
-  - if [ ${ICU_VERSION%.*} -lt 58 ]; then export PYICU_LIBRARIES="${PYICU_LIBRARIES}:icule"; fi
-  # Before compilation, describe the environment
-  - export PATH="$HOME/icu4c/bin:${PATH}"
-  - echo "${PYICU_LIBRARIES}"
-  - which icuinfo
-  - LD_LIBRARY_PATH="$HOME/icu4c/lib" DYLD_LIBRARY_PATH="$HOME/icu4c/lib" icuinfo -v
-  - which icu-config
-  - LD_LIBRARY_PATH="$HOME/icu4c/lib" DYLD_LIBRARY_PATH="$HOME/icu4c/lib" icu-config --version
-  - LD_LIBRARY_PATH="$HOME/icu4c/lib" DYLD_LIBRARY_PATH="$HOME/icu4c/lib" icu-config --cxxflags
-  - LD_LIBRARY_PATH="$HOME/icu4c/lib" DYLD_LIBRARY_PATH="$HOME/icu4c/lib" icu-config --cppflags
-  # Now compile
-  - pip install . pytest
-
-script:
-  - LD_LIBRARY_PATH="$HOME/icu4c/lib" DYLD_LIBRARY_PATH="$HOME/icu4c/lib" py.test
