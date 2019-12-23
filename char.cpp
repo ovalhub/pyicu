@@ -112,6 +112,10 @@ static PyObject *t_char_charFromName(PyTypeObject *type, PyObject *args);
 static PyObject *t_char_enumCharNames(PyTypeObject *type, PyObject *args);
 static PyObject *t_char_getPropertyName(PyTypeObject *type, PyObject *args);
 static PyObject *t_char_getPropertyEnum(PyTypeObject *type, PyObject *arg);
+static PyObject *t_char_getPropertyValueName(PyTypeObject *type,
+                                             PyObject *args);
+static PyObject *t_char_getPropertyValueEnum(PyTypeObject *type,
+                                             PyObject *args);
 static PyObject *t_char_isIDStart(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_isIDPart(PyTypeObject *type, PyObject *arg);
 static PyObject *t_char_isIDIgnorable(PyTypeObject *type, PyObject *arg);
@@ -174,6 +178,8 @@ static PyMethodDef t_char_methods[] = {
     DECLARE_METHOD(t_char, enumCharNames, METH_VARARGS | METH_CLASS),
     DECLARE_METHOD(t_char, getPropertyName, METH_VARARGS | METH_CLASS),
     DECLARE_METHOD(t_char, getPropertyEnum, METH_O | METH_CLASS),
+    DECLARE_METHOD(t_char, getPropertyValueName, METH_VARARGS | METH_CLASS),
+    DECLARE_METHOD(t_char, getPropertyValueEnum, METH_VARARGS | METH_CLASS),
     DECLARE_METHOD(t_char, isIDStart, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, isIDPart, METH_O | METH_CLASS),
     DECLARE_METHOD(t_char, isIDIgnorable, METH_O | METH_CLASS),
@@ -702,12 +708,58 @@ static PyObject *t_char_getPropertyName(PyTypeObject *type, PyObject *args)
 
 static PyObject *t_char_getPropertyEnum(PyTypeObject *type, PyObject *arg)
 {
-    char *alias;
+    charsArg alias;
 
-    if (!parseArg(arg, "c", &alias))
+    if (!parseArg(arg, "n", &alias))
         return PyInt_FromLong(u_getPropertyEnum(alias));
 
     return PyErr_SetArgsError((PyObject *) type, "getPropertyEnum", arg);
+}
+
+static PyObject *t_char_getPropertyValueName(PyTypeObject *type, PyObject *args)
+{
+    UPropertyNameChoice choice = U_SHORT_PROPERTY_NAME;
+    int32_t value;
+    UProperty prop;
+    const char *result;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "ii", &prop, &value))
+        {
+            result = u_getPropertyValueName(prop, value, choice);
+            if (result != NULL)
+                return PyString_FromString(result);
+            Py_RETURN_NONE;
+        }
+        break;
+      case 3:
+        if (!parseArgs(args, "iii", &prop, &value, &choice))
+        {
+            result = u_getPropertyValueName(prop, value, choice);
+            if (result != NULL)
+                return PyString_FromString(result);
+            Py_RETURN_NONE;
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) type, "getPropertyValueName", args);
+}
+
+static PyObject *t_char_getPropertyValueEnum(PyTypeObject *type, PyObject *args)
+{
+    UProperty prop;
+    charsArg alias;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "in", &prop, &alias))
+            return PyInt_FromLong(u_getPropertyValueEnum(prop, alias));
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) type, "getPropertyValueEnum", args);
 }
 
 static PyObject *t_char_fn(uchar32_char_fn fn, const char *name,
