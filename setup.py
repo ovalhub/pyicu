@@ -201,7 +201,7 @@ if '--debug' in sys.argv:
     else:
         _cflags += DEBUG_CFLAGS[platform]
 
-_cflags += VER_FLAGS[platform]  # + PEDANTIC_FLAGS[platform]
+_cflags += VER_FLAGS[platform] # + PEDANTIC_FLAGS[platform]
 
 if 'PYICU_LFLAGS' in os.environ:
     _lflags = os.environ['PYICU_LFLAGS'].split(os.pathsep)

@@ -420,8 +420,10 @@ int _parseArgs(PyObject **args, int count, const char *types, va_list list);
 
 #else
 
+#ifdef __clang__
 #pragma clang diagnostic ignored "-Wvariadic-macros"
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 
 #define parseArgs(args, types, rest...) \
     _parseArgs(((PyTupleObject *)(args))->ob_item, \

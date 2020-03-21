@@ -1158,6 +1158,7 @@ static PyObject *t_unicodeset_str(t_unicodeset *self)
 }
 
 DEFINE_RICHCMP(UnicodeSet, t_unicodeset)
+
 static PyObject *t_unicodeset_iter(t_unicodeset *self)
 {
     return PyObject_CallFunctionObjArgs((PyObject *) &UnicodeSetIteratorType_,
