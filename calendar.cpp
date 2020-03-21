@@ -34,10 +34,10 @@
 #undef daylight
 #endif
 
-DECLARE_CONSTANTS_TYPE(UCalendarDateFields);
-DECLARE_CONSTANTS_TYPE(UCalendarDaysOfWeek);
-DECLARE_CONSTANTS_TYPE(UCalendarMonths);
-DECLARE_CONSTANTS_TYPE(UCalendarAMPMs);
+DECLARE_CONSTANTS_TYPE(UCalendarDateFields)
+DECLARE_CONSTANTS_TYPE(UCalendarDaysOfWeek)
+DECLARE_CONSTANTS_TYPE(UCalendarMonths)
+DECLARE_CONSTANTS_TYPE(UCalendarAMPMs)
 
 /* TimeZone */
 
@@ -90,7 +90,7 @@ static PyMethodDef t_timezone_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(TimeZone, t_timezone, UObject, TimeZone, abstract_init, NULL);
+DECLARE_TYPE(TimeZone, t_timezone, UObject, TimeZone, abstract_init, NULL)
 
 /* SimpleTimeZone */
 
@@ -122,7 +122,7 @@ static PyMethodDef t_simpletimezone_methods[] = {
 };
 
 DECLARE_TYPE(SimpleTimeZone, t_simpletimezone, TimeZone, SimpleTimeZone,
-             t_simpletimezone_init, NULL);
+             t_simpletimezone_init, NULL)
 
 
 /* Calendar */
@@ -211,7 +211,7 @@ static PyMethodDef t_calendar_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(Calendar, t_calendar, UObject, Calendar, abstract_init, NULL);
+DECLARE_TYPE(Calendar, t_calendar, UObject, Calendar, abstract_init, NULL)
 
 /* GregorianCalendar */
 
@@ -234,7 +234,7 @@ static PyMethodDef t_gregoriancalendar_methods[] = {
 };
 
 DECLARE_TYPE(GregorianCalendar, t_gregoriancalendar, Calendar,
-             GregorianCalendar, t_gregoriancalendar_init, NULL);
+             GregorianCalendar, t_gregoriancalendar_init, NULL)
 
 
 /* TimeZone */
@@ -621,7 +621,7 @@ static PyObject *t_timezone_str(t_timezone *self)
     return PyUnicode_FromUnicodeString(&u);
 }
 
-DEFINE_RICHCMP(TimeZone, t_timezone);
+DEFINE_RICHCMP(TimeZone, t_timezone)
 
 
 /* SimpleTimeZone */
@@ -1373,7 +1373,7 @@ static PyObject *t_calendar_str(t_calendar *self)
     return PyUnicode_FromUnicodeString(&u);
 }
 
-DEFINE_RICHCMP(Calendar, t_calendar);
+DEFINE_RICHCMP(Calendar, t_calendar)
 
 
 /* GregorianCalendar */

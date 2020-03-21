@@ -51,7 +51,7 @@ static void t_shape_dealloc(t_shape *self)
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-DECLARE_STRUCT(Shape, t_shape, UNone, t_shape_init, t_shape_dealloc);
+DECLARE_STRUCT(Shape, t_shape, UNone, t_shape_init, t_shape_dealloc)
 
 /* Shape */
 

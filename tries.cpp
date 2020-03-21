@@ -35,8 +35,8 @@ using BytesTrieState = BytesTrie::State;
 using UCharsTrieIterator = UCharsTrie::Iterator;
 using UCharsTrieState = UCharsTrie::State;
 
-DECLARE_CONSTANTS_TYPE(UStringTrieBuildOption);
-DECLARE_CONSTANTS_TYPE(UStringTrieResult);
+DECLARE_CONSTANTS_TYPE(UStringTrieBuildOption)
+DECLARE_CONSTANTS_TYPE(UStringTrieResult)
 
 /* StringTrieBuilder */
 
@@ -50,7 +50,7 @@ static PyMethodDef t_stringtriebuilder_methods[] = {
 };
 
 DECLARE_TYPE(StringTrieBuilder, t_stringtriebuilder, UObject,
-             StringTrieBuilder, abstract_init, NULL);
+             StringTrieBuilder, abstract_init, NULL)
 
 /* BytesTrieBuilder */
 
@@ -75,7 +75,7 @@ static PyMethodDef t_bytestriebuilder_methods[] = {
 };
 
 DECLARE_TYPE(BytesTrieBuilder, t_bytestriebuilder, StringTrieBuilder,
-             BytesTrieBuilder, t_bytestriebuilder_init, NULL);
+             BytesTrieBuilder, t_bytestriebuilder_init, NULL)
 
 /* BytesTrieIterator */
 
@@ -102,7 +102,7 @@ static PyMethodDef t_bytestrieiterator_methods[] = {
 };
 
 DECLARE_TYPE(BytesTrieIterator, t_bytestrieiterator, UMemory,
-             BytesTrieIterator, t_bytestrieiterator_init, NULL);
+             BytesTrieIterator, t_bytestrieiterator_init, NULL)
 
 /* BytesTrieState */
 
@@ -116,7 +116,7 @@ static PyMethodDef t_bytestriestate_methods[] = {
 };
 
 DECLARE_TYPE(BytesTrieState, t_bytestriestate, UMemory,
-             BytesTrieState, abstract_init, NULL);
+             BytesTrieState, abstract_init, NULL)
 
 /* BytesTrie */
 
@@ -148,7 +148,7 @@ static PyMethodDef t_bytestrie_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(BytesTrie, t_bytestrie, UMemory, BytesTrie, abstract_init, NULL);
+DECLARE_TYPE(BytesTrie, t_bytestrie, UMemory, BytesTrie, abstract_init, NULL)
 
 /* UCharsTrieBuilder */
 
@@ -173,7 +173,7 @@ static PyMethodDef t_ucharstriebuilder_methods[] = {
 };
 
 DECLARE_TYPE(UCharsTrieBuilder, t_ucharstriebuilder, StringTrieBuilder,
-             UCharsTrieBuilder, t_ucharstriebuilder_init, NULL);
+             UCharsTrieBuilder, t_ucharstriebuilder_init, NULL)
 
 /* UCharsTrieIterator */
 
@@ -200,7 +200,7 @@ static PyMethodDef t_ucharstrieiterator_methods[] = {
 };
 
 DECLARE_TYPE(UCharsTrieIterator, t_ucharstrieiterator, UMemory,
-             UCharsTrieIterator, t_ucharstrieiterator_init, NULL);
+             UCharsTrieIterator, t_ucharstrieiterator_init, NULL)
 
 /* UCharsTrieState */
 
@@ -214,7 +214,7 @@ static PyMethodDef t_ucharstriestate_methods[] = {
 };
 
 DECLARE_TYPE(UCharsTrieState, t_ucharstriestate, UMemory,
-             UCharsTrieState, abstract_init, NULL);
+             UCharsTrieState, abstract_init, NULL)
 
 /* UCharsTrie */
 
@@ -251,7 +251,7 @@ static PyMethodDef t_ucharstrie_methods[] = {
 };
 
 DECLARE_TYPE(UCharsTrie, t_ucharstrie, UMemory,
-             UCharsTrie, abstract_init, NULL);
+             UCharsTrie, abstract_init, NULL)
 
 /* BytesTrieBuilder */
 

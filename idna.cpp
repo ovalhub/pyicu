@@ -57,7 +57,7 @@ static void t_idnainfo_dealloc(t_idnainfo *self)
 }
 
 DECLARE_STRUCT(IDNAInfo, t_idnainfo, UIDNAInfo, t_idnainfo_init,
-               t_idnainfo_dealloc);
+               t_idnainfo_dealloc)
 
 /* IDNA */
 
@@ -96,7 +96,7 @@ static void t_idna_dealloc(t_idna *self)
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-DECLARE_STRUCT(IDNA, t_idna, UIDNA, t_idna_init, t_idna_dealloc);
+DECLARE_STRUCT(IDNA, t_idna, UIDNA, t_idna_init, t_idna_dealloc)
 
 
 /* IDNAInfo */

@@ -31,9 +31,9 @@
 
 #if U_ICU_VERSION_HEX >= 0x04020000
 
-DECLARE_CONSTANTS_TYPE(USpoofChecks);
+DECLARE_CONSTANTS_TYPE(USpoofChecks)
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
-DECLARE_CONSTANTS_TYPE(URestrictionLevel);
+DECLARE_CONSTANTS_TYPE(URestrictionLevel)
 #endif
 
 /* SpoofChecker */
@@ -91,7 +91,7 @@ static void t_spoofchecker_dealloc(t_spoofchecker *self)
 }
 
 DECLARE_STRUCT(SpoofChecker, t_spoofchecker, USpoofChecker,
-               t_spoofchecker_init, t_spoofchecker_dealloc);
+               t_spoofchecker_init, t_spoofchecker_dealloc)
 
 
 /* SpoofChecker */

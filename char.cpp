@@ -32,24 +32,24 @@
 #include "macros.h"
 #include "unicodeset.h"
 
-DECLARE_CONSTANTS_TYPE(UProperty);
-DECLARE_CONSTANTS_TYPE(UCharDirection);
-DECLARE_CONSTANTS_TYPE(UCharCategory);
-DECLARE_CONSTANTS_TYPE(UBlockCode);
-DECLARE_CONSTANTS_TYPE(UCharNameChoice);
-DECLARE_CONSTANTS_TYPE(UPropertyNameChoice);
-DECLARE_CONSTANTS_TYPE(UWordBreakValues);
-DECLARE_CONSTANTS_TYPE(UJoiningGroup);
-DECLARE_CONSTANTS_TYPE(ULineBreak);
-DECLARE_CONSTANTS_TYPE(UGraphemeClusterBreak);
-DECLARE_CONSTANTS_TYPE(UHangulSyllableType);
+DECLARE_CONSTANTS_TYPE(UProperty)
+DECLARE_CONSTANTS_TYPE(UCharDirection)
+DECLARE_CONSTANTS_TYPE(UCharCategory)
+DECLARE_CONSTANTS_TYPE(UBlockCode)
+DECLARE_CONSTANTS_TYPE(UCharNameChoice)
+DECLARE_CONSTANTS_TYPE(UPropertyNameChoice)
+DECLARE_CONSTANTS_TYPE(UWordBreakValues)
+DECLARE_CONSTANTS_TYPE(UJoiningGroup)
+DECLARE_CONSTANTS_TYPE(ULineBreak)
+DECLARE_CONSTANTS_TYPE(UGraphemeClusterBreak)
+DECLARE_CONSTANTS_TYPE(UHangulSyllableType)
 #if U_ICU_VERSION_HEX >= VERSION_HEX(52, 0, 0)
-DECLARE_CONSTANTS_TYPE(UBidiPairedBracketType);
+DECLARE_CONSTANTS_TYPE(UBidiPairedBracketType)
 #endif
 #if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
-DECLARE_CONSTANTS_TYPE(UIndicPositionalCategory);
-DECLARE_CONSTANTS_TYPE(UIndicSyllabicCategory);
-DECLARE_CONSTANTS_TYPE(UVerticalOrientation);
+DECLARE_CONSTANTS_TYPE(UIndicPositionalCategory)
+DECLARE_CONSTANTS_TYPE(UIndicSyllabicCategory)
+DECLARE_CONSTANTS_TYPE(UVerticalOrientation)
 #endif
 
 
@@ -202,7 +202,7 @@ static void t_char_dealloc(t_char *self)
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-DECLARE_STRUCT(Char, t_char, UNone, t_char_init, t_char_dealloc);
+DECLARE_STRUCT(Char, t_char, UNone, t_char_init, t_char_dealloc)
 
 /* Char */
 

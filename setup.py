@@ -114,6 +114,15 @@ VER_FLAGS = {
     'cygwin': ['-DPYICU_VER="%s"' %(VERSION)],
 }
 
+PEDANTIC_FLAGS = {
+    'darwin': ['-pedantic'],
+    'linux': ['-pedantic', '-Wno-variadic-macros'],
+    'freebsd': ['-pedantic'],
+    'win32': [],
+    'sunos5': [],
+    'cygwin': ['-pedantic'],
+}
+
 CFLAGS = {
     'darwin': [],
     'linux': [],
@@ -192,7 +201,7 @@ if '--debug' in sys.argv:
     else:
         _cflags += DEBUG_CFLAGS[platform]
 
-_cflags += VER_FLAGS[platform]
+_cflags += VER_FLAGS[platform]  # + PEDANTIC_FLAGS[platform]
 
 if 'PYICU_LFLAGS' in os.environ:
     _lflags = os.environ['PYICU_LFLAGS'].split(os.pathsep)

@@ -107,7 +107,7 @@ static PyMethodDef t_uobject_methods[] = {
 };
 
 DECLARE_TYPE(UObject, t_uobject, UMemory, UObject,
-             abstract_init, t_uobject_dealloc);
+             abstract_init, t_uobject_dealloc)
 
 
 /* Replaceable */
@@ -131,7 +131,7 @@ static PyMethodDef t_replaceable_methods[] = {
 };
 
 DECLARE_TYPE(Replaceable, t_replaceable, UObject, Replaceable,
-             abstract_init, NULL);
+             abstract_init, NULL)
 
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(55, 0, 0)
@@ -158,7 +158,7 @@ static PyMethodDef t_python_replaceable_methods[] = {
 };
 
 DECLARE_TYPE(PythonReplaceable, t_python_replaceable, Replaceable,
-             PythonReplaceable, t_python_replaceable_init, NULL);
+             PythonReplaceable, t_python_replaceable_init, NULL)
 
 
 PythonReplaceable::PythonReplaceable(PyObject *self) : self_(self)
@@ -454,7 +454,7 @@ static PyMethodDef t_unicodestring_methods[] = {
 };
 
 DECLARE_TYPE(UnicodeString, t_unicodestring, Replaceable, UnicodeString,
-             t_unicodestring_init, NULL);
+             t_unicodestring_init, NULL)
 
 /* Formattable */
 
@@ -495,7 +495,7 @@ static PyMethodDef t_formattable_methods[] = {
 };
 
 DECLARE_TYPE(Formattable, t_formattable, UObject, Formattable,
-             t_formattable_init, NULL);
+             t_formattable_init, NULL)
 
 PyObject *wrap_Formattable(Formattable &formattable)
 {
@@ -526,7 +526,7 @@ static PyMethodDef t_stringenumeration_methods[] = {
 };
 
 DECLARE_TYPE(StringEnumeration, t_stringenumeration, UObject,
-             StringEnumeration, abstract_init, NULL);
+             StringEnumeration, abstract_init, NULL)
 
 
 /* UMemory */
@@ -2466,7 +2466,7 @@ static PyObject *t_formattable_setString(t_formattable *self, PyObject *arg)
     return PyErr_SetArgsError((PyObject *) self, "setString", arg);
 }
 
-DEFINE_RICHCMP(Formattable, t_formattable);
+DEFINE_RICHCMP(Formattable, t_formattable)
 
 static PyObject *t_formattable_str(t_formattable *self)
 {

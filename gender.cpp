@@ -31,7 +31,7 @@
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(50, 0, 0)
 
-DECLARE_CONSTANTS_TYPE(UGender);
+DECLARE_CONSTANTS_TYPE(UGender)
 
 /* GenderInfo */
 
@@ -50,7 +50,7 @@ static PyMethodDef t_genderinfo_methods[] = {
 };
 
 DECLARE_TYPE(GenderInfo, t_genderinfo, UObject,
-             GenderInfo, abstract_init, NULL);
+             GenderInfo, abstract_init, NULL)
 
 
 /* GenderInfo */

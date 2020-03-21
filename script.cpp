@@ -31,9 +31,9 @@
 #include "script.h"
 #include "macros.h"
 
-DECLARE_CONSTANTS_TYPE(UScriptCode);
+DECLARE_CONSTANTS_TYPE(UScriptCode)
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
-DECLARE_CONSTANTS_TYPE(UScriptUsage);
+DECLARE_CONSTANTS_TYPE(UScriptUsage)
 #endif
 
 /* Script */
@@ -87,7 +87,7 @@ static void t_script_dealloc(t_script *self)
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-DECLARE_STRUCT(Script, t_script, UNone, t_script_init, t_script_dealloc);
+DECLARE_STRUCT(Script, t_script, UNone, t_script_init, t_script_dealloc)
 
 
 /* Script */

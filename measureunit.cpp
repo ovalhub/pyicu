@@ -29,7 +29,7 @@
 #include "macros.h"
 
 #if U_ICU_VERSION_HEX >= 0x04020000
-DECLARE_CONSTANTS_TYPE(UTimeUnitFields);
+DECLARE_CONSTANTS_TYPE(UTimeUnitFields)
 #endif
 
 /* MeasureUnit */
@@ -429,7 +429,7 @@ static PyMethodDef t_measureunit_methods[] = {
 };
 
 DECLARE_TYPE(MeasureUnit, t_measureunit, UObject, MeasureUnit,
-             abstract_init, NULL);
+             abstract_init, NULL)
 
 
 /* Measure */
@@ -452,9 +452,9 @@ static PyMethodDef t_measure_methods[] = {
 };
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 1, 0)
-DECLARE_TYPE(Measure, t_measure, UObject, Measure, t_measure_init, NULL);
+DECLARE_TYPE(Measure, t_measure, UObject, Measure, t_measure_init, NULL)
 #else
-DECLARE_TYPE(Measure, t_measure, UObject, Measure, abstract_init, NULL);
+DECLARE_TYPE(Measure, t_measure, UObject, Measure, abstract_init, NULL)
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
@@ -478,7 +478,7 @@ static PyMethodDef t_nounit_methods[] = {
 };
 
 DECLARE_TYPE(NoUnit, t_nounit, MeasureUnit, NoUnit,
-             abstract_init, NULL);
+             abstract_init, NULL)
 
 #endif
 
@@ -500,7 +500,7 @@ static PyMethodDef t_currencyunit_methods[] = {
 };
 
 DECLARE_TYPE(CurrencyUnit, t_currencyunit, MeasureUnit, CurrencyUnit,
-             t_currencyunit_init, NULL);
+             t_currencyunit_init, NULL)
 
 
 /* CurrencyAmount */
@@ -522,7 +522,7 @@ static PyMethodDef t_currencyamount_methods[] = {
 };
 
 DECLARE_TYPE(CurrencyAmount, t_currencyamount, Measure, CurrencyAmount,
-             t_currencyamount_init, NULL);
+             t_currencyamount_init, NULL)
 
 
 /* TimeUnit */
@@ -544,7 +544,7 @@ static PyMethodDef t_timeunit_methods[] = {
 };
 
 DECLARE_TYPE(TimeUnit, t_timeunit, MeasureUnit, TimeUnit,
-             abstract_init, NULL);
+             abstract_init, NULL)
 
 
 /* TimeUnitAmount */
@@ -566,14 +566,14 @@ static PyMethodDef t_timeunitamount_methods[] = {
 };
 
 DECLARE_TYPE(TimeUnitAmount, t_timeunitamount, Measure, TimeUnitAmount,
-             t_timeunitamount_init, NULL);
+             t_timeunitamount_init, NULL)
 
 #endif
 
 
 /* MeasureUnit */
 
-DEFINE_RICHCMP(MeasureUnit, t_measureunit);
+DEFINE_RICHCMP(MeasureUnit, t_measureunit)
 
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
@@ -944,7 +944,7 @@ static PyObject *t_measure_str(t_measure *self)
 #endif
 }
 
-DEFINE_RICHCMP(Measure, t_measure);
+DEFINE_RICHCMP(Measure, t_measure)
 
 
 /* NoUnit */

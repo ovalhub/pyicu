@@ -32,27 +32,27 @@
 #include "dateformat.h"
 #include "macros.h"
 
-DECLARE_CONSTANTS_TYPE(UDateTimePatternConflict);
-DECLARE_CONSTANTS_TYPE(UDateTimePatternField);
+DECLARE_CONSTANTS_TYPE(UDateTimePatternConflict)
+DECLARE_CONSTANTS_TYPE(UDateTimePatternField)
 
 #if U_ICU_VERSION_HEX >= 0x04040000
-DECLARE_CONSTANTS_TYPE(UDateTimePatternMatchOptions);
+DECLARE_CONSTANTS_TYPE(UDateTimePatternMatchOptions)
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
-DECLARE_CONSTANTS_TYPE(UDateRelativeDateTimeFormatterStyle);
+DECLARE_CONSTANTS_TYPE(UDateRelativeDateTimeFormatterStyle)
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
-DECLARE_CONSTANTS_TYPE(UDisplayContext);
-DECLARE_CONSTANTS_TYPE(UDisplayContextType);
+DECLARE_CONSTANTS_TYPE(UDisplayContext)
+DECLARE_CONSTANTS_TYPE(UDisplayContextType)
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
-DECLARE_CONSTANTS_TYPE(UDateDirection);
-DECLARE_CONSTANTS_TYPE(UDateAbsoluteUnit);
-DECLARE_CONSTANTS_TYPE(UDateRelativeUnit);
-DECLARE_CONSTANTS_TYPE(UDateFormatBooleanAttribute);
+DECLARE_CONSTANTS_TYPE(UDateDirection)
+DECLARE_CONSTANTS_TYPE(UDateAbsoluteUnit)
+DECLARE_CONSTANTS_TYPE(UDateRelativeUnit)
+DECLARE_CONSTANTS_TYPE(UDateFormatBooleanAttribute)
 #endif
 
 /* DateFormatSymbols */
@@ -108,7 +108,7 @@ static PyMethodDef t_dateformatsymbols_methods[] = {
 };
 
 DECLARE_TYPE(DateFormatSymbols, t_dateformatsymbols, UObject,
-             DateFormatSymbols, t_dateformatsymbols_init, NULL);
+             DateFormatSymbols, t_dateformatsymbols_init, NULL)
 
 /* DateFormat */
 
@@ -169,7 +169,7 @@ static PyMethodDef t_dateformat_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(DateFormat, t_dateformat, Format, DateFormat, abstract_init, NULL);
+DECLARE_TYPE(DateFormat, t_dateformat, Format, DateFormat, abstract_init, NULL)
 
 /* SimpleDateFormat */
 
@@ -207,7 +207,7 @@ static PyMethodDef t_simpledateformat_methods[] = {
 };
 
 DECLARE_TYPE(SimpleDateFormat, t_simpledateformat, DateFormat,
-             SimpleDateFormat, t_simpledateformat_init, NULL);
+             SimpleDateFormat, t_simpledateformat_init, NULL)
 
 PyObject *wrap_DateFormat(DateFormat *format)
 {
@@ -293,7 +293,7 @@ static PyMethodDef t_datetimepatterngenerator_methods[] = {
 };
 
 DECLARE_TYPE(DateTimePatternGenerator, t_datetimepatterngenerator,
-             UObject, DateTimePatternGenerator, abstract_init, NULL);
+             UObject, DateTimePatternGenerator, abstract_init, NULL)
 
 #if U_ICU_VERSION_HEX >= 0x04000000
 
@@ -316,7 +316,7 @@ static PyMethodDef t_dateinterval_methods[] = {
 };
 
 DECLARE_TYPE(DateInterval, t_dateinterval, UObject, DateInterval,
-             t_dateinterval_init, NULL);
+             t_dateinterval_init, NULL)
 
 /* DateIntervalInfo */
 
@@ -345,7 +345,7 @@ static PyMethodDef t_dateintervalinfo_methods[] = {
 };
 
 DECLARE_TYPE(DateIntervalInfo, t_dateintervalinfo, UObject, DateIntervalInfo,
-             t_dateintervalinfo_init, NULL);
+             t_dateintervalinfo_init, NULL)
 
 /* DateIntervalFormat */
 
@@ -377,7 +377,7 @@ static PyMethodDef t_dateintervalformat_methods[] = {
 };
 
 DECLARE_TYPE(DateIntervalFormat, t_dateintervalformat, Format,
-             DateIntervalFormat, abstract_init, NULL);
+             DateIntervalFormat, abstract_init, NULL)
 
 #endif
 
@@ -417,7 +417,7 @@ static PyMethodDef t_relativedatetimeformatter_methods[] = {
 };
 
 DECLARE_TYPE(RelativeDateTimeFormatter, t_relativedatetimeformatter, UObject,
-             RelativeDateTimeFormatter, t_relativedatetimeformatter_init, NULL);
+             RelativeDateTimeFormatter, t_relativedatetimeformatter_init, NULL)
 
 #endif
 
@@ -669,7 +669,7 @@ static PyObject *t_dateformatsymbols_setAmPmStrings(t_dateformatsymbols *self,
     return PyErr_SetArgsError((PyObject *) self, "setAmPmStrings", arg);
 }
 
-DEFINE_RICHCMP(DateFormatSymbols, t_dateformatsymbols);
+DEFINE_RICHCMP(DateFormatSymbols, t_dateformatsymbols)
         
 static PyObject *t_dateformatsymbols_getLocalPatternChars(t_dateformatsymbols *self, PyObject *args)
 {
@@ -1620,7 +1620,7 @@ static PyObject *t_dateinterval_str(t_dateinterval *self)
     return PyUnicode_FromUnicodeString(&u);
 }
 
-DEFINE_RICHCMP(DateInterval, t_dateinterval);
+DEFINE_RICHCMP(DateInterval, t_dateinterval)
 
 
 /* DateIntervalInfo */
@@ -1744,7 +1744,7 @@ static PyObject *t_dateintervalinfo_getFallbackIntervalPattern(t_dateintervalinf
     return PyErr_SetArgsError((PyObject *) self, "getFallbackIntervalPattern", args);
 }
 
-DEFINE_RICHCMP(DateIntervalInfo, t_dateintervalinfo);
+DEFINE_RICHCMP(DateIntervalInfo, t_dateintervalinfo)
 
 
 /* DateIntervalFormat */
@@ -1873,7 +1873,7 @@ static PyObject *t_dateintervalformat_createInstance(PyTypeObject *type,
     return PyErr_SetArgsError(type, "createInstance", args);
 }
 
-DEFINE_RICHCMP(DateIntervalFormat, t_dateintervalformat);
+DEFINE_RICHCMP(DateIntervalFormat, t_dateintervalformat)
 
 #endif
 

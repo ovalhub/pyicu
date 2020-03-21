@@ -74,7 +74,7 @@ static void t_charsetdetector_dealloc(t_charsetdetector *self)
 }
 
 DECLARE_STRUCT(CharsetDetector, t_charsetdetector, UCharsetDetector,
-               t_charsetdetector_init, t_charsetdetector_dealloc);
+               t_charsetdetector_init, t_charsetdetector_dealloc)
 
 
 /* CharsetMatch */
@@ -108,7 +108,7 @@ static void t_charsetmatch_dealloc(t_charsetmatch *self)
 }
 
 DECLARE_STRUCT(CharsetMatch, t_charsetmatch, UCharsetMatch,
-               abstract_init, t_charsetmatch_dealloc);
+               abstract_init, t_charsetmatch_dealloc)
 
 
 /* CharsetDetector */

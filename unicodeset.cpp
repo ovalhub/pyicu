@@ -28,13 +28,13 @@
 #include "unicodeset.h"
 #include "macros.h"
 
-DECLARE_CONSTANTS_TYPE(UMatchDegree);
-DECLARE_CONSTANTS_TYPE(USetSpanCondition);
+DECLARE_CONSTANTS_TYPE(UMatchDegree)
+DECLARE_CONSTANTS_TYPE(USetSpanCondition)
 
 
 /* UnicodeFunctor */
 
-class t_unicodefunctor : public _wrapper {
+class t_unicodefunctor: public _wrapper {
 public:
     UnicodeFunctor *object;
 };
@@ -47,7 +47,7 @@ static PyMethodDef t_unicodefunctor_methods[] = {
 };
 
 DECLARE_TYPE(UnicodeFunctor, t_unicodefunctor, UObject, UnicodeFunctor,
-             abstract_init, NULL);
+             abstract_init, NULL)
 
 
 /* UnicodeMatcher */
@@ -75,7 +75,7 @@ static PyMethodDef t_unicodematcher_methods[] = {
 };
 
 DECLARE_TYPE(UnicodeMatcher, t_unicodematcher, UObject, UnicodeMatcher,
-             abstract_init, NULL);
+             abstract_init, NULL)
 
 
 /* UnicodeFilter */
@@ -107,7 +107,7 @@ static PyMethodDef t_unicodefilter_methods[] = {
 };
 
 DECLARE_TYPE(UnicodeFilter, t_unicodefilter, UObject, UnicodeFilter,
-             abstract_init, NULL);
+             abstract_init, NULL)
 
 
 /* UnicodeSet */
@@ -202,7 +202,7 @@ static PyMethodDef t_unicodeset_methods[] = {
 };
 
 DECLARE_TYPE(UnicodeSet, t_unicodeset, UnicodeFilter, UnicodeSet,
-             t_unicodeset_init, NULL);
+             t_unicodeset_init, NULL)
 
 
 /* UnicodeSetIterator */
@@ -247,7 +247,7 @@ static void t_unicodesetiterator_dealloc(t_unicodesetiterator *self)
 
 DECLARE_TYPE(UnicodeSetIterator, t_unicodesetiterator, UObject,
              UnicodeSetIterator, t_unicodesetiterator_init,
-             t_unicodesetiterator_dealloc);
+             t_unicodesetiterator_dealloc)
 
 
 /* UnicodeFunctor */
@@ -1157,8 +1157,7 @@ static PyObject *t_unicodeset_str(t_unicodeset *self)
     return PyUnicode_FromUnicodeString(&u);
 }
 
-DEFINE_RICHCMP(UnicodeSet, t_unicodeset);
-
+DEFINE_RICHCMP(UnicodeSet, t_unicodeset)
 static PyObject *t_unicodeset_iter(t_unicodeset *self)
 {
     return PyObject_CallFunctionObjArgs((PyObject *) &UnicodeSetIteratorType_,

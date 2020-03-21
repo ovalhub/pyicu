@@ -30,10 +30,10 @@
 #include "unicodeset.h"
 #include "macros.h"
 
-DECLARE_CONSTANTS_TYPE(UNormalizationMode);
-DECLARE_CONSTANTS_TYPE(UNormalizationCheckResult);
+DECLARE_CONSTANTS_TYPE(UNormalizationMode)
+DECLARE_CONSTANTS_TYPE(UNormalizationCheckResult)
 #if U_ICU_VERSION_HEX >= 0x04040000
-DECLARE_CONSTANTS_TYPE(UNormalizationMode2);
+DECLARE_CONSTANTS_TYPE(UNormalizationMode2)
 #endif
 
 /* Normalizer */
@@ -93,7 +93,7 @@ static PyMethodDef t_normalizer_methods[] = {
 };
 
 DECLARE_TYPE(Normalizer, t_normalizer, UObject, Normalizer,
-             t_normalizer_init, NULL);
+             t_normalizer_init, NULL)
 
 
 #if U_ICU_VERSION_HEX >= 0x04040000
@@ -150,7 +150,7 @@ static PyMethodDef t_normalizer2_methods[] = {
 };
 
 DECLARE_TYPE(Normalizer2, t_normalizer2, UObject, Normalizer2,
-             abstract_init, NULL);
+             abstract_init, NULL)
 
 
 /* FilteredNormalizer2 */
@@ -182,7 +182,7 @@ static void t_filterednormalizer2_dealloc(t_filterednormalizer2 *self)
 
 DECLARE_TYPE(FilteredNormalizer2, t_filterednormalizer2, Normalizer2,
              FilteredNormalizer2, t_filterednormalizer2_init,
-             t_filterednormalizer2_dealloc);
+             t_filterednormalizer2_dealloc)
 
 #endif
 
@@ -476,7 +476,7 @@ static PyObject *t_normalizer_compare(PyTypeObject *type, PyObject *args)
     return PyErr_SetArgsError(type, "compare", args);
 }
 
-DEFINE_RICHCMP(Normalizer, t_normalizer);
+DEFINE_RICHCMP(Normalizer, t_normalizer)
 
 static long t_normalizer_hash(t_normalizer *self)
 {

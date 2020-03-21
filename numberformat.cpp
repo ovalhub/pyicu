@@ -32,29 +32,29 @@
 #include "macros.h"
 
 #if U_HAVE_RBNF
-    DECLARE_CONSTANTS_TYPE(URBNFRuleSetTag);
+    DECLARE_CONSTANTS_TYPE(URBNFRuleSetTag)
 #endif
 
-DECLARE_CONSTANTS_TYPE(UNumberFormatRoundingMode);
-DECLARE_CONSTANTS_TYPE(UNumberFormatStyle);
+DECLARE_CONSTANTS_TYPE(UNumberFormatRoundingMode)
+DECLARE_CONSTANTS_TYPE(UNumberFormatStyle)
 
 #if U_ICU_VERSION_HEX >= 0x04080000
-    DECLARE_CONSTANTS_TYPE(UCurrencySpacing);
+    DECLARE_CONSTANTS_TYPE(UCurrencySpacing)
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
-    DECLARE_CONSTANTS_TYPE(UNumberCompactStyle);
+    DECLARE_CONSTANTS_TYPE(UNumberCompactStyle)
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
-    DECLARE_CONSTANTS_TYPE(UCurrencyUsage);
+    DECLARE_CONSTANTS_TYPE(UCurrencyUsage)
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
 #if U_ICU_VERSION_HEX < VERSION_HEX(63, 0, 0)
     using UNumberGroupingStrategy = UGroupingStrategy;
 #endif
-    DECLARE_CONSTANTS_TYPE(UNumberGroupingStrategy);
+    DECLARE_CONSTANTS_TYPE(UNumberGroupingStrategy)
 #endif
 
 /* DecimalFormatSymbols */
@@ -89,7 +89,7 @@ static PyMethodDef t_decimalformatsymbols_methods[] = {
 };
 
 DECLARE_TYPE(DecimalFormatSymbols, t_decimalformatsymbols, UObject,
-             DecimalFormatSymbols, t_decimalformatsymbols_init, NULL);
+             DecimalFormatSymbols, t_decimalformatsymbols_init, NULL)
 
 /* NumberFormat */
 
@@ -169,7 +169,7 @@ static PyMethodDef t_numberformat_methods[] = {
 };
 
 DECLARE_TYPE(NumberFormat, t_numberformat, Format, NumberFormat,
-             abstract_init, NULL);
+             abstract_init, NULL)
 
 #if U_ICU_VERSION_HEX >= 0x04020000
 
@@ -202,7 +202,7 @@ static PyMethodDef t_currencypluralinfo_methods[] = {
 };
 
 DECLARE_TYPE(CurrencyPluralInfo, t_currencypluralinfo, UObject,
-             CurrencyPluralInfo, t_currencypluralinfo_init, NULL);
+             CurrencyPluralInfo, t_currencypluralinfo_init, NULL)
 
 /* NumberingSystem */
 
@@ -234,7 +234,7 @@ static PyMethodDef t_numberingsystem_methods[] = {
 };
 
 DECLARE_TYPE(NumberingSystem, t_numberingsystem, UObject,
-             NumberingSystem, t_numberingsystem_init, NULL);
+             NumberingSystem, t_numberingsystem_init, NULL)
 
 #endif
 
@@ -386,7 +386,7 @@ static PyMethodDef t_decimalformat_methods[] = {
 };
 
 DECLARE_TYPE(DecimalFormat, t_decimalformat, NumberFormat, DecimalFormat,
-             t_decimalformat_init, NULL);
+             t_decimalformat_init, NULL)
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
 
@@ -406,7 +406,7 @@ static PyMethodDef t_compactdecimalformat_methods[] = {
 };
 
 DECLARE_TYPE(CompactDecimalFormat, t_compactdecimalformat, DecimalFormat,
-             CompactDecimalFormat, abstract_init, NULL);
+             CompactDecimalFormat, abstract_init, NULL)
 
 #endif
 
@@ -447,7 +447,7 @@ static PyMethodDef t_rulebasednumberformat_methods[] = {
 };
 
 DECLARE_TYPE(RuleBasedNumberFormat, t_rulebasednumberformat, NumberFormat,
-             RuleBasedNumberFormat, t_rulebasednumberformat_init, NULL);
+             RuleBasedNumberFormat, t_rulebasednumberformat_init, NULL)
 
 PyObject *wrap_NumberFormat(NumberFormat *format)
 {
@@ -488,7 +488,7 @@ static PyMethodDef t_choiceformat_methods[] = {
 };
 
 DECLARE_TYPE(ChoiceFormat, t_choiceformat, NumberFormat, ChoiceFormat,
-             t_choiceformat_init, NULL);
+             t_choiceformat_init, NULL)
 
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
@@ -516,9 +516,9 @@ using icu::number::CurrencyPrecision;
 using icu::number::Scale;
 #endif
 
-DECLARE_CONSTANTS_TYPE(UNumberSignDisplay);
-DECLARE_CONSTANTS_TYPE(UNumberDecimalSeparatorDisplay);
-DECLARE_CONSTANTS_TYPE(UNumberUnitWidth);
+DECLARE_CONSTANTS_TYPE(UNumberSignDisplay)
+DECLARE_CONSTANTS_TYPE(UNumberDecimalSeparatorDisplay)
+DECLARE_CONSTANTS_TYPE(UNumberUnitWidth)
 
 /* NumberFormatter */
 
@@ -545,7 +545,7 @@ static PyMethodDef t_numberformatter_methods[] = {
 };
 
 DECLARE_TYPE(NumberFormatter, t_numberformatter, UMemory, NumberFormatter,
-             abstract_init, NULL);
+             abstract_init, NULL)
 
 
 /* UnlocalizedNumberFormatter */
@@ -627,7 +627,7 @@ static int t_unlocalizednumberformatter_init(t_unlocalizednumberformatter *self,
 
 DECLARE_BY_VALUE_TYPE(UnlocalizedNumberFormatter, t_unlocalizednumberformatter,
                       UMemory, UnlocalizedNumberFormatter,
-                      t_unlocalizednumberformatter_init);
+                      t_unlocalizednumberformatter_init)
 
 
 /* LocalizedNumberFormatter */
@@ -715,7 +715,7 @@ static int t_localizednumberformatter_init(t_localizednumberformatter *self,
 
 DECLARE_BY_VALUE_TYPE(LocalizedNumberFormatter, t_localizednumberformatter,
                       UMemory, LocalizedNumberFormatter,
-                      t_localizednumberformatter_init);
+                      t_localizednumberformatter_init)
 
 
 /* Notation */
@@ -740,12 +740,12 @@ static PyMethodDef t_notation_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_BY_VALUE_TYPE(Notation, t_notation, UMemory, Notation, abstract_init);
+DECLARE_BY_VALUE_TYPE(Notation, t_notation, UMemory, Notation, abstract_init)
 
 
 /* ScientificNotation */
 
-class t_scientificnotation : public _wrapper {
+class t_scientificnotation: public _wrapper {
 public:
     ScientificNotation *object;
 };
@@ -762,7 +762,7 @@ static PyMethodDef t_scientificnotation_methods[] = {
 };
 
 DECLARE_BY_VALUE_TYPE(ScientificNotation, t_scientificnotation, Notation,
-                      ScientificNotation, abstract_init);
+                      ScientificNotation, abstract_init)
 
 
 /* IntegerWidth */
@@ -782,8 +782,7 @@ static PyMethodDef t_integerwidth_methods[] = {
 };
 
 DECLARE_BY_VALUE_TYPE(IntegerWidth, t_integerwidth, UMemory, IntegerWidth,
-                      abstract_init);
-
+                      abstract_init)
 
 #if U_ICU_VERSION_HEX < VERSION_HEX(64, 0, 0)
 
@@ -825,7 +824,7 @@ static PyMethodDef t_rounder_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_BY_VALUE_TYPE(Rounder, t_rounder, UMemory, Rounder, abstract_init);
+DECLARE_BY_VALUE_TYPE(Rounder, t_rounder, UMemory, Rounder, abstract_init)
 
 
 /* FractionRounder */
@@ -845,7 +844,7 @@ static PyMethodDef t_fractionrounder_methods[] = {
 };
 
 DECLARE_BY_VALUE_TYPE(FractionRounder, t_fractionrounder, Rounder,
-                      FractionRounder, abstract_init);
+                      FractionRounder, abstract_init)
 
 
 /* IncrementRounder */
@@ -863,7 +862,7 @@ static PyMethodDef t_incrementrounder_methods[] = {
 };
 
 DECLARE_BY_VALUE_TYPE(IncrementRounder, t_incrementrounder, Rounder,
-                      IncrementRounder, abstract_init);
+                      IncrementRounder, abstract_init)
 
 
 /* CurrencyRounder */
@@ -881,7 +880,7 @@ static PyMethodDef t_currencyrounder_methods[] = {
 };
 
 DECLARE_BY_VALUE_TYPE(CurrencyRounder, t_currencyrounder, Rounder,
-                      CurrencyRounder, abstract_init);
+                      CurrencyRounder, abstract_init)
 
 #endif  // ICU < 64
 
@@ -924,7 +923,7 @@ static PyMethodDef t_precision_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_BY_VALUE_TYPE(Precision, t_precision, UMemory, Precision, abstract_init);
+DECLARE_BY_VALUE_TYPE(Precision, t_precision, UMemory, Precision, abstract_init)
 
 /* FractionPrecision */
 
@@ -945,7 +944,7 @@ static PyMethodDef t_fractionprecision_methods[] = {
 };
 
 DECLARE_BY_VALUE_TYPE(FractionPrecision, t_fractionprecision, Precision,
-                      FractionPrecision, abstract_init);
+                      FractionPrecision, abstract_init)
 
 
 /* IncrementPrecision */
@@ -963,7 +962,7 @@ static PyMethodDef t_incrementprecision_methods[] = {
 };
 
 DECLARE_BY_VALUE_TYPE(IncrementPrecision, t_incrementprecision, Precision,
-                      IncrementPrecision, abstract_init);
+                      IncrementPrecision, abstract_init)
 
 
 /* CurrencyPrecision */
@@ -981,7 +980,7 @@ static PyMethodDef t_currencyprecision_methods[] = {
 };
 
 DECLARE_BY_VALUE_TYPE(CurrencyPrecision, t_currencyprecision, Precision,
-                      CurrencyPrecision, abstract_init);
+                      CurrencyPrecision, abstract_init)
 
 /* Scale */
 
@@ -1006,7 +1005,7 @@ static PyMethodDef t_scale_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_BY_VALUE_TYPE(Scale, t_scale, UMemory, Scale, abstract_init);
+DECLARE_BY_VALUE_TYPE(Scale, t_scale, UMemory, Scale, abstract_init)
 
 #endif  // ICU >= 62
 
@@ -1171,7 +1170,7 @@ static PyObject *t_decimalformatsymbols_setPatternForCurrencySpacing(t_decimalfo
 
 #endif
 
-DEFINE_RICHCMP(DecimalFormatSymbols, t_decimalformatsymbols);
+DEFINE_RICHCMP(DecimalFormatSymbols, t_decimalformatsymbols)
 
 
 /* NumberFormat */
@@ -1769,7 +1768,7 @@ static PyObject *t_currencypluralinfo_setLocale(t_currencypluralinfo *self,
     return PyErr_SetArgsError((PyObject *) self, "setLocale", arg);
 }
 
-DEFINE_RICHCMP(CurrencyPluralInfo, t_currencypluralinfo);
+DEFINE_RICHCMP(CurrencyPluralInfo, t_currencypluralinfo)
 
 
 /* NumberingSystem */

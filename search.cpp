@@ -31,8 +31,8 @@
 #include "search.h"
 #include "macros.h"
 
-DECLARE_CONSTANTS_TYPE(USearchAttribute);
-DECLARE_CONSTANTS_TYPE(USearchAttributeValue);
+DECLARE_CONSTANTS_TYPE(USearchAttribute)
+DECLARE_CONSTANTS_TYPE(USearchAttributeValue)
 
 
 /* SearchIterator */
@@ -105,7 +105,7 @@ static void t_searchiterator_dealloc(t_searchiterator *self)
 }
 
 DECLARE_TYPE(SearchIterator, t_searchiterator, UObject, SearchIterator,
-             abstract_init, t_searchiterator_dealloc);
+             abstract_init, t_searchiterator_dealloc)
 
 /* StringSearch */
 
@@ -148,7 +148,7 @@ static void t_stringsearch_dealloc(t_stringsearch *self)
 }
 
 DECLARE_TYPE(StringSearch, t_stringsearch, SearchIterator, StringSearch,
-             t_stringsearch_init, t_stringsearch_dealloc);
+             t_stringsearch_init, t_stringsearch_dealloc)
 
 
 /* SearchIterator */
@@ -579,7 +579,7 @@ static PyObject *t_stringsearch_str(t_stringsearch *self)
     return PyUnicode_FromUnicodeString(&u);
 }
 
-DEFINE_RICHCMP(StringSearch, t_stringsearch);
+DEFINE_RICHCMP(StringSearch, t_stringsearch)
 
 
 void _init_search(PyObject *m)

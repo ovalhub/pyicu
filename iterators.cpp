@@ -49,7 +49,7 @@ static PyMethodDef t_forwardcharacteriterator_methods[] = {
 };
 
 DECLARE_TYPE(ForwardCharacterIterator, t_forwardcharacteriterator, UObject,
-             ForwardCharacterIterator, abstract_init, NULL);
+             ForwardCharacterIterator, abstract_init, NULL)
 
 /* CharacterIterator */
 
@@ -114,7 +114,7 @@ static PyMethodDef t_characteriterator_methods[] = {
 };
 
 DECLARE_TYPE(CharacterIterator, t_characteriterator, ForwardCharacterIterator,
-             CharacterIterator, abstract_init, NULL);
+             CharacterIterator, abstract_init, NULL)
 
 /* UCharCharacterIterator */
 
@@ -145,7 +145,7 @@ static void t_ucharcharacteriterator_dealloc(t_ucharcharacteriterator *self)
 
 DECLARE_TYPE(UCharCharacterIterator, t_ucharcharacteriterator,
              CharacterIterator, UCharCharacterIterator,
-             t_ucharcharacteriterator_init, t_ucharcharacteriterator_dealloc);
+             t_ucharcharacteriterator_init, t_ucharcharacteriterator_dealloc)
 
 /* StringCharacterIterator */
 
@@ -174,7 +174,7 @@ static void t_stringcharacteriterator_dealloc(t_stringcharacteriterator *self)
 
 DECLARE_TYPE(StringCharacterIterator, t_stringcharacteriterator,
              UCharCharacterIterator, StringCharacterIterator,
-             t_stringcharacteriterator_init, t_stringcharacteriterator_dealloc);
+             t_stringcharacteriterator_init, t_stringcharacteriterator_dealloc)
 
 /* BreakIterator */
 
@@ -251,7 +251,7 @@ static void t_breakiterator_dealloc(t_breakiterator *self)
 }
 
 DECLARE_TYPE(BreakIterator, t_breakiterator, UObject, BreakIterator,
-             abstract_init, t_breakiterator_dealloc);
+             abstract_init, t_breakiterator_dealloc)
 
 /* RuleBasedBreakIterator */
 
@@ -287,7 +287,7 @@ static void t_rulebasedbreakiterator_dealloc(t_rulebasedbreakiterator *self)
 
 DECLARE_TYPE(RuleBasedBreakIterator, t_rulebasedbreakiterator,
              BreakIterator, RuleBasedBreakIterator,
-             t_rulebasedbreakiterator_init, t_rulebasedbreakiterator_dealloc);
+             t_rulebasedbreakiterator_init, t_rulebasedbreakiterator_dealloc)
 
 /* DictionaryBasedBreakIterator */
 
@@ -304,7 +304,7 @@ static PyMethodDef t_dictionarybasedbreakiterator_methods[] = {
 
 DECLARE_TYPE(DictionaryBasedBreakIterator, t_dictionarybasedbreakiterator,
              RuleBasedBreakIterator, DictionaryBasedBreakIterator,
-             t_dictionarybasedbreakiterator_init, NULL);
+             t_dictionarybasedbreakiterator_init, NULL)
 
 /* CanonicalIterator */
 
@@ -332,7 +332,7 @@ static PyMethodDef t_canonicaliterator_methods[] = {
 };
 
 DECLARE_TYPE(CanonicalIterator, t_canonicaliterator, UObject,
-             CanonicalIterator, t_canonicaliterator_init, NULL);
+             CanonicalIterator, t_canonicaliterator_init, NULL)
 
 /* CollationElementIterator */
 
@@ -371,7 +371,7 @@ static PyMethodDef t_collationelementiterator_methods[] = {
 };
 
 DECLARE_TYPE(CollationElementIterator, t_collationelementiterator, UObject,
-             CollationElementIterator, abstract_init, NULL);
+             CollationElementIterator, abstract_init, NULL)
 
 
 /* ForwardCharacterIterator */
@@ -413,7 +413,7 @@ static PyObject *t_forwardcharacteriterator_iter(t_forwardcharacteriterator *sel
     Py_RETURN_SELF();
 }
 
-DEFINE_RICHCMP(ForwardCharacterIterator, t_forwardcharacteriterator);
+DEFINE_RICHCMP(ForwardCharacterIterator, t_forwardcharacteriterator)
 
 
 /* CharacterIterator */
@@ -1007,7 +1007,7 @@ static PyObject *t_breakiterator_iter_next(t_breakiterator *self)
     return PyInt_FromLong(n);
 }
 
-DEFINE_RICHCMP(BreakIterator, t_breakiterator);
+DEFINE_RICHCMP(BreakIterator, t_breakiterator)
 
 
 /* RuleBasedBreakIterator */
@@ -1404,7 +1404,7 @@ static PyObject *t_collationelementiterator_iter_next(t_collationelementiterator
     return PyInt_FromLong(n);
 }
 
-DEFINE_RICHCMP(CollationElementIterator, t_collationelementiterator);
+DEFINE_RICHCMP(CollationElementIterator, t_collationelementiterator)
 
 
 void _init_iterators(PyObject *m)

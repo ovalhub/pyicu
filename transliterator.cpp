@@ -29,7 +29,7 @@
 #include "unicodeset.h"
 #include "macros.h"
 
-DECLARE_CONSTANTS_TYPE(UTransDirection);
+DECLARE_CONSTANTS_TYPE(UTransDirection)
 
 
 /* UTransPosition */
@@ -60,7 +60,7 @@ static void t_utransposition_dealloc(t_utransposition *self)
 }
 
 DECLARE_STRUCT(UTransPosition, t_utransposition, UTransPosition,
-               t_utransposition_init, t_utransposition_dealloc);
+               t_utransposition_init, t_utransposition_dealloc)
 
 
 /* Transliterator */
@@ -107,12 +107,12 @@ static PyMethodDef t_transliterator_methods[] = {
 };
 
 DECLARE_TYPE(Transliterator, t_transliterator, UObject,
-             Transliterator, t_transliterator_init, NULL);
+             Transliterator, t_transliterator_init, NULL)
 
 
 /* PythonTransliterator */
 
-UOBJECT_DEFINE_RTTI_IMPLEMENTATION(PythonTransliterator);
+UOBJECT_DEFINE_RTTI_IMPLEMENTATION(PythonTransliterator)
 
 PythonTransliterator::PythonTransliterator(t_transliterator *self,
                                            UnicodeString &id) :

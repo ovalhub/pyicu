@@ -35,8 +35,8 @@
 #include "layoutengine.h"
 #include "macros.h"
 
-DECLARE_CONSTANTS_TYPE(ScriptCode);
-DECLARE_CONSTANTS_TYPE(LanguageCode);
+DECLARE_CONSTANTS_TYPE(ScriptCode)
+DECLARE_CONSTANTS_TYPE(LanguageCode)
 
 static PyObject *getFontTable_NAME;
 
@@ -341,7 +341,7 @@ static int t_lefontinstance_init(t_lefontinstance *self,
                                  PyObject *args, PyObject *kwds);
 
 DECLARE_TYPE(LEFontInstance, t_lefontinstance, UObject, LEFontInstance,
-             t_lefontinstance_init, NULL);
+             t_lefontinstance_init, NULL)
 
 static int t_lefontinstance_init(t_lefontinstance *self,
                                  PyObject *args, PyObject *kwds)
@@ -388,7 +388,7 @@ static PyMethodDef t_layoutengine_methods[] = {
 };
 
 DECLARE_TYPE(LayoutEngine, t_layoutengine, UObject, LayoutEngine,
-             abstract_init, NULL);
+             abstract_init, NULL)
 
 
 static PyObject *t_layoutengine_layoutEngineFactory(PyTypeObject *type,

@@ -31,11 +31,11 @@
 #include "unicodeset.h"
 #include "macros.h"
 
-DECLARE_CONSTANTS_TYPE(UCollationResult);
-DECLARE_CONSTANTS_TYPE(UCollAttribute);
-DECLARE_CONSTANTS_TYPE(UCollAttributeValue);
+DECLARE_CONSTANTS_TYPE(UCollationResult)
+DECLARE_CONSTANTS_TYPE(UCollAttribute)
+DECLARE_CONSTANTS_TYPE(UCollAttributeValue)
 #if U_ICU_VERSION_HEX >= 0x04080000
-DECLARE_CONSTANTS_TYPE(UAlphabeticIndexLabelType);
+DECLARE_CONSTANTS_TYPE(UAlphabeticIndexLabelType)
 #endif
 
 /* CollationKey */
@@ -59,7 +59,7 @@ static PyMethodDef t_collationkey_methods[] = {
 };
 
 DECLARE_TYPE(CollationKey, t_collationkey, UObject, CollationKey,
-             t_collationkey_init, NULL);
+             t_collationkey_init, NULL)
 
 /* Collator */
 
@@ -112,7 +112,7 @@ static PyMethodDef t_collator_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(Collator, t_collator, UObject, Collator, abstract_init, NULL);
+DECLARE_TYPE(Collator, t_collator, UObject, Collator, abstract_init, NULL)
 
 /* RuleBasedCollator */
 
@@ -151,7 +151,7 @@ static void t_rulebasedcollator_dealloc(t_rulebasedcollator *self)
 
 DECLARE_TYPE(RuleBasedCollator, t_rulebasedcollator, Collator,
              RuleBasedCollator, t_rulebasedcollator_init,
-             t_rulebasedcollator_dealloc);
+             t_rulebasedcollator_dealloc)
 
 
 #if U_ICU_VERSION_HEX >= 0x04080000
@@ -301,7 +301,7 @@ static void t_alphabeticindex_dealloc(t_alphabeticindex *self)
 }
 
 DECLARE_TYPE(AlphabeticIndex, t_alphabeticindex, UObject, AlphabeticIndex,
-             t_alphabeticindex_init, t_alphabeticindex_dealloc);
+             t_alphabeticindex_init, t_alphabeticindex_dealloc)
 
 #endif
 
@@ -362,7 +362,7 @@ static PyMethodDef t_immutableindex_methods[] = {
 };
 
 DECLARE_TYPE(ImmutableIndex, t_immutableindex, UObject,
-             ImmutableIndex, abstract_init, NULL);
+             ImmutableIndex, abstract_init, NULL)
 
 #endif
 
@@ -416,7 +416,7 @@ static PyObject *t_collationkey_getByteArray(t_collationkey *self)
     return PyBytes_FromStringAndSize((char *) array, count);
 }
 
-DEFINE_RICHCMP(CollationKey, t_collationkey);
+DEFINE_RICHCMP(CollationKey, t_collationkey)
 
 
 /* Collator */
@@ -881,7 +881,7 @@ static PyObject *t_rulebasedcollator_str(t_rulebasedcollator *self)
     return PyUnicode_FromUnicodeString(&u);
 }
 
-DEFINE_RICHCMP(RuleBasedCollator, t_rulebasedcollator);
+DEFINE_RICHCMP(RuleBasedCollator, t_rulebasedcollator)
 
 
 #if U_ICU_VERSION_HEX >= 0x04080000

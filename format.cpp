@@ -33,7 +33,7 @@
 #include "numberformat.h"
 
 #if U_ICU_VERSION_HEX >= 0x04080000
-    DECLARE_CONSTANTS_TYPE(UTimeUnitFormatStyle);
+    DECLARE_CONSTANTS_TYPE(UTimeUnitFormatStyle)
 #endif
 
 /* FieldPosition */
@@ -65,7 +65,7 @@ static PyMethodDef t_fieldposition_methods[] = {
 };
 
 DECLARE_TYPE(FieldPosition, t_fieldposition, UObject, FieldPosition,
-             t_fieldposition_init, NULL);
+             t_fieldposition_init, NULL)
 
 /* ParsePosition */
 
@@ -91,7 +91,7 @@ static PyMethodDef t_parseposition_methods[] = {
 };
 
 DECLARE_TYPE(ParsePosition, t_parseposition, UObject, ParsePosition,
-             t_parseposition_init, NULL);
+             t_parseposition_init, NULL)
 
 /* Format */
 
@@ -108,7 +108,7 @@ static PyMethodDef t_format_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(Format, t_format, UObject, Format, abstract_init, NULL);
+DECLARE_TYPE(Format, t_format, UObject, Format, abstract_init, NULL)
 
 /* MeasureFormat */
 
@@ -155,7 +155,7 @@ static void t_measureformat_dealloc(t_measureformat *self)
 }
 
 DECLARE_TYPE(MeasureFormat, t_measureformat, Format, MeasureFormat,
-             abstract_init, t_measureformat_dealloc);
+             abstract_init, t_measureformat_dealloc)
 
 #if U_ICU_VERSION_HEX >= 0x04020000
 
@@ -180,7 +180,7 @@ static PyMethodDef t_timeunitformat_methods[] = {
 };
 
 DECLARE_TYPE(TimeUnitFormat, t_timeunitformat, MeasureFormat, TimeUnitFormat,
-             t_timeunitformat_init, NULL);
+             t_timeunitformat_init, NULL)
 
 #endif
 
@@ -246,7 +246,7 @@ static PyMethodDef t_messageformat_methods[] = {
 };
 
 DECLARE_TYPE(MessageFormat, t_messageformat, Format, MessageFormat,
-             t_messageformat_init, NULL);
+             t_messageformat_init, NULL)
 
 #if U_ICU_VERSION_HEX >= 0x04000000
 
@@ -279,7 +279,7 @@ static PyMethodDef t_pluralrules_methods[] = {
 };
 
 DECLARE_TYPE(PluralRules, t_pluralrules, UObject, PluralRules,
-             t_pluralrules_init, NULL);
+             t_pluralrules_init, NULL)
 
 /* PluralFormat */
 
@@ -320,7 +320,7 @@ static void t_pluralformat_dealloc(t_pluralformat *self)
 }
 
 DECLARE_TYPE(PluralFormat, t_pluralformat, Format, PluralFormat,
-             t_pluralformat_init, t_pluralformat_dealloc);
+             t_pluralformat_init, t_pluralformat_dealloc)
 
 #endif
 
@@ -351,7 +351,7 @@ static PyMethodDef t_selectformat_methods[] = {
 };
 
 DECLARE_TYPE(SelectFormat, t_selectformat, Format, SelectFormat,
-             t_selectformat_init, NULL);
+             t_selectformat_init, NULL)
 
 #endif
 
@@ -373,7 +373,7 @@ static PyMethodDef t_listformatter_methods[] = {
 };
 
 DECLARE_TYPE(ListFormatter, t_listformatter, UObject, ListFormatter,
-             abstract_init, NULL);
+             abstract_init, NULL)
 
 #endif
 
@@ -432,7 +432,7 @@ static void t_simpleformatter_dealloc(t_simpleformatter *self)
 }
 
 DECLARE_TYPE(SimpleFormatter, t_simpleformatter, UMemory, SimpleFormatter,
-             t_simpleformatter_init, t_simpleformatter_dealloc);
+             t_simpleformatter_init, t_simpleformatter_dealloc)
 
 #endif
 
@@ -524,7 +524,7 @@ static PyObject *t_fieldposition_setEndIndex(t_fieldposition *self,
     return PyErr_SetArgsError((PyObject *) self, "setEndIndex", arg);
 }
 
-DEFINE_RICHCMP(FieldPosition, t_fieldposition);
+DEFINE_RICHCMP(FieldPosition, t_fieldposition)
 
 
 /* ParsePosition */
@@ -596,7 +596,7 @@ static PyObject *t_parseposition_setErrorIndex(t_parseposition *self,
     return PyErr_SetArgsError((PyObject *) self, "setErrorIndex", arg);
 }
 
-DEFINE_RICHCMP(ParsePosition, t_parseposition);
+DEFINE_RICHCMP(ParsePosition, t_parseposition)
 
 
 /* Format */
@@ -720,7 +720,7 @@ static PyObject *t_format_getLocaleID(t_format *self, PyObject *args)
     return PyErr_SetArgsError((PyObject *) self, "getLocaleID", args);
 }
 
-DEFINE_RICHCMP(Format, t_format);
+DEFINE_RICHCMP(Format, t_format)
 
 
 /* MeasureFormat */
@@ -1462,7 +1462,7 @@ static PyObject *t_pluralrules_forLocale(PyTypeObject *type, PyObject *arg)
     return PyErr_SetArgsError(type, "forLocale", arg);
 }
 
-DEFINE_RICHCMP(PluralRules, t_pluralrules);
+DEFINE_RICHCMP(PluralRules, t_pluralrules)
 
 
 /* PluralFormat */

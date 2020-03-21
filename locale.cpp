@@ -40,19 +40,19 @@
 #include "macros.h"
 #include "unicodeset.h"
 
-DECLARE_CONSTANTS_TYPE(ULocDataLocaleType);
-DECLARE_CONSTANTS_TYPE(UResType);
-DECLARE_CONSTANTS_TYPE(ULocaleDataDelimiterType);
-DECLARE_CONSTANTS_TYPE(ULocaleDataExemplarSetType);
-DECLARE_CONSTANTS_TYPE(UMeasurementSystem);
+DECLARE_CONSTANTS_TYPE(ULocDataLocaleType)
+DECLARE_CONSTANTS_TYPE(UResType)
+DECLARE_CONSTANTS_TYPE(ULocaleDataDelimiterType)
+DECLARE_CONSTANTS_TYPE(ULocaleDataExemplarSetType)
+DECLARE_CONSTANTS_TYPE(UMeasurementSystem)
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
-DECLARE_CONSTANTS_TYPE(URegionType);
+DECLARE_CONSTANTS_TYPE(URegionType)
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(65, 0, 0)
-DECLARE_CONSTANTS_TYPE(ULocMatchFavorSubtag);
-DECLARE_CONSTANTS_TYPE(ULocMatchDemotion);
+DECLARE_CONSTANTS_TYPE(ULocMatchFavorSubtag)
+DECLARE_CONSTANTS_TYPE(ULocMatchDemotion)
 #endif
 
 
@@ -197,7 +197,7 @@ static PyMethodDef t_locale_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(Locale, t_locale, UObject, Locale, t_locale_init, NULL);
+DECLARE_TYPE(Locale, t_locale, UObject, Locale, t_locale_init, NULL)
 
 PyObject *wrap_Locale(const Locale &locale)
 {
@@ -268,7 +268,7 @@ static PyMethodDef t_resourcebundle_methods[] = {
 };
 
 DECLARE_TYPE(ResourceBundle, t_resourcebundle, UObject,
-             ResourceBundle, t_resourcebundle_init, NULL);
+             ResourceBundle, t_resourcebundle_init, NULL)
 
 static PyObject *wrap_ResourceBundle(const ResourceBundle &resourcebundle)
 {
@@ -324,7 +324,7 @@ static void t_localedata_dealloc(t_localedata *self)
 }
 
 DECLARE_STRUCT(LocaleData, t_localedata, ULocaleData, t_localedata_init,
-               t_localedata_dealloc);
+               t_localedata_dealloc)
 
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
@@ -363,7 +363,7 @@ static PyMethodDef t_region_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(Region, t_region, UObject, const Region, abstract_init, NULL);
+DECLARE_TYPE(Region, t_region, UObject, const Region, abstract_init, NULL)
 
 #endif
 
@@ -409,7 +409,7 @@ static PyMethodDef t_localebuilder_methods[] = {
 };
 
 DECLARE_TYPE(LocaleBuilder, t_localebuilder, UObject, LocaleBuilder,
-             t_localebuilder_init, NULL);
+             t_localebuilder_init, NULL)
 
 #endif
 
@@ -447,7 +447,7 @@ static PyMethodDef t_localematcherbuilder_methods[] = {
 };
 
 DECLARE_TYPE(LocaleMatcherBuilder, t_localematcherbuilder, UMemory,
-             LocaleMatcherBuilder, t_localematcherbuilder_init, NULL);
+             LocaleMatcherBuilder, t_localematcherbuilder_init, NULL)
 
 /* LocaleMatcherResult */
 
@@ -472,7 +472,7 @@ static PyMethodDef t_localematcherresult_methods[] = {
 };
 
 DECLARE_BY_VALUE_TYPE(LocaleMatcherResult, t_localematcherresult, UMemory,
-                      LocaleMatcherResult, abstract_init);
+                      LocaleMatcherResult, abstract_init)
 
 /* LocaleMatcher */
 
@@ -493,7 +493,7 @@ static PyMethodDef t_localematcher_methods[] = {
 };
 
 DECLARE_BY_VALUE_TYPE(LocaleMatcher, t_localematcher, UMemory,
-                      LocaleMatcher, abstract_init);
+                      LocaleMatcher, abstract_init)
 
 #endif
 
@@ -1242,7 +1242,7 @@ static long t_locale_hash(t_locale *self)
     return (long) self->object->hashCode();
 }
 
-DEFINE_RICHCMP(Locale, t_locale);
+DEFINE_RICHCMP(Locale, t_locale)
 
 
 /* ResourceBundle */

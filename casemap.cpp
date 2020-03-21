@@ -55,7 +55,7 @@ static PyMethodDef t_casemap_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_STRUCT(CaseMap, t_casemap, UNone, abstract_init, NULL);
+DECLARE_STRUCT(CaseMap, t_casemap, UNone, abstract_init, NULL)
 
 /* Edits */
 
@@ -97,7 +97,7 @@ static PyMethodDef t_edits_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_STRUCT(Edits, t_edits, Edits, t_edits_init, NULL);
+DECLARE_STRUCT(Edits, t_edits, Edits, t_edits_init, NULL)
 
 /* EditsIterator */
 
@@ -176,10 +176,10 @@ static PyMethodDef t_editsiterator_methods[] = {
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
 DECLARE_STRUCT(EditsIterator, t_editsiterator, EditsIterator,
-               t_editsiterator_init, NULL);
+               t_editsiterator_init, NULL)
 #else
 DECLARE_STRUCT(EditsIterator, t_editsiterator, EditsIterator,
-               abstract_init, NULL);
+               abstract_init, NULL)
 #endif
 
 PyObject *wrap_EditsIterator(const EditsIterator &iterator)

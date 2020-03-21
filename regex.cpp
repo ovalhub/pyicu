@@ -28,7 +28,7 @@
 #include "regex.h"
 #include "macros.h"
 
-DECLARE_CONSTANTS_TYPE(URegexpFlag);
+DECLARE_CONSTANTS_TYPE(URegexpFlag)
 
 
 /* RegexPattern */
@@ -72,7 +72,7 @@ static void t_regexpattern_dealloc(t_regexpattern *self)
 }
 
 DECLARE_TYPE(RegexPattern, t_regexpattern, UObject, RegexPattern,
-             t_regexpattern_init, t_regexpattern_dealloc);
+             t_regexpattern_init, t_regexpattern_dealloc)
 
 /* RegexMatcher */
 
@@ -184,7 +184,7 @@ static void t_regexmatcher_dealloc(t_regexmatcher *self)
 }
 
 DECLARE_TYPE(RegexMatcher, t_regexmatcher, UObject, RegexMatcher,
-             t_regexmatcher_init, t_regexmatcher_dealloc);
+             t_regexmatcher_init, t_regexmatcher_dealloc)
 
 
 /* RegexPattern */
@@ -393,7 +393,7 @@ static PyObject *t_regexpattern_str(t_regexpattern *self)
     return PyUnicode_FromUnicodeString(&u);
 }
 
-DEFINE_RICHCMP(RegexPattern, t_regexpattern);
+DEFINE_RICHCMP(RegexPattern, t_regexpattern)
 
 
 /* RegexMatcher */
