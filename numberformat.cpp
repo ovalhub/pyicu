@@ -320,6 +320,11 @@ static PyObject *t_decimalformat_setMinimumSignificantDigits(t_decimalformat *se
 static PyObject *t_decimalformat_areSignificantDigitsUsed(t_decimalformat *self);
 static PyObject *t_decimalformat_setSignificantDigitsUsed(t_decimalformat *self,
                                                           PyObject *arg);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+static PyObject *t_decimalformat_getMinimumGroupingDigits(t_decimalformat *self);
+static PyObject *t_decimalformat_setMinimumGroupingDigits(t_decimalformat *self,
+                                                          PyObject *arg);
+#endif
 static PyObject *t_decimalformat_getDecimalFormatSymbols(t_decimalformat *self);
 static PyObject *t_decimalformat_setDecimalFormatSymbols(t_decimalformat *self,
                                                          PyObject *arg);
@@ -327,6 +332,20 @@ static PyObject *t_decimalformat_setDecimalFormatSymbols(t_decimalformat *self,
 static PyObject *t_decimalformat_getCurrencyPluralInfo(t_decimalformat *self);
 static PyObject *t_decimalformat_setCurrencyPluralInfo(t_decimalformat *self,
                                                        PyObject *arg);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+static PyObject *t_decimalformat_isFormatFailIfMoreThanMaxDigits(
+    t_decimalformat *self);
+static PyObject *t_decimalformat_setFormatFailIfMoreThanMaxDigits(
+    t_decimalformat *self, PyObject *arg);
+static PyObject *t_decimalformat_isParseCaseSensitive(t_decimalformat *self);
+static PyObject *t_decimalformat_setParseCaseSensitive(t_decimalformat *self,
+                                                       PyObject *arg);
+static PyObject *t_decimalformat_isParseNoExponent(t_decimalformat *self);
+static PyObject *t_decimalformat_setParseNoExponent(t_decimalformat *self,
+                                                    PyObject *arg);
+static PyObject *t_decimalformat_isSignAlwaysShown(t_decimalformat *self);
+static PyObject *t_decimalformat_toNumberFormatter(t_decimalformat *self);
 #endif
 
 static PyMethodDef t_decimalformat_methods[] = {
@@ -376,11 +395,25 @@ static PyMethodDef t_decimalformat_methods[] = {
     DECLARE_METHOD(t_decimalformat, setMinimumSignificantDigits, METH_O),
     DECLARE_METHOD(t_decimalformat, areSignificantDigitsUsed, METH_NOARGS),
     DECLARE_METHOD(t_decimalformat, setSignificantDigitsUsed, METH_O),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+    DECLARE_METHOD(t_decimalformat, getMinimumGroupingDigits, METH_NOARGS),
+    DECLARE_METHOD(t_decimalformat, setMinimumGroupingDigits, METH_O),
+#endif
     DECLARE_METHOD(t_decimalformat, getDecimalFormatSymbols, METH_NOARGS),
     DECLARE_METHOD(t_decimalformat, setDecimalFormatSymbols, METH_O),
 #if U_ICU_VERSION_HEX >= 0x04020000
     DECLARE_METHOD(t_decimalformat, getCurrencyPluralInfo, METH_NOARGS),
     DECLARE_METHOD(t_decimalformat, setCurrencyPluralInfo, METH_O),
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+    DECLARE_METHOD(t_decimalformat, isFormatFailIfMoreThanMaxDigits, METH_NOARGS),
+    DECLARE_METHOD(t_decimalformat, setFormatFailIfMoreThanMaxDigits, METH_O),
+    DECLARE_METHOD(t_decimalformat, isParseCaseSensitive, METH_NOARGS),
+    DECLARE_METHOD(t_decimalformat, setParseCaseSensitive, METH_O),
+    DECLARE_METHOD(t_decimalformat, isParseNoExponent, METH_NOARGS),
+    DECLARE_METHOD(t_decimalformat, setParseNoExponent, METH_O),
+    DECLARE_METHOD(t_decimalformat, isSignAlwaysShown, METH_NOARGS),
+    DECLARE_METHOD(t_decimalformat, toNumberFormatter, METH_NOARGS),
 #endif
     { NULL, NULL, 0, NULL }
 };
@@ -2446,6 +2479,29 @@ static PyObject *t_decimalformat_setMinimumSignificantDigits(t_decimalformat *se
     return PyErr_SetArgsError((PyObject *) self, "setMinimumSignificantDigits", arg);
 }
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+
+static PyObject *t_decimalformat_getMinimumGroupingDigits(t_decimalformat *self)
+{
+    return PyInt_FromLong(self->object->getMinimumGroupingDigits());
+}
+
+static PyObject *t_decimalformat_setMinimumGroupingDigits(t_decimalformat *self,
+                                                          PyObject *arg)
+{
+    int digits;
+
+    if (!parseArg(arg, "i", &digits))
+    {
+        self->object->setMinimumGroupingDigits(digits);
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setMinimumGroupingDigits", arg);
+}
+
+#endif
+
 static PyObject *t_decimalformat_areSignificantDigitsUsed(t_decimalformat *self)
 {
     int b = self->object->areSignificantDigitsUsed();
@@ -2511,6 +2567,80 @@ static PyObject *t_decimalformat_setCurrencyPluralInfo(t_decimalformat *self,
 
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+
+static PyObject *t_decimalformat_isFormatFailIfMoreThanMaxDigits(
+    t_decimalformat *self)
+{
+    Py_RETURN_BOOL(self->object->isFormatFailIfMoreThanMaxDigits());
+}
+
+static PyObject *t_decimalformat_setFormatFailIfMoreThanMaxDigits(
+    t_decimalformat *self, PyObject *arg)
+{
+    int b;
+
+    if (!parseArg(arg, "b", &b))
+    {
+        self->object->setFormatFailIfMoreThanMaxDigits(b);
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setFormatFailIfMoreThanMaxDigits", arg);
+}
+
+static PyObject *t_decimalformat_isParseCaseSensitive(t_decimalformat *self)
+{
+    Py_RETURN_BOOL(self->object->isParseCaseSensitive());
+}
+
+static PyObject *t_decimalformat_setParseCaseSensitive(t_decimalformat *self,
+                                                       PyObject *arg)
+{
+    int b;
+
+    if (!parseArg(arg, "b", &b))
+    {
+        self->object->setParseCaseSensitive(b);
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setParseCaseSensitive", arg);
+}
+
+static PyObject *t_decimalformat_isParseNoExponent(t_decimalformat *self)
+{
+    Py_RETURN_BOOL(self->object->isParseNoExponent());
+}
+
+static PyObject *t_decimalformat_setParseNoExponent(t_decimalformat *self,
+                                                    PyObject *arg)
+{
+    int b;
+
+    if (!parseArg(arg, "b", &b))
+    {
+        self->object->setParseNoExponent(b);
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setParseNoExponent", arg);
+}
+
+static PyObject *t_decimalformat_isSignAlwaysShown(t_decimalformat *self)
+{
+    Py_RETURN_BOOL(self->object->isSignAlwaysShown());
+}
+
+static PyObject *t_decimalformat_toNumberFormatter(t_decimalformat *self)
+{
+    const LocalizedNumberFormatter *formatter;
+
+    STATUS_CALL(formatter = self->object->toNumberFormatter(status));
+    return wrap_LocalizedNumberFormatter(*formatter);  // makes an owned copy
+}
+
+#endif
 
 static PyObject *t_decimalformat_str(t_decimalformat *self)
 {

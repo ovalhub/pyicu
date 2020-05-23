@@ -87,6 +87,13 @@ class TestNumberFormatter(TestCase):
             text = formatter.locale(Locale.getUS()).formatInt(1234)
             self.assertEqual(text, u'+1,234 meters per second')
 
+    def testFromDecimalFormat(self):
+
+        if ICU_VERSION >= '64.0':
+            text = NumberFormat.createScientificInstance(Locale("de", "at")) \
+                .toNumberFormatter() \
+                .formatInt(1234)
+            self.assertEqual(text, u'1,234E3')
 
 if __name__ == "__main__":
     if ICU_VERSION >= '60.0':
