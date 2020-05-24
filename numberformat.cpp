@@ -2834,7 +2834,8 @@ static PyObject *t_decimalformat_toNumberFormatter(t_decimalformat *self)
     const LocalizedNumberFormatter *formatter;
 
     STATUS_CALL(formatter = self->object->toNumberFormatter(status));
-    return wrap_LocalizedNumberFormatter(*formatter);  // makes an owned copy
+    return wrap_LocalizedNumberFormatter(
+        new LocalizedNumberFormatter(*formatter), T_OWNED);
 }
 
 #endif
@@ -5189,13 +5190,9 @@ void _init_numberformat(PyObject *m)
                  UNUM_IDENTITY_RESULT_NOT_EQUAL);
 
     INSTALL_CONSTANTS_TYPE(UNumberRangeCollapse, m);
-    INSTALL_ENUM(UNumberRangeCollapse, "COLLAPSE_AUTO",
-                 UNUM_RANGE_COLLAPSE_AUTO);
-    INSTALL_ENUM(UNumberRangeCollapse, "COLLAPSE_NONE",
-                 UNUM_RANGE_COLLAPSE_NONE);
-    INSTALL_ENUM(UNumberRangeCollapse, "COLLAPSE_UNIT",
-                 UNUM_RANGE_COLLAPSE_UNIT);
-    INSTALL_ENUM(UNumberRangeCollapse, "COLLAPSE_ALL",
-                 UNUM_RANGE_COLLAPSE_ALL);
+    INSTALL_ENUM(UNumberRangeCollapse, "AUTO", UNUM_RANGE_COLLAPSE_AUTO);
+    INSTALL_ENUM(UNumberRangeCollapse, "NONE", UNUM_RANGE_COLLAPSE_NONE);
+    INSTALL_ENUM(UNumberRangeCollapse, "UNIT", UNUM_RANGE_COLLAPSE_UNIT);
+    INSTALL_ENUM(UNumberRangeCollapse, "ALL", UNUM_RANGE_COLLAPSE_ALL);
 #endif
 }
