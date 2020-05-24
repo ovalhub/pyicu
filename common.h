@@ -237,7 +237,12 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/stringoptions.h>
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+#include <unicode/numberrangeformatter.h>
+#endif
+
 #if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+#include <unicode/formattedvalue.h>
 #include <unicode/localebuilder.h>
 #endif
 

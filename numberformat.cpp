@@ -35,11 +35,16 @@
     DECLARE_CONSTANTS_TYPE(URBNFRuleSetTag)
 #endif
 
+DECLARE_CONSTANTS_TYPE(UNumberFormatAttribute)
 DECLARE_CONSTANTS_TYPE(UNumberFormatRoundingMode)
 DECLARE_CONSTANTS_TYPE(UNumberFormatStyle)
 
 #if U_ICU_VERSION_HEX >= 0x04080000
     DECLARE_CONSTANTS_TYPE(UCurrencySpacing)
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(49, 0, 0)
+    DECLARE_CONSTANTS_TYPE(UNumberFormatFields)
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
@@ -55,6 +60,12 @@ DECLARE_CONSTANTS_TYPE(UNumberFormatStyle)
     using UNumberGroupingStrategy = UGroupingStrategy;
 #endif
     DECLARE_CONSTANTS_TYPE(UNumberGroupingStrategy)
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+    DECLARE_CONSTANTS_TYPE(UNumberRangeIdentityFallback)
+    DECLARE_CONSTANTS_TYPE(UNumberRangeIdentityResult)
+    DECLARE_CONSTANTS_TYPE(UNumberRangeCollapse)
 #endif
 
 /* DecimalFormatSymbols */
@@ -362,7 +373,7 @@ static PyMethodDef t_decimalformat_methods[] = {
 #if U_ICU_VERSION_HEX >= VERSION_HEX(62, 0, 0)
     DECLARE_METHOD(t_decimalformat, getMultiplierScale, METH_NOARGS),
     DECLARE_METHOD(t_decimalformat, setMultiplierScale, METH_O),
-#endif    
+#endif
     DECLARE_METHOD(t_decimalformat, getRoundingIncrement, METH_NOARGS),
     DECLARE_METHOD(t_decimalformat, setRoundingIncrement, METH_O),
     DECLARE_METHOD(t_decimalformat, getRoundingMode, METH_NOARGS),
@@ -549,9 +560,75 @@ using icu::number::CurrencyPrecision;
 using icu::number::Scale;
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+using icu::number::NumberRangeFormatter;
+using icu::number::UnlocalizedNumberRangeFormatter;
+using icu::number::LocalizedNumberRangeFormatter;
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+using icu::number::FormattedNumber;
+using icu::number::FormattedNumberRange;
+#endif
+
 DECLARE_CONSTANTS_TYPE(UNumberSignDisplay)
 DECLARE_CONSTANTS_TYPE(UNumberDecimalSeparatorDisplay)
 DECLARE_CONSTANTS_TYPE(UNumberUnitWidth)
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+
+/* FormattedNumber */
+
+class t_formattednumber : public _wrapper {
+public:
+    FormattedNumber *object;
+    ConstrainedFieldPosition cfp;  // for iterator on t_formattedvalue
+};
+
+static PyMethodDef t_formattednumber_methods[] = {
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(FormattedNumber, t_formattednumber, FormattedValue,
+             FormattedNumber, abstract_init, NULL)
+
+PyObject *wrap_FormattedNumber(FormattedNumber &value)
+{
+    return wrap_FormattedNumber(new FormattedNumber(std::move(value)), T_OWNED);
+}
+
+/* FormattedNumberRange */
+
+class t_formattednumberrange : public _wrapper {
+public:
+    FormattedNumberRange *object;
+    ConstrainedFieldPosition cfp;  // for iterator on t_formattedvalue
+};
+
+static PyObject *t_formattednumberrange_getFirstDecimal(
+    t_formattednumberrange *self, PyObject *arg);
+static PyObject *t_formattednumberrange_getSecondDecimal(
+    t_formattednumberrange *self, PyObject *arg);
+static PyObject *t_formattednumberrange_getIdentityResult(
+    t_formattednumberrange *self, PyObject *arg);
+
+static PyMethodDef t_formattednumberrange_methods[] = {
+    DECLARE_METHOD(t_formattednumberrange, getFirstDecimal, METH_NOARGS),
+    DECLARE_METHOD(t_formattednumberrange, getSecondDecimal, METH_NOARGS),
+    DECLARE_METHOD(t_formattednumberrange, getIdentityResult, METH_NOARGS),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(FormattedNumberRange, t_formattednumberrange, FormattedValue,
+             FormattedNumberRange, abstract_init, NULL)
+
+PyObject *wrap_FormattedNumberRange(FormattedNumberRange &value)
+{
+    return wrap_FormattedNumberRange(
+        new FormattedNumberRange(std::move(value)), T_OWNED);
+}
+
+#endif
 
 /* NumberFormatter */
 
@@ -714,6 +791,13 @@ static PyObject *t_localizednumberformatter_formatDouble(
 static PyObject *t_localizednumberformatter_formatDecimal(
     t_localizednumberformatter *self, PyObject *arg);
 
+static PyObject *t_localizednumberformatter_formatIntToValue(
+    t_localizednumberformatter *self, PyObject *arg);
+static PyObject *t_localizednumberformatter_formatDoubleToValue(
+    t_localizednumberformatter *self, PyObject *arg);
+static PyObject *t_localizednumberformatter_formatDecimalToValue(
+    t_localizednumberformatter *self, PyObject *arg);
+
 static PyMethodDef t_localizednumberformatter_methods[] = {
     DECLARE_METHOD(t_localizednumberformatter, unit, METH_O),
 #if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
@@ -740,6 +824,9 @@ static PyMethodDef t_localizednumberformatter_methods[] = {
     DECLARE_METHOD(t_localizednumberformatter, formatInt, METH_O),
     DECLARE_METHOD(t_localizednumberformatter, formatDouble, METH_O),
     DECLARE_METHOD(t_localizednumberformatter, formatDecimal, METH_O),
+    DECLARE_METHOD(t_localizednumberformatter, formatIntToValue, METH_O),
+    DECLARE_METHOD(t_localizednumberformatter, formatDoubleToValue, METH_O),
+    DECLARE_METHOD(t_localizednumberformatter, formatDecimalToValue, METH_O),
     { NULL, NULL, 0, NULL }
 };
 
@@ -1043,6 +1130,116 @@ DECLARE_BY_VALUE_TYPE(Scale, t_scale, UMemory, Scale, abstract_init)
 #endif  // ICU >= 62
 
 #endif  // ICU >= 60
+
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+
+/* NumberRangeFormatter */
+
+class t_numberrangeformatter : public _wrapper {
+public:
+    NumberRangeFormatter *object;
+};
+
+static PyObject *t_numberrangeformatter_with_(PyTypeObject *type);
+static PyObject *t_numberrangeformatter_withLocale(PyTypeObject *type,
+                                                   PyObject *arg);
+
+static PyMethodDef t_numberrangeformatter_methods[] = {
+    DECLARE_METHOD(t_numberrangeformatter, with_, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_numberrangeformatter, withLocale, METH_O | METH_CLASS),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(NumberRangeFormatter, t_numberrangeformatter, UMemory,
+             NumberRangeFormatter, abstract_init, NULL)
+
+
+/* UnlocalizedNumberRangeFormatter */
+
+class t_unlocalizednumberrangeformatter : public _wrapper {
+public:
+    UnlocalizedNumberRangeFormatter *object;
+};
+
+static PyObject *t_unlocalizednumberrangeformatter_numberFormatterBoth(
+    t_unlocalizednumberrangeformatter *self, PyObject *arg);
+static PyObject *t_unlocalizednumberrangeformatter_numberFormatterFirst(
+    t_unlocalizednumberrangeformatter *self, PyObject *arg);
+static PyObject *t_unlocalizednumberrangeformatter_numberFormatterSecond(
+    t_unlocalizednumberrangeformatter *self, PyObject *arg);
+static PyObject *t_unlocalizednumberrangeformatter_collapse(
+    t_unlocalizednumberrangeformatter *self, PyObject *arg);
+static PyObject *t_unlocalizednumberrangeformatter_identityFallback(
+    t_unlocalizednumberrangeformatter *self, PyObject *arg);
+
+static PyObject *t_unlocalizednumberrangeformatter_locale(
+    t_unlocalizednumberrangeformatter *self, PyObject *arg);
+
+static PyMethodDef t_unlocalizednumberrangeformatter_methods[] = {
+    DECLARE_METHOD(t_unlocalizednumberrangeformatter, numberFormatterBoth, METH_O),
+    DECLARE_METHOD(t_unlocalizednumberrangeformatter, numberFormatterFirst, METH_O),
+    DECLARE_METHOD(t_unlocalizednumberrangeformatter, numberFormatterSecond, METH_O),
+    DECLARE_METHOD(t_unlocalizednumberrangeformatter, collapse, METH_O),
+    DECLARE_METHOD(t_unlocalizednumberrangeformatter, identityFallback, METH_O),
+    DECLARE_METHOD(t_unlocalizednumberrangeformatter, locale, METH_O),
+    { NULL, NULL, 0, NULL }
+};
+
+static int t_unlocalizednumberrangeformatter_init(
+    t_unlocalizednumberrangeformatter *self, PyObject *args, PyObject *kwds);
+
+DECLARE_BY_VALUE_TYPE(
+    UnlocalizedNumberRangeFormatter, t_unlocalizednumberrangeformatter,
+    UMemory, UnlocalizedNumberRangeFormatter,
+    t_unlocalizednumberrangeformatter_init)
+
+
+/* LocalizedNumberRangeFormatter */
+
+class t_localizednumberrangeformatter : public _wrapper {
+public:
+    LocalizedNumberRangeFormatter *object;
+};
+
+static PyObject *t_localizednumberrangeformatter_numberFormatterBoth(
+    t_localizednumberrangeformatter *self, PyObject *arg);
+static PyObject *t_localizednumberrangeformatter_numberFormatterFirst(
+    t_localizednumberrangeformatter *self, PyObject *arg);
+static PyObject *t_localizednumberrangeformatter_numberFormatterSecond(
+    t_localizednumberrangeformatter *self, PyObject *arg);
+static PyObject *t_localizednumberrangeformatter_collapse(
+    t_localizednumberrangeformatter *self, PyObject *arg);
+static PyObject *t_localizednumberrangeformatter_identityFallback(
+    t_localizednumberrangeformatter *self, PyObject *arg);
+
+static PyObject *t_localizednumberrangeformatter_formatFormattableRange(
+    t_localizednumberrangeformatter *self, PyObject *args);
+static PyObject *t_localizednumberrangeformatter_formatFormattableRangeToValue(
+    t_localizednumberrangeformatter *self, PyObject *args);
+
+static PyMethodDef t_localizednumberrangeformatter_methods[] = {
+    DECLARE_METHOD(t_localizednumberrangeformatter, numberFormatterBoth, METH_O),
+    DECLARE_METHOD(t_localizednumberrangeformatter, numberFormatterFirst, METH_O),
+    DECLARE_METHOD(t_localizednumberrangeformatter, numberFormatterSecond, METH_O),
+    DECLARE_METHOD(t_localizednumberrangeformatter, collapse, METH_O),
+    DECLARE_METHOD(t_localizednumberrangeformatter, identityFallback, METH_O),
+    DECLARE_METHOD(t_localizednumberrangeformatter,
+                   formatFormattableRange, METH_VARARGS),
+    DECLARE_METHOD(t_localizednumberrangeformatter,
+                   formatFormattableRangeToValue, METH_VARARGS),
+    { NULL, NULL, 0, NULL }
+};
+
+static int t_localizednumberrangeformatter_init(
+    t_localizednumberrangeformatter *self, PyObject *args, PyObject *kwds);
+
+DECLARE_BY_VALUE_TYPE(
+    LocalizedNumberRangeFormatter, t_localizednumberrangeformatter,
+    UMemory, LocalizedNumberRangeFormatter,
+    t_localizednumberrangeformatter_init)
+
+#endif // ICU >= 63
 
 
 /* DecimalFormatSymbols */
@@ -3801,6 +3998,75 @@ static PyObject *t_localizednumberformatter_formatDecimal(
     return PyErr_SetArgsError((PyObject *) self, "formatDecimal", arg);
 }
 
+static PyObject *t_localizednumberformatter_formatIntToValue(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    int n;
+    double d;
+    PY_LONG_LONG l;
+    FormattedNumber value;
+
+    if (!parseArg(arg, "i", &n))
+    {
+        STATUS_CALL(value = self->object->formatInt(n, status));
+        return wrap_FormattedNumber(value);
+    }
+    if (!parseArg(arg, "d", &d))
+    {
+        STATUS_CALL(value = self->object->formatInt((int64_t) d, status));
+        return wrap_FormattedNumber(value);
+    }
+    if (!parseArg(arg, "L", &l))
+    {
+        STATUS_CALL(value = self->object->formatInt((int64_t) l, status));
+        return wrap_FormattedNumber(value);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "formatIntToValue", arg);
+}
+
+static PyObject *t_localizednumberformatter_formatDoubleToValue(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    int n;
+    double d;
+    PY_LONG_LONG l;
+    FormattedNumber value;
+
+    if (!parseArg(arg, "i", &n))
+    {
+        STATUS_CALL(value = self->object->formatDouble((double) n, status));
+        return wrap_FormattedNumber(value);
+    }
+    if (!parseArg(arg, "d", &d))
+    {
+        STATUS_CALL(value = self->object->formatDouble(d, status));
+        return wrap_FormattedNumber(value);
+    }
+    if (!parseArg(arg, "L", &l))
+    {
+        STATUS_CALL(value = self->object->formatDouble((double) l, status));
+        return wrap_FormattedNumber(value);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "formatDoubleToValue", arg);
+}
+
+static PyObject *t_localizednumberformatter_formatDecimalToValue(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    char *s;
+    FormattedNumber value;
+
+    if (!parseArg(arg, "c", &s))
+    {
+        STATUS_CALL(value = self->object->formatDecimal(s, status));
+        return wrap_FormattedNumber(value);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "formatDecimalToValue", arg);
+}
+
 
 /* Notation */
 
@@ -4286,6 +4552,371 @@ static PyObject *t_scale_byDoubleAndPowerOfTen(PyTypeObject *type,
 #endif  // ICU >= 60
 
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+
+/* NumberRangeFormatter */
+
+static PyObject *t_numberrangeformatter_with_(PyTypeObject *type)
+{
+    return wrap_UnlocalizedNumberRangeFormatter(NumberRangeFormatter::with());
+}
+
+static PyObject *t_numberrangeformatter_withLocale(PyTypeObject *type,
+                                                   PyObject *arg)
+{
+    Locale *locale;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
+        return wrap_LocalizedNumberRangeFormatter(
+            NumberRangeFormatter::withLocale(*locale));
+
+    return PyErr_SetArgsError(type, "withLocale", arg);
+}
+
+
+/* UnlocalizedNumberRangeFormatter */
+
+static int t_unlocalizednumberrangeformatter_init(
+    t_unlocalizednumberrangeformatter *self, PyObject *args, PyObject *kwds)
+{
+    switch (PyTuple_Size(args)) {
+      case 0:
+        self->object = new UnlocalizedNumberRangeFormatter(
+            NumberRangeFormatter::with());
+        self->flags = T_OWNED;
+        break;
+    }
+
+    if (self->object)
+        return 0;
+
+    return -1;
+}
+
+static PyObject *t_unlocalizednumberrangeformatter_numberFormatterBoth(
+    t_unlocalizednumberrangeformatter *self, PyObject *arg)
+{
+    PyObject *formatter;
+
+    if (!parseArg(arg, "O", &UnlocalizedNumberFormatterType_, &formatter))
+    {
+        UnlocalizedNumberFormatter copy =
+            *((t_unlocalizednumberformatter *) formatter)->object;
+
+        return wrap_UnlocalizedNumberRangeFormatter(
+            self->object->numberFormatterBoth(std::move(copy)));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "numberFormatterBoth", arg);
+}
+
+static PyObject *t_unlocalizednumberrangeformatter_numberFormatterFirst(
+    t_unlocalizednumberrangeformatter *self, PyObject *arg)
+{
+    PyObject *formatter;
+
+    if (!parseArg(arg, "O", &UnlocalizedNumberFormatterType_, &formatter))
+    {
+        UnlocalizedNumberFormatter copy =
+            *((t_unlocalizednumberformatter *) formatter)->object;
+
+        return wrap_UnlocalizedNumberRangeFormatter(
+            self->object->numberFormatterFirst(std::move(copy)));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "numberFormatterFirst", arg);
+}
+
+static PyObject *t_unlocalizednumberrangeformatter_numberFormatterSecond(
+    t_unlocalizednumberrangeformatter *self, PyObject *arg)
+{
+    PyObject *formatter;
+
+    if (!parseArg(arg, "O", &UnlocalizedNumberFormatterType_, &formatter))
+    {
+        UnlocalizedNumberFormatter copy =
+            *((t_unlocalizednumberformatter *) formatter)->object;
+
+        return wrap_UnlocalizedNumberRangeFormatter(
+            self->object->numberFormatterSecond(std::move(copy)));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "numberFormatterSecond", arg);
+}
+
+static PyObject *t_unlocalizednumberrangeformatter_collapse(
+    t_unlocalizednumberrangeformatter *self, PyObject *arg)
+{
+    UNumberRangeCollapse value;
+
+    if (!parseArg(arg, "i", &value))
+        return wrap_UnlocalizedNumberRangeFormatter(
+            self->object->collapse(value));
+
+    return PyErr_SetArgsError((PyObject *) self, "collapse", arg);
+}
+
+static PyObject *t_unlocalizednumberrangeformatter_identityFallback(
+    t_unlocalizednumberrangeformatter *self, PyObject *arg)
+{
+    UNumberRangeIdentityFallback value;
+
+    if (!parseArg(arg, "i", &value))
+        return wrap_UnlocalizedNumberRangeFormatter(
+            self->object->identityFallback(value));
+
+    return PyErr_SetArgsError((PyObject *) self, "identityFallback", arg);
+}
+
+static PyObject *t_unlocalizednumberrangeformatter_locale(
+    t_unlocalizednumberrangeformatter *self, PyObject *arg)
+{
+    Locale *locale;
+
+    if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
+        return wrap_LocalizedNumberRangeFormatter(
+            self->object->locale(*locale));
+
+    return PyErr_SetArgsError((PyObject *) self, "locale", arg);
+}
+
+
+/* LocalizedNumberRangeFormatter */
+
+static int t_localizednumberrangeformatter_init(
+    t_localizednumberrangeformatter *self, PyObject *args, PyObject *kwds)
+{
+    switch (PyTuple_Size(args)) {
+      case 1: {
+        Locale *locale;
+
+        if (!parseArgs(args, "P", TYPE_CLASSID(Locale), &locale))
+        {
+            self->object = new LocalizedNumberRangeFormatter(
+                NumberRangeFormatter::withLocale(*locale));
+            self->flags = T_OWNED;
+            break;
+        }
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        break;
+      }
+    }
+
+    if (self->object)
+        return 0;
+
+    return -1;
+}
+
+static PyObject *t_localizednumberrangeformatter_numberFormatterBoth(
+    t_localizednumberrangeformatter *self, PyObject *arg)
+{
+    PyObject *formatter;
+
+    if (!parseArg(arg, "O", &UnlocalizedNumberFormatterType_, &formatter))
+    {
+        UnlocalizedNumberFormatter copy =
+            *((t_unlocalizednumberformatter *) formatter)->object;
+
+        return wrap_LocalizedNumberRangeFormatter(
+            self->object->numberFormatterBoth(std::move(copy)));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "numberFormatterBoth", arg);
+}
+
+static PyObject *t_localizednumberrangeformatter_numberFormatterFirst(
+    t_localizednumberrangeformatter *self, PyObject *arg)
+{
+    PyObject *formatter;
+
+    if (!parseArg(arg, "O", &UnlocalizedNumberFormatterType_, &formatter))
+    {
+        UnlocalizedNumberFormatter copy =
+            *((t_unlocalizednumberformatter *) formatter)->object;
+
+        return wrap_LocalizedNumberRangeFormatter(
+            self->object->numberFormatterFirst(std::move(copy)));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "numberFormatterFirst", arg);
+}
+
+static PyObject *t_localizednumberrangeformatter_numberFormatterSecond(
+    t_localizednumberrangeformatter *self, PyObject *arg)
+{
+    PyObject *formatter;
+
+    if (!parseArg(arg, "O", &UnlocalizedNumberFormatterType_, &formatter))
+    {
+        UnlocalizedNumberFormatter copy =
+            *((t_unlocalizednumberformatter *) formatter)->object;
+
+        return wrap_LocalizedNumberRangeFormatter(
+            self->object->numberFormatterSecond(std::move(copy)));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "numberFormatterSecond", arg);
+}
+
+static PyObject *t_localizednumberrangeformatter_collapse(
+    t_localizednumberrangeformatter *self, PyObject *arg)
+{
+    UNumberRangeCollapse value;
+
+    if (!parseArg(arg, "i", &value))
+        return wrap_LocalizedNumberRangeFormatter(
+            self->object->collapse(value));
+
+    return PyErr_SetArgsError((PyObject *) self, "collapse", arg);
+}
+
+static PyObject *t_localizednumberrangeformatter_identityFallback(
+    t_localizednumberrangeformatter *self, PyObject *arg)
+{
+    UNumberRangeIdentityFallback value;
+
+    if (!parseArg(arg, "i", &value))
+        return wrap_LocalizedNumberRangeFormatter(
+            self->object->identityFallback(value));
+
+    return PyErr_SetArgsError((PyObject *) self, "identityFallback", arg);
+}
+
+static PyObject *t_localizednumberrangeformatter_formatFormattableRange(
+    t_localizednumberrangeformatter *self, PyObject *args)
+{
+    UnicodeString u;
+    Formattable *first, *second;
+    int iFirst, iSecond;
+    double dFirst, dSecond;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "PP",
+                       TYPE_CLASSID(Formattable), TYPE_CLASSID(Formattable),
+                       &first, &second))
+        {
+            STATUS_CALL(u = self->object->formatFormattableRange(
+                *first, *second, status).toString(status));
+
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        if (!parseArgs(args, "ii", &iFirst, &iSecond))
+        {
+            STATUS_CALL(u = self->object->formatFormattableRange(
+                Formattable(iFirst), Formattable(iSecond),
+                status).toString(status));
+
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        if (!parseArgs(args, "dd", &dFirst, &dSecond))
+        {
+            STATUS_CALL(u = self->object->formatFormattableRange(
+                Formattable(dFirst), Formattable(dSecond),
+                status).toString(status));
+
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError(
+        (PyObject *) self, "formatFormattableRange", args);
+}
+
+static PyObject *t_localizednumberrangeformatter_formatFormattableRangeToValue(
+    t_localizednumberrangeformatter *self, PyObject *args)
+{
+    Formattable *first, *second;
+    int iFirst, iSecond;
+    double dFirst, dSecond;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "PP",
+                       TYPE_CLASSID(Formattable), TYPE_CLASSID(Formattable),
+                       &first, &second))
+        {
+            UErrorCode status = U_ZERO_ERROR;
+            FormattedNumberRange value(
+                self->object->formatFormattableRange(*first, *second, status));
+
+            if (U_FAILURE(status))
+                return ICUException(status).reportError();
+
+            return wrap_FormattedNumberRange(value);
+        }
+        if (!parseArgs(args, "ii", &iFirst, &iSecond))
+        {
+            UErrorCode status = U_ZERO_ERROR;
+            FormattedNumberRange value(
+                self->object->formatFormattableRange(
+                    Formattable(iFirst), Formattable(iSecond), status));
+
+            if (U_FAILURE(status))
+                return ICUException(status).reportError();
+
+            return wrap_FormattedNumberRange(value);
+        }
+        if (!parseArgs(args, "dd", &dFirst, &dSecond))
+        {
+            UErrorCode status = U_ZERO_ERROR;
+            FormattedNumberRange value(
+                self->object->formatFormattableRange(
+                    Formattable(dFirst), Formattable(dSecond), status));
+
+            if (U_FAILURE(status))
+                return ICUException(status).reportError();
+
+            return wrap_FormattedNumberRange(value);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError(
+        (PyObject *) self, "formatFormattableRangeToValue", args);
+}
+
+#endif  // ICU >= 63
+
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+
+/* FormattedNumberRange */
+
+static PyObject *t_formattednumberrange_getFirstDecimal(
+    t_formattednumberrange *self, PyObject *arg)
+{
+    UnicodeString u;
+
+    STATUS_CALL(u = self->object->getFirstDecimal(status));
+
+    return PyUnicode_FromUnicodeString(&u);
+}
+
+static PyObject *t_formattednumberrange_getSecondDecimal(
+    t_formattednumberrange *self, PyObject *arg)
+{
+    UnicodeString u;
+
+    STATUS_CALL(u = self->object->getSecondDecimal(status));
+
+    return PyUnicode_FromUnicodeString(&u);
+}
+
+static PyObject *t_formattednumberrange_getIdentityResult(
+    t_formattednumberrange *self, PyObject *arg)
+{
+    UNumberRangeIdentityResult result;
+
+    STATUS_CALL(result = self->object->getIdentityResult(status));
+
+    return PyInt_FromLong(result);
+}
+
+#endif  // ICU >= 64
+
 void _init_numberformat(PyObject *m)
 {
     DecimalFormatSymbolsType_.tp_richcompare =
@@ -4331,6 +4962,15 @@ void _init_numberformat(PyObject *m)
     INSTALL_STRUCT(CurrencyPrecision, m);
     INSTALL_STRUCT(Scale, m);
 #endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+    INSTALL_STRUCT(NumberRangeFormatter, m);
+    INSTALL_STRUCT(UnlocalizedNumberRangeFormatter, m);
+    INSTALL_STRUCT(LocalizedNumberRangeFormatter, m);
+#endif
+#endif  // ICU >= 60
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+    INSTALL_STRUCT(FormattedNumber, m);
+    INSTALL_STRUCT(FormattedNumberRange, m);
 #endif
 
     INSTALL_STATIC_INT(DecimalFormatSymbols, kDecimalSeparatorSymbol);
@@ -4364,6 +5004,48 @@ void _init_numberformat(PyObject *m)
     INSTALL_ENUM(URBNFRuleSetTag, "ORDINAL", URBNF_ORDINAL);
     INSTALL_ENUM(URBNFRuleSetTag, "DURATION", URBNF_DURATION);
     INSTALL_ENUM(URBNFRuleSetTag, "NUMBERING_SYSTEM", URBNF_NUMBERING_SYSTEM);
+#endif
+
+    INSTALL_CONSTANTS_TYPE(UNumberFormatAttribute, m);
+    INSTALL_ENUM(UNumberFormatAttribute, "PARSE_INT_ONLY", UNUM_PARSE_INT_ONLY);
+    INSTALL_ENUM(UNumberFormatAttribute, "GROUPING_USED", UNUM_GROUPING_USED);
+    INSTALL_ENUM(UNumberFormatAttribute, "DECIMAL_ALWAYS_SHOWN", UNUM_DECIMAL_ALWAYS_SHOWN);
+    INSTALL_ENUM(UNumberFormatAttribute, "MAX_INTEGER_DIGITS", UNUM_MAX_INTEGER_DIGITS);
+    INSTALL_ENUM(UNumberFormatAttribute, "MIN_INTEGER_DIGITS", UNUM_MIN_INTEGER_DIGITS);
+    INSTALL_ENUM(UNumberFormatAttribute, "INTEGER_DIGITS", UNUM_INTEGER_DIGITS);
+    INSTALL_ENUM(UNumberFormatAttribute, "MAX_FRACTION_DIGITS", UNUM_MAX_FRACTION_DIGITS);
+    INSTALL_ENUM(UNumberFormatAttribute, "MIN_FRACTION_DIGITS", UNUM_MIN_FRACTION_DIGITS);
+    INSTALL_ENUM(UNumberFormatAttribute, "FRACTION_DIGITS", UNUM_FRACTION_DIGITS);
+    INSTALL_ENUM(UNumberFormatAttribute, "MULTIPLIER", UNUM_MULTIPLIER);
+    INSTALL_ENUM(UNumberFormatAttribute, "GROUPING_SIZE", UNUM_GROUPING_SIZE);
+    INSTALL_ENUM(UNumberFormatAttribute, "ROUNDING_MODE", UNUM_ROUNDING_MODE);
+    INSTALL_ENUM(UNumberFormatAttribute, "ROUNDING_INCREMENT", UNUM_ROUNDING_INCREMENT);
+    INSTALL_ENUM(UNumberFormatAttribute, "FORMAT_WIDTH", UNUM_FORMAT_WIDTH);
+    INSTALL_ENUM(UNumberFormatAttribute, "PADDING_POSITION", UNUM_PADDING_POSITION);
+    INSTALL_ENUM(UNumberFormatAttribute, "SECONDARY_GROUPING_SIZE", UNUM_SECONDARY_GROUPING_SIZE);
+    INSTALL_ENUM(UNumberFormatAttribute, "SIGNIFICANT_DIGITS_USED", UNUM_SIGNIFICANT_DIGITS_USED);
+    INSTALL_ENUM(UNumberFormatAttribute, "MIN_SIGNIFICANT_DIGITS", UNUM_MIN_SIGNIFICANT_DIGITS);
+    INSTALL_ENUM(UNumberFormatAttribute, "MAX_SIGNIFICANT_DIGITS", UNUM_MAX_SIGNIFICANT_DIGITS);
+    INSTALL_ENUM(UNumberFormatAttribute, "LENIENT_PARSE", UNUM_LENIENT_PARSE);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
+    INSTALL_ENUM(UNumberFormatAttribute, "SCALE", UNUM_SCALE);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+    INSTALL_ENUM(UNumberFormatAttribute, "MINIMUM_GROUPING_DIGITS", UNUM_MINIMUM_GROUPING_DIGITS);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
+    INSTALL_ENUM(UNumberFormatAttribute, "CURRENCY_USAGE", UNUM_CURRENCY_USAGE);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(50, 0, 0)
+    INSTALL_ENUM(UNumberFormatAttribute, "FORMAT_FAIL_IF_MORE_THAN_MAX_DIGITS", UNUM_FORMAT_FAIL_IF_MORE_THAN_MAX_DIGITS);
+    INSTALL_ENUM(UNumberFormatAttribute, "PARSE_NO_EXPONENT", UNUM_PARSE_NO_EXPONENT);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(54, 0, 0)
+    INSTALL_ENUM(UNumberFormatAttribute, "PARSE_DECIMAL_MARK_REQUIRED", UNUM_PARSE_DECIMAL_MARK_REQUIRED);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+    INSTALL_ENUM(UNumberFormatAttribute, "PARSE_CASE_SENSITIVE", UNUM_PARSE_CASE_SENSITIVE);
+    INSTALL_ENUM(UNumberFormatAttribute, "SIGN_ALWAYS_SHOWN", UNUM_SIGN_ALWAYS_SHOWN);
 #endif
 
     INSTALL_CONSTANTS_TYPE(UNumberFormatRoundingMode, m);
@@ -4413,6 +5095,25 @@ void _init_numberformat(PyObject *m)
     INSTALL_CONSTANTS_TYPE(UCurrencyUsage, m);
     INSTALL_ENUM(UCurrencyUsage, "STANDARD", UCURR_USAGE_STANDARD);
     INSTALL_ENUM(UCurrencyUsage, "CASH", UCURR_USAGE_CASH);
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(49, 0, 0)
+    INSTALL_CONSTANTS_TYPE(UNumberFormatFields, m);
+    INSTALL_ENUM(UNumberFormatFields, "INTEGER_FIELD", UNUM_INTEGER_FIELD);
+    INSTALL_ENUM(UNumberFormatFields, "FRACTION_FIELD", UNUM_FRACTION_FIELD);
+    INSTALL_ENUM(UNumberFormatFields, "DECIMAL_SEPARATOR_FIELD", UNUM_DECIMAL_SEPARATOR_FIELD);
+    INSTALL_ENUM(UNumberFormatFields, "EXPONENT_SYMBOL_FIELD", UNUM_EXPONENT_SYMBOL_FIELD);
+    INSTALL_ENUM(UNumberFormatFields, "EXPONENT_SIGN_FIELD", UNUM_EXPONENT_SIGN_FIELD);
+    INSTALL_ENUM(UNumberFormatFields, "EXPONENT_FIELD", UNUM_EXPONENT_FIELD);
+    INSTALL_ENUM(UNumberFormatFields, "GROUPING_SEPARATOR_FIELD", UNUM_GROUPING_SEPARATOR_FIELD);
+    INSTALL_ENUM(UNumberFormatFields, "CURRENCY_FIELD", UNUM_CURRENCY_FIELD);
+    INSTALL_ENUM(UNumberFormatFields, "PERCENT_FIELD", UNUM_PERCENT_FIELD);
+    INSTALL_ENUM(UNumberFormatFields, "PERMILL_FIELD", UNUM_PERMILL_FIELD);
+    INSTALL_ENUM(UNumberFormatFields, "SIGN_FIELD", UNUM_SIGN_FIELD);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+    INSTALL_ENUM(UNumberFormatFields, "MEASURE_UNIT_FIELD", UNUM_MEASURE_UNIT_FIELD);
+    INSTALL_ENUM(UNumberFormatFields, "COMPACT_FIELD", UNUM_COMPACT_FIELD);
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(51, 0, 0)
@@ -4467,4 +5168,34 @@ void _init_numberformat(PyObject *m)
     INSTALL_STATIC_INT(DecimalFormat, kPadAfterPrefix);
     INSTALL_STATIC_INT(DecimalFormat, kPadBeforeSuffix);
     INSTALL_STATIC_INT(DecimalFormat, kPadAfterSuffix);
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+    INSTALL_CONSTANTS_TYPE(UNumberRangeIdentityFallback, m);
+    INSTALL_ENUM(UNumberRangeIdentityFallback, "SINGLE_VALUE",
+                 UNUM_IDENTITY_FALLBACK_SINGLE_VALUE);
+    INSTALL_ENUM(UNumberRangeIdentityFallback, "APPROXIMATELY_OR_SINGLE_VALUE",
+                 UNUM_IDENTITY_FALLBACK_APPROXIMATELY_OR_SINGLE_VALUE);
+    INSTALL_ENUM(UNumberRangeIdentityFallback, "APPROXIMATELY",
+                 UNUM_IDENTITY_FALLBACK_APPROXIMATELY);
+    INSTALL_ENUM(UNumberRangeIdentityFallback, "RANGE",
+                 UNUM_IDENTITY_FALLBACK_RANGE);
+
+    INSTALL_CONSTANTS_TYPE(UNumberRangeIdentityResult, m);
+    INSTALL_ENUM(UNumberRangeIdentityResult, "EQUAL_BEFORE_ROUNDING",
+                 UNUM_IDENTITY_RESULT_EQUAL_BEFORE_ROUNDING);
+    INSTALL_ENUM(UNumberRangeIdentityResult, "EQUAL_AFTER_ROUNDING",
+                 UNUM_IDENTITY_RESULT_EQUAL_AFTER_ROUNDING);
+    INSTALL_ENUM(UNumberRangeIdentityResult, "NOT_EQUAL",
+                 UNUM_IDENTITY_RESULT_NOT_EQUAL);
+
+    INSTALL_CONSTANTS_TYPE(UNumberRangeCollapse, m);
+    INSTALL_ENUM(UNumberRangeCollapse, "COLLAPSE_AUTO",
+                 UNUM_RANGE_COLLAPSE_AUTO);
+    INSTALL_ENUM(UNumberRangeCollapse, "COLLAPSE_NONE",
+                 UNUM_RANGE_COLLAPSE_NONE);
+    INSTALL_ENUM(UNumberRangeCollapse, "COLLAPSE_UNIT",
+                 UNUM_RANGE_COLLAPSE_UNIT);
+    INSTALL_ENUM(UNumberRangeCollapse, "COLLAPSE_ALL",
+                 UNUM_RANGE_COLLAPSE_ALL);
+#endif
 }

@@ -36,6 +36,14 @@
     DECLARE_CONSTANTS_TYPE(UTimeUnitFormatStyle)
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
+    DECLARE_CONSTANTS_TYPE(UListFormatterField)
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+    DECLARE_CONSTANTS_TYPE(UFieldCategory)
+#endif
+
 /* FieldPosition */
 
 class t_fieldposition : public _wrapper {
@@ -363,11 +371,18 @@ public:
 };
 
 static PyObject *t_listformatter_format(t_listformatter *self, PyObject *arg);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+static PyObject *t_listformatter_formatStringsToValue(t_listformatter *self,
+                                                      PyObject *arg);
+#endif
 static PyObject *t_listformatter_createInstance(PyTypeObject *type,
                                                 PyObject *args);
 
 static PyMethodDef t_listformatter_methods[] = {
     DECLARE_METHOD(t_listformatter, format, METH_O),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+    DECLARE_METHOD(t_listformatter, formatStringsToValue, METH_O),
+#endif
     DECLARE_METHOD(t_listformatter, createInstance, METH_VARARGS | METH_CLASS),
     { NULL, NULL, 0, NULL }
 };
@@ -435,6 +450,92 @@ DECLARE_TYPE(SimpleFormatter, t_simpleformatter, UMemory, SimpleFormatter,
              t_simpleformatter_init, t_simpleformatter_dealloc)
 
 #endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+
+/* ConstrainedFieldPosition */
+
+static int t_constrainedfieldposition_init(t_constrainedfieldposition *self,
+                                           PyObject *args, PyObject *kwds);
+
+static PyObject *t_constrainedfieldposition_constrainCategory(
+    t_constrainedfieldposition *self, PyObject *arg);
+static PyObject *t_constrainedfieldposition_constrainField(
+    t_constrainedfieldposition *self, PyObject *args);
+static PyObject *t_constrainedfieldposition_getCategory(
+    t_constrainedfieldposition *self);
+static PyObject *t_constrainedfieldposition_getField(
+    t_constrainedfieldposition *self);
+static PyObject *t_constrainedfieldposition_getStart(
+    t_constrainedfieldposition *self);
+static PyObject *t_constrainedfieldposition_getLimit(
+    t_constrainedfieldposition *self);
+
+static PyMethodDef t_constrainedfieldposition_methods[] = {
+    DECLARE_METHOD(t_constrainedfieldposition, constrainCategory, METH_O),
+    DECLARE_METHOD(t_constrainedfieldposition, constrainField, METH_VARARGS),
+    DECLARE_METHOD(t_constrainedfieldposition, getCategory, METH_NOARGS),
+    DECLARE_METHOD(t_constrainedfieldposition, getField, METH_NOARGS),
+    DECLARE_METHOD(t_constrainedfieldposition, getStart, METH_NOARGS),
+    DECLARE_METHOD(t_constrainedfieldposition, getLimit, METH_NOARGS),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(ConstrainedFieldPosition, t_constrainedfieldposition, UMemory,
+             ConstrainedFieldPosition, t_constrainedfieldposition_init, NULL)
+
+/* FormattedValue */
+
+class t_formattedvalue : public _wrapper {
+public:
+    FormattedValue *object;
+    ConstrainedFieldPosition cfp;
+};
+
+static PyObject *t_formattedvalue_nextPosition(t_formattedvalue *self,
+                                               PyObject *arg);
+
+static PyMethodDef t_formattedvalue_methods[] = {
+    DECLARE_METHOD(t_formattedvalue, nextPosition, METH_O),
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(FormattedValue, t_formattedvalue, UMemory,
+             FormattedValue, abstract_init, NULL)
+
+PyObject *wrap_FormattedValue(FormattedValue *value)
+{
+    using icu::number::FormattedNumber;
+
+    RETURN_WRAPPED_IF_ISINSTANCE(value, FormattedDateInterval);
+    RETURN_WRAPPED_IF_ISINSTANCE(value, FormattedNumber);
+    RETURN_WRAPPED_IF_ISINSTANCE(value, FormattedList);
+    RETURN_WRAPPED_IF_ISINSTANCE(value, FormattedRelativeDateTime);
+    return wrap_FormattedValue(value, T_OWNED);
+}
+
+/* FormattedList */
+
+class t_formattedlist : public _wrapper {
+public:
+    FormattedList *object;
+    ConstrainedFieldPosition cfp;  // for iterator on t_formattedvalue
+};
+
+static PyMethodDef t_formattedlist_methods[] = {
+    { NULL, NULL, 0, NULL }
+};
+
+DECLARE_TYPE(FormattedList, t_formattedlist, FormattedValue,
+             FormattedList, abstract_init, NULL)
+
+PyObject *wrap_FormattedList(FormattedList &value)
+{
+    return wrap_FormattedList(new FormattedList(std::move(value)), T_OWNED);
+}
+
+#endif
+
 
 /* FieldPosition */
 
@@ -1834,6 +1935,27 @@ static PyObject *t_listformatter_format(t_listformatter *self, PyObject *arg)
     return PyErr_SetArgsError((PyObject *) self, "format", arg);
 }
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+static PyObject *t_listformatter_formatStringsToValue(t_listformatter *self,
+                                                      PyObject *arg)
+{
+    UnicodeString *array;
+    int count;
+
+    if (!parseArg(arg, "T", &array, &count))
+    {
+        FormattedList value;
+
+        STATUS_CALL(value = self->object->formatStringsToValue(
+            array, (int32_t) count, status));
+
+        return wrap_FormattedList(value);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "formatStringsToValue", arg);
+}
+#endif
+
 static PyObject *t_listformatter_createInstance(PyTypeObject *type,
                                                 PyObject *args)
 {
@@ -2022,7 +2144,130 @@ static PyObject *t_simpleformatter_formatStrings(
     return PyErr_SetArgsError((PyObject *) self, "formatStrings", arg);
 }
 
-#endif
+#endif  // ICU >= 57
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+
+/* ConstrainedFieldPosition */
+
+static int t_constrainedfieldposition_init(t_constrainedfieldposition *self,
+                                           PyObject *args, PyObject *kwds)
+{
+    switch (PyTuple_Size(args)) {
+      case 0:
+        self->object = new ConstrainedFieldPosition();
+        self->flags = T_OWNED;
+        return 0;
+    }
+        
+    PyErr_SetArgsError((PyObject *) self, "__init__", args);
+    return -1;
+}
+
+static PyObject *t_constrainedfieldposition_constrainCategory(
+    t_constrainedfieldposition *self, PyObject *arg)
+{
+    int32_t category;
+    
+    if (!parseArg(arg, "i", &category))
+        self->object->constrainCategory(category);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *t_constrainedfieldposition_constrainField(
+    t_constrainedfieldposition *self, PyObject *args)
+{
+    int32_t category, field;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "ii", &category, &field))
+        {
+            self->object->constrainField(category, field);
+            Py_RETURN_NONE;
+        }
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "constrainField", args);
+}
+
+static PyObject *t_constrainedfieldposition_getCategory(
+    t_constrainedfieldposition *self)
+{
+    return PyInt_FromLong(self->object->getCategory());
+}
+
+static PyObject *t_constrainedfieldposition_getField(
+    t_constrainedfieldposition *self)
+{
+    return PyInt_FromLong(self->object->getField());
+}
+
+static PyObject *t_constrainedfieldposition_getStart(
+    t_constrainedfieldposition *self)
+{
+    return PyInt_FromLong(self->object->getStart());
+}
+
+static PyObject *t_constrainedfieldposition_getLimit(
+    t_constrainedfieldposition *self)
+{
+    return PyInt_FromLong(self->object->getLimit());
+}
+
+/* FormattedValue */
+
+static PyObject *t_formattedvalue_nextPosition(t_formattedvalue *self,
+                                               PyObject *arg)
+{
+    PyObject *fp;
+
+    if (!parseArg(arg, "O", &ConstrainedFieldPositionType_, &fp))
+    {
+        bool b;
+
+        STATUS_CALL(b = self->object->nextPosition(
+            *((t_constrainedfieldposition *) fp)->object, status));
+
+        Py_RETURN_BOOL(b);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "nextPosition", arg);
+}
+
+static PyObject *t_formattedvalue_iter(t_formattedvalue *self)
+{
+    self->cfp.reset();
+    Py_RETURN_SELF();
+}
+
+static PyObject *t_formattedvalue_iter_next(t_formattedvalue *self)
+{
+    bool b;
+
+    STATUS_CALL(b = self->object->nextPosition(self->cfp, status));
+
+    if (b)
+    {
+        return wrap_ConstrainedFieldPosition(
+            new ConstrainedFieldPosition(self->cfp), T_OWNED);
+    }
+
+    PyErr_SetNone(PyExc_StopIteration);
+    return NULL;
+}
+
+static PyObject *t_formattedvalue_str(t_formattedvalue *self)
+{
+    UnicodeString u;
+
+    STATUS_CALL(u = self->object->toString(status));
+    return PyUnicode_FromUnicodeString(&u);
+}
+
+#endif  // ICU >= 64
+
 
 void _init_format(PyObject *m)
 {
@@ -2043,6 +2288,11 @@ void _init_format(PyObject *m)
     SimpleFormatterType_.tp_str = (reprfunc) t_simpleformatter_str;
     SimpleFormatterType_.tp_as_number = &t_simpleformatter_as_number;
     SimpleFormatterType_.tp_flags |= Py_TPFLAGS_CHECKTYPES;
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+    FormattedValueType_.tp_iter = (getiterfunc) t_formattedvalue_iter;
+    FormattedValueType_.tp_iternext = (iternextfunc) t_formattedvalue_iter_next;
+    FormattedValueType_.tp_str = (reprfunc) t_formattedvalue_str;
 #endif
 
     REGISTER_TYPE(FieldPosition, m);
@@ -2066,6 +2316,11 @@ void _init_format(PyObject *m)
 #if U_ICU_VERSION_HEX >= VERSION_HEX(57, 0, 0)
     INSTALL_STRUCT(SimpleFormatter, m);
 #endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+    INSTALL_STRUCT(ConstrainedFieldPosition, m);
+    INSTALL_STRUCT(FormattedValue, m);
+    INSTALL_STRUCT(FormattedList, m);
+#endif
 
     INSTALL_STATIC_INT(FieldPosition, DONT_CARE);
 
@@ -2077,5 +2332,22 @@ void _init_format(PyObject *m)
     INSTALL_CONSTANTS_TYPE(UTimeUnitFormatStyle, m);
     INSTALL_ENUM(UTimeUnitFormatStyle, "FULL", UTMUTFMT_FULL_STYLE);
     INSTALL_ENUM(UTimeUnitFormatStyle, "ABBREVIATED", UTMUTFMT_ABBREVIATED_STYLE);
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+    INSTALL_CONSTANTS_TYPE(UListFormatterField, m);
+    INSTALL_ENUM(UListFormatterField, "LITERAL_FIELD", ULISTFMT_LITERAL_FIELD);
+    INSTALL_ENUM(UListFormatterField, "ELEMENT_FIELD", ULISTFMT_ELEMENT_FIELD);
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+    INSTALL_CONSTANTS_TYPE(UFieldCategory, m);
+    INSTALL_ENUM(UFieldCategory, "CATEGORY_UNDEFINED", UFIELD_CATEGORY_UNDEFINED);
+    INSTALL_ENUM(UFieldCategory, "CATEGORY_DATE", UFIELD_CATEGORY_DATE);
+    INSTALL_ENUM(UFieldCategory, "CATEGORY_NUMBER", UFIELD_CATEGORY_NUMBER);
+    INSTALL_ENUM(UFieldCategory, "CATEGORY_LIST", UFIELD_CATEGORY_LIST);
+    INSTALL_ENUM(UFieldCategory, "CATEGORY_RELATIVE_DATETIME", UFIELD_CATEGORY_RELATIVE_DATETIME);
+    INSTALL_ENUM(UFieldCategory, "CATEGORY_LIST_SPAN", UFIELD_CATEGORY_LIST_SPAN);
+    INSTALL_ENUM(UFieldCategory, "CATEGORY_DATE_INTERVAL_SPAN", UFIELD_CATEGORY_DATE_INTERVAL_SPAN);
 #endif
 }

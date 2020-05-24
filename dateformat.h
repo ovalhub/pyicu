@@ -25,7 +25,12 @@
 #define _dateformat_h
 
 PyObject *wrap_SimpleDateFormat(SimpleDateFormat *, int);
-void _init_dateformat(PyObject *m);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+PyObject *wrap_FormattedDateInterval(FormattedDateInterval *value, int flag);
+PyObject *wrap_FormattedRelativeDateTime(
+    FormattedRelativeDateTime *value, int flag);
+#endif
 
+void _init_dateformat(PyObject *m);
 
 #endif /* _dateformat_h */

@@ -31,6 +31,10 @@ PyObject *wrap_DecimalFormat(DecimalFormat *, int);
 PyObject *wrap_RuleBasedNumberFormat(RuleBasedNumberFormat *, int);
 PyObject *wrap_ChoiceFormat(ChoiceFormat *, int);
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+PyObject *wrap_FormattedNumber(icu::number::FormattedNumber *value, int flag);
+#endif
+
 void _init_numberformat(PyObject *m);
 
 

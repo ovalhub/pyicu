@@ -1,6 +1,13 @@
 Version 2.4.3 ->
-----------------------
+--------------------
   - added support for turning on -pedantic with gcc or clang
+  - added support for ICU 67.1
+  - added wrappers for FormattedValue, ConstrainedFieldPosition, UFieldCategory
+  - made FormattedValue iterable via nextPosition()
+  - added wrappers for FormattedDateInterval, FormattedNumber, FormattedList
+  - added wrappers for FormattedRelativeDateTime and enums
+  - added wrappers for UNumberFormatFields, UNumberFormatAttribute
+  - added wrappers for NumberRangeFormatter, FormattedNumberRange and enums
   - 
 
 Version 2.4.2 -> 2.4.3

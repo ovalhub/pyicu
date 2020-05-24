@@ -41,6 +41,17 @@ class TestNumberFormatter(TestCase):
         text = LocalizedNumberFormatter(Locale.getUS()).formatInt(1234)
         self.assertEqual(text, u'1,234')
 
+    def testFormattedNumber(self):
+
+        if ICU_VERSION >= '64.0':
+            value = NumberFormatter.withLocale(Locale.getUS()) \
+                .formatIntToValue(1234)
+            self.assertEqual(str(value), u'1,234')
+            self.assertEqual(repr(value), u'<FormattedNumber: 1,234>')
+
+            self.assertEqual([(x.getStart(), x.getLimit()) for x in value],
+                             [(1, 2), (0, 5)])
+
     def testFancy(self):
 
         if ICU_VERSION < '64.0':
@@ -94,6 +105,57 @@ class TestNumberFormatter(TestCase):
                 .toNumberFormatter() \
                 .formatInt(1234)
             self.assertEqual(text, u'1,234E3')
+
+
+class TestNumberRangeFormatter(TestCase):
+
+    def setUp(self):
+        if ICU_VERSION < '63.0':
+            self.skipTest(ICU_VERSION)
+
+    def testBasic(self):
+
+        text = NumberRangeFormatter.withLocale(Locale.getItaly()) \
+            .formatFormattableRange(1234, 5678)
+        self.assertEqual(text, u'1.234-5.678')
+
+        text = LocalizedNumberRangeFormatter(Locale.getItaly()) \
+            .formatFormattableRange(1234, 5678)
+        self.assertEqual(text, u'1.234-5.678')
+
+    def testFormattedNumberRange(self):
+
+        if ICU_VERSION >= '64.0':
+            p2_formatter = NumberFormatter.with_() \
+                .precision(Precision.maxSignificantDigits(2))
+            p3_formatter = NumberFormatter.with_() \
+                .precision(Precision.maxSignificantDigits(3))
+            it_formatter = NumberRangeFormatter.withLocale(Locale.getItaly())
+
+            text = it_formatter.numberFormatterBoth(p2_formatter) \
+                .formatFormattableRange(1/3.0, 1/4.0)
+            self.assertEqual(text, u'0,33-0,25')
+
+            text = it_formatter \
+                .numberFormatterFirst(p3_formatter) \
+                .numberFormatterSecond(p2_formatter) \
+                .formatFormattableRange(Formattable(1/3.0), Formattable(1/4.0))
+            self.assertEqual(text, u'0,333-0,25')
+
+            value = it_formatter \
+                .numberFormatterFirst(p3_formatter) \
+                .numberFormatterSecond(p2_formatter) \
+                .formatFormattableRangeToValue(
+                    Formattable(1/3.0), Formattable(1/4.0))
+            self.assertEqual(str(value), u'0,333-0,25')
+            self.assertEqual(repr(value), u'<FormattedNumberRange: 0,333-0,25>')
+
+            self.assertEqual(value.getFirstDecimal(), u'3.33E-1')
+            self.assertEqual(value.getSecondDecimal(), u'2.5E-1')
+
+            self.assertEqual([(x.getStart(), x.getLimit()) for x in value],
+                             [(0, 1), (1, 2), (2, 5), (6, 7), (7, 8), (8, 10)])
+
 
 if __name__ == "__main__":
     if ICU_VERSION >= '60.0':

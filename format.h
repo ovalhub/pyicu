@@ -29,17 +29,33 @@ public:
     Format *object;
 };
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+class t_constrainedfieldposition : public _wrapper {
+public:
+    ConstrainedFieldPosition *object;
+};
+#endif
+
 extern PyTypeObject FormatType_;
 extern PyTypeObject FieldPositionType_;
 extern PyTypeObject ParsePositionType_;
 #if U_ICU_VERSION_HEX >= 0x04000000
 extern PyTypeObject PluralRulesType_;
 #endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+extern PyTypeObject ConstrainedFieldPositionType_;
+extern PyTypeObject FormattedValueType_;
+#endif
 
 PyObject *t_format_format(t_format *self, PyObject *args);
 PyObject *wrap_Format(Format *format);
 #if U_ICU_VERSION_HEX >= 0x04000000
 PyObject *wrap_PluralRules(PluralRules *rules, int flag);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+PyObject *wrap_FormattedValue(FormattedValue *formatted_value, int flag);
+PyObject *wrap_FormattedList(FormattedList *formatted_list, int flag);
+PyObject *wrap_ConstrainedFieldPosition(ConstrainedFieldPosition *fp, int flag);
 #endif
 
 void _init_format(PyObject *m);
