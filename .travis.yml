@@ -1,3 +1,5 @@
+# setup is at https://travis-ci.com
+
 language: python
 dist: xenial
 

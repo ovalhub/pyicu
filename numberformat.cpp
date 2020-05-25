@@ -781,12 +781,14 @@ static PyObject *t_localizednumberformatter_formatDouble(
 static PyObject *t_localizednumberformatter_formatDecimal(
     t_localizednumberformatter *self, PyObject *arg);
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
 static PyObject *t_localizednumberformatter_formatIntToValue(
     t_localizednumberformatter *self, PyObject *arg);
 static PyObject *t_localizednumberformatter_formatDoubleToValue(
     t_localizednumberformatter *self, PyObject *arg);
 static PyObject *t_localizednumberformatter_formatDecimalToValue(
     t_localizednumberformatter *self, PyObject *arg);
+#endif
 
 static PyMethodDef t_localizednumberformatter_methods[] = {
     DECLARE_METHOD(t_localizednumberformatter, unit, METH_O),
@@ -814,9 +816,11 @@ static PyMethodDef t_localizednumberformatter_methods[] = {
     DECLARE_METHOD(t_localizednumberformatter, formatInt, METH_O),
     DECLARE_METHOD(t_localizednumberformatter, formatDouble, METH_O),
     DECLARE_METHOD(t_localizednumberformatter, formatDecimal, METH_O),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
     DECLARE_METHOD(t_localizednumberformatter, formatIntToValue, METH_O),
     DECLARE_METHOD(t_localizednumberformatter, formatDoubleToValue, METH_O),
     DECLARE_METHOD(t_localizednumberformatter, formatDecimalToValue, METH_O),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -1212,6 +1216,7 @@ static PyObject *t_localizednumberrangeformatter_formatDecimalRange(
 static PyObject *t_localizednumberrangeformatter_formatFormattableRange(
     t_localizednumberrangeformatter *self, PyObject *args);
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
 static PyObject *t_localizednumberrangeformatter_formatIntRangeToValue(
     t_localizednumberrangeformatter *self, PyObject *args);
 static PyObject *t_localizednumberrangeformatter_formatDoubleRangeToValue(
@@ -1220,6 +1225,7 @@ static PyObject *t_localizednumberrangeformatter_formatDecimalRangeToValue(
     t_localizednumberrangeformatter *self, PyObject *args);
 static PyObject *t_localizednumberrangeformatter_formatFormattableRangeToValue(
     t_localizednumberrangeformatter *self, PyObject *args);
+#endif
 
 static PyMethodDef t_localizednumberrangeformatter_methods[] = {
     DECLARE_METHOD(t_localizednumberrangeformatter, numberFormatterBoth, METH_O),
@@ -1235,6 +1241,7 @@ static PyMethodDef t_localizednumberrangeformatter_methods[] = {
                    formatDecimalRange, METH_VARARGS),
     DECLARE_METHOD(t_localizednumberrangeformatter,
                    formatFormattableRange, METH_VARARGS),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
     DECLARE_METHOD(t_localizednumberrangeformatter,
                    formatIntRangeToValue, METH_VARARGS),
     DECLARE_METHOD(t_localizednumberrangeformatter,
@@ -1243,6 +1250,7 @@ static PyMethodDef t_localizednumberrangeformatter_methods[] = {
                    formatDecimalRangeToValue, METH_VARARGS),
     DECLARE_METHOD(t_localizednumberrangeformatter,
                    formatFormattableRangeToValue, METH_VARARGS),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -4048,6 +4056,8 @@ static PyObject *t_localizednumberformatter_formatDecimal(
     return PyErr_SetArgsError((PyObject *) self, "formatDecimal", arg);
 }
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+
 static PyObject *t_localizednumberformatter_formatIntToValue(
     t_localizednumberformatter *self, PyObject *arg)
 {
@@ -4117,6 +4127,7 @@ static PyObject *t_localizednumberformatter_formatDecimalToValue(
     return PyErr_SetArgsError((PyObject *) self, "formatDecimalToValue", arg);
 }
 
+#endif  // ICU >= 64
 
 /* Notation */
 
@@ -5010,6 +5021,8 @@ static PyObject *t_localizednumberrangeformatter_formatFormattableRange(
         (PyObject *) self, "formatFormattableRange", args);
 }
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+
 static PyObject *t_localizednumberrangeformatter_formatIntRangeToValue(
     t_localizednumberrangeformatter *self, PyObject *args)
 {
@@ -5113,6 +5126,8 @@ static PyObject *t_localizednumberrangeformatter_formatFormattableRangeToValue(
     return PyErr_SetArgsError(
         (PyObject *) self, "formatFormattableRangeToValue", args);
 }
+
+#endif  // ICU >= 64
 
 #endif  // ICU >= 63
 
