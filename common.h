@@ -239,6 +239,7 @@ typedef intintobjargproc ssizessizeobjargproc;
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
 #include <unicode/numberrangeformatter.h>
+#include <unicode/ulistformatter.h>
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)

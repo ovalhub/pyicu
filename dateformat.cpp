@@ -2326,7 +2326,7 @@ void _init_dateformat(PyObject *m)
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
     INSTALL_CONSTANTS_TYPE(URelativeDateTimeFormatterField, m);
-#endif    
+#endif
 
     REGISTER_TYPE(DateFormatSymbols, m);
     INSTALL_TYPE(DateFormat, m);
