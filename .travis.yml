@@ -14,34 +14,30 @@ jobs:
     # For MacOS, unfortunately there is no native Python support from Travis.
     # That complexity is handled internally to the ci-prepare-environment.bash
     # script that is called in the before_install.
-    - {os: osx, env: ICU_VERSION=65.1, language: sh, python: 3.8}
+    - {os: osx, env: ICU_VERSION=67.1, language: sh, python: 3.8}
     - {os: osx, env: ICU_VERSION=55.2, language: sh, python: 3.8}
 
     # # Same story for Windows (currently not working).
-    # - {os: windows, env: ICU_VERSION=65.1, language: sh, python: 3.8}
+    # - {os: windows, env: ICU_VERSION=67.1, language: sh, python: 3.8}
     # - {os: windows, env: ICU_VERSION=55.2, language: sh, python: 3.8}
 
-    # Run ICU 65 on every Python version.
-    - {arch: arm64, env: ICU_VERSION=55.2, python: 3.7}
-    - {arch: arm64, env: ICU_VERSION=65.1, python: 3.7}
-    - {arch: arm64, env: ICU_VERSION=65.1, python: 3.8}
-    - {arch: arm64, env: ICU_VERSION=64.2, python: 3.8}
-    - {arch: arm64, env: ICU_VERSION=63.2, python: 3.8}
-    - {env: ICU_VERSION=65.1, python: 2.7}
-    - {env: ICU_VERSION=65.1, python: 3.5}
-    - {env: ICU_VERSION=65.1, python: 3.6}
-    - {env: ICU_VERSION=65.1, python: 3.7}
-    - {env: ICU_VERSION=65.1, python: 3.8}
-
+    # Run ICU 67 on every Python version.
+    - {env: ICU_VERSION=67.1, python: 2.7}
+    - {env: ICU_VERSION=67.1, python: 3.5}
+    - {env: ICU_VERSION=67.1, python: 3.6}
+    - {env: ICU_VERSION=67.1, python: 3.7}
+    - {env: ICU_VERSION=67.1, python: 3.8}
 
     # Run ICU 55 on every Python version.
-
     - {env: ICU_VERSION=55.2, python: 2.7}
     - {env: ICU_VERSION=55.2, python: 3.5}
     - {env: ICU_VERSION=55.2, python: 3.6}
     - {env: ICU_VERSION=55.2, python: 3.7}
     - {env: ICU_VERSION=55.2, python: 3.8}
+
     # Run all other ICU versions only on Python 3.8
+    - {env: ICU_VERSION=66.1, python: 3.8}
+    - {env: ICU_VERSION=65.1, python: 3.8}
     - {env: ICU_VERSION=64.2, python: 3.8}
     - {env: ICU_VERSION=63.2, python: 3.8}
     - {env: ICU_VERSION=62.2, python: 3.8}
@@ -57,6 +53,13 @@ jobs:
     - {env: ICU_VERSION=51.3, python: 3.8}
     - {env: ICU_VERSION=50.2, python: 3.8}
 
+    # Run a few ICU versions on arm64 + Python 3.8
+    - {arch: arm64, env: ICU_VERSION=67.1, python: 3.7}
+    - {arch: arm64, env: ICU_VERSION=55.2, python: 3.7}
+    - {arch: arm64, env: ICU_VERSION=67.1, python: 3.8}
+    - {arch: arm64, env: ICU_VERSION=64.2, python: 3.8}
+    - {arch: arm64, env: ICU_VERSION=63.2, python: 3.8}
+    - {arch: arm64, env: ICU_VERSION=55.2, python: 3.8}
 
 before_install:
   - bash ci-prepare-environment.bash
