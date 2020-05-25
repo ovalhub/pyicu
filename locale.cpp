@@ -2239,7 +2239,7 @@ static PyObject *t_localematcherbuilder_setDemotionPerDesiredLocale(
 static PyObject *t_localematcherbuilder_build(t_localematcherbuilder *self)
 {
     STATUS_RESULT_CALL(LocaleMatcher matcher = self->object->build(status),
-                       return wrap_LocaleMatcher(std::move(matcher)));
+                       return wrap_LocaleMatcher(matcher));
 }
 
 
@@ -2348,7 +2348,7 @@ static PyObject *t_localematcher_getBestMatchResult(
         STATUS_RESULT_CALL(
             LocaleMatcherResult result = self->object->getBestMatchResult(
                 *locale, status),
-            return wrap_LocaleMatcherResult(std::move(result)));
+            return wrap_LocaleMatcherResult(result));
     }
 
     if (!parseArg(arg, "Q", TYPE_CLASSID(Locale), &locales, &len,
@@ -2359,7 +2359,7 @@ static PyObject *t_localematcher_getBestMatchResult(
         STATUS_RESULT_CALL(
             LocaleMatcherResult result = self->object->getBestMatchResult(
                 it, status),
-            return wrap_LocaleMatcherResult(std::move(result)));
+            return wrap_LocaleMatcherResult(result));
     }
 
     return PyErr_SetArgsError((PyObject *) self, "getBestMatchResult", arg);

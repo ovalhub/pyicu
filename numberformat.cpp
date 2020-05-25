@@ -589,13 +589,8 @@ static PyMethodDef t_formattednumber_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(FormattedNumber, t_formattednumber, FormattedValue,
-             FormattedNumber, abstract_init, NULL)
-
-PyObject *wrap_FormattedNumber(FormattedNumber &value)
-{
-    return wrap_FormattedNumber(new FormattedNumber(std::move(value)), T_OWNED);
-}
+DECLARE_BY_VALUE_TYPE(FormattedNumber, t_formattednumber, FormattedValue,
+                      FormattedNumber, abstract_init)
 
 /* FormattedNumberRange */
 
@@ -619,14 +614,9 @@ static PyMethodDef t_formattednumberrange_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(FormattedNumberRange, t_formattednumberrange, FormattedValue,
-             FormattedNumberRange, abstract_init, NULL)
-
-PyObject *wrap_FormattedNumberRange(FormattedNumberRange &value)
-{
-    return wrap_FormattedNumberRange(
-        new FormattedNumberRange(std::move(value)), T_OWNED);
-}
+DECLARE_BY_VALUE_TYPE(
+    FormattedNumberRange, t_formattednumberrange, FormattedValue,
+    FormattedNumberRange, abstract_init)
 
 #endif
 
@@ -1213,7 +1203,20 @@ static PyObject *t_localizednumberrangeformatter_collapse(
 static PyObject *t_localizednumberrangeformatter_identityFallback(
     t_localizednumberrangeformatter *self, PyObject *arg);
 
+static PyObject *t_localizednumberrangeformatter_formatIntRange(
+    t_localizednumberrangeformatter *self, PyObject *args);
+static PyObject *t_localizednumberrangeformatter_formatDoubleRange(
+    t_localizednumberrangeformatter *self, PyObject *args);
+static PyObject *t_localizednumberrangeformatter_formatDecimalRange(
+    t_localizednumberrangeformatter *self, PyObject *args);
 static PyObject *t_localizednumberrangeformatter_formatFormattableRange(
+    t_localizednumberrangeformatter *self, PyObject *args);
+
+static PyObject *t_localizednumberrangeformatter_formatIntRangeToValue(
+    t_localizednumberrangeformatter *self, PyObject *args);
+static PyObject *t_localizednumberrangeformatter_formatDoubleRangeToValue(
+    t_localizednumberrangeformatter *self, PyObject *args);
+static PyObject *t_localizednumberrangeformatter_formatDecimalRangeToValue(
     t_localizednumberrangeformatter *self, PyObject *args);
 static PyObject *t_localizednumberrangeformatter_formatFormattableRangeToValue(
     t_localizednumberrangeformatter *self, PyObject *args);
@@ -1225,7 +1228,19 @@ static PyMethodDef t_localizednumberrangeformatter_methods[] = {
     DECLARE_METHOD(t_localizednumberrangeformatter, collapse, METH_O),
     DECLARE_METHOD(t_localizednumberrangeformatter, identityFallback, METH_O),
     DECLARE_METHOD(t_localizednumberrangeformatter,
+                   formatIntRange, METH_VARARGS),
+    DECLARE_METHOD(t_localizednumberrangeformatter,
+                   formatDoubleRange, METH_VARARGS),
+    DECLARE_METHOD(t_localizednumberrangeformatter,
+                   formatDecimalRange, METH_VARARGS),
+    DECLARE_METHOD(t_localizednumberrangeformatter,
                    formatFormattableRange, METH_VARARGS),
+    DECLARE_METHOD(t_localizednumberrangeformatter,
+                   formatIntRangeToValue, METH_VARARGS),
+    DECLARE_METHOD(t_localizednumberrangeformatter,
+                   formatDoubleRangeToValue, METH_VARARGS),
+    DECLARE_METHOD(t_localizednumberrangeformatter,
+                   formatDecimalRangeToValue, METH_VARARGS),
     DECLARE_METHOD(t_localizednumberrangeformatter,
                    formatFormattableRangeToValue, METH_VARARGS),
     { NULL, NULL, 0, NULL }
@@ -3441,7 +3456,10 @@ static PyObject *t_numberformatter_withLocale(PyTypeObject *type,
     Locale *locale;
 
     if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
-        return wrap_LocalizedNumberFormatter(NumberFormatter::withLocale(*locale));
+    {
+        return wrap_LocalizedNumberFormatter(
+            NumberFormatter::withLocale(*locale));
+    }
 
     return PyErr_SetArgsError(type, "withLocale", arg);
 }
@@ -3490,9 +3508,8 @@ static PyObject *t_unlocalizednumberformatter_unit(
 
     if (!parseArg(arg, "P", TYPE_CLASSID(MeasureUnit), &unit))
     {
-        return wrap_UnlocalizedNumberFormatter(
-            self->object->adoptUnit(
-                dynamic_cast<MeasureUnit *>(unit->clone())));
+        return wrap_UnlocalizedNumberFormatter(self->object->adoptUnit(
+            dynamic_cast<MeasureUnit *>(unit->clone())));
     }
 
     return PyErr_SetArgsError((PyObject *) self, "unit", arg);
@@ -3506,9 +3523,8 @@ static PyObject *t_unlocalizednumberformatter_perUnit(
 
     if (!parseArg(arg, "P", TYPE_CLASSID(MeasureUnit), &unit))
     {
-        return wrap_UnlocalizedNumberFormatter(
-            self->object->adoptPerUnit(
-                dynamic_cast<MeasureUnit *>(unit->clone())));
+        return wrap_UnlocalizedNumberFormatter(self->object->adoptPerUnit(
+            dynamic_cast<MeasureUnit *>(unit->clone())));
     }
 
     return PyErr_SetArgsError((PyObject *) self, "perUnit", arg);
@@ -3522,8 +3538,10 @@ static PyObject *t_unlocalizednumberformatter_rounding(
     PyObject *rounder;
 
     if (!parseArg(arg, "O", &RounderType_, &rounder))
+    {
         return wrap_UnlocalizedNumberFormatter(
             self->object->rounding(*((t_rounder *) rounder)->object));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "rounding", arg);
 }
@@ -3536,8 +3554,10 @@ static PyObject *t_unlocalizednumberformatter_grouping(
     int strategy;
 
     if (!parseArg(arg, "i", &strategy))
+    {
         return wrap_UnlocalizedNumberFormatter(
             self->object->grouping((UNumberGroupingStrategy) strategy));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "grouping", arg);
 }
@@ -3550,8 +3570,10 @@ static PyObject *t_unlocalizednumberformatter_roundingMode(
     int mode;
 
     if (!parseArg(arg, "i", &mode))
+    {
         return wrap_UnlocalizedNumberFormatter(
             self->object->roundingMode((UNumberFormatRoundingMode) mode));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "roundingMode", arg);
 }
@@ -3562,8 +3584,10 @@ static PyObject *t_unlocalizednumberformatter_precision(
     PyObject *precision;
 
     if (!parseArg(arg, "O", &PrecisionType_, &precision))
+    {
         return wrap_UnlocalizedNumberFormatter(
             self->object->precision(*((t_precision *) precision)->object));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "precision", arg);
 }
@@ -3574,8 +3598,10 @@ static PyObject *t_unlocalizednumberformatter_scale(
     PyObject *scale;
 
     if (!parseArg(arg, "O", &ScaleType_, &scale))
+    {
         return wrap_UnlocalizedNumberFormatter(
             self->object->scale(*((t_scale *) scale)->object));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "scale", arg);
 }
@@ -3597,7 +3623,10 @@ static PyObject *t_unlocalizednumberformatter_symbols(
     DecimalFormatSymbols *symbols;
 
     if (!parseArg(arg, "P", TYPE_CLASSID(DecimalFormatSymbols), &symbols))
-        return wrap_UnlocalizedNumberFormatter(self->object->symbols(*symbols));
+    {
+        return wrap_UnlocalizedNumberFormatter(
+            self->object->symbols(*symbols));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "symbols", arg);
 }
@@ -3608,8 +3637,10 @@ static PyObject *t_unlocalizednumberformatter_notation(
     PyObject *notation;
 
     if (!parseArg(arg, "O", &NotationType_, &notation))
+    {
         return wrap_UnlocalizedNumberFormatter(
             self->object->notation(*((t_notation *) notation)->object));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "notation", arg);
 }
@@ -3662,8 +3693,10 @@ static PyObject *t_unlocalizednumberformatter_integerWidth(
     PyObject *iw;
 
     if (!parseArg(arg, "O", &IntegerWidthType_, &iw))
+    {
         return wrap_UnlocalizedNumberFormatter(self->object->integerWidth(
             *((t_integerwidth *) iw)->object));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "integerWidth", arg);
 }
@@ -3674,7 +3707,9 @@ static PyObject *t_unlocalizednumberformatter_locale(
     Locale *locale;
 
     if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
+    {
         return wrap_LocalizedNumberFormatter(self->object->locale(*locale));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "locale", arg);
 }
@@ -3714,9 +3749,8 @@ static PyObject *t_localizednumberformatter_unit(
 
     if (!parseArg(arg, "P", TYPE_CLASSID(MeasureUnit), &unit))
     {
-        return wrap_LocalizedNumberFormatter(
-            self->object->adoptUnit(
-                dynamic_cast<MeasureUnit *>(unit->clone())));
+        return wrap_LocalizedNumberFormatter(self->object->adoptUnit(
+            dynamic_cast<MeasureUnit *>(unit->clone())));
     }
 
     return PyErr_SetArgsError((PyObject *) self, "unit", arg);
@@ -3730,9 +3764,8 @@ static PyObject *t_localizednumberformatter_perUnit(
 
     if (!parseArg(arg, "P", TYPE_CLASSID(MeasureUnit), &unit))
     {
-        return wrap_LocalizedNumberFormatter(
-            self->object->adoptPerUnit(
-                dynamic_cast<MeasureUnit *>(unit->clone())));
+        return wrap_LocalizedNumberFormatter(self->object->adoptPerUnit(
+            dynamic_cast<MeasureUnit *>(unit->clone())));
     }
 
     return PyErr_SetArgsError((PyObject *) self, "perUnit", arg);
@@ -3746,8 +3779,10 @@ static PyObject *t_localizednumberformatter_rounding(
     PyObject *rounder;
 
     if (!parseArg(arg, "O", &RounderType_, &rounder))
+    {
         return wrap_LocalizedNumberFormatter(
             self->object->rounding(*((t_rounder *) rounder)->object));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "rounding", arg);
 }
@@ -3760,8 +3795,10 @@ static PyObject *t_localizednumberformatter_grouping(
     int strategy;
 
     if (!parseArg(arg, "i", &strategy))
+    {
         return wrap_LocalizedNumberFormatter(
             self->object->grouping((UNumberGroupingStrategy) strategy));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "grouping", arg);
 }
@@ -3774,8 +3811,10 @@ static PyObject *t_localizednumberformatter_roundingMode(
     int mode;
 
     if (!parseArg(arg, "i", &mode))
+    {
         return wrap_LocalizedNumberFormatter(
             self->object->roundingMode((UNumberFormatRoundingMode) mode));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "roundingMode", arg);
 }
@@ -3786,8 +3825,10 @@ static PyObject *t_localizednumberformatter_precision(
     PyObject *precision;
 
     if (!parseArg(arg, "O", &PrecisionType_, &precision))
+    {
         return wrap_LocalizedNumberFormatter(
             self->object->precision(*((t_precision *) precision)->object));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "precision", arg);
 }
@@ -3798,8 +3839,10 @@ static PyObject *t_localizednumberformatter_scale(
     PyObject *scale;
 
     if (!parseArg(arg, "O", &ScaleType_, &scale))
+    {
         return wrap_LocalizedNumberFormatter(
             self->object->scale(*((t_scale *) scale)->object));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "scale", arg);
 }
@@ -3821,7 +3864,9 @@ static PyObject *t_localizednumberformatter_symbols(
     DecimalFormatSymbols *symbols;
 
     if (!parseArg(arg, "P", TYPE_CLASSID(DecimalFormatSymbols), &symbols))
+    {
         return wrap_LocalizedNumberFormatter(self->object->symbols(*symbols));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "symbols", arg);
 }
@@ -3832,8 +3877,10 @@ static PyObject *t_localizednumberformatter_notation(
     PyObject *notation;
 
     if (!parseArg(arg, "O", &NotationType_, &notation))
+    {
         return wrap_LocalizedNumberFormatter(self->object->notation(
             *((t_notation *) notation)->object));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "notation", arg);
 }
@@ -3886,8 +3933,10 @@ static PyObject *t_localizednumberformatter_integerWidth(
     PyObject *iw;
 
     if (!parseArg(arg, "O", &IntegerWidthType_, &iw))
+    {
         return wrap_LocalizedNumberFormatter(self->object->integerWidth(
             *((t_integerwidth *) iw)->object));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "integerWidth", arg);
 }
@@ -4105,7 +4154,9 @@ static PyObject *t_scientificnotation_withMinExponentDigits(
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_ScientificNotation(self->object->withMinExponentDigits(n));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "withMinExponentDigits", arg);
 }
@@ -4116,8 +4167,10 @@ static PyObject *t_scientificnotation_withExponentSignDisplay(
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_ScientificNotation(self->object->withExponentSignDisplay(
             (UNumberSignDisplay) n));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "withMinExponentDigits", arg);
 }
@@ -4130,7 +4183,9 @@ static PyObject *t_integerwidth_zeroFillTo(PyTypeObject *type, PyObject *arg)
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_IntegerWidth(IntegerWidth::zeroFillTo(n));
+    }
 
     return PyErr_SetArgsError(type, "zeroFillTo", arg);
 }
@@ -4140,7 +4195,9 @@ static PyObject *t_integerwidth_truncateAt(t_integerwidth *self, PyObject *arg)
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_IntegerWidth(self->object->truncateAt(n));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "truncateAt", arg);
 }
@@ -4165,7 +4222,9 @@ static PyObject *t_rounder_fixedFraction(PyTypeObject *type, PyObject *arg)
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_FractionRounder(Rounder::fixedFraction(n));
+    }
 
     return PyErr_SetArgsError(type, "fixedFraction", arg);
 }
@@ -4175,7 +4234,9 @@ static PyObject *t_rounder_minFraction(PyTypeObject *type, PyObject *arg)
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_FractionRounder(Rounder::minFraction(n));
+    }
 
     return PyErr_SetArgsError(type, "minFraction", arg);
 }
@@ -4185,7 +4246,9 @@ static PyObject *t_rounder_maxFraction(PyTypeObject *type, PyObject *arg)
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_FractionRounder(Rounder::maxFraction(n));
+    }
 
     return PyErr_SetArgsError(type, "maxFraction", arg);
 }
@@ -4195,7 +4258,9 @@ static PyObject *t_rounder_minMaxFraction(PyTypeObject *type, PyObject *args)
     int n0, n1;
 
     if (!parseArgs(args, "ii", &n0, &n1))
+    {
         return wrap_FractionRounder(Rounder::minMaxFraction(n0, n1));
+    }
 
     return PyErr_SetArgsError(type, "minMaxFraction", args);
 }
@@ -4205,7 +4270,9 @@ static PyObject *t_rounder_fixedDigits(PyTypeObject *type, PyObject *arg)
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_Rounder(Rounder::fixedDigits(n));
+    }
 
     return PyErr_SetArgsError(type, "fixedDigits", arg);
 }
@@ -4215,7 +4282,9 @@ static PyObject *t_rounder_minDigits(PyTypeObject *type, PyObject *arg)
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_Rounder(Rounder::minDigits(n));
+    }
 
     return PyErr_SetArgsError(type, "minDigits", arg);
 }
@@ -4225,7 +4294,9 @@ static PyObject *t_rounder_maxDigits(PyTypeObject *type, PyObject *arg)
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_Rounder(Rounder::maxDigits(n));
+    }
 
     return PyErr_SetArgsError(type, "maxDigits", arg);
 }
@@ -4235,7 +4306,9 @@ static PyObject *t_rounder_minMaxDigits(PyTypeObject *type, PyObject *args)
     int n0, n1;
 
     if (!parseArgs(args, "ii", &n0, &n1))
+    {
         return wrap_Rounder(Rounder::minMaxDigits(n0, n1));
+    }
 
     return PyErr_SetArgsError(type, "minMaxDigits", args);
 }
@@ -4245,7 +4318,9 @@ static PyObject *t_rounder_increment(PyTypeObject *type, PyObject *arg)
     double d;
 
     if (!parseArg(arg, "d", &d))
+    {
         return wrap_IncrementRounder(Rounder::increment(d));
+    }
 
     return PyErr_SetArgsError(type, "increment", arg);
 }
@@ -4255,7 +4330,9 @@ static PyObject *t_rounder_currency(PyTypeObject *type, PyObject *arg)
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_CurrencyRounder(Rounder::currency((UCurrencyUsage) n));
+    }
 
     return PyErr_SetArgsError(type, "currency", arg);
 }
@@ -4265,8 +4342,10 @@ static PyObject *t_rounder_withMode(t_rounder *self, PyObject *arg)
     int n;
 
     if (!parseArg(arg, "i", &n))
-        return wrap_Rounder(self->object->withMode(
-            (UNumberFormatRoundingMode) n));
+    {
+        return wrap_Rounder(
+            self->object->withMode((UNumberFormatRoundingMode) n));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "withMode", arg);
 }
@@ -4280,7 +4359,9 @@ static PyObject *t_fractionrounder_withMinDigits(
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_Rounder(self->object->withMinDigits(n));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "withMinDigits", arg);
 }
@@ -4291,7 +4372,9 @@ static PyObject *t_fractionrounder_withMaxDigits(
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_Rounder(self->object->withMaxDigits(n));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "withMaxDigits", arg);
 }
@@ -4305,7 +4388,9 @@ static PyObject *t_incrementrounder_withMinFraction(
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_Rounder(self->object->withMinFraction(n));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "withMinFraction", arg);
 }
@@ -4319,7 +4404,9 @@ static PyObject *t_currencyrounder_withCurrency(
     CurrencyUnit *unit;
 
     if (!parseArg(arg, "P", TYPE_CLASSID(CurrencyUnit), &unit))
+    {
         return wrap_Rounder(self->object->withCurrency(*unit));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "withCurrency", arg);
 }
@@ -4345,7 +4432,9 @@ static PyObject *t_precision_fixedFraction(PyTypeObject *type, PyObject *arg)
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_FractionPrecision(Precision::fixedFraction(n));
+    }
 
     return PyErr_SetArgsError(type, "fixedFraction", arg);
 }
@@ -4355,7 +4444,9 @@ static PyObject *t_precision_minFraction(PyTypeObject *type, PyObject *arg)
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_FractionPrecision(Precision::minFraction(n));
+    }
 
     return PyErr_SetArgsError(type, "minFraction", arg);
 }
@@ -4365,7 +4456,9 @@ static PyObject *t_precision_maxFraction(PyTypeObject *type, PyObject *arg)
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_FractionPrecision(Precision::maxFraction(n));
+    }
 
     return PyErr_SetArgsError(type, "maxFraction", arg);
 }
@@ -4375,7 +4468,9 @@ static PyObject *t_precision_minMaxFraction(PyTypeObject *type, PyObject *args)
     int n0, n1;
 
     if (!parseArgs(args, "ii", &n0, &n1))
+    {
         return wrap_FractionPrecision(Precision::minMaxFraction(n0, n1));
+    }
 
     return PyErr_SetArgsError(type, "minMaxFraction", args);
 }
@@ -4386,7 +4481,9 @@ static PyObject *t_precision_fixedSignificantDigits(PyTypeObject *type,
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_Precision(Precision::fixedSignificantDigits(n));
+    }
 
     return PyErr_SetArgsError(type, "fixedSignificantDigits", arg);
 }
@@ -4397,7 +4494,9 @@ static PyObject *t_precision_minSignificantDigits(PyTypeObject *type,
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_Precision(Precision::minSignificantDigits(n));
+    }
 
     return PyErr_SetArgsError(type, "minSignificantDigits", arg);
 }
@@ -4408,7 +4507,9 @@ static PyObject *t_precision_maxSignificantDigits(PyTypeObject *type,
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_Precision(Precision::maxSignificantDigits(n));
+    }
 
     return PyErr_SetArgsError(type, "maxSignificantDigits", arg);
 }
@@ -4419,7 +4520,9 @@ static PyObject *t_precision_minMaxSignificantDigits(PyTypeObject *type,
     int n0, n1;
 
     if (!parseArgs(args, "ii", &n0, &n1))
+    {
         return wrap_Precision(Precision::minMaxSignificantDigits(n0, n1));
+    }
 
     return PyErr_SetArgsError(type, "minMaxSignificantDigits", args);
 }
@@ -4429,7 +4532,9 @@ static PyObject *t_precision_increment(PyTypeObject *type, PyObject *arg)
     double d;
 
     if (!parseArg(arg, "d", &d))
+    {
         return wrap_IncrementPrecision(Precision::increment(d));
+    }
 
     return PyErr_SetArgsError(type, "increment", arg);
 }
@@ -4439,7 +4544,9 @@ static PyObject *t_precision_currency(PyTypeObject *type, PyObject *arg)
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_CurrencyPrecision(Precision::currency((UCurrencyUsage) n));
+    }
 
     return PyErr_SetArgsError(type, "currency", arg);
 }
@@ -4452,10 +4559,11 @@ static PyObject *t_fractionprecision_minSignificantDigits(
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_Precision(self->object->minSignificantDigits(n));
+    }
 
-    return PyErr_SetArgsError(
-        (PyObject *) self, "minSignificantDigits", arg);
+    return PyErr_SetArgsError((PyObject *) self, "minSignificantDigits", arg);
 }
 
 static PyObject *t_fractionprecision_maxSignificantDigits(
@@ -4464,10 +4572,11 @@ static PyObject *t_fractionprecision_maxSignificantDigits(
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_Precision(self->object->maxSignificantDigits(n));
+    }
 
-    return PyErr_SetArgsError(
-        (PyObject *) self, "maxSignificantDigits", arg);
+    return PyErr_SetArgsError((PyObject *) self, "maxSignificantDigits", arg);
 }
 
 
@@ -4479,7 +4588,9 @@ static PyObject *t_incrementprecision_withMinFraction(
     int n;
 
     if (!parseArg(arg, "i", &n))
+    {
         return wrap_Precision(self->object->withMinFraction(n));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "withMinFraction", arg);
 }
@@ -4493,7 +4604,9 @@ static PyObject *t_currencyprecision_withCurrency(
     CurrencyUnit *unit;
 
     if (!parseArg(arg, "P", TYPE_CLASSID(CurrencyUnit), &unit))
+    {
         return wrap_Precision(self->object->withCurrency(*unit));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "withCurrency", arg);
 }
@@ -4511,7 +4624,9 @@ static PyObject *t_scale_powerOfTen(PyTypeObject *type, PyObject *arg)
     int power;
 
     if (!parseArg(arg, "i", &power))
+    {
         return wrap_Scale(Scale::powerOfTen(power));
+    }
 
     return PyErr_SetArgsError(type, "powerOfTen", arg);
 }
@@ -4521,7 +4636,9 @@ static PyObject *t_scale_byDecimal(PyTypeObject *type, PyObject *arg)
     charsArg multiplicand;
 
     if (!parseArg(arg, "n", &multiplicand))
+    {
         return wrap_Scale(Scale::byDecimal(multiplicand.c_str()));
+    }
 
     return PyErr_SetArgsError(type, "byDecimal", arg);
 }
@@ -4531,7 +4648,9 @@ static PyObject *t_scale_byDouble(PyTypeObject *type, PyObject *arg)
     double multiplicand;
 
     if (!parseArg(arg, "d", &multiplicand))
+    {
         return wrap_Scale(Scale::byDouble(multiplicand));
+    }
 
     return PyErr_SetArgsError(type, "byDouble", arg);
 }
@@ -4543,7 +4662,9 @@ static PyObject *t_scale_byDoubleAndPowerOfTen(PyTypeObject *type,
     int power;
 
     if (!parseArgs(args, "id", &power, &multiplicand))
+    {
         return wrap_Scale(Scale::byDoubleAndPowerOfTen(multiplicand, power));
+    }
 
     return PyErr_SetArgsError(type, "byDoubleAndPowerOfTen", args);
 }
@@ -4568,8 +4689,10 @@ static PyObject *t_numberrangeformatter_withLocale(PyTypeObject *type,
     Locale *locale;
 
     if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
+    {
         return wrap_LocalizedNumberRangeFormatter(
             NumberRangeFormatter::withLocale(*locale));
+    }
 
     return PyErr_SetArgsError(type, "withLocale", arg);
 }
@@ -4603,7 +4726,6 @@ static PyObject *t_unlocalizednumberrangeformatter_numberFormatterBoth(
     {
         UnlocalizedNumberFormatter copy =
             *((t_unlocalizednumberformatter *) formatter)->object;
-
         return wrap_UnlocalizedNumberRangeFormatter(
             self->object->numberFormatterBoth(std::move(copy)));
     }
@@ -4620,7 +4742,6 @@ static PyObject *t_unlocalizednumberrangeformatter_numberFormatterFirst(
     {
         UnlocalizedNumberFormatter copy =
             *((t_unlocalizednumberformatter *) formatter)->object;
-
         return wrap_UnlocalizedNumberRangeFormatter(
             self->object->numberFormatterFirst(std::move(copy)));
     }
@@ -4637,7 +4758,6 @@ static PyObject *t_unlocalizednumberrangeformatter_numberFormatterSecond(
     {
         UnlocalizedNumberFormatter copy =
             *((t_unlocalizednumberformatter *) formatter)->object;
-
         return wrap_UnlocalizedNumberRangeFormatter(
             self->object->numberFormatterSecond(std::move(copy)));
     }
@@ -4651,8 +4771,10 @@ static PyObject *t_unlocalizednumberrangeformatter_collapse(
     UNumberRangeCollapse value;
 
     if (!parseArg(arg, "i", &value))
+    {
         return wrap_UnlocalizedNumberRangeFormatter(
             self->object->collapse(value));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "collapse", arg);
 }
@@ -4663,8 +4785,10 @@ static PyObject *t_unlocalizednumberrangeformatter_identityFallback(
     UNumberRangeIdentityFallback value;
 
     if (!parseArg(arg, "i", &value))
+    {
         return wrap_UnlocalizedNumberRangeFormatter(
             self->object->identityFallback(value));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "identityFallback", arg);
 }
@@ -4675,8 +4799,10 @@ static PyObject *t_unlocalizednumberrangeformatter_locale(
     Locale *locale;
 
     if (!parseArg(arg, "P", TYPE_CLASSID(Locale), &locale))
+    {
         return wrap_LocalizedNumberRangeFormatter(
             self->object->locale(*locale));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "locale", arg);
 }
@@ -4718,7 +4844,6 @@ static PyObject *t_localizednumberrangeformatter_numberFormatterBoth(
     {
         UnlocalizedNumberFormatter copy =
             *((t_unlocalizednumberformatter *) formatter)->object;
-
         return wrap_LocalizedNumberRangeFormatter(
             self->object->numberFormatterBoth(std::move(copy)));
     }
@@ -4735,7 +4860,6 @@ static PyObject *t_localizednumberrangeformatter_numberFormatterFirst(
     {
         UnlocalizedNumberFormatter copy =
             *((t_unlocalizednumberformatter *) formatter)->object;
-
         return wrap_LocalizedNumberRangeFormatter(
             self->object->numberFormatterFirst(std::move(copy)));
     }
@@ -4752,7 +4876,6 @@ static PyObject *t_localizednumberrangeformatter_numberFormatterSecond(
     {
         UnlocalizedNumberFormatter copy =
             *((t_unlocalizednumberformatter *) formatter)->object;
-
         return wrap_LocalizedNumberRangeFormatter(
             self->object->numberFormatterSecond(std::move(copy)));
     }
@@ -4766,8 +4889,10 @@ static PyObject *t_localizednumberrangeformatter_collapse(
     UNumberRangeCollapse value;
 
     if (!parseArg(arg, "i", &value))
+    {
         return wrap_LocalizedNumberRangeFormatter(
             self->object->collapse(value));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "collapse", arg);
 }
@@ -4778,10 +4903,87 @@ static PyObject *t_localizednumberrangeformatter_identityFallback(
     UNumberRangeIdentityFallback value;
 
     if (!parseArg(arg, "i", &value))
+    {
         return wrap_LocalizedNumberRangeFormatter(
             self->object->identityFallback(value));
+    }
 
     return PyErr_SetArgsError((PyObject *) self, "identityFallback", arg);
+}
+
+static PyObject *t_localizednumberrangeformatter_formatIntRange(
+    t_localizednumberrangeformatter *self, PyObject *args)
+{
+    UnicodeString u;
+    int iFirst, iSecond;
+    PY_LONG_LONG lFirst, lSecond;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "ii", &iFirst, &iSecond))
+        {
+            STATUS_CALL(u = self->object->formatFormattableRange(
+                Formattable(iFirst), Formattable(iSecond),
+                status).toString(status));
+
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        if (!parseArgs(args, "LL", &lFirst, &lSecond))
+        {
+            STATUS_CALL(u = self->object->formatFormattableRange(
+                Formattable((int64_t) lFirst), Formattable((int64_t) lSecond),
+                status).toString(status));
+
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "formatIntRange", args);
+}
+
+static PyObject *t_localizednumberrangeformatter_formatDoubleRange(
+    t_localizednumberrangeformatter *self, PyObject *args)
+{
+    UnicodeString u;
+    double dFirst, dSecond;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "dd", &dFirst, &dSecond))
+        {
+            STATUS_CALL(u = self->object->formatFormattableRange(
+                Formattable(dFirst), Formattable(dSecond),
+                status).toString(status));
+
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "formatDoubleRange", args);
+}
+
+static PyObject *t_localizednumberrangeformatter_formatDecimalRange(
+    t_localizednumberrangeformatter *self, PyObject *args)
+{
+    UnicodeString u;
+    char *sFirst, *sSecond;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "cc", &sFirst, &sSecond))
+        {
+            STATUS_CALL(u = self->object->formatFormattableRange(
+                Formattable(sFirst), Formattable(sSecond),
+                status).toString(status));
+
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "formatDecimalRange", args);
 }
 
 static PyObject *t_localizednumberrangeformatter_formatFormattableRange(
@@ -4789,8 +4991,6 @@ static PyObject *t_localizednumberrangeformatter_formatFormattableRange(
 {
     UnicodeString u;
     Formattable *first, *second;
-    int iFirst, iSecond;
-    double dFirst, dSecond;
 
     switch (PyTuple_Size(args)) {
       case 2:
@@ -4803,22 +5003,6 @@ static PyObject *t_localizednumberrangeformatter_formatFormattableRange(
 
             return PyUnicode_FromUnicodeString(&u);
         }
-        if (!parseArgs(args, "ii", &iFirst, &iSecond))
-        {
-            STATUS_CALL(u = self->object->formatFormattableRange(
-                Formattable(iFirst), Formattable(iSecond),
-                status).toString(status));
-
-            return PyUnicode_FromUnicodeString(&u);
-        }
-        if (!parseArgs(args, "dd", &dFirst, &dSecond))
-        {
-            STATUS_CALL(u = self->object->formatFormattableRange(
-                Formattable(dFirst), Formattable(dSecond),
-                status).toString(status));
-
-            return PyUnicode_FromUnicodeString(&u);
-        }
         break;
     }
 
@@ -4826,12 +5010,90 @@ static PyObject *t_localizednumberrangeformatter_formatFormattableRange(
         (PyObject *) self, "formatFormattableRange", args);
 }
 
+static PyObject *t_localizednumberrangeformatter_formatIntRangeToValue(
+    t_localizednumberrangeformatter *self, PyObject *args)
+{
+    UnicodeString u;
+    int iFirst, iSecond;
+    PY_LONG_LONG lFirst, lSecond;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "ii", &iFirst, &iSecond))
+        {
+            STATUS_RESULT_CALL(
+                FormattedNumberRange value(self->object->formatFormattableRange(
+                    Formattable(iFirst), Formattable(iSecond),
+                    status)),
+                return wrap_FormattedNumberRange(value));
+        }
+        if (!parseArgs(args, "LL", &lFirst, &lSecond))
+        {
+            STATUS_RESULT_CALL(
+                FormattedNumberRange value(self->object->formatFormattableRange(
+                    Formattable((int64_t) lFirst),
+                    Formattable((int64_t) lSecond), status)),
+                return wrap_FormattedNumberRange(value));
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError(
+        (PyObject *) self, "formatIntRangeToValue", args);
+}
+
+static PyObject *t_localizednumberrangeformatter_formatDoubleRangeToValue(
+    t_localizednumberrangeformatter *self, PyObject *args)
+{
+    UnicodeString u;
+    double dFirst, dSecond;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "dd", &dFirst, &dSecond))
+        {
+            STATUS_RESULT_CALL(
+                FormattedNumberRange value(self->object->formatFormattableRange(
+                    Formattable(dFirst), Formattable(dSecond),
+                    status)),
+                return wrap_FormattedNumberRange(value));
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError(
+        (PyObject *) self, "formatDoubleRangeToValue", args);
+}
+
+static PyObject *t_localizednumberrangeformatter_formatDecimalRangeToValue(
+    t_localizednumberrangeformatter *self, PyObject *args)
+{
+    UnicodeString u;
+    char *sFirst, *sSecond;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "cc", &sFirst, &sSecond))
+        {
+            STATUS_RESULT_CALL(
+                FormattedNumberRange value(self->object->formatFormattableRange(
+                    Formattable(sFirst), Formattable(sSecond),
+                    status)),
+                return wrap_FormattedNumberRange(value));
+
+            return PyUnicode_FromUnicodeString(&u);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError(
+        (PyObject *) self, "formatDecimalRangeToValue", args);
+}
+
 static PyObject *t_localizednumberrangeformatter_formatFormattableRangeToValue(
     t_localizednumberrangeformatter *self, PyObject *args)
 {
     Formattable *first, *second;
-    int iFirst, iSecond;
-    double dFirst, dSecond;
 
     switch (PyTuple_Size(args)) {
       case 2:
@@ -4839,38 +5101,11 @@ static PyObject *t_localizednumberrangeformatter_formatFormattableRangeToValue(
                        TYPE_CLASSID(Formattable), TYPE_CLASSID(Formattable),
                        &first, &second))
         {
-            UErrorCode status = U_ZERO_ERROR;
-            FormattedNumberRange value(
-                self->object->formatFormattableRange(*first, *second, status));
-
-            if (U_FAILURE(status))
-                return ICUException(status).reportError();
-
-            return wrap_FormattedNumberRange(value);
-        }
-        if (!parseArgs(args, "ii", &iFirst, &iSecond))
-        {
-            UErrorCode status = U_ZERO_ERROR;
-            FormattedNumberRange value(
-                self->object->formatFormattableRange(
-                    Formattable(iFirst), Formattable(iSecond), status));
-
-            if (U_FAILURE(status))
-                return ICUException(status).reportError();
-
-            return wrap_FormattedNumberRange(value);
-        }
-        if (!parseArgs(args, "dd", &dFirst, &dSecond))
-        {
-            UErrorCode status = U_ZERO_ERROR;
-            FormattedNumberRange value(
-                self->object->formatFormattableRange(
-                    Formattable(dFirst), Formattable(dSecond), status));
-
-            if (U_FAILURE(status))
-                return ICUException(status).reportError();
-
-            return wrap_FormattedNumberRange(value);
+            STATUS_RESULT_CALL(
+                FormattedNumberRange value(
+                    self->object->formatFormattableRange(
+                        *first, *second, status)),
+                return wrap_FormattedNumberRange(value));
         }
         break;
     }

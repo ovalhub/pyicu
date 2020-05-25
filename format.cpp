@@ -6,10 +6,10 @@
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions: 
+ * Software is furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software. 
+ * in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -506,11 +506,13 @@ DECLARE_TYPE(FormattedValue, t_formattedvalue, UMemory,
 PyObject *wrap_FormattedValue(FormattedValue *value)
 {
     using icu::number::FormattedNumber;
+    using icu::number::FormattedNumberRange;
 
     RETURN_WRAPPED_IF_ISINSTANCE(value, FormattedDateInterval);
     RETURN_WRAPPED_IF_ISINSTANCE(value, FormattedNumber);
     RETURN_WRAPPED_IF_ISINSTANCE(value, FormattedList);
     RETURN_WRAPPED_IF_ISINSTANCE(value, FormattedRelativeDateTime);
+    RETURN_WRAPPED_IF_ISINSTANCE(value, FormattedNumberRange);
     return wrap_FormattedValue(value, T_OWNED);
 }
 
@@ -526,13 +528,8 @@ static PyMethodDef t_formattedlist_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(FormattedList, t_formattedlist, FormattedValue,
-             FormattedList, abstract_init, NULL)
-
-PyObject *wrap_FormattedList(FormattedList &value)
-{
-    return wrap_FormattedList(new FormattedList(std::move(value)), T_OWNED);
-}
+DECLARE_BY_VALUE_TYPE(FormattedList, t_formattedlist, FormattedValue,
+                      FormattedList, abstract_init)
 
 #endif
 
@@ -917,14 +914,14 @@ static PyObject *t_measureformat_formatMeasures(t_measureformat *self,
                 free(measures);
                 break;
             }
-              
+
             STATUS_CALL(
                 {
                     self->object->formatMeasures(
                         measures[0], 1, u, dont_care, status);
                     free(measures);
                 });
-                  
+
             return PyUnicode_FromUnicodeString(&u);
         }
         break;
@@ -939,14 +936,14 @@ static PyObject *t_measureformat_formatMeasures(t_measureformat *self,
                 free(measures);
                 break;
             }
-              
+
             STATUS_CALL(
                 {
                     self->object->formatMeasures(
                         measures[0], 1, u, *fp, status);
                     free(measures);
                 });
-                  
+
             return PyUnicode_FromUnicodeString(&u);
         }
         break;
@@ -2159,7 +2156,7 @@ static int t_constrainedfieldposition_init(t_constrainedfieldposition *self,
         self->flags = T_OWNED;
         return 0;
     }
-        
+
     PyErr_SetArgsError((PyObject *) self, "__init__", args);
     return -1;
 }
@@ -2168,7 +2165,7 @@ static PyObject *t_constrainedfieldposition_constrainCategory(
     t_constrainedfieldposition *self, PyObject *arg)
 {
     int32_t category;
-    
+
     if (!parseArg(arg, "i", &category))
         self->object->constrainCategory(category);
 
@@ -2342,12 +2339,12 @@ void _init_format(PyObject *m)
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
     INSTALL_CONSTANTS_TYPE(UFieldCategory, m);
-    INSTALL_ENUM(UFieldCategory, "CATEGORY_UNDEFINED", UFIELD_CATEGORY_UNDEFINED);
-    INSTALL_ENUM(UFieldCategory, "CATEGORY_DATE", UFIELD_CATEGORY_DATE);
-    INSTALL_ENUM(UFieldCategory, "CATEGORY_NUMBER", UFIELD_CATEGORY_NUMBER);
-    INSTALL_ENUM(UFieldCategory, "CATEGORY_LIST", UFIELD_CATEGORY_LIST);
-    INSTALL_ENUM(UFieldCategory, "CATEGORY_RELATIVE_DATETIME", UFIELD_CATEGORY_RELATIVE_DATETIME);
-    INSTALL_ENUM(UFieldCategory, "CATEGORY_LIST_SPAN", UFIELD_CATEGORY_LIST_SPAN);
-    INSTALL_ENUM(UFieldCategory, "CATEGORY_DATE_INTERVAL_SPAN", UFIELD_CATEGORY_DATE_INTERVAL_SPAN);
+    INSTALL_ENUM(UFieldCategory, "UNDEFINED", UFIELD_CATEGORY_UNDEFINED);
+    INSTALL_ENUM(UFieldCategory, "DATE", UFIELD_CATEGORY_DATE);
+    INSTALL_ENUM(UFieldCategory, "NUMBER", UFIELD_CATEGORY_NUMBER);
+    INSTALL_ENUM(UFieldCategory, "LIST", UFIELD_CATEGORY_LIST);
+    INSTALL_ENUM(UFieldCategory, "RELATIVE_DATETIME", UFIELD_CATEGORY_RELATIVE_DATETIME);
+    INSTALL_ENUM(UFieldCategory, "LIST_SPAN", UFIELD_CATEGORY_LIST_SPAN);
+    INSTALL_ENUM(UFieldCategory, "DATE_INTERVAL_SPAN", UFIELD_CATEGORY_DATE_INTERVAL_SPAN);
 #endif
 }

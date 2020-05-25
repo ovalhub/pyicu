@@ -116,11 +116,11 @@ class TestNumberRangeFormatter(TestCase):
     def testBasic(self):
 
         text = NumberRangeFormatter.withLocale(Locale.getItaly()) \
-            .formatFormattableRange(1234, 5678)
+            .formatIntRange(1234, 5678)
         self.assertEqual(text, u'1.234-5.678')
 
         text = LocalizedNumberRangeFormatter(Locale.getItaly()) \
-            .formatFormattableRange(1234, 5678)
+            .formatIntRange(1234, 5678)
         self.assertEqual(text, u'1.234-5.678')
 
     def testFormattedNumberRange(self):
@@ -133,7 +133,7 @@ class TestNumberRangeFormatter(TestCase):
             it_formatter = NumberRangeFormatter.withLocale(Locale.getItaly())
 
             text = it_formatter.numberFormatterBoth(p2_formatter) \
-                .formatFormattableRange(1/3.0, 1/4.0)
+                .formatDoubleRange(1/3.0, 1/4.0)
             self.assertEqual(text, u'0,33-0,25')
 
             text = it_formatter \
@@ -145,8 +145,7 @@ class TestNumberRangeFormatter(TestCase):
             value = it_formatter \
                 .numberFormatterFirst(p3_formatter) \
                 .numberFormatterSecond(p2_formatter) \
-                .formatFormattableRangeToValue(
-                    Formattable(1/3.0), Formattable(1/4.0))
+                .formatDoubleRangeToValue(1/3.0, 1/4.0)
             self.assertEqual(str(value), u'0,333-0,25')
             self.assertEqual(repr(value), u'<FormattedNumberRange: 0,333-0,25>')
 

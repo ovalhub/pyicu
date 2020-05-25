@@ -220,7 +220,11 @@ void t_name##_dealloc(t_name *self)                                   \
     Py_TYPE(self)->tp_free((PyObject *) self);                        \
 }                                                                     \
 DECLARE_TYPE(name, t_name, base, icuClass, init, t_name##_dealloc)    \
-PyObject *wrap_##name(icuClass object)                                \
+PyObject *wrap_##name(icuClass &object)                               \
+{                                                                     \
+    return wrap_##name(new icuClass(std::move(object)), T_OWNED);     \
+}                                                                     \
+PyObject *wrap_##name(icuClass &&object)                              \
 {                                                                     \
     return wrap_##name(new icuClass(std::move(object)), T_OWNED);     \
 }

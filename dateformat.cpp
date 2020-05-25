@@ -467,14 +467,9 @@ static PyMethodDef t_formatteddateinterval_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(FormattedDateInterval, t_formatteddateinterval, FormattedValue,
-             FormattedDateInterval, abstract_init, NULL)
-
-PyObject *wrap_FormattedDateInterval(FormattedDateInterval &value)
-{
-    return wrap_FormattedDateInterval(
-        new FormattedDateInterval(std::move(value)), T_OWNED);
-}
+DECLARE_BY_VALUE_TYPE(
+    FormattedDateInterval, t_formatteddateinterval, FormattedValue,
+    FormattedDateInterval, abstract_init)
 
 /* FormattedRelativeDateTime */
 
@@ -488,14 +483,9 @@ static PyMethodDef t_formattedrelativedatetime_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(FormattedRelativeDateTime, t_formattedrelativedatetime,
-             FormattedValue, FormattedRelativeDateTime, abstract_init, NULL)
-
-PyObject *wrap_FormattedRelativeDateTime(FormattedRelativeDateTime &value)
-{
-    return wrap_FormattedRelativeDateTime(
-        new FormattedRelativeDateTime(std::move(value)), T_OWNED);
-}
+DECLARE_BY_VALUE_TYPE(
+    FormattedRelativeDateTime, t_formattedrelativedatetime, FormattedValue,
+    FormattedRelativeDateTime, abstract_init)
 
 #endif
 
