@@ -1515,6 +1515,9 @@ void _init_char(PyObject *m)
     INSTALL_ENUM(UIndicPositionalCategory, "TOP_AND_LEFT_AND_RIGHT", U_INPC_TOP_AND_LEFT_AND_RIGHT);
     INSTALL_ENUM(UIndicPositionalCategory, "TOP_AND_RIGHT", U_INPC_TOP_AND_RIGHT);
     INSTALL_ENUM(UIndicPositionalCategory, "VISUAL_ORDER_LEFT", U_INPC_VISUAL_ORDER_LEFT);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(66, 0, 0)
+    INSTALL_ENUM(UIndicPositionalCategory, "TOP_AND_BOTTOM_AND_LEFT", U_INPC_TOP_AND_BOTTOM_AND_LEFT);
+#endif
 
     INSTALL_ENUM(UIndicSyllabicCategory, "OTHER", U_INSC_OTHER);
     INSTALL_ENUM(UIndicSyllabicCategory, "AVAGRAHA", U_INSC_AVAGRAHA);
@@ -1557,7 +1560,7 @@ void _init_char(PyObject *m)
     INSTALL_ENUM(UVerticalOrientation, "TRANSFORMED_ROTATED", U_VO_TRANSFORMED_ROTATED);
     INSTALL_ENUM(UVerticalOrientation, "TRANSFORMED_UPRIGHT", U_VO_TRANSFORMED_UPRIGHT);
     INSTALL_ENUM(UVerticalOrientation, "UPRIGHT", U_VO_UPRIGHT);
-#endif
+#endif  // ICU >= 63
 
 #if U_ICU_VERSION_HEX >= 0x04000000
     INSTALL_ENUM(UWordBreakValues, "CR", U_WB_CR);
