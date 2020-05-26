@@ -53,7 +53,7 @@ jobs:
     - {env: ICU_VERSION=51.3, python: 3.8}
     - {env: ICU_VERSION=50.2, python: 3.8}
 
-    # Run a few ICU versions on arm64 + Python 3.8
+    # Run a few ICU versions on arm64 + Python 3
     - {arch: arm64, env: ICU_VERSION=66.1, python: 3.7}
     - {arch: arm64, env: ICU_VERSION=55.2, python: 3.7}
     - {arch: arm64, env: ICU_VERSION=66.1, python: 3.8}

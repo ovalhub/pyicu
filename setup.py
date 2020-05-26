@@ -9,6 +9,7 @@ except ImportError:
 from distutils.spawn import find_executable
 
 VERSION = '2.4.3'
+ICU_MAX_MAJOR_VERSION = '67'  # max supported major version of ICU
 
 try:
     from subprocess import check_output as subprocess_check_output
@@ -75,8 +76,8 @@ variable to the version of ICU you have installed.
         ICU_VERSION = str(ICU_VERSION, 'ascii')
 
 print('''
-Building PyICU %s for ICU %s
-''' %(VERSION, ICU_VERSION))
+Building PyICU %s for ICU %s (max ICU major version supported: %s)
+''' %(VERSION, ICU_VERSION, ICU_MAX_MAJOR_VERSION))
 
 CONFIGURE_WITH_ICU_CONFIG = {
     'darwin': True,
@@ -106,12 +107,18 @@ INCLUDES = {
 }
 
 VER_FLAGS = {
-    'darwin': ['-DPYICU_VER="%s"' %(VERSION)],
-    'linux': ['-DPYICU_VER="%s"' %(VERSION)],
-    'freebsd': ['-DPYICU_VER="%s"' %(VERSION)],
-    'win32': ['/DPYICU_VER=\\"%s\\"' %(VERSION)],
-    'sunos5': ['-DPYICU_VER="%s"' %(VERSION)],
-    'cygwin': ['-DPYICU_VER="%s"' %(VERSION)],
+    'darwin': ['-DPYICU_VER="%s"' %(VERSION),
+               '-DPYICU_ICU_MAX_VER="%s"' %(ICU_MAX_MAJOR_VERSION)],
+    'linux': ['-DPYICU_VER="%s"' %(VERSION),
+               '-DPYICU_ICU_MAX_VER="%s"' %(ICU_MAX_MAJOR_VERSION)],
+    'freebsd': ['-DPYICU_VER="%s"' %(VERSION),
+               '-DPYICU_ICU_MAX_VER="%s"' %(ICU_MAX_MAJOR_VERSION)],
+    'win32': ['/DPYICU_VER=\\"%s\\"' %(VERSION),
+               '/DPYICU_ICU_MAX_VER=\\"%s\\"' %(ICU_MAX_MAJOR_VERSION)],
+    'sunos5': ['-DPYICU_VER="%s"' %(VERSION),
+               '-DPYICU_ICU_MAX_VER="%s"' %(ICU_MAX_MAJOR_VERSION)],
+    'cygwin': ['-DPYICU_VER="%s"' %(VERSION),
+               '-DPYICU_ICU_MAX_VER="%s"' %(ICU_MAX_MAJOR_VERSION)],
 }
 
 PEDANTIC_FLAGS = {

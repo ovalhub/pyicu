@@ -8,6 +8,7 @@ Version 2.4.3 ->
   - added wrappers for FormattedRelativeDateTime and enums
   - added wrappers for UNumberFormatFields, UNumberFormatAttribute
   - added wrappers for NumberRangeFormatter, FormattedNumberRange and enums
+  - added icu.ICU_MAX_MAJOR_VERSION global set largest ICU version supported
   - 
 
 Version 2.4.2 -> 2.4.3

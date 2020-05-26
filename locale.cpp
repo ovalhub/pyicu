@@ -2365,7 +2365,7 @@ static PyObject *t_localematcher_getBestMatchResult(
     return PyErr_SetArgsError((PyObject *) self, "getBestMatchResult", arg);
 }
 
-#endif
+#endif  // ICU >= 65
 
 void _init_locale(PyObject *m)
 {

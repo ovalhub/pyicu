@@ -209,6 +209,9 @@ static PyObject *PyInit_icu(PyObject *m)
     ver = PyString_FromString(PYICU_VER);
     PyObject_SetAttrString(m, "VERSION", ver); Py_DECREF(ver);
 
+    ver = PyString_FromString(PYICU_ICU_MAX_VER);
+    PyObject_SetAttrString(m, "ICU_MAX_MAJOR_VERSION", ver); Py_DECREF(ver);
+
     ver = PyString_FromString(U_ICU_VERSION);
     PyObject_SetAttrString(m, "ICU_VERSION", ver); Py_DECREF(ver);
 
