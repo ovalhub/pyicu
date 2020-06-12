@@ -27,7 +27,7 @@ from icu import UnicodeString, BreakIterator, Locale
 def printTextRange(iterator, start, end):
 
     s = iterator.getText().getText()
-    print "%2d %2d  %s|%s|%s" %(start, end, s[:start], s[start:end], s[end:])
+    print("%2d %2d  %s|%s|%s" %(start, end, s[:start], s[start:end], s[end:]))
 
 #def printTextRange(iterator, start, end):
 #
@@ -85,42 +85,42 @@ def printAt(boundary, pos):
 
 def main():
 
-    print "ICU Break Iterator Sample Program"
-    print "C++ Break Iteration in Python"
+    print("ICU Break Iterator Sample Program")
+    print("C++ Break Iteration in Python")
     
     stringToExamine = u"Aaa bbb ccc. Ddd eee fff."
-    print "Examining: ", stringToExamine
+    print("Examining: ", stringToExamine)
 
     # print each sentence in forward and reverse order
     boundary = BreakIterator.createSentenceInstance(Locale.getUS())
     boundary.setText(stringToExamine)
 
-    print
-    print "Sentence Boundaries... "
-    print "----- forward: -----------"
+    print()
+    print("Sentence Boundaries... ")
+    print("----- forward: -----------")
     printEachForward(boundary)
-    print "----- backward: ----------"
+    print("----- backward: ----------")
     printEachBackward(boundary)
 
     # print each word in order
-    print
-    print "Word Boundaries..."
+    print()
+    print("Word Boundaries...")
     boundary = BreakIterator.createWordInstance(Locale.getUS())
     boundary.setText(stringToExamine)
-    print "----- forward: -----------"
+    print("----- forward: -----------")
     printEachForward(boundary)
     # print first element
-    print "----- first: -------------"
+    print("----- first: -------------")
     printFirst(boundary)
     # print last element
-    print "----- last: --------------"
+    print("----- last: --------------")
     printLast(boundary)
     # print word at charpos 10
-    print "----- at pos 10: ---------"
+    print("----- at pos 10: ---------")
     printAt(boundary, 10)
 
-    print
-    print "End C++ Break Iteration in Python"
+    print()
+    print("End C++ Break Iteration in Python")
 
 
 if __name__ == "__main__":
