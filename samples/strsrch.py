@@ -91,11 +91,11 @@ def findPattern(search):
 
     found = False
     for offset in search:
-        print "Pattern found at offset", offset, "size", search.getMatchedLength()
+        print("Pattern found at offset", offset, "size", search.getMatchedLength())
         found = True
 
     if not found:
-        print "Pattern not found in source"
+        print("Pattern not found in source")
 
 
 if __name__ == "__main__":
@@ -144,7 +144,7 @@ The format \\uXXXX is supported for the rules and comparison strings''')
     collator = processCollator(options)
     search = processStringSearch(options, collator)
 
-    print "Finding pattern", options.pattern, "in source", options.source
+    print("Finding pattern", options.pattern, "in source", options.source)
 
     findPattern(search)
     del search
