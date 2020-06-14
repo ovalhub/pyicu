@@ -333,7 +333,11 @@ static PyObject *t_charsetmatch_str(t_charsetmatch *self)
         return u;
     }
 
+#if PY_VERSION_HEX < 0x03030000 || defined(PYPY_VERSION)      
     return PyUnicode_FromUnicode(NULL, 0);
+#else
+    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, NULL, 0);
+#endif
 }
 
 

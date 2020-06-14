@@ -353,20 +353,28 @@ EXPORT UnicodeString &PyObject_AsUnicodeString(PyObject *object,
 
         switch (PyUnicode_KIND(object)) {
           case PyUnicode_WCHAR_KIND: {  // this code path should be deprecated
-              if (sizeof(Py_UNICODE) == sizeof(UChar))
+              if (SIZEOF_WCHAR_T == sizeof(UChar))
               {
                   Py_ssize_t len;
-                  Py_UNICODE *pchars = PyUnicode_AsUnicodeAndSize(object, &len);
+                  wchar_t *wchars = PyUnicode_AsWideCharString(object, &len);
 
-                  string.setTo((const UChar *) pchars, len);
+                  if (wchars != NULL)
+                  {
+                      string.setTo((const UChar *) wchars, len);
+                      PyMem_Free(wchars);
+                  }
               }
-              else
+              else if (SIZEOF_WCHAR_T == sizeof(UChar32))
               {
                   Py_ssize_t len;
-                  Py_UNICODE *pchars = PyUnicode_AsUnicodeAndSize(object, &len);
+                  wchar_t *wchars = PyUnicode_AsWideCharString(object, &len);
 
-                  string = UnicodeString::fromUTF32(
-                      (const UChar32 *) pchars, len);
+                  if (wchars != NULL)
+                  {
+                      string = UnicodeString::fromUTF32(
+                          (const UChar32 *) wchars, len);
+                      PyMem_Free(wchars);
+                  }
               }
               break;
           }
