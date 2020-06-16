@@ -128,17 +128,17 @@ class U_EXPORT PythonLEFontInstance : public LEFontInstance {
 
     virtual const void *getFontTable(LETag tag) const
     {
-#if PY_MAJOR_VERSION >= 3
-        PyObject *key = PyUnicode_FromStringAndSize(NULL, 4);
-        Py_UNICODE *s = PyUnicode_AS_UNICODE(key);
-#else
-        PyObject *key = PyString_FromStringAndSize(NULL, 4);
-        char *s = PyString_AS_STRING(key);
-#endif
+        char s[4];
         for (int i = 0; i < 4; ++i) {
             s[3 - i] = tag & 0xff;
             tag >>= 8;
         }
+        
+#if PY_MAJOR_VERSION >= 3
+        PyObject *key = PyUnicode_FromStringAndSize(s, 4);
+#else
+        PyObject *key = PyString_FromStringAndSize(s, 4);
+#endif
 
         PyObject *result = PyDict_GetItem(tables, key);
 
