@@ -341,7 +341,7 @@ EXPORT UnicodeString &PyObject_AsUnicodeString(PyObject *object,
         if (sizeof(Py_UNICODE) == sizeof(UChar))
             string.setTo((const UChar *) PyUnicode_AS_UNICODE(object),
                          (int32_t) PyUnicode_GET_SIZE(object));
-        else
+        else if (sizeof(Py_UNICODE) == sizeof(UChar32))
         {
             int32_t len = (int32_t) PyUnicode_GET_SIZE(object);
             Py_UNICODE *pchars = PyUnicode_AS_UNICODE(object);

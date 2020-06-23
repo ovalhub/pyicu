@@ -215,6 +215,9 @@ static PyObject *t_breakiterator_createTitleInstance(PyTypeObject *type,
 static PyObject *t_breakiterator_getAvailableLocales(PyTypeObject *type);
 static PyObject *t_breakiterator_getDisplayName(PyTypeObject *type,
                                                 PyObject *args);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(52, 0, 0)    
+static PyObject *t_breakiterator_getRuleStatus(t_breakiterator *self);
+#endif
 
 static PyMethodDef t_breakiterator_methods[] = {
     DECLARE_METHOD(t_breakiterator, getText, METH_NOARGS),
@@ -236,6 +239,9 @@ static PyMethodDef t_breakiterator_methods[] = {
     DECLARE_METHOD(t_breakiterator, createTitleInstance, METH_O | METH_CLASS),
     DECLARE_METHOD(t_breakiterator, getAvailableLocales, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_breakiterator, getDisplayName, METH_VARARGS | METH_CLASS),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(52, 0, 0)    
+    DECLARE_METHOD(t_breakiterator, getRuleStatus, METH_NOARGS),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -1098,6 +1104,13 @@ static int t_rulebasedbreakiterator_init(t_rulebasedbreakiterator *self,
 
     return -1;
 }
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(52, 0, 0)    
+static PyObject *t_breakiterator_getRuleStatus(t_breakiterator *self)
+{
+    return PyInt_FromLong(self->object->getRuleStatus());
+}
+#endif
 
 static PyObject *t_rulebasedbreakiterator_getRules(t_rulebasedbreakiterator *self, PyObject *args)
 {

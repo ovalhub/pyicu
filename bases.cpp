@@ -2009,10 +2009,11 @@ static PyObject *t_unicodestring_item(t_unicodestring *self, int n)
     if (n >= 0 && n < len)
     {
         // unicodestring as sequence of UChar, not codepoints
-        Py_UNICODE c = (Py_UNICODE) u->charAt(n);
 #if PY_VERSION_HEX < 0x03030000 || defined(PYPY_VERSION)      
+        Py_UNICODE c = (Py_UNICODE) u->charAt(n);
         return PyUnicode_FromUnicode(&c, 1);
 #else
+        UChar c = u->charAt(n);
         return PyUnicode_FromKindAndData(PyUnicode_2BYTE_KIND, &c, 1);
 #endif
     }
