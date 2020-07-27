@@ -1,5 +1,6 @@
 include README.md
 include bases.h
+include bidi.h
 include calendar.h
 include casemap.h
 include char.h

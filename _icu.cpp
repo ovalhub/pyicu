@@ -53,6 +53,7 @@
 #include "casemap.h"
 #include "tries.h"
 #include "gender.h"
+#include "bidi.h"
 
 
 /* const variable descriptor */
@@ -268,6 +269,7 @@ static PyObject *PyInit_icu(PyObject *m)
     _init_casemap(m);
     _init_tries(m);
     _init_gender(m);
+    _init_bidi(m);
 
     return m;
 }
