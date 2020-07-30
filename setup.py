@@ -121,6 +121,12 @@ VER_FLAGS = {
                '-DPYICU_ICU_MAX_VER="%s"' %(ICU_MAX_MAJOR_VERSION)],
 }
 
+if sys.version_info >= (3, 9):
+    VER_FLAGS['win32'] = [
+        '-DPYICU_VER="%s"' %(VERSION),
+        '-DPYICU_ICU_MAX_VER="%s"' %(ICU_MAX_MAJOR_VERSION)
+    ]
+
 PEDANTIC_FLAGS = {
     'darwin': ['-pedantic'],
     'linux': ['-pedantic', '-Wno-variadic-macros'],
