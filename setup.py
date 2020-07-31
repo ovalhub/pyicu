@@ -106,20 +106,13 @@ INCLUDES = {
     'cygwin': [],
 }
 
-VER_FLAGS = {
-    'darwin': ['-DPYICU_VER="%s"' %(VERSION),
-               '-DPYICU_ICU_MAX_VER="%s"' %(ICU_MAX_MAJOR_VERSION)],
-    'linux': ['-DPYICU_VER="%s"' %(VERSION),
-               '-DPYICU_ICU_MAX_VER="%s"' %(ICU_MAX_MAJOR_VERSION)],
-    'freebsd': ['-DPYICU_VER="%s"' %(VERSION),
-               '-DPYICU_ICU_MAX_VER="%s"' %(ICU_MAX_MAJOR_VERSION)],
-    'win32': ['/DPYICU_VER=\\"%s\\"' %(VERSION),
-               '/DPYICU_ICU_MAX_VER=\\"%s\\"' %(ICU_MAX_MAJOR_VERSION)],
-    'sunos5': ['-DPYICU_VER="%s"' %(VERSION),
-               '-DPYICU_ICU_MAX_VER="%s"' %(ICU_MAX_MAJOR_VERSION)],
-    'cygwin': ['-DPYICU_VER="%s"' %(VERSION),
-               '-DPYICU_ICU_MAX_VER="%s"' %(ICU_MAX_MAJOR_VERSION)],
-}
+if sys.platform == 'win32' and sys.version_info < (3,9):
+    ver_flag = '/D%s=\\"%s\\"'
+else:
+    ver_flag = '-D%s="%s"'
+
+VER_FLAGS = [ver_flag %('PYICU_VER', VERSION),
+             ver_flag %('PYICU_ICU_MAX_VER', ICU_MAX_MAJOR_VERSION)]
 
 PEDANTIC_FLAGS = {
     'darwin': ['-pedantic'],
@@ -208,7 +201,7 @@ if '--debug' in sys.argv:
     else:
         _cflags += DEBUG_CFLAGS[platform]
 
-_cflags += VER_FLAGS[platform] # + PEDANTIC_FLAGS[platform]
+_cflags += VER_FLAGS # + PEDANTIC_FLAGS[platform]
 
 if 'PYICU_LFLAGS' in os.environ:
     _lflags = os.environ['PYICU_LFLAGS'].split(os.pathsep)

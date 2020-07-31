@@ -187,6 +187,23 @@ static int t_bidi_init(t_bidi *self, PyObject *args, PyObject *kwds)
 #endif
         self->flags = T_OWNED;
         return 0;
+
+      case 1:
+        if (!parseArgs(args, "i", &maxLength))
+        {
+            INT_STATUS_CALL(self->object = ubidi_openSized(
+                maxLength, 0, &status));
+            self->text = NULL;
+            self->parent = NULL;
+#if U_ICU_VERSION_HEX >= 0x04080000
+            self->prologue = self->epilogue = NULL;
+#endif
+            self->flags = T_OWNED;
+            return 0;
+        }
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+
       case 2:
         if (!parseArgs(args, "ii", &maxLength, &maxRunCount))
         {
@@ -200,6 +217,9 @@ static int t_bidi_init(t_bidi *self, PyObject *args, PyObject *kwds)
             self->flags = T_OWNED;
             return 0;
         }
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+      
       default:
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
@@ -404,6 +424,12 @@ static PyObject *t_bidi_setLine(t_bidi *self, PyObject *args)
                 int length = ubidi_getLength(line);
                 UnicodeString *u = new UnicodeString(0, text, length);
 
+                if (u == NULL)
+                {
+                    Py_DECREF(result);  // closes line too
+                    return PyErr_NoMemory();
+                }
+
                 bidi->parent = (PyObject *) self; Py_INCREF(bidi->parent);
                 bidi->text = wrap_UnicodeString(u, T_OWNED);
 
@@ -411,6 +437,8 @@ static PyObject *t_bidi_setLine(t_bidi *self, PyObject *args)
                 bidi->prologue = bidi->epilogue = NULL;
 #endif
             }
+            else
+                ubidi_close(line);
 
             return result;
         }

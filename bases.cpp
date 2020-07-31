@@ -655,7 +655,12 @@ static PyObject *t_uobject_str(t_uobject *self)
 
 static PyObject *t_uobject_getDynamicClassID(t_uobject *self)
 {
+#if U_ICU_VERSION_HEX < 0x04060000
     return PyInt_FromLong((long) self->object->getDynamicClassID());
+#else
+    return PyLong_FromUnsignedLongLong(
+        (unsigned long long) (intptr_t) self->object->getDynamicClassID());
+#endif
 }
 
 
