@@ -29,8 +29,8 @@ from icu import *
 class TestBidi(TestCase):
 
     input_text = [
-        UnicodeString(u"\u0643\u0627\u0646 \u0057\u0069\u006e\u0064\u006f\u0077\u0073 \u0031\u0030 \u0623\u0648\u0644 \u0646\u0638\u0627\u0645 \u062a\u0634\u063a\u064a\u0644 \u0628\u062a\u0642\u0646\u064a\u0629 \u0034\u004b\u002e"),
-        UnicodeString(u"\u0643\u0627\u0646\u062a \u004d\u0069\u0063\u0072\u006f\u0073\u006f\u0066\u0074 \u0057\u0069\u006e\u0064\u006f\u0077\u0073 \u0627\u0644\u0645\u0627\u0644\u0643 \u0627\u0644\u0623\u0648\u062d\u062f \u0644\u0639\u0644\u0627\u0645\u0629 \u0058\u0050\u002e")]
+        UnicodeString(b'\xd9\x83\xd8\xa7\xd9\x86 Windows 10 \xd8\xa3\xd9\x88\xd9\x84 \xd9\x86\xd8\xb8\xd8\xa7\xd9\x85 \xd8\xaa\xd8\xb4\xd8\xba\xd9\x8a\xd9\x84 \xd8\xa8\xd8\xaa\xd9\x82\xd9\x86\xd9\x8a\xd8\xa9 4K.', 'utf-8'),
+        UnicodeString(b'\xd9\x83\xd8\xa7\xd9\x86\xd8\xaa Microsoft Windows \xd8\xa7\xd9\x84\xd9\x85\xd8\xa7\xd9\x84\xd9\x83 \xd8\xa7\xd9\x84\xd8\xa3\xd9\x88\xd8\xad\xd8\xaf \xd9\x84\xd8\xb9\xd9\x84\xd8\xa7\xd9\x85\xd8\xa9 XP.', 'utf-8')]
 
     def testDefault(self):
 
@@ -73,6 +73,19 @@ class TestBidi(TestCase):
         self.assertEqual(line_layout_1.getLevels(), (2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1))
         self.assertEqual(line_layout_1.getVisualRun(0), (31, 1, 1))
         self.assertEqual(line_layout_1.getVisualRun(2), (7, 22, 1))
+
+    def testTransform(self):
+
+        Locale.setDefault(Locale.getUS())
+        transform = BidiTransform()
+
+        result = transform.transform(
+            self.input_text[0],
+            UBiDiDirection.LTR, UBiDiOrder.VISUAL,
+            UBiDiDirection.RTL, UBiDiOrder.LOGICAL,
+            UBiDiMirroring.OFF, Shape.DIGITS_EN2AN)
+
+        self.assertEqual(result, UnicodeString(b'.\xd9\xa4K \xd8\xa9\xd9\x8a\xd9\x86\xd9\x82\xd8\xaa\xd8\xa8 \xd9\x84\xd9\x8a\xd8\xba\xd8\xb4\xd8\xaa \xd9\x85\xd8\xa7\xd8\xb8\xd9\x86 \xd9\x84\xd9\x88\xd8\xa3 \xd9\xa1\xd9\xa0 Windows \xd9\x86\xd8\xa7\xd9\x83', 'utf-8'))
 
 if __name__ == "__main__":
     main()

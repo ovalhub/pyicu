@@ -227,6 +227,10 @@ typedef intintobjargproc ssizessizeobjargproc;
 #include <unicode/simpleformatter.h>
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(58, 0, 0)
+#include <unicode/ubiditransform.h>
+#endif
+
 #if U_ICU_VERSION_HEX >= VERSION_HEX(59, 0, 0)
 #include <unicode/casemap.h>
 #include <unicode/edits.h>

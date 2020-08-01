@@ -34,6 +34,11 @@ DECLARE_CONSTANTS_TYPE(UBiDiDirection)
 DECLARE_CONSTANTS_TYPE(UBiDiReorderingMode)
 DECLARE_CONSTANTS_TYPE(UBiDiReorderingOption)
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(58, 0, 0)
+DECLARE_CONSTANTS_TYPE(UBiDiMirroring)
+DECLARE_CONSTANTS_TYPE(UBiDiOrder)
+#endif
+
 
 /* Bidi */
 
@@ -171,6 +176,37 @@ static void t_bidi_dealloc(t_bidi *self)
 DECLARE_STRUCT(Bidi, t_bidi, UBiDi, t_bidi_init, t_bidi_dealloc)
 
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(58, 0, 0)
+
+/* BidiTransform */
+
+class t_biditransform : public _wrapper {
+public:
+    UBiDiTransform *object;
+};
+
+static int t_biditransform_init(t_biditransform *self,
+                                PyObject *args, PyObject *kwds);
+static PyObject *t_biditransform_transform(t_biditransform *self,
+                                           PyObject *args);
+
+static PyMethodDef t_biditransform_methods[] = {
+    DECLARE_METHOD(t_biditransform, transform, METH_VARARGS),
+    { NULL, NULL, 0, NULL }
+};
+
+static void t_biditransform_dealloc(t_biditransform *self)
+{
+    ubiditransform_close(self->object); self->object = NULL;
+    Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
+DECLARE_STRUCT(BidiTransform, t_biditransform, UBiDiTransform,
+               t_biditransform_init, t_biditransform_dealloc)
+
+#endif // >= 58
+
+
 /* Bidi */
 
 static int t_bidi_init(t_bidi *self, PyObject *args, PyObject *kwds)
@@ -219,7 +255,7 @@ static int t_bidi_init(t_bidi *self, PyObject *args, PyObject *kwds)
         }
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
-      
+
       default:
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
@@ -976,6 +1012,94 @@ static PyObject *t_bidi_writeReverse(PyTypeObject *type, PyObject *args)
     return wrap_UnicodeString(u, T_OWNED);
 }
 
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(58, 0, 0)
+
+/* BidiTransform */
+
+static int t_biditransform_init(
+    t_biditransform *self, PyObject *args, PyObject *kwds)
+{
+    switch (PyTuple_Size(args)) {
+      case 0:
+        INT_STATUS_CALL(self->object = ubiditransform_open(&status));
+        self->flags = T_OWNED;
+        return 0;
+
+      default:
+        PyErr_SetArgsError((PyObject *) self, "__init__", args);
+        return -1;
+    }
+}
+
+static PyObject *t_biditransform_transform(t_biditransform *self,
+                                           PyObject *args)
+{
+    UnicodeString *src, _src;
+    UBiDiLevel inParaLevel, outParaLevel;
+    UBiDiOrder inOrder, outOrder;
+    UBiDiMirroring doMirroring = UBIDI_MIRRORING_OFF;
+    int shapingOptions = 0;
+
+    switch (PyTuple_Size(args)) {
+      case 5:
+        if (!parseArgs(args, "Siiii", &src, &_src,
+                       &inParaLevel, &outParaLevel, &inOrder, &outOrder))
+          break;
+        return PyErr_SetArgsError((PyObject *) self, "transform", args);
+
+      case 6:
+        if (!parseArgs(args, "Siiiii", &src, &_src,
+                       &inParaLevel, &outParaLevel, &inOrder, &outOrder,
+                       &doMirroring))
+          break;
+        return PyErr_SetArgsError((PyObject *) self, "transform", args);
+
+      case 7:
+        if (!parseArgs(args, "Siiiiii", &src, &_src,
+                       &inParaLevel, &outParaLevel, &inOrder, &outOrder,
+                       &doMirroring, &shapingOptions))
+          break;
+        return PyErr_SetArgsError((PyObject *) self, "transform", args);
+
+      default:
+        return PyErr_SetArgsError((PyObject *) self, "transform", args);
+    }
+
+    int srcSize = src->length();
+    int destSize = srcSize;
+
+    if (shapingOptions & U_SHAPE_LETTERS_UNSHAPE)
+      destSize *= 2;
+
+    UnicodeString *u = new UnicodeString(destSize, 0, 0);
+
+    if (u == NULL)
+        return PyErr_NoMemory();
+
+    UChar *dest = u->getBuffer(destSize);
+    int length;
+
+    STATUS_CALL(
+        {
+            length = ubiditransform_transform(
+                self->object, src->getBuffer(), srcSize, dest, destSize,
+                inParaLevel, inOrder, outParaLevel, outOrder,
+                doMirroring, shapingOptions, &status);
+
+            if (U_FAILURE(status))
+            {
+                u->releaseBuffer(0);
+                delete u;
+            }
+        });
+
+    u->releaseBuffer(length);
+    return wrap_UnicodeString(u, T_OWNED);
+}
+
+#endif  // >= 58
+
 void _init_bidi(PyObject *m)
 {
     BidiType_.tp_getset = t_bidi_properties;
@@ -984,6 +1108,13 @@ void _init_bidi(PyObject *m)
     INSTALL_CONSTANTS_TYPE(UBiDiDirection, m);
     INSTALL_CONSTANTS_TYPE(UBiDiReorderingMode, m);
     INSTALL_CONSTANTS_TYPE(UBiDiReorderingOption, m);
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(58, 0, 0)
+    INSTALL_STRUCT(BidiTransform, m);
+
+    INSTALL_CONSTANTS_TYPE(UBiDiMirroring, m);
+    INSTALL_CONSTANTS_TYPE(UBiDiOrder, m);
+#endif
 
     INSTALL_ENUM(Bidi, "DEFAULT_LTR", UBIDI_DEFAULT_LTR);
     INSTALL_ENUM(Bidi, "DEFAULT_RTL", UBIDI_DEFAULT_RTL);
@@ -1015,4 +1146,12 @@ void _init_bidi(PyObject *m)
     INSTALL_ENUM(UBiDiReorderingOption, "INSERT_MARKS", UBIDI_OPTION_INSERT_MARKS);
     INSTALL_ENUM(UBiDiReorderingOption, "REMOVE_CONTROLS", UBIDI_OPTION_REMOVE_CONTROLS);
     INSTALL_ENUM(UBiDiReorderingOption, "STREAMING", UBIDI_OPTION_STREAMING);
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(58, 0, 0)
+    INSTALL_ENUM(UBiDiMirroring, "OFF", UBIDI_MIRRORING_OFF);
+    INSTALL_ENUM(UBiDiMirroring, "ON", UBIDI_MIRRORING_ON);
+
+    INSTALL_ENUM(UBiDiOrder, "LOGICAL", UBIDI_LOGICAL);
+    INSTALL_ENUM(UBiDiOrder, "VISUAL", UBIDI_VISUAL);
+#endif
 }
