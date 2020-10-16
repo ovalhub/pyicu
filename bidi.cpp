@@ -1036,7 +1036,7 @@ static PyObject *t_biditransform_transform(t_biditransform *self,
                                            PyObject *args)
 {
     UnicodeString *src, _src;
-    UBiDiLevel inParaLevel, outParaLevel;
+    int inParaLevel, outParaLevel;  // UBiDiLevel
     UBiDiOrder inOrder, outOrder;
     UBiDiMirroring doMirroring = UBIDI_MIRRORING_OFF;
     int shapingOptions = 0;
@@ -1044,20 +1044,20 @@ static PyObject *t_biditransform_transform(t_biditransform *self,
     switch (PyTuple_Size(args)) {
       case 5:
         if (!parseArgs(args, "Siiii", &src, &_src,
-                       &inParaLevel, &outParaLevel, &inOrder, &outOrder))
+                       &inParaLevel, &inOrder, &outParaLevel, &outOrder))
           break;
         return PyErr_SetArgsError((PyObject *) self, "transform", args);
 
       case 6:
         if (!parseArgs(args, "Siiiii", &src, &_src,
-                       &inParaLevel, &outParaLevel, &inOrder, &outOrder,
+                       &inParaLevel, &inOrder, &outParaLevel, &outOrder,
                        &doMirroring))
           break;
         return PyErr_SetArgsError((PyObject *) self, "transform", args);
 
       case 7:
         if (!parseArgs(args, "Siiiiii", &src, &_src,
-                       &inParaLevel, &outParaLevel, &inOrder, &outOrder,
+                       &inParaLevel, &inOrder, &outParaLevel, &outOrder,
                        &doMirroring, &shapingOptions))
           break;
         return PyErr_SetArgsError((PyObject *) self, "transform", args);
@@ -1084,7 +1084,8 @@ static PyObject *t_biditransform_transform(t_biditransform *self,
         {
             length = ubiditransform_transform(
                 self->object, src->getBuffer(), srcSize, dest, destSize,
-                inParaLevel, inOrder, outParaLevel, outOrder,
+                (UBiDiLevel) inParaLevel, inOrder,
+                (UBiDiLevel) outParaLevel, outOrder,
                 doMirroring, shapingOptions, &status);
 
             if (U_FAILURE(status))
