@@ -562,7 +562,7 @@ static PyObject *t_bidi_getParagraph(t_bidi *self, PyObject *arg)
         STATUS_CALL(paraIndex = ubidi_getParagraph(
             self->object, charIndex, &start, &limit, &level, &status));
 
-        return Py_BuildValue("(iiii)", start, limit, level, paraIndex);
+        return Py_BuildValue("(iiii)", start, limit, (int) level, paraIndex);
     }
 
     return PyErr_SetArgsError((PyObject *) self, "getParagraph", arg);
@@ -580,7 +580,7 @@ static PyObject *t_bidi_getParagraphByIndex(t_bidi *self, PyObject *arg)
         STATUS_CALL(ubidi_getParagraphByIndex(
             self->object, paraIndex, &start, &limit, &level, &status));
 
-        return Py_BuildValue("(iii)", start, limit, level);
+        return Py_BuildValue("(iii)", start, limit, (int) level);
     }
 
     return PyErr_SetArgsError((PyObject *) self, "getParagraphByIndex", arg);
@@ -605,7 +605,7 @@ static PyObject *t_bidi_getLogicalRun(t_bidi *self, PyObject *arg)
 
         ubidi_getLogicalRun(self->object, logicalPosition, &limit, &level);
 
-        return Py_BuildValue("(ii)", limit, level);
+        return Py_BuildValue("(ii)", limit, (int) level);
     }
 
     return PyErr_SetArgsError((PyObject *) self, "getLogicalRun", arg);
