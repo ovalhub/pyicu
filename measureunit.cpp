@@ -457,7 +457,8 @@ DECLARE_TYPE(Measure, t_measure, UObject, Measure, t_measure_init, NULL)
 DECLARE_TYPE(Measure, t_measure, UObject, Measure, abstract_init, NULL)
 #endif
 
-#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0) && \
+    U_ICU_VERSION_HEX < VERSION_HEX(68, 0, 0)
 
 /* NoUnit */
 
@@ -949,7 +950,8 @@ DEFINE_RICHCMP(Measure, t_measure)
 
 /* NoUnit */
 
-#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0) && \
+    U_ICU_VERSION_HEX < VERSION_HEX(68, 0, 0)
 
 static PyObject *t_nounit_base(PyTypeObject *type)
 {
@@ -1189,7 +1191,8 @@ void _init_measureunit(PyObject *m)
 
     INSTALL_TYPE(MeasureUnit, m);
     INSTALL_TYPE(Measure, m);
-#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0) && \
+    U_ICU_VERSION_HEX < VERSION_HEX(68, 0, 0)
     REGISTER_TYPE(NoUnit, m);
 #endif
     REGISTER_TYPE(CurrencyUnit, m);

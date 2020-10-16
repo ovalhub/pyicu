@@ -3,6 +3,7 @@ Version 2.5 ->
   - added missing BreakIterator.getRuleStatus() wrapper
   - added wrappers for UBiDi API
   - added wrappers for UBiDiTransform API
+  - added support for ICU 68.1 (rc)
   - 
 
 Version 2.4.3 -> 2.5

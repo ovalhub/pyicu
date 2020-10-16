@@ -77,6 +77,10 @@ static void registerErrors(PyObject *messages)
     _setMsg(messages, U_INVALID_STATE_ERROR, "Requested operation can not be completed with ICU in its current state");
     _setMsg(messages, U_COLLATOR_VERSION_MISMATCH, "Collator version is not compatible with the base version");
     _setMsg(messages, U_USELESS_COLLATOR_ERROR, "Collator is options only and no base is specified");
+    _setMsg(messages, U_NO_WRITE_PERMISSION, "Attempt to modify read-only or constant data");
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+    _setMsg(messages, U_INPUT_TOO_LONG_ERROR, "The input is impractically long for an operation");
+#endif
     _setMsg(messages, U_BAD_VARIABLE_DEFINITION, "Missing '$' or duplicate variable name");
     _setMsg(messages, U_PARSE_ERROR_START, "Start of Transliterator errors");
     _setMsg(messages, U_MALFORMED_RULE, "Elements of a rule are misplaced");

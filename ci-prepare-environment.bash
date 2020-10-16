@@ -71,12 +71,13 @@ else
         3.5) pyver=3.5.8;;
         3.6) pyver=3.6.9;;
         3.7) pyver=3.7.4;;
+        3.8) pyver=3.8.6;;
         *)
-            if [ "${TRAVIS_PYTHON_VERSION}" != "3.8" ]
+            if [ "${TRAVIS_PYTHON_VERSION}" != "3.9" ]
             then
                 echo "Python version ${TRAVIS_PYTHON_VERSION} unset/unknown. Using default."
             fi
-            pyver=3.8.0
+            pyver=3.9.0
             ;;
     esac
 fi
