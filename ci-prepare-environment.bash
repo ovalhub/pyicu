@@ -17,7 +17,12 @@ function fetch_icu {
     local location="${2?}"
 
     # Download the source as zip on Windows and tgz otherwise
-    local icu_url="https://github.com/unicode-org/icu/releases/download/release-${version/./-}/icu4c-${version/./_}-src.tgz"
+    if [ "${version%rc}" = "${version}" ]
+    then
+        local icu_url="https://github.com/unicode-org/icu/releases/download/release-${version/./-}/icu4c-${version/./_}-src.tgz"
+    else
+        local icu_url="https://github.com/unicode-org/icu/releases/download/release-${version/rc/-rc}/icu4c-${version}-src.tgz"
+    fi
     if [ "${TRAVIS_OS_NAME}" = windows ]; then icu_url="${icu_url%.tgz}.zip"; fi
     local src="${location}/${icu_url##*/}"
 
