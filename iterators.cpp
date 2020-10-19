@@ -6,10 +6,10 @@
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions: 
+ * Software is furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software. 
+ * in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -215,7 +215,7 @@ static PyObject *t_breakiterator_createTitleInstance(PyTypeObject *type,
 static PyObject *t_breakiterator_getAvailableLocales(PyTypeObject *type);
 static PyObject *t_breakiterator_getDisplayName(PyTypeObject *type,
                                                 PyObject *args);
-#if U_ICU_VERSION_HEX >= VERSION_HEX(52, 0, 0)    
+#if U_ICU_VERSION_HEX >= VERSION_HEX(52, 0, 0)
 static PyObject *t_breakiterator_getRuleStatus(t_breakiterator *self);
 #endif
 
@@ -239,7 +239,7 @@ static PyMethodDef t_breakiterator_methods[] = {
     DECLARE_METHOD(t_breakiterator, createTitleInstance, METH_O | METH_CLASS),
     DECLARE_METHOD(t_breakiterator, getAvailableLocales, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_breakiterator, getDisplayName, METH_VARARGS | METH_CLASS),
-#if U_ICU_VERSION_HEX >= VERSION_HEX(52, 0, 0)    
+#if U_ICU_VERSION_HEX >= VERSION_HEX(52, 0, 0)
     DECLARE_METHOD(t_breakiterator, getRuleStatus, METH_NOARGS),
 #endif
     { NULL, NULL, 0, NULL }
@@ -617,7 +617,7 @@ static int t_ucharcharacteriterator_init(t_ucharcharacteriterator *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
@@ -1098,14 +1098,14 @@ static int t_rulebasedbreakiterator_init(t_rulebasedbreakiterator *self,
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 
     return -1;
 }
 
-#if U_ICU_VERSION_HEX >= VERSION_HEX(52, 0, 0)    
+#if U_ICU_VERSION_HEX >= VERSION_HEX(52, 0, 0)
 static PyObject *t_breakiterator_getRuleStatus(t_breakiterator *self)
 {
     return PyInt_FromLong(self->object->getRuleStatus());
@@ -1163,7 +1163,7 @@ static int t_dictionarybasedbreakiterator_init(t_dictionarybasedbreakiterator *s
         PyErr_SetArgsError((PyObject *) self, "__init__", args);
         return -1;
     }
-        
+
     if (self->object)
         return 0;
 

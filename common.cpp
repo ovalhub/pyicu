@@ -23,6 +23,7 @@
 
 #include "common.h"
 #include <stdarg.h>
+#include <stdlib.h>
 #include <string.h>
 #include <datetime.h>
 
@@ -348,6 +349,8 @@ EXPORT UnicodeString &PyObject_AsUnicodeString(PyObject *object,
 
             string = UnicodeString::fromUTF32((const UChar32 *) pchars, len);
         }
+        else
+            abort();  // we should not get here
 #else
         PyUnicode_READY(object);
 

@@ -6,10 +6,10 @@
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions: 
+ * Software is furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software. 
+ * in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -65,7 +65,7 @@ class U_EXPORT PythonLEFontInstance : public LEFontInstance {
     {
         tables = PyDict_New();
     }
-        
+
     /**
      * Destructor.
      */
@@ -133,7 +133,7 @@ class U_EXPORT PythonLEFontInstance : public LEFontInstance {
             s[3 - i] = tag & 0xff;
             tag >>= 8;
         }
-        
+
 #if PY_MAJOR_VERSION >= 3
         PyObject *key = PyUnicode_FromStringAndSize(s, 4);
 #else
@@ -273,7 +273,7 @@ class U_EXPORT PythonLEFontInstance : public LEFontInstance {
 
             return true;
         }
-        
+
         return false;
     }
 
@@ -424,7 +424,7 @@ static PyObject *t_layoutengine_layoutEngineFactory(PyTypeObject *type,
       default:
         return PyErr_SetArgsError((PyObject *) type, "__init__", args);
     }
-                
+
     return wrap_LayoutEngine(le, T_OWNED);
 }
 

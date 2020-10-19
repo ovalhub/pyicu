@@ -457,14 +457,19 @@ DECLARE_TYPE(Measure, t_measure, UObject, Measure, t_measure_init, NULL)
 DECLARE_TYPE(Measure, t_measure, UObject, Measure, abstract_init, NULL)
 #endif
 
-#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0) && \
-    U_ICU_VERSION_HEX < VERSION_HEX(68, 0, 0)
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
 
 /* NoUnit */
 
+#if U_ICU_VERSION_HEX < VERSION_HEX(68, 0, 0)
+using NoUnit_ = NoUnit;
+#else
+using NoUnit_ = MeasureUnit;
+#endif
+
 class t_nounit : public _wrapper {
 public:
-    NoUnit *object;
+    NoUnit_ *object;
 };
 
 static PyObject *t_nounit_base(PyTypeObject *type);
@@ -478,7 +483,7 @@ static PyMethodDef t_nounit_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-DECLARE_TYPE(NoUnit, t_nounit, MeasureUnit, NoUnit,
+DECLARE_TYPE(NoUnit, t_nounit, MeasureUnit, NoUnit_,
              abstract_init, NULL)
 
 #endif
@@ -950,22 +955,21 @@ DEFINE_RICHCMP(Measure, t_measure)
 
 /* NoUnit */
 
-#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0) && \
-    U_ICU_VERSION_HEX < VERSION_HEX(68, 0, 0)
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
 
 static PyObject *t_nounit_base(PyTypeObject *type)
 {
-  return wrap_NoUnit((NoUnit *) NoUnit::base().clone(), T_OWNED);
+  return wrap_NoUnit((NoUnit_ *) NoUnit::base().clone(), T_OWNED);
 }
 
 static PyObject *t_nounit_percent(PyTypeObject *type)
 {
-    return wrap_NoUnit((NoUnit *) NoUnit::percent().clone(), T_OWNED);
+    return wrap_NoUnit((NoUnit_ *) NoUnit::percent().clone(), T_OWNED);
 }
 
 static PyObject *t_nounit_permille(PyTypeObject *type)
 {
-    return wrap_NoUnit((NoUnit *) NoUnit::permille().clone(), T_OWNED);
+    return wrap_NoUnit((NoUnit_ *) NoUnit::permille().clone(), T_OWNED);
 }
 
 #endif
@@ -1191,9 +1195,12 @@ void _init_measureunit(PyObject *m)
 
     INSTALL_TYPE(MeasureUnit, m);
     INSTALL_TYPE(Measure, m);
-#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0) && \
-    U_ICU_VERSION_HEX < VERSION_HEX(68, 0, 0)
+#if U_ICU_VERSION_HEX >= VERSION_HEX(60, 0, 0)
+#if U_ICU_VERSION_HEX < VERSION_HEX(68, 0, 0)
     REGISTER_TYPE(NoUnit, m);
+#else
+    INSTALL_STRUCT(NoUnit, m);
+#endif
 #endif
     REGISTER_TYPE(CurrencyUnit, m);
     REGISTER_TYPE(CurrencyAmount, m);

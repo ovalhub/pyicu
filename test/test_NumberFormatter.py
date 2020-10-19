@@ -100,7 +100,7 @@ class TestNumberFormatter(TestCase):
 
     def testFromDecimalFormat(self):
 
-        if ICU_VERSION >= '64.0':
+        if ICU_VERSION >= '68.0':
             text = NumberFormat.createScientificInstance(Locale("de", "at")) \
                 .toNumberFormatter() \
                 .formatInt(1234)
