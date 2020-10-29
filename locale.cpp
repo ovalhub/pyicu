@@ -55,6 +55,10 @@ DECLARE_CONSTANTS_TYPE(ULocMatchFavorSubtag)
 DECLARE_CONSTANTS_TYPE(ULocMatchDemotion)
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+DECLARE_CONSTANTS_TYPE(ULocMatchDirection)
+#endif
+
 
 /* Locale */
 
@@ -434,6 +438,13 @@ static PyObject *t_localematcherbuilder_setDefaultLocale(t_localematcherbuilder 
 static PyObject *t_localematcherbuilder_setFavorSubtag(t_localematcherbuilder *self, PyObject *arg);
 static PyObject *t_localematcherbuilder_setDemotionPerDesiredLocale(t_localematcherbuilder *self, PyObject *arg);
 static PyObject *t_localematcherbuilder_build(t_localematcherbuilder *self);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+static PyObject *t_localematcherbuilder_setDirection(t_localematcherbuilder *self, PyObject *arg);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+static PyObject *t_localematcherbuilder_setMaxDistance(t_localematcherbuilder *self, PyObject *args);
+static PyObject *t_localematcherbuilder_setNoDefaultLocale(t_localematcherbuilder *self);
+#endif
 
 static PyMethodDef t_localematcherbuilder_methods[] = {
     DECLARE_METHOD(t_localematcherbuilder, setSupportedLocalesFromListString, METH_O),
@@ -443,6 +454,13 @@ static PyMethodDef t_localematcherbuilder_methods[] = {
     DECLARE_METHOD(t_localematcherbuilder, setFavorSubtag, METH_O),
     DECLARE_METHOD(t_localematcherbuilder, setDemotionPerDesiredLocale, METH_O),
     DECLARE_METHOD(t_localematcherbuilder, build, METH_NOARGS),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+    DECLARE_METHOD(t_localematcherbuilder, setDirection, METH_O),
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+    DECLARE_METHOD(t_localematcherbuilder, setMaxDistance, METH_O),
+    DECLARE_METHOD(t_localematcherbuilder, setNoDefaultLocale, METH_NOARGS),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -485,10 +503,17 @@ static PyObject *t_localematcher_getBestMatch(t_localematcher *self, PyObject *a
 static PyObject *t_localematcher_getBestMatchForListString(t_localematcher *self, PyObject *arg);
 static PyObject *t_localematcher_getBestMatchResult(t_localematcher *self, PyObject *arg);
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+static PyObject *t_localematcher_isMatch(t_localematcher *self, PyObject *args);
+#endif
+
 static PyMethodDef t_localematcher_methods[] = {
     DECLARE_METHOD(t_localematcher, getBestMatch, METH_O),
     DECLARE_METHOD(t_localematcher, getBestMatchForListString, METH_O),
     DECLARE_METHOD(t_localematcher, getBestMatchResult, METH_O),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+    DECLARE_METHOD(t_localematcher, isMatch, METH_VARARGS),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -2212,7 +2237,7 @@ static PyObject *t_localematcherbuilder_setFavorSubtag(
 {
     int option;
 
-    if (!parseArg(arg, "n", &option))
+    if (!parseArg(arg, "i", &option))
     {
         self->object->setFavorSubtag((ULocMatchFavorSubtag) option);
         Py_RETURN_SELF();
@@ -2226,7 +2251,7 @@ static PyObject *t_localematcherbuilder_setDemotionPerDesiredLocale(
 {
     int option;
 
-    if (!parseArg(arg, "n", &option))
+    if (!parseArg(arg, "i", &option))
     {
         self->object->setDemotionPerDesiredLocale((ULocMatchDemotion) option);
         Py_RETURN_SELF();
@@ -2235,6 +2260,54 @@ static PyObject *t_localematcherbuilder_setDemotionPerDesiredLocale(
     return PyErr_SetArgsError((PyObject *) self,
                               "setDemotionPerDesiredLocale", arg);
 }
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+
+static PyObject *t_localematcherbuilder_setDirection(
+    t_localematcherbuilder *self, PyObject *arg)
+{
+    int option;
+
+    if (!parseArg(arg, "i", &option))
+    {
+        self->object->setDirection((ULocMatchDirection) option);
+        Py_RETURN_SELF();
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setDirection", arg);
+}
+
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+
+static PyObject *t_localematcherbuilder_setMaxDistance(
+    t_localematcherbuilder *self, PyObject *args)
+{
+    Locale *desired, *supported;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "PP", TYPE_CLASSID(Locale), TYPE_CLASSID(Locale),
+                       &desired, &supported))
+        {
+            self->object->setMaxDistance(*desired, *supported);
+            Py_RETURN_SELF();
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setMaxDistance", args);
+}
+
+static PyObject *t_localematcherbuilder_setNoDefaultLocale(
+    t_localematcherbuilder *self)
+{
+    self->object->setNoDefaultLocale();
+    Py_RETURN_SELF();
+}
+
+#endif
 
 static PyObject *t_localematcherbuilder_build(t_localematcherbuilder *self)
 {
@@ -2365,7 +2438,33 @@ static PyObject *t_localematcher_getBestMatchResult(
     return PyErr_SetArgsError((PyObject *) self, "getBestMatchResult", arg);
 }
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+
+static PyObject *t_localematcher_isMatch(t_localematcher *self, PyObject *args)
+{
+    Locale *desired, *supported;
+
+    switch (PyTuple_Size(args)) {
+      case 2:
+        if (!parseArgs(args, "PP", TYPE_CLASSID(Locale), TYPE_CLASSID(Locale),
+                       &desired, &supported))
+        {
+            UBool result;
+            STATUS_CALL(result = self->object->isMatch(
+                *desired, *supported, status));
+
+            Py_RETURN_BOOL(result);
+        }
+        break;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "isMatch", args);
+}
+
+#endif  // ICU >= 68
+
 #endif  // ICU >= 65
+
 
 void _init_locale(PyObject *m)
 {
@@ -2405,6 +2504,10 @@ void _init_locale(PyObject *m)
                          (PyObject *) &LocaleMatcherBuilderType_);
     PyDict_SetItemString(LocaleMatcherType_.tp_dict, "Result",
                          (PyObject *) &LocaleMatcherResultType_);
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+    INSTALL_CONSTANTS_TYPE(ULocMatchDirection, m);
 #endif
 
     INSTALL_ENUM(ULocDataLocaleType, "ACTUAL_LOCALE", ULOC_ACTUAL_LOCALE);
@@ -2463,4 +2566,10 @@ void _init_locale(PyObject *m)
     INSTALL_ENUM(ULocMatchDemotion, "NONE", ULOCMATCH_DEMOTION_NONE);
     INSTALL_ENUM(ULocMatchDemotion, "REGION", ULOCMATCH_DEMOTION_REGION);
 #endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+    INSTALL_ENUM(ULocMatchDirection, "WITH_ONE_WAY", ULOCMATCH_DIRECTION_WITH_ONE_WAY);
+    INSTALL_ENUM(ULocMatchDirection, "ONLY_TWO_WAY", ULOCMATCH_DIRECTION_ONLY_TWO_WAY);
+#endif
+
 }

@@ -32,6 +32,10 @@
 DECLARE_CONSTANTS_TYPE(UTimeUnitFields)
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+DECLARE_CONSTANTS_TYPE(UMeasureUnitComplexity)
+#endif
+
 /* MeasureUnit */
 
 class t_measureunit : public _wrapper {
@@ -44,6 +48,13 @@ static PyObject *t_measureunit_getType(t_measureunit *self);
 static PyObject *t_measureunit_getSubtype(t_measureunit *self);
 static PyObject *t_measureunit_getAvailable(PyTypeObject *type, PyObject *arg);
 static PyObject *t_measureunit_getAvailableTypes(PyTypeObject *type);
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+static PyObject *t_measureunit_getIdentifier(t_measureunit *self);
+static PyObject *t_measureunit_getComplexity(t_measureunit *self);
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
 static PyObject *t_measureunit_createAcre(PyTypeObject *type);
 static PyObject *t_measureunit_createArcMinute(PyTypeObject *type);
 static PyObject *t_measureunit_createArcSecond(PyTypeObject *type);
@@ -231,6 +242,20 @@ static PyObject *t_measureunit_createPixelPerCentimeter(PyTypeObject *type);
 static PyObject *t_measureunit_createPixelPerInch(PyTypeObject *type);
 static PyObject *t_measureunit_createThermUs(PyTypeObject *type);
 #endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+static PyObject *t_measureunit_createCandela(PyTypeObject *type);
+static PyObject *t_measureunit_createDessertSpoon(PyTypeObject *type);
+static PyObject *t_measureunit_createDessertSpoonImperial(PyTypeObject *type);
+static PyObject *t_measureunit_createDot(PyTypeObject *type);
+static PyObject *t_measureunit_createDram(PyTypeObject *type);
+static PyObject *t_measureunit_createDrop(PyTypeObject *type);
+static PyObject *t_measureunit_createEarthRadius(PyTypeObject *type);
+static PyObject *t_measureunit_createGrain(PyTypeObject *type);
+static PyObject *t_measureunit_createJigger(PyTypeObject *type);
+static PyObject *t_measureunit_createLumen(PyTypeObject *type);
+static PyObject *t_measureunit_createPinch(PyTypeObject *type);
+static PyObject *t_measureunit_createQuartImperial(PyTypeObject *type);
+#endif
 
 static PyMethodDef t_measureunit_methods[] = {
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
@@ -238,6 +263,13 @@ static PyMethodDef t_measureunit_methods[] = {
     DECLARE_METHOD(t_measureunit, getSubtype, METH_NOARGS),
     DECLARE_METHOD(t_measureunit, getAvailable, METH_O | METH_CLASS),
     DECLARE_METHOD(t_measureunit, getAvailableTypes, METH_NOARGS | METH_CLASS),
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+    DECLARE_METHOD(t_measureunit, getIdentifier, METH_NOARGS),
+    DECLARE_METHOD(t_measureunit, getComplexity, METH_NOARGS),
+#endif
+    
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
     DECLARE_METHOD(t_measureunit, createAcre, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_measureunit, createArcMinute, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_measureunit, createArcSecond, METH_NOARGS | METH_CLASS),
@@ -425,6 +457,20 @@ static PyMethodDef t_measureunit_methods[] = {
     DECLARE_METHOD(t_measureunit, createPixelPerInch, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_measureunit, createThermUs, METH_NOARGS | METH_CLASS),
 #endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+    DECLARE_METHOD(t_measureunit, createCandela, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createDessertSpoon, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createDessertSpoonImperial, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createDot, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createDram, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createDrop, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createEarthRadius, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createGrain, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createJigger, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createLumen, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createPinch, METH_NOARGS | METH_CLASS),
+    DECLARE_METHOD(t_measureunit, createQuartImperial, METH_NOARGS | METH_CLASS),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -586,7 +632,11 @@ DEFINE_RICHCMP(MeasureUnit, t_measureunit)
 
 static PyObject *t_measureunit_str(t_measureunit *self)
 {
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+    return PyString_FromString(self->object->getIdentifier());
+#else
     return PyString_FromString(self->object->getSubtype());
+#endif
 }
 
 static PyObject *t_measureunit_getType(t_measureunit *self)
@@ -646,6 +696,28 @@ static PyObject *t_measureunit_getAvailableTypes(PyTypeObject *type)
     STATUS_CALL(e = MeasureUnit::getAvailableTypes(status));
     return wrap_StringEnumeration(e, T_OWNED);
 }
+
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+
+static PyObject *t_measureunit_getIdentifier(t_measureunit *self)
+{
+    const char *id = self->object->getIdentifier();
+    return PyString_FromString(id);                
+}
+
+static PyObject *t_measureunit_getComplexity(t_measureunit *self)
+{
+    UMeasureUnitComplexity complexity;
+    STATUS_CALL(complexity = self->object->getComplexity(status));
+    return PyInt_FromLong(complexity);                
+}
+
+#endif
+
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
 
 #define createMU(unit) \
     static PyObject *t_measureunit_create ## unit(PyTypeObject *type) \
@@ -848,6 +920,21 @@ createMU(Pixel)
 createMU(PixelPerCentimeter)
 createMU(PixelPerInch)
 createMU(ThermUs)
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+createMU(Candela)
+createMU(DessertSpoon)
+createMU(DessertSpoonImperial)
+createMU(Dot)
+createMU(Dram)
+createMU(Drop)
+createMU(EarthRadius)
+createMU(Grain)
+createMU(Jigger)
+createMU(Lumen)
+createMU(Pinch)
+createMU(QuartImperial)
 #endif
 
 /* Measure */
@@ -1192,6 +1279,9 @@ void _init_measureunit(PyObject *m)
 #if U_ICU_VERSION_HEX >= 0x04020000
     INSTALL_CONSTANTS_TYPE(UTimeUnitFields, m);
 #endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+    INSTALL_CONSTANTS_TYPE(UMeasureUnitComplexity, m);
+#endif
 
     INSTALL_TYPE(MeasureUnit, m);
     INSTALL_TYPE(Measure, m);
@@ -1218,4 +1308,10 @@ void _init_measureunit(PyObject *m)
     INSTALL_ENUM(UTimeUnitFields, "MINUTE", TimeUnit::UTIMEUNIT_MINUTE);
     INSTALL_ENUM(UTimeUnitFields, "SECOND", TimeUnit::UTIMEUNIT_SECOND);
 #endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+    INSTALL_ENUM(UMeasureUnitComplexity, "SINGLE", UMEASURE_UNIT_SINGLE);
+    INSTALL_ENUM(UMeasureUnitComplexity, "COMPOUND", UMEASURE_UNIT_COMPOUND);
+    INSTALL_ENUM(UMeasureUnitComplexity, "MIXED", UMEASURE_UNIT_MIXED);
+#endif    
 }

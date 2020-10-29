@@ -578,14 +578,16 @@ DECLARE_CONSTANTS_TYPE(UNumberUnitWidth)
 #if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
 
 /* FormattedNumber */
+/* t_formattednumber declared in numberformat.h */
 
-class t_formattednumber : public _wrapper {
-public:
-    FormattedNumber *object;
-    ConstrainedFieldPosition cfp;  // for iterator on t_formattedvalue
-};
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+static PyObject *t_formattednumber_getOutputUnit(t_formattednumber *self);
+#endif
 
 static PyMethodDef t_formattednumber_methods[] = {
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+    DECLARE_METHOD(t_formattednumber, getOutputUnit, METH_NOARGS),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -593,24 +595,26 @@ DECLARE_BY_VALUE_TYPE(FormattedNumber, t_formattednumber, FormattedValue,
                       FormattedNumber, abstract_init)
 
 /* FormattedNumberRange */
-
-class t_formattednumberrange : public _wrapper {
-public:
-    FormattedNumberRange *object;
-    ConstrainedFieldPosition cfp;  // for iterator on t_formattedvalue
-};
+/* t_formattednumberrange declared in numberformat.h */
 
 static PyObject *t_formattednumberrange_getFirstDecimal(
-    t_formattednumberrange *self, PyObject *arg);
+    t_formattednumberrange *self);
 static PyObject *t_formattednumberrange_getSecondDecimal(
-    t_formattednumberrange *self, PyObject *arg);
+    t_formattednumberrange *self);
 static PyObject *t_formattednumberrange_getIdentityResult(
-    t_formattednumberrange *self, PyObject *arg);
+    t_formattednumberrange *self);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+static PyObject *t_formattednumberrange_getDecimalNumbers(
+    t_formattednumberrange *self);
+#endif
 
 static PyMethodDef t_formattednumberrange_methods[] = {
     DECLARE_METHOD(t_formattednumberrange, getFirstDecimal, METH_NOARGS),
     DECLARE_METHOD(t_formattednumberrange, getSecondDecimal, METH_NOARGS),
     DECLARE_METHOD(t_formattednumberrange, getIdentityResult, METH_NOARGS),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+    DECLARE_METHOD(t_formattednumberrange, getDecimalNumbers, METH_NOARGS),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -695,6 +699,11 @@ static PyObject *t_unlocalizednumberformatter_integerWidth(
 static PyObject *t_unlocalizednumberformatter_locale(
     t_unlocalizednumberformatter *self, PyObject *arg);
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+static PyObject *t_unlocalizednumberformatter_usage(
+    t_unlocalizednumberformatter *self, PyObject *arg);
+#endif
+
 static PyMethodDef t_unlocalizednumberformatter_methods[] = {
     DECLARE_METHOD(t_unlocalizednumberformatter, unit, METH_O),
 #if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
@@ -719,6 +728,9 @@ static PyMethodDef t_unlocalizednumberformatter_methods[] = {
     DECLARE_METHOD(t_unlocalizednumberformatter, unitWidth, METH_O),
     DECLARE_METHOD(t_unlocalizednumberformatter, integerWidth, METH_O),
     DECLARE_METHOD(t_unlocalizednumberformatter, locale, METH_O),
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+    DECLARE_METHOD(t_unlocalizednumberformatter, usage, METH_O),
+#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -790,6 +802,11 @@ static PyObject *t_localizednumberformatter_formatDecimalToValue(
     t_localizednumberformatter *self, PyObject *arg);
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+static PyObject *t_localizednumberformatter_usage(
+    t_localizednumberformatter *self, PyObject *arg);
+#endif
+
 static PyMethodDef t_localizednumberformatter_methods[] = {
     DECLARE_METHOD(t_localizednumberformatter, unit, METH_O),
 #if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)
@@ -820,6 +837,9 @@ static PyMethodDef t_localizednumberformatter_methods[] = {
     DECLARE_METHOD(t_localizednumberformatter, formatIntToValue, METH_O),
     DECLARE_METHOD(t_localizednumberformatter, formatDoubleToValue, METH_O),
     DECLARE_METHOD(t_localizednumberformatter, formatDecimalToValue, METH_O),
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+    DECLARE_METHOD(t_localizednumberformatter, usage, METH_O),
 #endif
     { NULL, NULL, 0, NULL }
 };
@@ -3722,6 +3742,24 @@ static PyObject *t_unlocalizednumberformatter_locale(
     return PyErr_SetArgsError((PyObject *) self, "locale", arg);
 }
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+
+static PyObject *t_unlocalizednumberformatter_usage(
+    t_unlocalizednumberformatter *self, PyObject *arg)
+{
+    charsArg usage;
+
+    if (!parseArg(arg, "n", &usage))
+    {
+        return wrap_UnlocalizedNumberFormatter(self->object->usage(
+            usage.c_str()));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "usage", arg);
+}
+
+#endif  // ICU >= 68
+
 
 /* LocalizedNumberFormatter */
 
@@ -4128,6 +4166,24 @@ static PyObject *t_localizednumberformatter_formatDecimalToValue(
 }
 
 #endif  // ICU >= 64
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+
+static PyObject *t_localizednumberformatter_usage(
+    t_localizednumberformatter *self, PyObject *arg)
+{
+    charsArg usage;
+
+    if (!parseArg(arg, "n", &usage))
+    {
+        return wrap_LocalizedNumberFormatter(self->object->usage(
+            usage.c_str()));
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "usage", arg);
+}
+
+#endif  // ICU >= 68
 
 /* Notation */
 
@@ -5132,12 +5188,28 @@ static PyObject *t_localizednumberrangeformatter_formatFormattableRangeToValue(
 #endif  // ICU >= 63
 
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+
+/* FormattedNumber */
+
+static PyObject *t_formattednumber_getOutputUnit(t_formattednumber *self)
+{
+    MeasureUnit mu;
+
+    STATUS_CALL(mu = self->object->getOutputUnit(status));
+
+    return wrap_MeasureUnit((MeasureUnit *) mu.clone(), T_OWNED);
+}
+
+#endif
+
+
 #if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
 
 /* FormattedNumberRange */
 
 static PyObject *t_formattednumberrange_getFirstDecimal(
-    t_formattednumberrange *self, PyObject *arg)
+    t_formattednumberrange *self)
 {
     UnicodeString u;
 
@@ -5147,7 +5219,7 @@ static PyObject *t_formattednumberrange_getFirstDecimal(
 }
 
 static PyObject *t_formattednumberrange_getSecondDecimal(
-    t_formattednumberrange *self, PyObject *arg)
+    t_formattednumberrange *self)
 {
     UnicodeString u;
 
@@ -5157,7 +5229,7 @@ static PyObject *t_formattednumberrange_getSecondDecimal(
 }
 
 static PyObject *t_formattednumberrange_getIdentityResult(
-    t_formattednumberrange *self, PyObject *arg)
+    t_formattednumberrange *self)
 {
     UNumberRangeIdentityResult result;
 
@@ -5165,6 +5237,47 @@ static PyObject *t_formattednumberrange_getIdentityResult(
 
     return PyInt_FromLong(result);
 }
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+
+static PyObject *t_formattednumberrange_getDecimalNumbers(
+    t_formattednumberrange *self)
+{
+    struct sink {
+        sink() : bytes(Py_None) { Py_INCREF(Py_None); }
+        sink(const struct sink &other)
+        {
+            bytes = other.bytes;
+            Py_XINCREF(bytes);
+        }
+        ~sink() {
+            Py_XDECREF(bytes);
+            bytes = nullptr;
+        }
+
+        PyObject *bytes;
+
+        void append(const char *data, int32_t n)
+        {
+            if (bytes == Py_None)
+            {
+                Py_DECREF(bytes);
+                bytes = PyBytes_FromStringAndSize(data, n);
+            }
+            else
+            {
+                PyBytes_ConcatAndDel(
+                    &bytes, PyBytes_FromStringAndSize(data, n));
+            }
+        }
+    };
+
+    STATUS_RESULT_CALL(
+        auto pb = self->object->getDecimalNumbers<struct sink>(status),
+        return Py_BuildValue("(OO)", pb.first.bytes, pb.second.bytes));
+}
+
+#endif
 
 #endif  // ICU >= 64
 
@@ -5391,6 +5504,10 @@ void _init_numberformat(PyObject *m)
     INSTALL_ENUM(UNumberUnitWidth, "FULL_NAME", UNUM_UNIT_WIDTH_FULL_NAME);
     INSTALL_ENUM(UNumberUnitWidth, "ISO_CODE", UNUM_UNIT_WIDTH_ISO_CODE);
     INSTALL_ENUM(UNumberUnitWidth, "HIDDEN", UNUM_UNIT_WIDTH_HIDDEN);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+    INSTALL_ENUM(UNumberUnitWidth, "FORMAL", UNUM_UNIT_WIDTH_FORMAL);
+    INSTALL_ENUM(UNumberUnitWidth, "VARIANT", UNUM_UNIT_WIDTH_VARIANT);
+#endif
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(61, 0, 0)

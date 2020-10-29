@@ -1485,11 +1485,26 @@ static PyObject *t_pluralrules_select(t_pluralrules *self, PyObject *arg)
     UnicodeString u;
     int32_t n;
     double d;
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+    PyObject *formatted;
+#endif
 
     if (!parseArg(arg, "i", &n))
         u = self->object->select(n);
     else if (!parseArg(arg, "d", &d))
         u = self->object->select(d);
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+    else if (!parseArg(arg, "O", &FormattedNumberType_, &formatted))
+    {
+        STATUS_CALL(u = self->object->select(
+            *((t_formattednumber *) formatted)->object, status));
+    }
+    else if (!parseArg(arg, "O", &FormattedNumberRangeType_, &formatted))
+    {
+        STATUS_CALL(u = self->object->select(
+            *((t_formattednumberrange *) formatted)->object, status));
+    }
+#endif
     else
         return PyErr_SetArgsError((PyObject *) self, "select", arg);
 

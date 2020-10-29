@@ -377,6 +377,12 @@ static PyObject *t_dateintervalformat_createInstance(PyTypeObject *type,
 static PyObject *t_dateintervalformat_formatToValue(t_dateintervalformat *self,
                                                      PyObject *args);
 #endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+static PyObject *t_dateintervalformat_setContext(
+    t_dateintervalformat *self, PyObject *arg);
+static PyObject *t_dateintervalformat_getContext(
+    t_dateintervalformat *self, PyObject *arg);
+#endif
 
 static PyMethodDef t_dateintervalformat_methods[] = {
     DECLARE_METHOD(t_dateintervalformat, format, METH_VARARGS),
@@ -387,6 +393,10 @@ static PyMethodDef t_dateintervalformat_methods[] = {
     DECLARE_METHOD(t_dateintervalformat, createInstance, METH_VARARGS | METH_CLASS),
 #if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
     DECLARE_METHOD(t_dateintervalformat, formatToValue, METH_VARARGS),
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+    DECLARE_METHOD(t_dateintervalformat, setContext, METH_O),
+    DECLARE_METHOD(t_dateintervalformat, getContext, METH_O),
 #endif
     { NULL, NULL, 0, NULL }
 };
@@ -1980,6 +1990,41 @@ static PyObject *t_dateintervalformat_formatToValue(t_dateintervalformat *self,
 }
 
 #endif  // ICU >= 64
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
+
+static PyObject *t_dateintervalformat_setContext(t_dateintervalformat *self,
+                                                 PyObject *arg)
+{
+    int context;
+
+    if (!parseArg(arg, "i", &context))
+    {
+        STATUS_CALL(self->object->setContext(
+                        (UDisplayContext) context, status));
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "setContext", arg);
+}
+
+static PyObject *t_dateintervalformat_getContext(t_dateintervalformat *self,
+                                                 PyObject *arg)
+{
+    int context, type;
+
+    if (!parseArg(arg, "i", &type))
+    {
+        STATUS_CALL(context = self->object->getContext(
+                        (UDisplayContextType) type, status));
+
+        return PyInt_FromLong(context);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "getContext", arg);
+}
+
+#endif  // ICU >= 68
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
 

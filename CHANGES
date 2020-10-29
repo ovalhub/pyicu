@@ -3,7 +3,18 @@ Version 2.5 ->
   - added missing BreakIterator.getRuleStatus() wrapper
   - added wrappers for UBiDi API
   - added wrappers for UBiDiTransform API
-  - added support for ICU 68.1 (rc)
+  - added support for ICU 68.1
+  - added wrappers for DateIntervalFormat.get/setContext()
+  - added wrapper for LocaleMatcher.isMatch()
+  - added wrapper for LocaleMatcherBuilder.setDirection()
+  - added wrappers LocaleMatcherBuilder.setMaxDistance(), setNoDefaultLocale()
+  - added wrappers for MeasureUnit.getComplexity() and UMeasureUnitComplexity
+  - added wrapper for MeasureUnit.getIdentifier()
+  - switched MeasureUnit.__str__() to use MeasureUnit::getIdentifier()  
+  - added wrappers for new MeasureUnit static factory methods
+  - added wrapper for FormattedNumber.getOutputUnit()
+  - added wrapper for FormattedNumberRange.getDecimalNumbers()
+  - added wrappers for PluralRules.select(FormattedNumber|Range)
   - 
 
 Version 2.4.3 -> 2.5

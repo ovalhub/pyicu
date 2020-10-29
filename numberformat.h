@@ -32,9 +32,26 @@ PyObject *wrap_RuleBasedNumberFormat(RuleBasedNumberFormat *, int);
 PyObject *wrap_ChoiceFormat(ChoiceFormat *, int);
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(64, 0, 0)
+
+class t_formattednumber : public _wrapper {
+public:
+    icu::number::FormattedNumber *object;
+    ConstrainedFieldPosition cfp;  // for iterator on t_formattedvalue
+};
+
+class t_formattednumberrange : public _wrapper {
+public:
+    icu::number::FormattedNumberRange *object;
+    ConstrainedFieldPosition cfp;  // for iterator on t_formattedvalue
+};
+
+extern PyTypeObject FormattedNumberType_;
+extern PyTypeObject FormattedNumberRangeType_;
+
 PyObject *wrap_FormattedNumber(icu::number::FormattedNumber *value, int flag);
 PyObject *wrap_FormattedNumberRange(
     icu::number::FormattedNumberRange *value, int flag);
+
 #endif
 
 void _init_numberformat(PyObject *m);

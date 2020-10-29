@@ -107,6 +107,18 @@ class TestNumberFormatter(TestCase):
             self.assertEqual(text, u'1,234E3')
 
 
+    def testUsage(self):
+
+        if ICU_VERSION >= '68.0':
+            formatter = NumberFormatter.with_().usage("person-height").unit(MeasureUnit.createMeter()).locale(Locale("en-US"))
+            
+            self.assertEqual(formatter.formatDouble(0.25), '9.8 in')
+            self.assertEqual(formatter.formatDouble(1.5), '4 ft, 11 in')
+            unit = formatter.formatDoubleToValue(1.5).getOutputUnit()
+            self.assertEqual(unit.getComplexity(), UMeasureUnitComplexity.MIXED)
+            self.assertEqual(unit.getIdentifier(), "foot-and-inch")
+
+
 class TestNumberRangeFormatter(TestCase):
 
     def setUp(self):
@@ -151,6 +163,8 @@ class TestNumberRangeFormatter(TestCase):
 
             self.assertEqual(value.getFirstDecimal(), u'3.33E-1')
             self.assertEqual(value.getSecondDecimal(), u'2.5E-1')
+            if ICU_VERSION >= '68.0':
+                self.assertEqual(value.getDecimalNumbers(), (b'0.333', b'0.25'))
 
             self.assertEqual([(x.getStart(), x.getLimit()) for x in value],
                              [(0, 1), (1, 2), (2, 5), (6, 7), (7, 8), (8, 10)])
