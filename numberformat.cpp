@@ -5244,7 +5244,7 @@ static PyObject *t_formattednumberrange_getDecimalNumbers(
     t_formattednumberrange *self)
 {
     struct sink {
-        sink() : bytes(Py_None) { Py_INCREF(Py_None); }
+        sink() : bytes(PyBytes_FromStringAndSize("", 0)) {}
         sink(const struct sink &other)
         {
             bytes = other.bytes;
@@ -5259,16 +5259,7 @@ static PyObject *t_formattednumberrange_getDecimalNumbers(
 
         void append(const char *data, int32_t n)
         {
-            if (bytes == Py_None)
-            {
-                Py_DECREF(bytes);
-                bytes = PyBytes_FromStringAndSize(data, n);
-            }
-            else
-            {
-                PyBytes_ConcatAndDel(
-                    &bytes, PyBytes_FromStringAndSize(data, n));
-            }
+            PyBytes_ConcatAndDel(&bytes, PyBytes_FromStringAndSize(data, n));
         }
     };
 
