@@ -44,7 +44,7 @@ jobs:
     # Run all other ICU versions only on Python 3.9
     - {env: ICU_VERSION=50.2, python: 3.9}
     - {env: ICU_VERSION=51.3, python: 3.9}
-    - {env: ICU_VERSION=52.2, python: 3.9}
+    # - {env: ICU_VERSION=52.2, python: 3.9}  # gcc error ‘-Qunused-arguments’
     - {env: ICU_VERSION=53.2, python: 3.9}
     - {env: ICU_VERSION=54.2, python: 3.9}
     - {env: ICU_VERSION=56.2, python: 3.9}
@@ -58,6 +58,7 @@ jobs:
     - {env: ICU_VERSION=64.2, python: 3.9}
     - {env: ICU_VERSION=65.1, python: 3.9}
     - {env: ICU_VERSION=66.1, python: 3.9}
+    - {env: ICU_VERSION=67.1, python: 3.9}
 
     # Run a few ICU versions on arm64 + Python 3
     - {arch: arm64, env: ICU_VERSION=55.2, python: 3.7}
@@ -67,6 +68,7 @@ jobs:
     - {arch: arm64, env: ICU_VERSION=66.1, python: 3.8}
     - {arch: arm64, env: ICU_VERSION=63.2, python: 3.8}
     - {arch: arm64, env: ICU_VERSION=55.2, python: 3.8}
+    - {arch: arm64, env: ICU_VERSION=67.1, python: 3.8}
     - {arch: arm64, env: ICU_VERSION=68.1, python: 3.8}
     - {arch: arm64, env: ICU_VERSION=55.2, python: 3.9}
     - {arch: arm64, env: ICU_VERSION=68.1, python: 3.9}
