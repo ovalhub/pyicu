@@ -2279,7 +2279,7 @@ static PyObject *t_localematcherbuilder_setDirection(
 
 #endif
 
-#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+#if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
 
 static PyObject *t_localematcherbuilder_setMaxDistance(
     t_localematcherbuilder *self, PyObject *args)
