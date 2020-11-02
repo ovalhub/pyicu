@@ -1,5 +1,5 @@
-Version 2.5 ->
---------------------
+Version 2.5 -> 2.6
+------------------
   - added missing BreakIterator.getRuleStatus() wrapper
   - added wrappers for UBiDi API
   - added wrappers for UBiDiTransform API
@@ -15,7 +15,6 @@ Version 2.5 ->
   - added wrapper for FormattedNumber.getOutputUnit()
   - added wrapper for FormattedNumberRange.getDecimalNumbers()
   - added wrappers for PluralRules.select(FormattedNumber|Range)
-  - 
 
 Version 2.4.3 -> 2.5
 --------------------

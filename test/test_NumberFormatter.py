@@ -111,7 +111,7 @@ class TestNumberFormatter(TestCase):
 
         if ICU_VERSION >= '68.0':
             formatter = NumberFormatter.with_().usage("person-height").unit(MeasureUnit.createMeter()).locale(Locale("en-US"))
-            
+
             self.assertEqual(formatter.formatDouble(0.25), '9.8 in')
             self.assertEqual(formatter.formatDouble(1.5), '4 ft, 11 in')
             unit = formatter.formatDoubleToValue(1.5).getOutputUnit()
