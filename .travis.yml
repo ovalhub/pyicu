@@ -68,7 +68,7 @@ jobs:
     - {arch: arm64, env: ICU_VERSION=66.1, python: 3.8}
     - {arch: arm64, env: ICU_VERSION=63.2, python: 3.8}
     - {arch: arm64, env: ICU_VERSION=55.2, python: 3.8}
-    - {arch: arm64, env: ICU_VERSION=67.1, python: 3.8}
+    # - {arch: arm64, env: ICU_VERSION=67.1, python: 3.8}  # uint8_t errors
     - {arch: arm64, env: ICU_VERSION=68.1, python: 3.8}
     - {arch: arm64, env: ICU_VERSION=55.2, python: 3.9}
     - {arch: arm64, env: ICU_VERSION=68.1, python: 3.9}
