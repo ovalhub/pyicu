@@ -74,8 +74,9 @@ jobs:
     - {arch: arm64, env: ICU_VERSION=68.1, python: 3.9}
 
     - stage: build wheels
-      env:
-        - CIBW_ENVIRONMENT="ICU_VERSION=68.1"
+      #env:
+      #  - CIBW_ENVIRONMENT="ICU_VERSION=68.1"
+      before_install: ignore
       install: python3 -m pip install cibuildwheel==1.6.4
       script:
         # build the wheels, put them into './wheelhouse'
