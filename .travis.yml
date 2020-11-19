@@ -74,6 +74,7 @@ jobs:
     - {arch: arm64, env: ICU_VERSION=68.1, python: 3.9}
 
     - stage: build wheels
+      env: ICU_VERSION=68.1
       install: python3 -m pip install cibuildwheel==1.6.4
       script:
         # build the wheels, put them into './wheelhouse'
@@ -91,7 +92,6 @@ install:
 
 script:
   - LD_LIBRARY_PATH="$HOME/icu4c/lib" DYLD_LIBRARY_PATH="$HOME/icu4c/lib" py.test
-
 
 cache:
   ccache: true
