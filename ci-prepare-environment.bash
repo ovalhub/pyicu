@@ -4,6 +4,13 @@
 set -e
 # set -x  # turn on for debugging
 
+case "$OSTYPE" in
+  darwin*)  OS=osx ;; 
+  linux*)   OS=linux ;;
+  msys*)    OS=windows ;;
+  *)        OS="unknown: $OSTYPE" ;;
+esac
+
 #######
 # Tools
 
@@ -23,13 +30,13 @@ function fetch_icu {
     else
         local icu_url="https://github.com/unicode-org/icu/releases/download/release-${version/rc/-rc}/icu4c-${version}-src.tgz"
     fi
-    if [ "${TRAVIS_OS_NAME}" = windows ]; then icu_url="${icu_url%.tgz}.zip"; fi
+    if [ "${OS}" = windows ]; then icu_url="${icu_url%.tgz}.zip"; fi
     local src="${location}/${icu_url##*/}"
 
     # Download, then use different extraction tools on Windows vs. otherwise
     mkdir -p "${location}"
     wget -nv -O "${src}" "${icu_url}"
-    if [ "${TRAVIS_OS_NAME?}" = windows ]
+    if [ "${OS?}" = windows ]
     then
         7z x "${src}" -o"${location}"
     else
@@ -57,10 +64,10 @@ install_dir="$HOME/icu4c"
 build_dir="$HOME/build"
 
 # This will be used to uniquely determine if the correct cache is found or not.
-cache_tag="${install_dir}/icu4c-${TRAVIS_OS_NAME?}-${ICU_VERSION}.done"
+cache_tag="${install_dir}/icu4c-${OS?}-${ICU_VERSION}.done"
 
 # The platform is used by runConfigureICU to determine what flags to set.
-case "${TRAVIS_OS_NAME}" in
+case "${OS}" in
     osx) platform=MacOSX;;
     windows) platform=Cygwin/MSVC ;;
     *) platform=Linux ;;
@@ -98,7 +105,7 @@ echo "ICU VERSION: ${ICU_VERSION}"
 # Logic
 
 # Need to install Python on macos and windows (annoyingly).
-case "${TRAVIS_OS_NAME}" in
+case "${OS}" in
     osx)
         install_python_osx "${pyver}";;
     windows)
@@ -113,7 +120,7 @@ else
     echo "Build and install ICU from source..."
     fetch_icu "${ICU_VERSION}" "${build_dir}"
 
-    if [ "${TRAVIS_OS_NAME}" = windows ]
+    if [ "${OS}" = windows ]
     then
         # XXX: As-is, this seems to be broken and does not work.
         # It is unknown to me how to solve this at this time.
