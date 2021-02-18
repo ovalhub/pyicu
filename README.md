@@ -16,6 +16,35 @@ The ICU homepage is http://site.icu-project.org/
 
 See also the CLDR homepage at http://cldr.unicode.org/
 
+## Installing PyICU
+
+  - Mac OS X
+    ```sh
+    # (optional) remove remnants from previous installations
+    brew uninstall --ignore-dependencies icu4c    
+    pip uninstall pyicu
+    
+    # install libicu (keg-only)
+    brew install pkg-config icu4c
+
+    # let setup.py discover keg-only icu4c via pkg-config
+    export PATH="/usr/local/opt/icu4c/bin:/usr/local/opt/icu4c/sbin:$PATH"
+    export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/opt/icu4c/lib/pkgconfig"
+
+    # ensure system clang is used for proper libstdc++ https://github.com/ovalhub/pyicu/issues/5#issuecomment-291631507
+    unset CC CXX
+
+    # avoid wheels from previous runs or PyPI
+    pip install --no-binary=:pyicu: pyicu
+    ```
+
+  - Debian
+    ```sh
+    apt-get update
+    apt-get install pkg-config libicu-dev
+    pip install --no-binary=:pyicu: pyicu
+    ```
+
 ## Building PyICU
 
 Before building PyICU the ICU libraries must be built and installed. Refer
