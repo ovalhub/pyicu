@@ -28,7 +28,7 @@ See also the CLDR homepage at http://cldr.unicode.org/
       export PATH="/usr/local/opt/icu4c/bin:/usr/local/opt/icu4c/sbin:$PATH"
       export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/opt/icu4c/lib/pkgconfig"
       ```
-    - Install PyICU **with the same C-compiler as your Python distribution**:
+    - Install PyICU **with the same C-compiler as your Python distribution** ([more info](https://github.com/ovalhub/pyicu/pull/140#issuecomment-782283491)):
       ```sh
       # EITHER - when using a gcc-built CPython (e.g. from Homebrew)
       export CC="$(which gcc)" CXX="$(which g++)"
