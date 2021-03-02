@@ -44,7 +44,7 @@ See also the CLDR homepage at http://cldr.unicode.org/
     apt-get update
     
     # EITHER - from apt directly https://packages.debian.org/source/stable/pyicu
-    python3-icu
+    apt-get install python3-icu
     # OR - from source
     apt-get install pkg-config libicu-dev
     pip install --no-binary=:pyicu: pyicu
