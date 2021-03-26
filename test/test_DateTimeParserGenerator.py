@@ -63,7 +63,6 @@ class TestDateTimePatternGenerator(TestCase):
         else:
             self.assertEqual(sdf.format(self.date), u'09. von mai, 17:30')
             self.assertEqual(sdf.toPattern(), u"dd'. von' MMMM, HH:mm")
-            
 
     def testGetBestPattern(self):
         """Test a few different languages and common patterns."""

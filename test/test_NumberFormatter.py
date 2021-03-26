@@ -161,13 +161,21 @@ class TestNumberRangeFormatter(TestCase):
             self.assertEqual(str(value), u'0,333-0,25')
             self.assertEqual(repr(value), u'<FormattedNumberRange: 0,333-0,25>')
 
-            self.assertEqual(value.getFirstDecimal(), u'3.33E-1')
-            self.assertEqual(value.getSecondDecimal(), u'2.5E-1')
+            if ICU_VERSION < '69.0':
+                self.assertEqual(value.getFirstDecimal(), u'3.33E-1')
+                self.assertEqual(value.getSecondDecimal(), u'2.5E-1')
+                self.assertEqual(
+                    [(x.getStart(), x.getLimit()) for x in value],
+                    [(0, 1), (1, 2), (2, 5), (6, 7), (7, 8), (8, 10)])
+            else:
+                self.assertEqual(
+                    [(x.getStart(), x.getLimit()) for x in value],
+                    [(0, 5), (0, 1), (1, 2), (2, 5), (6, 10), (6, 7), (7, 8),
+                     (8, 10)])
+
             if ICU_VERSION >= '68.0':
                 self.assertEqual(value.getDecimalNumbers(), (b'0.333', b'0.25'))
 
-            self.assertEqual([(x.getStart(), x.getLimit()) for x in value],
-                             [(0, 1), (1, 2), (2, 5), (6, 7), (7, 8), (8, 10)])
 
 
 if __name__ == "__main__":

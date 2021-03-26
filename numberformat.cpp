@@ -597,10 +597,12 @@ DECLARE_BY_VALUE_TYPE(FormattedNumber, t_formattednumber, FormattedValue,
 /* FormattedNumberRange */
 /* t_formattednumberrange declared in numberformat.h */
 
+#if U_ICU_VERSION_HEX <= VERSION_HEX(68, 0, 0)
 static PyObject *t_formattednumberrange_getFirstDecimal(
     t_formattednumberrange *self);
 static PyObject *t_formattednumberrange_getSecondDecimal(
     t_formattednumberrange *self);
+#endif
 static PyObject *t_formattednumberrange_getIdentityResult(
     t_formattednumberrange *self);
 #if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
@@ -609,8 +611,10 @@ static PyObject *t_formattednumberrange_getDecimalNumbers(
 #endif
 
 static PyMethodDef t_formattednumberrange_methods[] = {
+#if U_ICU_VERSION_HEX <= VERSION_HEX(68, 0, 0)
     DECLARE_METHOD(t_formattednumberrange, getFirstDecimal, METH_NOARGS),
     DECLARE_METHOD(t_formattednumberrange, getSecondDecimal, METH_NOARGS),
+#endif
     DECLARE_METHOD(t_formattednumberrange, getIdentityResult, METH_NOARGS),
 #if U_ICU_VERSION_HEX >= VERSION_HEX(68, 0, 0)
     DECLARE_METHOD(t_formattednumberrange, getDecimalNumbers, METH_NOARGS),
@@ -5208,6 +5212,7 @@ static PyObject *t_formattednumber_getOutputUnit(t_formattednumber *self)
 
 /* FormattedNumberRange */
 
+#if U_ICU_VERSION_HEX <= VERSION_HEX(68, 0, 0)
 static PyObject *t_formattednumberrange_getFirstDecimal(
     t_formattednumberrange *self)
 {
@@ -5227,6 +5232,7 @@ static PyObject *t_formattednumberrange_getSecondDecimal(
 
     return PyUnicode_FromUnicodeString(&u);
 }
+#endif
 
 static PyObject *t_formattednumberrange_getIdentityResult(
     t_formattednumberrange *self)
