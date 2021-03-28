@@ -751,6 +751,47 @@ static PyObject *t_measureunit_product(t_measureunit *self, PyObject *arg)
     return PyErr_SetArgsError((PyObject *) self, "product", arg);
 }
 
+#if PY_VERSION_HEX >= 0x03000000
+
+static PyObject *t_measureunit___mul__(PyObject *arg0, PyObject *arg1)
+{
+    if (PyObject_TypeCheck(arg0, &MeasureUnitType_))
+        return t_measureunit_product((t_measureunit *) arg0, arg1);
+
+    return PyErr_SetArgsError((PyObject *) arg0, "__mul__", arg1);
+}
+
+static PyObject *t_measureunit___truediv__(PyObject *arg0, PyObject *arg1)
+{
+    MeasureUnit *mu0, *mu1;
+    int i;
+
+    if (!parseArg(arg0, "P", TYPE_ID(MeasureUnit), &mu0) &&
+        !parseArg(arg1, "P", TYPE_ID(MeasureUnit), &mu1))
+    {
+        MeasureUnit mu;
+
+        STATUS_CALL(mu = mu1->reciprocal(status));
+        STATUS_CALL(mu = mu0->product(mu, status));
+
+        return wrap_MeasureUnit(mu.clone(), T_OWNED);
+    }
+
+    if (!parseArg(arg0, "i", &i) && i == 1 &&
+        !parseArg(arg1, "P", TYPE_ID(MeasureUnit), &mu0))
+    {
+        MeasureUnit mu;
+
+        STATUS_CALL(mu = mu0->reciprocal(status));
+
+        return wrap_MeasureUnit(mu.clone(), T_OWNED);
+    }
+
+    return PyErr_SetArgsError((PyObject *) arg0, "__divmod__", arg1);
+}
+
+#endif  // python >= 3.0
+
 static PyObject *t_measureunit_reciprocal(t_measureunit *self)
 {
     MeasureUnit mu;
@@ -1333,6 +1374,13 @@ void _init_measureunit(PyObject *m)
 {
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
     MeasureUnitType_.tp_str = (reprfunc) t_measureunit_str;
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0) && PY_VERSION_HEX >= 0x03000000
+    static PyNumberMethods t_measureunit_as_number {
+      .nb_multiply = (binaryfunc) t_measureunit___mul__,
+      .nb_true_divide = (binaryfunc) t_measureunit___truediv__,
+    };
+    MeasureUnitType_.tp_as_number = &t_measureunit_as_number;
 #endif
     MeasureUnitType_.tp_richcompare = (richcmpfunc) t_measureunit_richcmp;
     MeasureType_.tp_richcompare = (richcmpfunc) t_measure_richcmp;
