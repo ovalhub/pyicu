@@ -758,7 +758,7 @@ static PyObject *t_measureunit___mul__(PyObject *arg0, PyObject *arg1)
     if (PyObject_TypeCheck(arg0, &MeasureUnitType_))
         return t_measureunit_product((t_measureunit *) arg0, arg1);
 
-    return PyErr_SetArgsError((PyObject *) arg0, "__mul__", arg1);
+    return PyErr_SetArgsError(arg0, "__mul__", arg1);
 }
 
 static PyObject *t_measureunit___truediv__(PyObject *arg0, PyObject *arg1)
@@ -787,7 +787,34 @@ static PyObject *t_measureunit___truediv__(PyObject *arg0, PyObject *arg1)
         return wrap_MeasureUnit(mu.clone(), T_OWNED);
     }
 
-    return PyErr_SetArgsError((PyObject *) arg0, "__divmod__", arg1);
+    return PyErr_SetArgsError(arg0, "__truediv__", arg1);
+}
+
+static PyObject *t_measureunit___pow__(PyObject *arg0,
+                                       PyObject *arg1, PyObject *arg2)
+{
+    MeasureUnit *mu0;
+    int p;
+
+    if (!parseArg(arg0, "P", TYPE_ID(MeasureUnit), &mu0) &&
+        !parseArg(arg1, "i", &p) && p != 0 && arg2 == Py_None)
+    {
+        MeasureUnit mu = *mu0;
+
+        if (p < 0)
+        {
+            for (int i = 0; i < -p - 1; ++i)
+              STATUS_CALL(mu = mu.product(*mu0, status));
+            STATUS_CALL(mu = mu.reciprocal(status));
+        } else if (p > 1) {
+            for (int i = 0; i < p - 1; ++i)
+              STATUS_CALL(mu = mu.product(*mu0, status));
+        }
+
+        return wrap_MeasureUnit(mu.clone(), T_OWNED);
+    }
+
+    return PyErr_SetArgsError(arg0, "__pow__", arg1);
 }
 
 #endif  // python >= 3.0
@@ -1379,6 +1406,7 @@ void _init_measureunit(PyObject *m)
     static PyNumberMethods t_measureunit_as_number {
       .nb_multiply = (binaryfunc) t_measureunit___mul__,
       .nb_true_divide = (binaryfunc) t_measureunit___truediv__,
+      .nb_power = (ternaryfunc) t_measureunit___pow__,
     };
     MeasureUnitType_.tp_as_number = &t_measureunit_as_number;
 #endif
