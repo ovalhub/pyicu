@@ -1,3 +1,10 @@
+Version 2.6 ->
+------------------
+  - added wrapper for Locale.canonicalize()
+  - added wrappers for MeasureUnit.product(), reciprocal(), getDimensionality()
+  - added wrapper for MeasureUnit.forIdentifier()
+  - 
+
 Version 2.5 -> 2.6
 ------------------
   - added missing BreakIterator.getRuleStatus() wrapper

@@ -128,6 +128,9 @@ static PyObject *t_locale_createFromName(PyTypeObject *type, PyObject *args);
 static PyObject *t_locale_forLanguageTag(PyTypeObject *type, PyObject *arg);
 static PyObject *t_locale_toLanguageTag(t_locale *self);
 #endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+static PyObject *t_locale_canonicalize(t_locale *self);
+#endif
 static PyObject *t_locale_createCanonical(PyTypeObject *type, PyObject *arg);
 static PyObject *t_locale_getAvailableLocales(PyTypeObject *type);
 static PyObject *t_locale_getISOCountries(PyTypeObject *type);
@@ -151,6 +154,9 @@ static PyMethodDef t_locale_methods[] = {
     DECLARE_METHOD(t_locale, createKeywords, METH_NOARGS),
 #if U_ICU_VERSION_HEX >= VERSION_HEX(63, 0, 0)
     DECLARE_METHOD(t_locale, createUnicodeKeywords, METH_NOARGS),
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+    DECLARE_METHOD(t_locale, canonicalize, METH_NOARGS),
 #endif
     DECLARE_METHOD(t_locale, getKeywordValue, METH_O),
 #if U_ICU_VERSION_HEX >= VERSION_HEX(49, 0, 0)
@@ -1204,7 +1210,16 @@ static PyObject *t_locale_toLanguageTag(t_locale *self)
     return PyUnicode_FromUnicodeString(&buffer.u);
 }
 
-#endif
+#endif  // ICU >= 63
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
+
+static PyObject *t_locale_canonicalize(t_locale *self) {
+  STATUS_CALL(self->object->canonicalize(status));
+  Py_RETURN_NONE;
+}
+
+#endif  // ICU >= 67
 
 static PyObject *t_locale_getAvailableLocales(PyTypeObject *type)
 {

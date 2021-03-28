@@ -52,6 +52,10 @@ static PyObject *t_measureunit_getAvailableTypes(PyTypeObject *type);
 #if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
 static PyObject *t_measureunit_getIdentifier(t_measureunit *self);
 static PyObject *t_measureunit_getComplexity(t_measureunit *self);
+static PyObject *t_measureunit_getDimensionality(t_measureunit *self);
+static PyObject *t_measureunit_product(t_measureunit *self, PyObject *arg);
+static PyObject *t_measureunit_reciprocal(t_measureunit *self);
+static PyObject *t_measureunit_forIdentifier(PyTypeObject *type, PyObject *arg);
 #endif
 
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
@@ -257,6 +261,10 @@ static PyObject *t_measureunit_createPinch(PyTypeObject *type);
 static PyObject *t_measureunit_createQuartImperial(PyTypeObject *type);
 #endif
 
+#if U_ICU_VERSION_HEX >= VERSION_HEX(69, 0, 0)
+static PyObject *t_measureunit_createMilligramOfglucosePerDeciliter(PyTypeObject *type);
+#endif
+
 static PyMethodDef t_measureunit_methods[] = {
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
     DECLARE_METHOD(t_measureunit, getType, METH_NOARGS),
@@ -267,8 +275,12 @@ static PyMethodDef t_measureunit_methods[] = {
 #if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0)
     DECLARE_METHOD(t_measureunit, getIdentifier, METH_NOARGS),
     DECLARE_METHOD(t_measureunit, getComplexity, METH_NOARGS),
+    DECLARE_METHOD(t_measureunit, getDimensionality, METH_NOARGS),
+    DECLARE_METHOD(t_measureunit, product, METH_O),
+    DECLARE_METHOD(t_measureunit, reciprocal, METH_NOARGS),
+    DECLARE_METHOD(t_measureunit, forIdentifier, METH_CLASS | METH_O),
 #endif
-    
+
 #if U_ICU_VERSION_HEX >= VERSION_HEX(53, 0, 0)
     DECLARE_METHOD(t_measureunit, createAcre, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_measureunit, createArcMinute, METH_NOARGS | METH_CLASS),
@@ -470,6 +482,9 @@ static PyMethodDef t_measureunit_methods[] = {
     DECLARE_METHOD(t_measureunit, createLumen, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_measureunit, createPinch, METH_NOARGS | METH_CLASS),
     DECLARE_METHOD(t_measureunit, createQuartImperial, METH_NOARGS | METH_CLASS),
+#endif
+#if U_ICU_VERSION_HEX >= VERSION_HEX(69, 0, 0)
+    DECLARE_METHOD(t_measureunit, createMilligramOfglucosePerDeciliter, METH_NOARGS | METH_CLASS),
 #endif
     { NULL, NULL, 0, NULL }
 };
@@ -704,14 +719,61 @@ static PyObject *t_measureunit_getAvailableTypes(PyTypeObject *type)
 static PyObject *t_measureunit_getIdentifier(t_measureunit *self)
 {
     const char *id = self->object->getIdentifier();
-    return PyString_FromString(id);                
+    return PyString_FromString(id);
 }
 
 static PyObject *t_measureunit_getComplexity(t_measureunit *self)
 {
     UMeasureUnitComplexity complexity;
     STATUS_CALL(complexity = self->object->getComplexity(status));
-    return PyInt_FromLong(complexity);                
+    return PyInt_FromLong(complexity);
+}
+
+static PyObject *t_measureunit_getDimensionality(t_measureunit *self)
+{
+    int dimensionality;
+    STATUS_CALL(dimensionality = self->object->getDimensionality(status));
+    return PyInt_FromLong(dimensionality);
+}
+
+static PyObject *t_measureunit_product(t_measureunit *self, PyObject *arg)
+{
+    MeasureUnit *other;
+
+    if (!parseArg(arg, "P", TYPE_ID(MeasureUnit), &other))
+    {
+        MeasureUnit *mu;
+        STATUS_CALL(mu = (MeasureUnit *) self->object->product(
+            *other, status).clone());
+
+        return wrap_MeasureUnit(mu, T_OWNED);
+    }
+
+    return PyErr_SetArgsError((PyObject *) self, "product", arg);
+}
+
+static PyObject *t_measureunit_reciprocal(t_measureunit *self)
+{
+    MeasureUnit *mu;
+    STATUS_CALL(mu = (MeasureUnit *) self->object->reciprocal(status).clone());
+
+    return wrap_MeasureUnit(mu, T_OWNED);
+}
+
+static PyObject *t_measureunit_forIdentifier(PyTypeObject *type, PyObject *arg)
+{
+    charsArg identifier;
+
+    if (!parseArg(arg, "n", &identifier))
+    {
+        MeasureUnit *mu;
+        STATUS_CALL(mu = (MeasureUnit *) MeasureUnit::forIdentifier(
+            identifier.c_str(), status).clone());
+
+        return wrap_MeasureUnit(mu, T_OWNED);
+    }
+
+    return PyErr_SetArgsError(type, "forIdentifier", arg);
 }
 
 #endif
@@ -935,6 +997,10 @@ createMU(Jigger)
 createMU(Lumen)
 createMU(Pinch)
 createMU(QuartImperial)
+#endif
+
+#if U_ICU_VERSION_HEX >= VERSION_HEX(69, 0, 0)
+createMU(MilligramOfglucosePerDeciliter)
 #endif
 
 /* Measure */
@@ -1313,5 +1379,5 @@ void _init_measureunit(PyObject *m)
     INSTALL_ENUM(UMeasureUnitComplexity, "SINGLE", UMEASURE_UNIT_SINGLE);
     INSTALL_ENUM(UMeasureUnitComplexity, "COMPOUND", UMEASURE_UNIT_COMPOUND);
     INSTALL_ENUM(UMeasureUnitComplexity, "MIXED", UMEASURE_UNIT_MIXED);
-#endif    
+#endif
 }
