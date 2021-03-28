@@ -742,11 +742,10 @@ static PyObject *t_measureunit_product(t_measureunit *self, PyObject *arg)
 
     if (!parseArg(arg, "P", TYPE_ID(MeasureUnit), &other))
     {
-        MeasureUnit *mu;
-        STATUS_CALL(mu = (MeasureUnit *) self->object->product(
-            *other, status).clone());
+        MeasureUnit mu;
+        STATUS_CALL(mu = self->object->product(*other, status));
 
-        return wrap_MeasureUnit(mu, T_OWNED);
+        return wrap_MeasureUnit(mu.clone(), T_OWNED);
     }
 
     return PyErr_SetArgsError((PyObject *) self, "product", arg);
@@ -754,10 +753,10 @@ static PyObject *t_measureunit_product(t_measureunit *self, PyObject *arg)
 
 static PyObject *t_measureunit_reciprocal(t_measureunit *self)
 {
-    MeasureUnit *mu;
-    STATUS_CALL(mu = (MeasureUnit *) self->object->reciprocal(status).clone());
+    MeasureUnit mu;
+    STATUS_CALL(mu = self->object->reciprocal(status));
 
-    return wrap_MeasureUnit(mu, T_OWNED);
+    return wrap_MeasureUnit(mu.clone(), T_OWNED);
 }
 
 static PyObject *t_measureunit_forIdentifier(PyTypeObject *type, PyObject *arg)
@@ -766,11 +765,11 @@ static PyObject *t_measureunit_forIdentifier(PyTypeObject *type, PyObject *arg)
 
     if (!parseArg(arg, "n", &identifier))
     {
-        MeasureUnit *mu;
-        STATUS_CALL(mu = (MeasureUnit *) MeasureUnit::forIdentifier(
-            identifier.c_str(), status).clone());
+        MeasureUnit mu;
+        STATUS_CALL(mu = MeasureUnit::forIdentifier(
+            identifier.c_str(), status));
 
-        return wrap_MeasureUnit(mu, T_OWNED);
+        return wrap_MeasureUnit(mu.clone(), T_OWNED);
     }
 
     return PyErr_SetArgsError(type, "forIdentifier", arg);
@@ -1054,8 +1053,7 @@ static PyObject *t_measure_getNumber(t_measure *self)
 
 static PyObject *t_measure_getUnit(t_measure *self)
 {
-    MeasureUnit *u = (MeasureUnit *) self->object->getUnit().clone();
-    return wrap_MeasureUnit(u, T_OWNED);
+    return wrap_MeasureUnit(self->object->getUnit().clone(), T_OWNED);
 }
 
 static PyObject *t_measure_str(t_measure *self)
