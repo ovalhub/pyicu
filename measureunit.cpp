@@ -745,7 +745,7 @@ static PyObject *t_measureunit_product(t_measureunit *self, PyObject *arg)
         MeasureUnit mu;
         STATUS_CALL(mu = self->object->product(*other, status));
 
-        return wrap_MeasureUnit(mu.clone(), T_OWNED);
+        return wrap_MeasureUnit((MeasureUnit *) mu.clone(), T_OWNED);
     }
 
     return PyErr_SetArgsError((PyObject *) self, "product", arg);
@@ -774,7 +774,7 @@ static PyObject *t_measureunit___truediv__(PyObject *arg0, PyObject *arg1)
         STATUS_CALL(mu = mu1->reciprocal(status));
         STATUS_CALL(mu = mu0->product(mu, status));
 
-        return wrap_MeasureUnit(mu.clone(), T_OWNED);
+        return wrap_MeasureUnit((MeasureUnit *) mu.clone(), T_OWNED);
     }
 
     if (!parseArg(arg0, "i", &i) && i == 1 &&
@@ -784,7 +784,7 @@ static PyObject *t_measureunit___truediv__(PyObject *arg0, PyObject *arg1)
 
         STATUS_CALL(mu = mu0->reciprocal(status));
 
-        return wrap_MeasureUnit(mu.clone(), T_OWNED);
+        return wrap_MeasureUnit((MeasureUnit *) mu.clone(), T_OWNED);
     }
 
     return PyErr_SetArgsError(arg0, "__truediv__", arg1);
@@ -811,7 +811,7 @@ static PyObject *t_measureunit___pow__(PyObject *arg0,
               STATUS_CALL(mu = mu.product(*mu0, status));
         }
 
-        return wrap_MeasureUnit(mu.clone(), T_OWNED);
+        return wrap_MeasureUnit((MeasureUnit *) mu.clone(), T_OWNED);
     }
 
     return PyErr_SetArgsError(arg0, "__pow__", arg1);
@@ -824,7 +824,7 @@ static PyObject *t_measureunit_reciprocal(t_measureunit *self)
     MeasureUnit mu;
     STATUS_CALL(mu = self->object->reciprocal(status));
 
-    return wrap_MeasureUnit(mu.clone(), T_OWNED);
+    return wrap_MeasureUnit((MeasureUnit *) mu.clone(), T_OWNED);
 }
 
 static PyObject *t_measureunit_forIdentifier(PyTypeObject *type, PyObject *arg)
@@ -837,7 +837,7 @@ static PyObject *t_measureunit_forIdentifier(PyTypeObject *type, PyObject *arg)
         STATUS_CALL(mu = MeasureUnit::forIdentifier(
             identifier.c_str(), status));
 
-        return wrap_MeasureUnit(mu.clone(), T_OWNED);
+        return wrap_MeasureUnit((MeasureUnit *) mu.clone(), T_OWNED);
     }
 
     return PyErr_SetArgsError(type, "forIdentifier", arg);
@@ -1121,7 +1121,8 @@ static PyObject *t_measure_getNumber(t_measure *self)
 
 static PyObject *t_measure_getUnit(t_measure *self)
 {
-    return wrap_MeasureUnit(self->object->getUnit().clone(), T_OWNED);
+    return wrap_MeasureUnit(
+        (MeasureUnit *) self->object->getUnit().clone(), T_OWNED);
 }
 
 static PyObject *t_measure_str(t_measure *self)
