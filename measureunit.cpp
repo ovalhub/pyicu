@@ -1406,8 +1406,8 @@ void _init_measureunit(PyObject *m)
 #if U_ICU_VERSION_HEX >= VERSION_HEX(67, 0, 0) && PY_VERSION_HEX >= 0x03000000
     static PyNumberMethods t_measureunit_as_number {
       .nb_multiply = (binaryfunc) t_measureunit___mul__,
-      .nb_true_divide = (binaryfunc) t_measureunit___truediv__,
       .nb_power = (ternaryfunc) t_measureunit___pow__,
+      .nb_true_divide = (binaryfunc) t_measureunit___truediv__,
     };
     MeasureUnitType_.tp_as_number = &t_measureunit_as_number;
 #endif
