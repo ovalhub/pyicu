@@ -8,8 +8,8 @@ except ImportError:
 
 from distutils.spawn import find_executable
 
-VERSION = '2.6'
-ICU_MAX_MAJOR_VERSION = '68'  # max supported major version of ICU
+VERSION = '2.7'
+ICU_MAX_MAJOR_VERSION = '69'  # max supported major version of ICU
 
 try:
     from subprocess import check_output as subprocess_check_output
@@ -246,9 +246,9 @@ setup(name="PyICU",
       long_description_content_type="text/markdown",
       version=VERSION,
       test_suite="test",
-      url='https://github.com/ovalhub/pyicu',
+      url='https://gitlab.pyicu.org/main/pyicu',
       author='Andi Vajda',
-      author_email='github@ovaltofu.org',
+      author_email='vajda@pyicu.org',
       license='MIT',
       classifiers=[
           'Development Status :: 5 - Production/Stable',
